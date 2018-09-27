@@ -31,15 +31,12 @@
         <Button @click="add_clock_modal = true">添加闹钟</Button>
       </div>
     </main>
-    <Modal @on-ok="close_clocking_model" class="clocking_model" :mask-closable="false" :closable="false" v-model="clocking_model" title="时间到了">
-      {{this.current_clocking_data.remark}}
-
-    </Modal>
+    
     <Modal :mask-closable="false" v-model="add_clock_modal" title="添加闹钟">
       <div style="height:30px;line-height: 30px;color: #c44c4c;font-size: 14px;text-align: center;margin-bottom: 10px;">{{errorTip}}</div>
       <div slot="footer">
         <Button @click="cancel_add_clock">取消</Button>
-        <Button type="primary" @click="adding_clock">保存</Button>
+        <Button type="primary" @click="save_clock(add_clock_data,0)">保存</Button>
       </div>
 
       <Form :label-width="80">
@@ -55,65 +52,144 @@
             <Radio :label="30">30分钟</Radio>
             <Radio :label="60">1小时</Radio>
           </RadioGroup>
-          <Input style="width:40px;margin-right:10px;" @on-blur="spaceChange" v-model="add_clock_data.space" />分钟
+          <Input style="width:40px;margin-right:10px;" @on-blur="spaceChange(add_clock_data)" v-model="add_clock_data.space" />分钟
         </FormItem>
-        <FormItem label="固定时间" v-else>
-          <Input style="width:40px;margin-right:10px;" v-model="add_clock_data.hour" /> 点
-          <Input style="width:40px;margin:0 10px 0 10px;" v-model="add_clock_data.minutes" /> 分
+          <FormItem label="固定时间" v-else>
+            <Input style="width:40px;margin-right:10px;" v-model="add_clock_data.hour" /> 点
+            <Input style="width:40px;margin:0 10px 0 10px;" v-model="add_clock_data.minutes" /> 分
         </FormItem>
-        <FormItem label="重复">
-          <RadioGroup v-model="add_clock_data.repeat">
+            <FormItem label="重复">
+              <RadioGroup v-model="add_clock_data.repeat">
 
-            <Radio label="once">仅一次</Radio>
-            <Radio label="every_day">循环</Radio>
-            <Radio label="use_define">自定义</Radio>
-          </RadioGroup>
-          <Row>
-            <Checkbox v-model="add_clock_data.include_today">包含今天</Checkbox>
-          </Row>
-          <Row v-show="add_clock_data.repeat == 'every_day'">
-            <CheckboxGroup v-model="add_clock_data.espce">
-              <Checkbox label="holiday_festival">跳过法定节假日</Checkbox>
-              <Checkbox label="holiday_double_cease_day">跳过双休日</Checkbox>
-            </CheckboxGroup>
-          </Row>
-          <Row v-show="add_clock_data.repeat == 'use_define'">
-            <CheckboxGroup v-model="add_clock_data.use_define">
-              <Checkbox :label="1">周一</Checkbox>
-              <Checkbox :label="2">周二</Checkbox>
-              <Checkbox :label="3">周三</Checkbox>
-              <Checkbox :label="4">周四</Checkbox>
-              <Checkbox :label="5">周五</Checkbox>
-              <Checkbox :label="6">周六</Checkbox>
-              <Checkbox :label="7">周日</Checkbox>
-            </CheckboxGroup>
-            <CheckboxGroup v-model="add_clock_data.espce">
-              <Checkbox label="holiday_festival">跳过法定节假日</Checkbox>
-              <Checkbox label="holiday_double_cease_day">跳过双休日</Checkbox>
-            </CheckboxGroup>
-          </Row>
+                <Radio label="once">仅一次</Radio>
+                <Radio label="every_day">循环</Radio>
+                <Radio label="use_define">自定义</Radio>
+              </RadioGroup>
+              <Row>
+                <Checkbox v-model="add_clock_data.include_today">包含今天</Checkbox>
+              </Row>
+              <Row v-show="add_clock_data.repeat == 'every_day'">
+                <CheckboxGroup v-model="add_clock_data.espce">
+                  <Checkbox label="holiday_festival">跳过法定节假日</Checkbox>
+                  <Checkbox label="holiday_double_cease_day">跳过双休日</Checkbox>
+                </CheckboxGroup>
+              </Row>
+              <Row v-show="add_clock_data.repeat == 'use_define'">
+                <CheckboxGroup v-model="add_clock_data.use_define">
+                  <Checkbox :label="1">周一</Checkbox>
+                  <Checkbox :label="2">周二</Checkbox>
+                  <Checkbox :label="3">周三</Checkbox>
+                  <Checkbox :label="4">周四</Checkbox>
+                  <Checkbox :label="5">周五</Checkbox>
+                  <Checkbox :label="6">周六</Checkbox>
+                  <Checkbox :label="7">周日</Checkbox>
+                </CheckboxGroup>
+                <CheckboxGroup v-model="add_clock_data.espce">
+                  <Checkbox label="holiday_festival">跳过法定节假日</Checkbox>
+                  <Checkbox label="holiday_double_cease_day">跳过双休日</Checkbox>
+                </CheckboxGroup>
+              </Row>
+            </FormItem>
+            <FormItem label="铃声">
+              <Select @on-change="musicChange(add_clock_data.currentMusicSrc)" style="width:40%;" placeholder="冯提莫 - 佛系少女" v-model="add_clock_data.currentMusicSrc">
+                <Option v-for="item in musicData" :key="item.path" :value="item.path" v-text="item.name"></Option>
+              </Select>
+              <Button v-if="isShowPlayBtn" :loading="playLoading" @click="playMusic(add_clock_data.currentMusicSrc)">试听</Button>
+              <Button v-else :loading="playLoading" @click="stopMusic">停止</Button>
+            </FormItem>
+            <FormItem label="铃声模式">
+              <Select style="width:40%;" v-model="add_clock_data.ring_model" placeholder="关闭闹钟即停止播放">
+                <Option value="endWidthClose" v-text="'关闭闹钟即停止播放'"></Option>
+                <Option value="endWidthPlayOne" v-text="'关闭闹钟后继续播放'"></Option>
+                <Option value="endWidthAllPlayOne" v-text="'关闭闹钟后依次播放铃声'"></Option>
+              </Select>
+            </FormItem>
+            <FormItem label="闹钟名">
+              <Input style="width:40%;" type="text" v-model="add_clock_data.clock_name" />
         </FormItem>
-        <FormItem label="铃声">
-          <Select @on-change="musicChange(add_clock_data.currentMusicSrc)" style="width:40%;" placeholder="冯提莫 - 佛系少女" v-model="add_clock_data.currentMusicSrc">
-            <Option v-for="item in musicData" :key="item.path" :value="item.path" v-text="item.name"></Option>
-          </Select>
-          <Button v-if="isShowPlayBtn" :loading="playLoading" @click="playMusic(add_clock_data.currentMusicSrc)">试听</Button>
-          <Button v-else :loading="playLoading" @click="stopMusic">停止</Button>
-        </FormItem>
-        <FormItem label="铃声模式">
-          <Select style="width:40%;" v-model="add_clock_data.ring_model" placeholder="关闭闹钟即停止播放">
-            <Option value="endWidthClose" v-text="'关闭闹钟即停止播放'"></Option>
-            <Option value="endWidthPlayOne" v-text="'关闭闹钟后继续播放'"></Option>
-            <Option value="endWidthAllPlayOne" v-text="'关闭闹钟后依次播放铃声'"></Option>
-          </Select>
-        </FormItem>
-        <FormItem label="闹钟名">
-          <Input style="width:40%;" type="text" v-model="add_clock_data.clock_name" />
-        </FormItem>
-        <FormItem label="备注">
-          <Input style="width:40%;" type="text" v-model="add_clock_data.remark" />
+              <FormItem label="备注">
+                <Input style="width:40%;" type="text" v-model="add_clock_data.remark" />
         </FormItem>
       </Form>
+    </Modal>
+    <!-- 编辑闹钟 -->
+    <Modal title="编辑闹钟" :mask-closabel="true" v-model="close_edit_model">
+      <div style="height:30px;line-height: 30px;color: #c44c4c;font-size: 14px;text-align: center;margin-bottom: 10px;">{{errorTip}}</div>
+      <div slot="footer">
+        <Button @click="cancel_edit_clock">取消</Button>
+        <Button type="primary" @click="save_clock(eidt_clock_data,1)">确定</Button>
+      </div>
+
+      <Form :label-width="80">
+        <FormItem label="间隔" v-if="eidt_clock_data.model == 'space'">
+          <RadioGroup v-model="eidt_clock_data.space">
+            <Radio :label="10">10分钟</Radio>
+            <Radio :label="30">30分钟</Radio>
+            <Radio :label="60">1小时</Radio>
+          </RadioGroup>
+          <Input style="width:40px;margin-right:10px;" @on-blur="spaceChange(eidt_clock_data)" v-model="eidt_clock_data.space" />分钟
+        </FormItem>
+          <FormItem label="固定时间" v-else>
+            <Input style="width:40px;margin-right:10px;" v-model="eidt_clock_data.hour" /> 点
+            <Input style="width:40px;margin:0 10px 0 10px;" v-model="eidt_clock_data.minutes" /> 分
+        </FormItem>
+            <FormItem label="重复">
+              <RadioGroup v-model="eidt_clock_data.repeat">
+
+                <Radio label="once">仅一次</Radio>
+                <Radio label="every_day">循环</Radio>
+                <Radio label="use_define">自定义</Radio>
+              </RadioGroup>
+              <Row v-if="isShow(eidt_clock_data.createTimestamp)">
+                <Checkbox v-model="eidt_clock_data.include_today">包含今天</Checkbox>
+              </Row>
+              <Row v-show="eidt_clock_data.repeat == 'every_day'">
+                <CheckboxGroup v-model="eidt_clock_data.espce">
+                  <Checkbox label="holiday_festival">跳过法定节假日</Checkbox>
+                  <Checkbox label="holiday_double_cease_day">跳过双休日</Checkbox>
+                </CheckboxGroup>
+              </Row>
+              <Row v-show="eidt_clock_data.repeat == 'use_define'">
+                <CheckboxGroup v-model="eidt_clock_data.use_define">
+                  <Checkbox :label="1">周一</Checkbox>
+                  <Checkbox :label="2">周二</Checkbox>
+                  <Checkbox :label="3">周三</Checkbox>
+                  <Checkbox :label="4">周四</Checkbox>
+                  <Checkbox :label="5">周五</Checkbox>
+                  <Checkbox :label="6">周六</Checkbox>
+                  <Checkbox :label="7">周日</Checkbox>
+                </CheckboxGroup>
+                <CheckboxGroup v-model="eidt_clock_data.espce">
+                  <Checkbox label="holiday_festival">跳过法定节假日</Checkbox>
+                  <Checkbox label="holiday_double_cease_day">跳过双休日</Checkbox>
+                </CheckboxGroup>
+              </Row>
+            </FormItem>
+            <FormItem label="铃声">
+              <Select @on-change="musicChange(eidt_clock_data.currentMusicSrc)" style="width:40%;" placeholder="冯提莫 - 佛系少女" v-model="eidt_clock_data.currentMusicSrc">
+                <Option v-for="item in musicData" :key="item.path" :value="item.path" v-text="item.name"></Option>
+              </Select>
+              <Button v-if="isShowPlayBtn" :loading="playLoading" @click="playMusic(eidt_clock_data.currentMusicSrc)">试听</Button>
+              <Button v-else :loading="playLoading" @click="stopMusic">停止</Button>
+            </FormItem>
+            <FormItem label="铃声模式">
+              <Select style="width:40%;" v-model="eidt_clock_data.ring_model" placeholder="关闭闹钟即停止播放">
+                <Option value="endWidthClose" v-text="'关闭闹钟即停止播放'"></Option>
+                <Option value="endWidthPlayOne" v-text="'关闭闹钟后继续播放'"></Option>
+                <Option value="endWidthAllPlayOne" v-text="'关闭闹钟后依次播放铃声'"></Option>
+              </Select>
+            </FormItem>
+            <FormItem label="闹钟名">
+              <Input style="width:40%;" type="text" v-model="eidt_clock_data.clock_name" />
+        </FormItem>
+              <FormItem label="备注">
+                <Input style="width:40%;" type="text" v-model="eidt_clock_data.remark" />
+        </FormItem>
+      </Form>
+    </Modal>
+    <Modal @on-ok="close_clocking_model" class="clocking_model" :mask-closable="false" :closable="false" v-model="clocking_model" title="时间到了">
+      {{this.current_clocking_data.remark}}
+
     </Modal>
     <Card style="margin-top:15px;" :key="item.name" icon="md-alarm" v-for="(item,itemIndex) in sortClockData">
       <p slot="title">
@@ -130,11 +206,11 @@
           <div>
             {{item.repeat=='once'?'仅一次':item.repeat=='every_day'?"循环":"自定义："}}
             <span :key="weekIndex" v-for="(weekIndex,index) in item.use_define" v-if="item.repeat=='use_define'">
-              {{weekAlias[weekIndex]}}{{index == item.use_define.length-1?"":"、"}}
+              {{weekAlias[weekIndex-1]}}{{index == item.use_define.length-1?"":"、"}}
             </span>
           </div>
           <div v-if="add_clock_data.repeat!='once'">
-            <p>{{item.espce.length==1?item.espce[0]=='holiday_festival'?'跳过法定节假日':"跳过双休日":"跳过法定节假日、跳过双休日"}}</p>
+            <p>{{item.espce.length==1?item.espce[0]=='holiday_festival'?'跳过法定节假日':"跳过双休日":""+(item.espce.length==2 ? "跳过法定节假日、跳过双休日":"")}}</p>
           </div>
         </p>
       </div>
@@ -165,7 +241,8 @@ export default {
       playLoading: false,
       currentMusicName: "",
       isShowPlayBtn: true,
-
+      eidt_clock_data: {},
+      close_edit_model: false,
       musicData: [
         {
           name: "短铃声",
@@ -212,23 +289,44 @@ export default {
       add_clock_modal: false,
       isShowFestivalNotice: false,
       clock_queqe: [
-        {
-          ring_model: "endWidthAllPlayOne",
-          remark: "测试",
-          currentMusicSrc: "/static/music/c.mp3"
-        }
+        // {
+        //   ring_model: "endWidthAllPlayOne",
+        //   remark: "测试",
+        //   currentMusicSrc: "/static/music/c.mp3"
+        // }
       ]
     };
   },
   methods: {
+    isShow(timeStamp) {
+      //这里的逻辑在检查闹钟是否响起时有用到，可是想来想去，最好的封装方到了下一个版本的想法，因此不进行封装
+      let currentDateElements = DateHelper.getElements();
+      let createDateElements = DateHelper.getElements(
+        true,
+        new Date(timeStamp)
+      );
+      if (
+        createDateElements.year == currentDateElements.year &&
+        createDateElements.month == currentDateElements.month &&
+        createDateElements.date == currentDateElements.date
+      ) {
+        return true;
+      }
+      return false;
+    },
+    edit_clock(item) {
+      this.close_edit_model = true;
+      this.eidt_clock_data = JSON.parse(JSON.stringify(item));
+    },
+    cancel_edit_clock() {
+      this.close_edit_model = false;
+    },
     confirmDeleteClock(index) {
-      console.log(this.$Modal);
-       
       this.$Modal.error({
         title: "删除闹钟",
         content: "你确定删除吗?",
-        onOk:()=>{
-          this.clockList.splice(index,1);
+        onOk: () => {
+          this.clockList.splice(index, 1);
           this.saveClockMessage();
         }
       });
@@ -292,23 +390,15 @@ export default {
       this.$refs.audioDom.load();
     },
 
-    spaceChange() {
-      this.add_clock_data.space =
-        (parseInt(this.add_clock_data.space) > 0 &&
-          parseInt(this.add_clock_data.space)) ||
-        10;
-      // this.$nextTick(() => {
-      //   console.log(this.add_clock_data.space)
-      // });
+    spaceChange(data) {
+      data.space = (parseInt(data.space) > 0 && parseInt(data.space)) || 10;
     },
     cancel_add_clock() {
       this.add_clock_data = this.initialClockModal();
       this.add_clock_modal = false;
       this.errorTip = "";
     },
-    adding_clock() {
-      let data = this.add_clock_data;
-
+    save_clock(data, flag) {
       this.errorTip = "";
       if ((data.type = "time")) {
         if (
@@ -342,20 +432,28 @@ export default {
         }
       }
 
-      //添加闹钟
-      this.add_clock_modal = false;
-      if (data.clock_name.trim() == "") {
-        data.clock_name = "闹钟" + (this.clockList.length + 1);
-      }
+      if (flag == 0) {
+        //添加闹钟
+        this.add_clock_modal = false;
+        if (data.clock_name.trim() == "") {
+          data.clock_name = "闹钟" + (this.clockList.length + 1);
+        }
 
-      data.isOpen = true;
-      data.createTimestamp = +new Date();
-      if (data.model == "space") {
-        data.lastRunTimestamp = +new Date();
-      }
+        data.isOpen = true;
+        data.createTimestamp = +new Date();
+        if (data.model == "space") {
+          data.lastRunTimestamp = +new Date();
+        }
 
-      this.clockList.push(data);
-      this.add_clock_data = this.initialClockModal();
+        this.clockList.push(data);
+        this.add_clock_data = this.initialClockModal();
+      } else if (flag == 1) {
+        let clockIndex = this.clockList.findIndex(
+          el => el.createTimestamp == data.createTimestamp
+        );
+        this.clockList.splice(clockIndex, 1, data);
+        this.close_edit_model = false;
+      }
       this.errorTip = "";
       this.saveClockMessage();
     },
