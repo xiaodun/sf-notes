@@ -31,7 +31,7 @@
         <Button @click="add_clock_modal = true">添加闹钟</Button>
       </div>
     </main>
-    
+
     <Modal :mask-closable="false" v-model="add_clock_modal" title="添加闹钟">
       <div style="height:30px;line-height: 30px;color: #c44c4c;font-size: 14px;text-align: center;margin-bottom: 10px;">{{errorTip}}</div>
       <div slot="footer">
@@ -86,7 +86,7 @@
                 </CheckboxGroup>
                 <CheckboxGroup v-model="add_clock_data.espce">
                   <Checkbox label="holiday_festival">跳过法定节假日</Checkbox>
-                  <Checkbox label="holiday_double_cease_day">跳过双休日</Checkbox>
+                  <Checkbox v-show="add_clock_data.repeat != 'use_define'" label="holiday_double_cease_day">跳过双休日</Checkbox>
                 </CheckboxGroup>
               </Row>
             </FormItem>
@@ -98,7 +98,7 @@
               <Button v-else :loading="playLoading" @click="stopMusic">停止</Button>
             </FormItem>
             <FormItem label="铃声模式">
-              <Select style="width:40%;" v-model="add_clock_data.ring_model" placeholder="关闭闹钟即停止播放">
+              <Select ref="rightModelDomAdd" style="width:40%;" v-model="add_clock_data.ring_model" placeholder="关闭闹钟即停止播放">
                 <Option value="endWidthClose" v-text="'关闭闹钟即停止播放'"></Option>
                 <Option value="endWidthPlayOne" v-text="'关闭闹钟后继续播放'"></Option>
                 <Option value="endWidthAllPlayOne" v-text="'关闭闹钟后依次播放铃声'"></Option>
@@ -161,19 +161,19 @@
                 </CheckboxGroup>
                 <CheckboxGroup v-model="eidt_clock_data.espce">
                   <Checkbox label="holiday_festival">跳过法定节假日</Checkbox>
-                  <Checkbox label="holiday_double_cease_day">跳过双休日</Checkbox>
+                  <Checkbox v-show="eidt_clock_data.repeat != 'use_define'" label="holiday_double_cease_day">跳过双休日</Checkbox>
                 </CheckboxGroup>
               </Row>
             </FormItem>
             <FormItem label="铃声">
-              <Select @on-change="musicChange(eidt_clock_data.currentMusicSrc)" style="width:40%;" placeholder="冯提莫 - 佛系少女" v-model="eidt_clock_data.currentMusicSrc">
+              <Select @on-change="musicChange(eidt_clock_data.currentMusicSrc)" style="width:40%;" :placeholder="eidt_clock_data.currentMusicName" v-model="eidt_clock_data.currentMusicSrc">
                 <Option v-for="item in musicData" :key="item.path" :value="item.path" v-text="item.name"></Option>
               </Select>
               <Button v-if="isShowPlayBtn" :loading="playLoading" @click="playMusic(eidt_clock_data.currentMusicSrc)">试听</Button>
               <Button v-else :loading="playLoading" @click="stopMusic">停止</Button>
             </FormItem>
             <FormItem label="铃声模式">
-              <Select style="width:40%;" v-model="eidt_clock_data.ring_model" placeholder="关闭闹钟即停止播放">
+              <Select ref="rightModelDomEdit" style="width:40%;" v-model="eidt_clock_data.ring_model" :placeholder="eidt_clock_data.rightModelName">
                 <Option value="endWidthClose" v-text="'关闭闹钟即停止播放'"></Option>
                 <Option value="endWidthPlayOne" v-text="'关闭闹钟后继续播放'"></Option>
                 <Option value="endWidthAllPlayOne" v-text="'关闭闹钟后依次播放铃声'"></Option>
@@ -200,7 +200,7 @@
           {{item.remark}}
           <div>
             <span>{{item.model == "time"?"指定时间":"指定间隔"}}：</span>
-            <span>{{item.model?item.hour+":"+item.minutes:item.space+"分钟"}}</span>
+            <span>{{item.model == "time"?item.hour+":"+item.minutes:item.space+"分钟"}}</span>
 
           </div>
           <div>
@@ -285,6 +285,7 @@ export default {
         nextAdd: "",
         clock_name: ""
       },
+      spaceClockHook: {},
       add_clock_data: this.initialClockModal(),
       add_clock_modal: false,
       isShowFestivalNotice: false,
@@ -306,7 +307,7 @@ export default {
         new Date(timeStamp)
       );
       if (
-        createDateElements.year == currentDateElements.year &&
+        createDateElements.fullYear == currentDateElements.fullYear &&
         createDateElements.month == currentDateElements.month &&
         createDateElements.date == currentDateElements.date
       ) {
@@ -364,8 +365,6 @@ export default {
         let musicData = this.getMusicData(
           UrlHelper.getUri(this.$refs.quarterBellDom.src)
         );
-        console.log(musicData);
-
         this.currentMusicName = musicData.name;
       }
     },
@@ -400,7 +399,7 @@ export default {
     },
     save_clock(data, flag) {
       this.errorTip = "";
-      if ((data.type = "time")) {
+      if (data.model == "time") {
         if (
           !(
             data.hour.trim() != "" &&
@@ -432,6 +431,10 @@ export default {
         }
       }
 
+      data.currentMusicName = this.musicData.find(
+        el => el.path == data.currentMusicSrc
+      ).name;
+
       if (flag == 0) {
         //添加闹钟
         this.add_clock_modal = false;
@@ -441,10 +444,10 @@ export default {
 
         data.isOpen = true;
         data.createTimestamp = +new Date();
-        if (data.model == "space") {
-          data.lastRunTimestamp = +new Date();
-        }
 
+        data.rightModelName = this.$refs.rightModelDomAdd.$el.querySelector(
+          ".ivu-select-selected-value"
+        ).textContent;
         this.clockList.push(data);
         this.add_clock_data = this.initialClockModal();
       } else if (flag == 1) {
@@ -452,6 +455,9 @@ export default {
           el => el.createTimestamp == data.createTimestamp
         );
         this.clockList.splice(clockIndex, 1, data);
+        data.rightModelName = this.$refs.rightModelDomEdit.$el.querySelector(
+          ".ivu-select-selected-value"
+        ).textContent;
         this.close_edit_model = false;
       }
       this.errorTip = "";
@@ -556,6 +562,7 @@ export default {
   },
 
   mounted() {
+    var _this = this;
     this.clockList = this.getClockMessage();
     this.$refs.audioDom.addEventListener(
       "canplaythrough",
@@ -626,9 +633,10 @@ export default {
       },
       false
     );
-
+    let testTimeStr = "2018-11-2 17:00";
     var flag = Tools.timeout({
       func: () => {
+        // let originalDate = DateHelper.getOriginalDate(testTimeStr);
         let originalDate = DateHelper.getOriginalDate();
         let dateElements = DateHelper.getElements(false, originalDate);
         this.currentTime = DateHelper.getDateFormatString(
@@ -656,91 +664,118 @@ export default {
       immediately: true
     });
 
-    // flag.isGoon = false;
+    var lastMintes;
+    // 效检闹钟
+    Tools.timeout({
+      func: () => {
+        var currentDateElements = DateHelper.getElements();
+        // let currentDateElements = DateHelper.getElements(false,DateHelper.getOriginalDate(testTimeStr));
+        //同一分钟检测失效
+        if (currentDateElements.minutes == lastMintes) {
+          return;
+        } else {
+          lastMintes = currentDateElements.minutes;
+        }
+        this.clockList.forEach((el, index, arr) => {
+          1;
+          if (!el.isOpen) {
+            //闹钟已经被关闭
+            return;
+          }
 
-    //效检闹钟
-    // Tools.timeout({
-    //   func: () => {
-    //     this.clockList.forEach((el, index, arr) => {
-    //       if (!el.isOpen) {
-    //         //闹钟已经被关闭
-    //         return;
-    //       }
-    //       let currentDateElements = DateHelper.getElements();
-    //       let createDateElements = DateHelper.getElements(
-    //         true,
-    //         new Date(el.createTimestamp)
-    //       );
-    //       let isCreateDay = false;
-    //       let rightTime = false;
-    //       if (
-    //         createDateElements.hour == currentDateElements.hour &&
-    //         createDateElements.minutes == currentDateElements.minutes
-    //       ) {
-    //         isCreateDay = true;
-    //       }
-    //       //是否包含今天逻辑
-    //       if (!el.include_today && isCreateDay) {
-    //         return;
-    //       }
+          let createDateElements = DateHelper.getElements(
+            true,
+            new Date(el.createTimestamp)
+          );
+          let isCreateDay = false;
+          let rightTime = false;
+          if (
+            createDateElements.fullYear == currentDateElements.fullYear &&
+            createDateElements.month == currentDateElements.month &&
+            createDateElements.date == currentDateElements.date
+          ) {
+            isCreateDay = true;
+          }
+          //是否包含今天逻辑
+          if (!el.include_today && isCreateDay) {
+            return;
+          }
 
-    //       //跳过法定节假日 和 双休日
-    //       if (el.repeat != "once") {
-    //         if (el.espce.include("holiday_festival")) {
-    //           if (DateHelper.isHolidayFestival()) {
-    //             return;
-    //           } else if (DateHelper.isAddWorkDay()) {
-    //             return;
-    //           }
-    //         }
-    //         //跳过周6和周日
-    //         if (el.espce.include("holiday_double_cease_day")) {
-    //           if (
-    //             currentDateElements.hour == 6 ||
-    //             currentDateElements.minutes == 7
-    //           ) {
-    //             return;
-    //           }
-    //         }
-    //       }
+          //跳过法定节假日 和 双休日
+          if (el.repeat != "once") {
+            if (el.espce.includes("holiday_festival")) {
+              if (DateHelper.isHolidayFestival()) {
+                return;
+              }
+            }
+          }
+          //跳过周6和周日
+          if(el.repeat == "every_day"){
 
-    //       //重复方式为自定义
+            if (el.espce.includes("holiday_double_cease_day")) {
+              if (
+                currentDateElements.day == 6 ||
+                currentDateElements.day == 7
+              ) {
+                if (!DateHelper.isAddWorkDay()) {
+                  return;
+                }
+              }
+            }
+          }
 
-    //       if (el.repeat == "use_define") {
-    //         if (el.use_define.includes.includes(+currentDateElements.week)) {
-    //           return;
-    //         }
-    //       }
+          //重复方式为自定义
 
-    //       if (el.model == "time") {
-    //         if (
-    //           currentDateElements.hour == el.hour &&
-    //           currentDateElements.minutes == el.minutes
-    //         ) {
-    //         }
-    //         rightTime = true;
-    //       } else if (el.model == "space") {
-    //         let lastRunDateelements = DateHelper.getElements(
-    //           true,
-    //           new Date(el.lastRunTimestamp)
-    //         );
-    //         let spaceMinutes =
-    //           (currentDateElements.hour - lastRunDateelements.hour) * 60 +
-    //           (currentDateElements.minutes - lastRunDateelements.minutes);
-    //         if (spaceMinutes == el.space) {
-    //           rightTime = true;
-    //         }
-    //       }
+          if (el.repeat == "use_define") {
+            if (!el.use_define.includes(+currentDateElements.day)) {
+              return;
+            }
+          }
 
-    //       if (rightTime) {
-    //         //响铃
-    //         this.clock_queqe.push(el);
-    //       }
-    //     });
-    //   },
-    //   immediately: true,
-    //   time: 1000
-    // });
+          if (el.model == "time") {
+            if (
+              currentDateElements.hours == el.hour &&
+              currentDateElements.minutes == el.minutes
+            ) {
+              rightTime = true;
+            }
+          } else if (el.model == "space") {
+            let lastRunDateelements = _this.spaceClockHook[el.createTimestamp];
+            if (lastRunDateelements == null) {
+              //考虑到程序可能被关闭 在开启
+              lastRunDateelements = {};
+              lastRunDateelements.hour = currentDateElements.hours;
+              lastRunDateelements.minutes = currentDateElements.minutes;
+              this.spaceClockHook[el.createTimestamp] = lastRunDateelements;
+            }
+            let spaceMinutes =
+              Math.abs(currentDateElements.hours - lastRunDateelements.hour) *
+                60 +
+              Math.abs(
+                currentDateElements.minutes - lastRunDateelements.minutes
+              );
+            if (spaceMinutes == el.space) {
+              lastRunDateelements.hour = currentDateElements.hours;
+              lastRunDateelements.minutes = currentDateElements.minutes;
+              this.spaceClockHook[el.createTimestamp] = lastRunDateelements;
+              rightTime = true;
+            }
+          }
+
+          if (rightTime) {
+            //响铃
+            this.clock_queqe.push(el);
+            if (el.repeat == "once") {
+              el.isOpen = false;
+              // arr[index].isOpen = false
+              this.saveClockMessage();
+            }
+          }
+        });
+      },
+      immediately: true,
+      time: 1000
+    });
     //始终检测是否响铃
     Tools.timeout({
       func: () => {
@@ -748,6 +783,8 @@ export default {
           if (!this.clocking_model) {
             this.current_clocking_data = this.clock_queqe.shift();
             this.clocking_model = true;
+            this.$refs.quarterBellDom.src = undefined;
+            this.showPlayingTip = false;
             this.clockingPlayMusic(this.current_clocking_data.currentMusicSrc);
           }
         }

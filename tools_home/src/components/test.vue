@@ -1,8 +1,8 @@
 <template>
   <div id="test_vue">
-    <textarea style="overflow:hidden"    @keyup.enter="monitorHeight">
+    <textarea style="overflow:hidden"    @keydown.enter="monitorHeight">
     </textarea>
-    <textarea name="" id="" cols="30" rows="10"></textarea>
+
   </div>
 </template>
 <script>
@@ -18,9 +18,7 @@ export default {
   computed: {},
   methods: {
     monitorHeight($event){
-      var height = window.getComputedStyle($event.target)["height"];
-      // console.log(height);
-      // console.dir($event.target);
+      
       $event.target.style.height = $event.target.scrollHeight + ($event.target.offsetHeight - $event.target.clientHeight) + "px";
     },
     pinchmove($event){
@@ -28,11 +26,7 @@ export default {
     }
   },
   mounted() {
-    setTimeout(function(){
-
-      window.scrollTo(0,1);
-    },1000)
-    console.log(12)
+  
   }
 };
 
