@@ -16,6 +16,7 @@ import 'iview/dist/styles/iview.css';
 import store from './vuex/store.js';
 import vueTouch from 'vue-touch';
 
+
 Vue.use(vueTouch,{name:"v-touch"});
 Vue.use(i18n);
 Vue.use(iView, {
@@ -114,7 +115,7 @@ Vue.component('datetimepicker-input',{
 new Vue({
   el: '#app',
   router,
-  components: { App },
+  components: { App},
   template: '<App/>',
   i18n,
   store,

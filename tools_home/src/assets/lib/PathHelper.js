@@ -5,7 +5,11 @@ class UrlHelperClass {
     getUri(argUrl){
         //处理以协议开头的路径
         let url;
-        if(argUrl.constructor != Object){
+        if(argUrl == undefined){
+            url = location.href;
+
+        }
+        else if(argUrl.constructor != Object){
             url = argUrl;
         }
 
@@ -16,7 +20,11 @@ class UrlHelperClass {
     }
     splitUrl(argUrl){
         let url;
-        if(argUrl.constructor != Object){
+        if(argUrl == undefined){
+            url = location.href;
+
+        }
+        else if(argUrl.constructor != Object){
             url = argUrl;
         }
         let regexp = /(\w+):\/\/([^:/]+):?(\d+)?([^?]+)\??(.+)?/;

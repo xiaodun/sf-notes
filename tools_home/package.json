@@ -15,6 +15,7 @@
     "jquery": "^3.3.1",
     "jquery-datetimepicker": "^2.5.20",
     "jquery.scrollbar": "^0.2.11",
+    "qrcodejs2": "0.0.2",
     "vconsole": "^3.2.0",
     "vue": "^2.5.2",
     "vue-i18n": "^8.0.0",
