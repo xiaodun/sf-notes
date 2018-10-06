@@ -1,6 +1,5 @@
 <template>
   <div id="nav_vue">
-    测试分支
   	<router-link to="/test">测试用例</router-link>
     <h2>四则运算</h2>
     <router-link to="/math_postures">版本1</router-link>
