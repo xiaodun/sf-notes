@@ -2,7 +2,6 @@
   <div id="test_vue">
     <textarea style="overflow:hidden"    @keydown.enter="monitorHeight">
     </textarea>
-
   </div>
 </template>
 <script>

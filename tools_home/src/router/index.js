@@ -46,9 +46,4 @@ const router = new Router({
     }
   ]
 })
-
-router.beforeEach((to,form,next) => {
-    loadLanguageAsync('zh-CN').then(()=>next())
-})
-
 export default router
