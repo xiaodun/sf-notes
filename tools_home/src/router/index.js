@@ -10,11 +10,11 @@ const router = new Router({
       component:()=>import('@/components/test'),
 
     },
-    {
-      path: '/lol_box',
-      component:()=>import('@/components/tools/lol_box'),
+    // {
+    //   path: '/lol_box',
+    //   component:()=>import('@/components/tools/lol_box'),
 
-    },
+    // },
     {
       path: '/notepad_vue',
       component:()=>import('@/components/tools/notepad'),
@@ -26,11 +26,11 @@ const router = new Router({
       
 
     },
-    {
-      path: '/wave',
-      component:()=>import('@/components/tools/wave'),
+    // {
+    //   path: '/wave',
+    //   component:()=>import('@/components/tools/wave'),
 
-    },
+    // },
     {
       path: '/rotate_clock',
       component:()=>import('@/components/tools/rotate_clock'),
@@ -42,7 +42,7 @@ const router = new Router({
     },
     {
     	path:"/",
-    	component:()=>import('@/components/nav')
+    	component:()=>import('@/components/index')
     }
   ]
 })

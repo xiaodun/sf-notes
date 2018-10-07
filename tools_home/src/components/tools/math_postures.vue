@@ -167,12 +167,8 @@
 
 <script> 
 import {i18n,loadLanguageAsync}  from '@/i18n'
-import checkpoint from '@/components/checkpoint'
 export default {  
     name: 'math_postures',
-    components:{
-      checkpoint
-    },
     data () {
       return{
         rules:{
