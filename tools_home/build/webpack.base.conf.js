@@ -13,8 +13,7 @@ function resolve (dir) {
 module.exports = {
   context: path.resolve(__dirname, '../'),
   entry: {
-    app: './src/main.js',
-    utils:['./node_modules/jquery/dist/jquery.min.js']
+    app: './src/main.js'
   },
   output: {
     path: config.build.assetsRoot,
@@ -31,11 +30,7 @@ module.exports = {
     }
   },
   plugins: [
-    new webpack.optimize.CommonsChunkPlugin('common.js'),
-    new webpack.ProvidePlugin({
-      jQuery: "jquery",
-      $: "jquery"
-    })  
+    new webpack.optimize.CommonsChunkPlugin('common.js')
   ],
   module: {
     rules: [
