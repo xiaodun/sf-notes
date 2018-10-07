@@ -28,6 +28,13 @@
   }
   
 }
+#top_wrapper{
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+  .item{
+    margin-left: 5px;
+  }
+}
 </style>
 <template>
   <div id="app">
@@ -59,7 +66,9 @@
     <Modal class-name="qrcode-model-wrapper" title="用手机扫描" :styles="{display:'inline-block',width:'auto'}" :footer-hide="true" v-model="isShowQart">
       <div id="qrcode" ref="qrcode"></div>
     </Modal>
-    <Button icon="md-menu" @click="toggleMenu"></Button>
+    <div id="top_wrapper">
+      <Button icon="md-menu" class="item" @click="toggleMenu"></Button>
+    </div>
     <div id="main-wrapper">
 
       <router-view></router-view>
