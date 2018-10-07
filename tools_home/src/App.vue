@@ -30,6 +30,7 @@
 }
 #top_wrapper{
   padding: 10px 0;
+  margin: 0 0 20px 0;
   border-bottom: 1px solid #ddd;
   .item{
     margin-left: 5px;
@@ -44,7 +45,7 @@
       <Row>
         <Col >
         <Menu @on-select="menu_onselect">
-          <MenuItem name="0">
+          <MenuItem name="0" to="/">
             首页
           </MenuItem>
           <MenuItem name="1">
