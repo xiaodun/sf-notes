@@ -1,13 +1,17 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import {i18n,loadLanguageAsync}  from '../i18n'
 Vue.use(Router)
 
 const router = new Router({
   routes: [
     {
       path: '/test',
-      component:()=>import('@/components/test'),
+      component:()=>import('@/components/test/test'),
+
+    },
+    {
+      path: '/test_service',
+      component:()=>import('@/components/test/service/service'),
 
     },
     // {

@@ -146,6 +146,12 @@ export default {
               to: {
                 path: "/test"
               }
+            },
+            {
+              content: "内置后台服务",
+              to: {
+                path: "/test_service"
+              }
             }
           ]
         }
