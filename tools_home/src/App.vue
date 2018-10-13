@@ -148,7 +148,7 @@ export default {
               }
             },
             {
-              content: "内置后台服务",
+              content: "内置后台node服务",
               to: {
                 path: "/test_service"
               }
