@@ -20,7 +20,11 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {},
+    proxyTable: {
+      "/api":{
+        target:"http://192.168.0.110:8888/"
+      }
+    },
 
     // Various Dev Server settings
     // 
