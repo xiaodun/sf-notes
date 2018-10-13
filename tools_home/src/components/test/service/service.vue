@@ -140,7 +140,9 @@ export default {
                this.$refs.result_dom.textContent = JSON.stringify(response.data);
             })
             .catch((response)=>{
+                
                this.$refs.result_dom.textContent = JSON.stringify(response.data);
+
             })
           }
         }
