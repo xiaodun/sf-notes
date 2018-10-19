@@ -6,13 +6,14 @@
 var http_os = require('http');
 var file_os = require("fs");
 var url_os = require('url');
-let config = eval(file_os.readFileSync("config.js", "utf-8"));
+let config = JSON.parse(file_os.readFileSync("config.json", "utf-8"));
 http_os.createServer(function (request, response) {
     //解析url
     try {
 
 
         var urlElementsArr = request.url.slice(1, request.url.length).split("/");
+        console.log(request.url);
         let prefix = urlElementsArr[0],
             appName = urlElementsArr[1],
             dataName = urlElementsArr[2],

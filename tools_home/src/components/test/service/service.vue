@@ -3,13 +3,10 @@
     <div class="describe">
       <p style="color:red;">
         首先请确保内置服务器已经开启! <br> 
-        端口和服务器配置的端口一样!
          /service/app/service.js <br>
-         脚手架配置了请求转发
-        
       </p>
       <p>
-        同目录下的config.js是配置文件
+        同目录下的config.json是配置文件
       </p>
       <p>
         程序会在service.js同级或配置对应的目录下创建prefix + appName + dataName 的文件夹结构,并在下面创建 dataName + ".json",
@@ -21,14 +18,14 @@
       <p style="color:red;">
         程序虽然会为每个命令生成统一的模板  但实现命令的逻辑仍需要手动编写
       </p>
-      <p style="margin-bottom:20px;">正常的测试为用post发起存入一个数据请求,然后编写对应命令的js，完成存储,在进行get查询</p>
+      <p style="margin-bottom:20px;">正常的测试为用post发起一个存入数据请求,然后编写对应命令的js，完成存储,再进行get查询</p>
     </div>
     <Form ref="serviceForm" :model="serviceForm" :label-width="100" :rules="validatorRules">
       <FormItem label="端口:" prop="port">
-        <Input type="text" v-model="serviceForm.port" />
+        <Input disabled type="text" v-model="serviceForm.port" />
       </FormItem>
       <FormItem label="前缀:" prop="prefix">
-        <Input type="text" v-model="serviceForm.prefix" />
+        <Input disabled type="text" v-model="serviceForm.prefix" />
       </FormItem>
       <FormItem label="应用名:" prop="appName">
         <Input type="text" v-model="serviceForm.appName" />
@@ -62,19 +59,19 @@
 <script>
 import axios from "axios";
 import VConsole from "vconsole";
-var vConsole = new VConsole();
+import builtService from '../../../../service/app/config.json';
 export default {
   name: "test_service_vue",
   data() {
     return {
       result:"",
       serviceForm: {
-        port:8888,
+        port:builtService.port,
         requestType: "post",
         command: "",
         appName: "test",
         dataName: "test",
-        prefix: "api",
+        prefix: builtService.prefix,
         
         postContent:JSON.stringify([
           {

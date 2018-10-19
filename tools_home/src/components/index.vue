@@ -4,6 +4,30 @@
 <template>
   <div id="index_vue" >
     <Collapse style=" font-size:16px;">
+    <Panel name="0">
+        使用内置后台服务器
+        <p slot="content">
+            必须手动打开服务器！<br>
+            服务器用nodejs编写，位于/service/app/service.js 在tools_home文件夹下有启动的bat文件 <br>
+            如对同级目录config.json中配置有改动 重启项目和内置服务器即可！
+            <Collapse accordion>
+                <Panel name="0-1">
+                    为什么使用内置服务器
+                    <p slot="content">
+                        我的IP地址总变,日记本和闹钟的使用受到了影响! <br/>
+                        便于测试和抽离代码,更大程度的接近真实场景。
+                    </p>
+                </Panel>
+                <Panel name="0-2">
+                    为什么必须手动启动
+                    <p slot="content">
+                        能力有限,如果随着项目运行启动,涉及很多细节,与主要任务脱离严重。
+
+                    </p>
+                </Panel>
+            </Collapse>
+        </p>
+    </Panel>
         <Panel name="1">
             使用手机访问
             <p slot="content">
