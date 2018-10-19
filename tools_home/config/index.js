@@ -5,26 +5,32 @@
 const path = require('path');
 var os = require('os');
 var IPv4 = 'localhost';
+var readFile = require("fs");
 let network = os.networkInterfaces();
 
 //动态的获取本机IP地址
-// for (let key in network) {
-//   let env = network[key];
-//   console.log(network[key]);
-//   for (var i = 0; i < env.length; i++) {
-//     if (env[i].family == 'IPv4' && env[i].address != '127.0.0.1') {
-//       IPv4 = env[i].address;
-//     }
-//   }
-// }
+for (let key in network) {
+  let env = network[key];
+  for (var i = 0; i < env.length; i++) {
+    if (env[i].family == 'IPv4' && env[i].address != '127.0.0.1') {
+      IPv4 = env[i].address;
+    }
+  }
+}
+//获取内置服务器的配置
+let bultinService = {
+  path:"./service/app/config.json"
+}
+bultinService.config = JSON.parse(readFile.readFileSync(bultinService.path,"utf-8"));
+global.bultinService = bultinService;
 module.exports = {
   dev: {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-      '/api': {
-        target: 'http://192.168.0.110:8888/',
+      ['/'+bultinService.config.prefix]: {
+        target: `http://${IPv4}:${bultinService.config.port}/`,
       },
     },
 

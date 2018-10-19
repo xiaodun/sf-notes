@@ -7,6 +7,8 @@
 <script>
 import VConsole from 'vconsole';
 var vConsole = new VConsole();
+
+
 export default {
   name: 'test_vue',
   data() {
