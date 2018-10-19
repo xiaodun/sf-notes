@@ -8,15 +8,15 @@ var IPv4 = 'localhost';
 let network = os.networkInterfaces();
 
 //动态的获取本机IP地址
-for (let key in network) {
-  let env = network[key];
-  console.log(network[key]);
-  for (var i = 0; i < env.length; i++) {
-    if (env[i].family == 'IPv4' && env[i].address != '127.0.0.1') {
-      IPv4 = env[i].address;
-    }
-  }
-}
+// for (let key in network) {
+//   let env = network[key];
+//   console.log(network[key]);
+//   for (var i = 0; i < env.length; i++) {
+//     if (env[i].family == 'IPv4' && env[i].address != '127.0.0.1') {
+//       IPv4 = env[i].address;
+//     }
+//   }
+// }
 module.exports = {
   dev: {
     // Paths

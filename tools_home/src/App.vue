@@ -97,11 +97,18 @@ export default {
     },
     createQecode() {
       this.$refs.qrcode.innerHTML = "";
-      let qrcode = new QRCode("qrcode", {
-        width: 232, // 设置宽度
-        height: 232, // 设置高度
-        text: window.location.href
-      });
+      if(window.location.hostname == "localhost" || window.location.hostname == "127.0.0.1"){
+        this.$refs.qrcode.innerHTML = "请确保你连上了网络！"
+
+      }
+      else{
+
+        let qrcode = new QRCode("qrcode", {
+          width: 232, // 设置宽度
+          height: 232, // 设置高度
+          text: window.location.href
+        });
+      }
     }
   },
   data() {

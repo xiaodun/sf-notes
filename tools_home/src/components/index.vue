@@ -7,7 +7,7 @@
         <Panel name="1">
             使用手机访问
             <p slot="content">
-                手机和电脑要连到同一个WIFI,我使用的是个人的。
+                手机和电脑在同一个局域网内，比如连接同一个wifi,如果你主机名是localhost、127.0.0.1,是无法使用手机访问的！
                 
                 
                 <Collapse accordion >
