@@ -59,7 +59,7 @@
 <script>
 import axios from "axios";
 import VConsole from "vconsole";
-import builtService from '../../../../service/app/config.json';
+import builtService from '@root/service/app/config.json';
 export default {
   name: "test_service_vue",
   data() {
@@ -151,18 +151,19 @@ export default {
 </script>
 <style lang="less">
 #test_service_vue {
-  width: 85%;
-  max-width: 900px;
-  margin: 20px auto;
-  .describe{
-    margin-left:100px;
-    p{
-      font-size: 16px;
-      margin-bottom: 3px;
+  width: 85%;max-width: 900px;margin: 20px auto;
+
+  .describe {
+    margin-left: 100px;
+
+    p {
+      font-size: 16px;margin-bottom: 3px;
     }
   }
-  .result{
-    margin-left:100px;
+
+  .result {
+    margin-left: 100px;
   }
 }
+
 </style>
