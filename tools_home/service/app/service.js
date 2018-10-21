@@ -88,7 +88,7 @@ http_os.createServer(function (request, response) {
              * 这个是如果数据读取完毕就会执行的监听方法
              */
             request.addListener("end", function () {
-                executeCommand(postData);
+                executeCommand(JSON.parse(postData));
             });
         }
         else if (request.method.toUpperCase() == 'GET') {
