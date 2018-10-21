@@ -1,18 +1,15 @@
 <style lang="less">
-@import "~@/assets/style/base.less";
+@import '~@/assets/style/base.less';
+
 .qrcode-model-wrapper {
   text-align: center;
 }
+
 #slide-menu {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  background-color: #fff;
-  left: -100%;
-  z-index: 12;
-  transition: left 0.35s ease-out;
-  overflow-y: auto;
+  position: fixed;z-index: 12;top: 0;bottom: 0;left: -100%;overflow-y: auto;transition: left .35s ease-out;background-color: #fff;
+
   .sf-shadow-5;
+
   .ivu-menu {
     &:after {
       display: none;
@@ -20,22 +17,22 @@
   }
 
   &.spread {
-    left: 0px;
+    left: 0;
   }
-  .arrow-back-btn{
-    border-radius:0px;
-    font-size:20px;
+
+  .arrow-back-btn {
+    font-size: 20px;border-radius: 0;
   }
-  
 }
-#top_wrapper{
-  padding: 10px 0;
-  margin: 0 0 20px 0;
-  border-bottom: 1px solid #ddd;
-  .item{
+
+#top_wrapper {
+  margin: 0 0 20px 0;padding: 10px 0;border-bottom: 1px solid #ddd;
+
+  .item {
     margin-left: 5px;
   }
 }
+
 </style>
 <template>
   <div id="app">
@@ -145,6 +142,18 @@ export default {
             }
           ]
         },
+        notepad: {
+          title: "日记本",
+          icon:"md-book",
+          childs: [
+            {
+              content: "版本1",
+              to: {
+                path: "/notepad_vue"
+              }
+            },
+          ]
+        },
         test_vue: {
           title: "测试",
           childs: [
@@ -161,7 +170,8 @@ export default {
               }
             }
           ]
-        }
+        },
+        
       }
     };
   },
