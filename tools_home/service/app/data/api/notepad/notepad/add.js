@@ -7,7 +7,7 @@
         argParams.createTime = +new Date();
         argParams.id = argParams.createTime;
         argParams.updateTime = "";
-        argData.push(argParams);
+        argData.unshift(argParams);
         return {
 
             isWrite:true,//是否覆盖数据
