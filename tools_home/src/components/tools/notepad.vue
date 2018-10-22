@@ -24,7 +24,7 @@
 
           </div>
         </Card>
-        <Page :current="pagination.page" @on-change="change_page" style="margin-top: 20px;float: right;" :total="pagination.total" :page-size="pagination.size" show-total simple />
+        <Page :current="pagination.page" @on-change="change_page" style="margin-top: 20px;margin-bottom:20px;float: right;" :total="pagination.total" :page-size="pagination.size" show-total simple />
       </div>
       <div class="no-data" v-else>
         赶快创建吧！
@@ -102,11 +102,19 @@ export default {
           size: argPagination.size
         }
       }).then(response => {
-        this.list = [];
-        response.data.data.forEach(el => {
-          let notepad = this.convert(el);
-          this.list.push(notepad);
-        });
+        if(response.data.data.length === 0 && this.pagination.page > 1 ){
+          let maxPage = ((response.data.total - 1)/this.pagination.size + 1) | 0
+          this.pagination.page = maxPage;
+          this.request_get(this.pagination)
+        }
+        else{
+
+          this.list = [];
+          response.data.data.forEach(el => {
+            let notepad = this.convert(el);
+            this.list.push(notepad);
+          });
+        }
         this.pagination.total = response.data.total;
       });
     },
@@ -137,8 +145,8 @@ export default {
         url: this.requestPrefix + "/add",
         data: argNotepad
       }).then(response => {
-        this.list.push(this.convert(response.data.data));
-        this.pagination.total = response.data.total
+        this.pagination.page = 1;
+        this.request_get(this.pagination)
       });
     },
     request_update(argNotepad){
@@ -170,13 +178,10 @@ export default {
           id:this.active.notepad.id
         }
       }).then(response => {
-       
-        this.list.splice(this.active.index,1);
-        this.pagination.total = response.data.total;
-        if(this.list.length == 0){
-          this.pagination.page > 1 && this.pagination.page--;
-          this.request_get(this.pagination);
-        }
+       //从前端这里虽然在当前页没有数据时候会多请求一次,但是,一切因该以后台数据为准
+        this.request_get(this.pagination)
+
+    
       });
     },
 
@@ -227,6 +232,10 @@ export default {
     height: auto;resize: none;border: none;
   }
 }
+
+
+
+
 
 
 
