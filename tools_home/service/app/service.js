@@ -106,7 +106,7 @@ http_os.createServer(function (request, response) {
                 var result = eval(file_os.readFileSync(rootFloder.commandPath, "utf-8"))(cloneData, params);
     
                 if (result.isWrite) {
-                    file_os.writeFileSync(rootFloder.dataPath, JSON.stringify(result.data));
+                    file_os.writeFileSync(rootFloder.dataPath, JSON.stringify(result.data,null,4));
                 }
                 //返回结果
                 response.writeHead(result.response.code, {
