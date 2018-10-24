@@ -1,6 +1,27 @@
 [
     {
         "title": "",
+        "content": "记事本支持上传文件和下载功能",
+        "createTime": 1540379394174,
+        "id": 1540379394174,
+        "updateTime": ""
+    },
+    {
+        "title": "",
+        "content": "canvas 动画中 正向和反向能否通过一个函数进行  而不用分开进行处理\n减少代码的行数",
+        "createTime": 1540373050113,
+        "id": 1540373050113,
+        "updateTime": ""
+    },
+    {
+        "title": "",
+        "content": "选择括号内的 vscode 以及和选择相关的",
+        "createTime": 1540370963680,
+        "id": 1540370963680,
+        "updateTime": ""
+    },
+    {
+        "title": "",
         "content": "将公司的Axios snippet挪到家里  并进行改写",
         "createTime": 1540309903389,
         "id": 1540309903389,
@@ -14,11 +35,11 @@
         "updateTime": ""
     },
     {
-        "title": "",
-        "content": "买一件上衣 和鞋子 。",
+        "title": "2018-10-23",
+        "content": "买一鞋子 。",
         "createTime": 1540304317038,
         "id": 1540304317038,
-        "updateTime": ""
+        "updateTime": 1540357055864
     },
     {
         "title": "",
@@ -71,9 +92,9 @@
     },
     {
         "title": "Canvas效果系列的基本代码",
-        "content": "<div id=\"app-id\">\n  <div id=\"header-id\">\n  </div>\n<canvas :style={borderWidth:this.borderWidth+\"px\"} @mouseenter=\"mouse_enter\" @mousemove=\"mouse_move\" @mouseleave=\"mouse_leave\" id=\"effect-id\"></canvas>\n</div>\n\n\n*{\n  margin:0;\n  padding:0;\n}\n#app-id{\n  position:absolute;\n  width:100%;\n  height:100%;\n \n  flex-direction:column;\n  .ivu-slider::before,.ivu-slider::after{\n    display:table;\n    content:\"\";\n  }\n}\n#header-id{\n  width:100%;\n  padding:10px 40px 0;\n  &:after{\n    display:block;\n    content:\" \";\n  }\n  \n}\n#effect-id{\n  display:block;\n  border-color: #D61827;\n  border-style:solid;\n}\n\n\n\nnew Vue({\n  el:\"#app-id\",\n  data:{\n    canvasDom:null,\n    width:0,\n    height:0,\n    pen:null,\n    borderWidth:1,\n    color:\"\",\n    data:[],\n    enterX:0,\n    enterY:0,\n    isStart:false,\n    \n    \n  },\n  methods:{\n    \n    mouse_enter($event){\n      this.isStart = true;\n      this.color = 'hsl('+(Math.random()*360)+',60%,80%)';\n      this.pen.fillStyle =  this.color;\n      this.enterX = $event.pageX - this.canvasDom.offsetLeft - this.borderWidth;\n      this.enterY = $event.pageY - this.canvasDom.offsetTop - this.borderWidth\n      if(this.data.length == 0){\n        this.start();\n      }\n      \n    },\n    mouse_move($event){\n      this.enterX = $event.pageX - this.canvasDom.offsetLeft - this.borderWidth;\n      this.enterY = $event.pageY - this.canvasDom.offsetTop - this.borderWidth\n    },\n   mouse_leave(){\n     this.isStart = false;\n   },\n   start(){\n    \n      if(this.isStart){\n        this.data.push({\n          \n        })\n      }\n     this.pen.clearRect(0,0,this.width,this.height);\n     for(let i=0;i<this.data.length;i++){\n      \n     }\n     \n     this.pen.globalAlpha = 1;\n     if(this.isStart || this.data.length > 0){\n       requestAnimationFrame(()=>{\n         this.start();\n       })\n     }\n     else{\n       this.pen.clearRect(0,0,this.width,this.height)\n     }\n   }\n      \n  },\n  mounted(){\n   this.canvasDom = document.getElementById(\"effect-id\");\n   this.headerDom = document.getElementById(\"header-id\");\n   this.pen = this.canvasDom.getContext(\"2d\");\n  \n   var computed = ()=>{\n      let headerDomComputedStyle = window.getComputedStyle(this.headerDom);\n      let width = window.innerWidth;\n    \n       let height = window.innerHeight - ( parseInt(headerDomComputedStyle.height) || 0)\n      this.canvasDom.setAttribute(\"width\",width-2*this.borderWidth)\n      this.canvasDom.setAttribute(\"height\",height-2*this.borderWidth)\n      this.width = width;\n      this.height = height;\n    }\n   computed();\n   window.addEventListener('resize',computed); \n   \n    \n  }\n})",
+        "content": "<div id=\"app-id\">\n  <div id=\"header-id\">\n  </div>\n<canvas :style={borderWidth:this.borderWidth+\"px\"} @mouseenter=\"mouse_enter\" @mousemove=\"mouse_move\" @mouseleave=\"mouse_leave\" id=\"effect-id\"></canvas>\n</div>\n\n\n*{\n  margin:0;\n  padding:0;\n}\n#app-id{\n  position:absolute;\n  width:100%;\n  height:100%;\n \n  flex-direction:column;\n  .ivu-slider::before,.ivu-slider::after{\n    display:table;\n    content:\"\";\n  }\n}\n#header-id{\n  width:100%;\n  padding:10px 40px 0;\n  &:after{\n    display:block;\n    content:\" \";\n  }\n  \n}\n#effect-id{\n  display:block;\n  border-color: #D61827;\n  border-style:solid;\n}\n\n\n\nnew Vue({\n  el:\"#app-id\",\n  data:{\n    canvasDom:null,\n    width:0,\n    height:0,\n    pen:null,\n    borderWidth:1,\n    color:\"\",\n    data:[],\n    enterX:0,\n    enterY:0,\n    isStart:false,\n    \n    \n  },\n  methods:{\n    \n    mouse_enter($event){\n      this.isStart = true;\n      this.color = 'hsl('+(Math.random()*360)+',60%,80%)';\n      this.pen.fillStyle =  this.color;\n      this.enterX = $event.pageX - this.canvasDom.offsetLeft - this.borderWidth;\n      this.enterY = $event.pageY - this.canvasDom.offsetTop - this.borderWidth\n      if(this.data.length == 0){\n        this.start();\n      }\n      \n    },\n    mouse_move($event){\n      this.enterX = $event.pageX - this.canvasDom.offsetLeft - this.borderWidth;\n      this.enterY = $event.pageY - this.canvasDom.offsetTop - this.borderWidth\n    },\n   mouse_leave(){\n     this.isStart = false;\n   },\n   start(){\n    \n      if(this.isStart){\n        this.data.push({\n          \n        })\n      }\n     this.pen.clearRect(0,0,this.width,this.height);\n     for(let i=0;i<this.data.length;i++){\n          let item = this.data[i];\n     }\n     \n     this.pen.globalAlpha = 1;\n     if(this.isStart || this.data.length > 0){\n       requestAnimationFrame(()=>{\n         this.start();\n       })\n     }\n     else{\n       this.pen.clearRect(0,0,this.width,this.height)\n     }\n   }\n      \n  },\n  mounted(){\n   this.canvasDom = document.getElementById(\"effect-id\");\n   this.headerDom = document.getElementById(\"header-id\");\n   this.pen = this.canvasDom.getContext(\"2d\");\n  \n   var computed = ()=>{\n      let headerDomComputedStyle = window.getComputedStyle(this.headerDom);\n      let width = window.innerWidth;\n    \n       let height = window.innerHeight - ( parseInt(headerDomComputedStyle.height) || 0)\n      this.canvasDom.setAttribute(\"width\",width-2*this.borderWidth)\n      this.canvasDom.setAttribute(\"height\",height-2*this.borderWidth)\n      this.width = width;\n      this.height = height;\n    }\n   computed();\n   window.addEventListener('resize',computed); \n   \n    \n  }\n})",
         "createTime": 1540190327361,
         "id": 1540190327361,
-        "updateTime": 1540195361939
+        "updateTime": 1540351351078
     }
 ]
