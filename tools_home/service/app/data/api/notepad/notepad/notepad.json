@@ -1,6 +1,13 @@
 [
     {
         "title": "",
+        "content": "写一篇 vue 数组的坑  比如动态添加属性\nthis.list = [{name:1}]\nthis.list[0].age = 12",
+        "createTime": 1540396508258,
+        "id": 1540396508258,
+        "updateTime": ""
+    },
+    {
+        "title": "",
         "content": "添加snippet 可以创建vue的方法",
         "createTime": 1540396323175,
         "id": 1540396323175,
