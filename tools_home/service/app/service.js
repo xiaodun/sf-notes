@@ -88,7 +88,8 @@ http_os.createServer(function (request, response) {
              * 这个是如果数据读取完毕就会执行的监听方法
              */
             request.addListener("end", function () {
-                executeCommand(JSON.parse(postData));
+                console.log(postData)
+                executeCommand(JSON.parse(postData || null));
             });
         }
         else if (request.method.toUpperCase() == 'GET') {
@@ -97,16 +98,16 @@ http_os.createServer(function (request, response) {
         }
         function executeCommand(params) {
             try {
-                
+
                 //执行命令
                 //获取json数据
                 var data = JSON.parse(file_os.readFileSync(rootFloder.dataPath, "utf-8") || null);
                 var cloneData = JSON.parse(JSON.stringify(data))
                 // var result = eval(new String(file_os.readFileSync(rootFloder.commandPath)))(cloneData,params);
                 var result = eval(file_os.readFileSync(rootFloder.commandPath, "utf-8"))(cloneData, params);
-    
+
                 if (result.isWrite) {
-                    file_os.writeFileSync(rootFloder.dataPath, JSON.stringify(result.data,null,4));
+                    file_os.writeFileSync(rootFloder.dataPath, JSON.stringify(result.data, null, 4));
                 }
                 //返回结果
                 response.writeHead(result.response.code, {
