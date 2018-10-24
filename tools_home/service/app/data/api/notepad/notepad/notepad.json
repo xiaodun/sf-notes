@@ -1,6 +1,13 @@
 [
     {
         "title": "",
+        "content": "添加snippet 可以创建vue的方法",
+        "createTime": 1540396323175,
+        "id": 1540396323175,
+        "updateTime": ""
+    },
+    {
+        "title": "",
         "content": "记事本支持上传文件和下载功能",
         "createTime": 1540379394174,
         "id": 1540379394174,
@@ -18,13 +25,6 @@
         "content": "选择括号内的 vscode 以及和选择相关的",
         "createTime": 1540370963680,
         "id": 1540370963680,
-        "updateTime": ""
-    },
-    {
-        "title": "",
-        "content": "将公司的Axios snippet挪到家里  并进行改写",
-        "createTime": 1540309903389,
-        "id": 1540309903389,
         "updateTime": ""
     },
     {
