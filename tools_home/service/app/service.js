@@ -6,6 +6,7 @@
 var http_os = require ('http');
 var file_os = require ('fs');
 var url_os = require ('url');
+var formidable_os = require ('formidable');
 let config = JSON.parse (file_os.readFileSync ('config.json', 'utf-8'));
 http_os
   .createServer (function (request, response) {
@@ -75,18 +76,47 @@ http_os
       //解析参数
 
       if (request.method.toUpperCase () == 'POST') {
-        var postData = '';
-
-        request.addListener ('data', function (data) {
-          postData += data;
-        });
         /**
+         * 文件上传
+         */
+
+        if (
+          ~(request.headers['content-type'] || '')
+            .indexOf ('multipart/form-data')
+        ) {
+          var postData = {
+            files: [],
+          };
+          var form = new formidable_os.IncomingForm ();
+          form.uploadDir = __dirname + '/' + rootFloder.path;
+          form.parse (request, function (error, fileds, files) {
+            // console.log (fileds, files);
+          });
+          form.on ('file', function (name, file) {
+            console.log (file);
+            //写入文件名和路径
+            postData.files.push ({
+              name: file.name,
+              type: file.type,
+              flag: file.path.substr (file.path.lastIndexOf ('\\') + 1),
+            });
+          });
+          form.on ('end', function () {
+            executeCommand (postData);
+          });
+        } else {
+          /**
              * 这个是如果数据读取完毕就会执行的监听方法
              */
-        request.addListener ('end', function () {
-          console.log (postData);
-          executeCommand (JSON.parse (postData || null));
-        });
+          var postData = '';
+
+          request.addListener ('data', function (data) {
+            postData += data;
+          });
+          request.addListener ('end', function () {
+            executeCommand (JSON.parse (postData || null));
+          });
+        }
       } else if (request.method.toUpperCase () == 'GET') {
         var params = url_os.parse (request.url, true).query;
         executeCommand (params);
