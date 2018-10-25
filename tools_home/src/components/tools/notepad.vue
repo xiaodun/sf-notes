@@ -38,24 +38,25 @@
         <div class="first">
           <Row>
             <Col span="18">
-            <Input v-model="tagModel.content" />
+            <Input v-model="tagModel.content"  @on-keyup.enter="request_add_tag(tagModel.content)"/>
             </Col>
             <Col span="1" offset="1">
             <Button @click="request_add_tag(tagModel.content)" type="primary">添加</Button>
             </Col>
           </Row>
-          <div class="tag" :key="item.id" v-for="item in tagModel.list">
+          <div class="tag" :class="{'in-edit':item.isEdit}" :key="item.id" v-for="item in tagModel.list">
             <Row>
               <Col span="14">
-              <Input v-model="item.content" :readonly="item.readonly" />
+              <div class="content" v-show="!item.isEdit" >{{item.content}}</div>
+              <Input v-show="item.isEdit" v-model="item.content"  />
               </Col>
-              <Col span="2" offset="1">
-              <Button v-show="!item.isEdit" @click="item.isEdit = true" shape="circle" icon="md-create"></Button>
-              <Button v-show="item.isEdit" shape="circle" icon="md-checkmark"></Button>
+              <Col class="option" span="2" offset="1">
+              <Button v-show="!item.isEdit" @click="inUpdateTag(item)" shape="circle" icon="md-create"></Button>
+              <Button v-show="item.isEdit" shape="circle" @click="reques_update_tag(item)" icon="md-checkmark"></Button>
               </Col>
-              <Col span="2">
-              <Button v-show="!item.isEdit" shape="circle" icon="md-remove"></Button>
-              <Button v-show="item.isEdit" @click="item.isEdit = false" shape="circle" icon="md-close"></Button>
+              <Col class="option" span="2">
+              <Button v-show="!item.isEdit" @click="confirm_delete_tag(item)" shape="circle" icon="md-remove"></Button>
+              <Button v-show="item.isEdit" @click="abortUpdateTag(item)" shape="circle" icon="md-close"></Button>
               </Col>
             </Row>
           </div>
@@ -65,7 +66,12 @@
     <Modal v-model="editModel.isShow" :mask-closable='false' @on-visible-change="change_visible">
       <p slot="header"></p>
       <div>
-        <Input ref="autoFocusInput" :clearable="true" :rows="10" placeholder="输入内容" v-model="notepad.content" type="textarea" />
+        <Input ref="autoFocusInput" @on-keyup.ctrl.enter="close_edit_model(notepad)" :clearable="true" :rows="10" placeholder="输入内容" v-model="notepad.content" type="textarea" />
+        <br>
+        <br>
+        <Select v-model="notepad.tagIdList" multiple >
+          <Option :key="item.id" v-for="item in tagModel.list" :value="item.id">{{item.content}}</Option>
+        </Select>
         <br>
         <br>
         <Input :clearable="true" placeholder="输入标题" v-model="notepad.title" />
@@ -81,40 +87,40 @@
   </div>
 </template>
 <script>
-import DateHelper from "@/assets/lib/DateHelper";
-import AxiosHelper from "@/assets/lib/AxiosHelper";
+import DateHelper from '@/assets/lib/DateHelper';
+import AxiosHelper from '@/assets/lib/AxiosHelper';
 export default {
-  name: "",
+  name: '',
   data() {
     return {
       tagModel: {
         isShow: false,
-        list: []
+        list: [],
       },
-      requestPrefix: "/notepad/notepad",
-      requestPrefixTag: "/notepad/tag",
+      requestPrefix: '/notepad/notepad',
+      requestPrefixTag: '/notepad/tag',
       editModel: {
-        isShow: false
+        isShow: false,
       },
       deleteModel: {
-        isShow: false
+        isShow: false,
       },
       active: {
         //当前活动的日记
-        index: ""
+        index: '',
       },
       pagination: {
         page: 1,
-        size: 3
+        size: 3,
       },
       list: [
         //存储所有的日记
       ],
       notepad: {
         //日记的基本结构 用于日记的添加和修改
-        title: "",
-        content: ""
-      }
+        title: '',
+        content: '',
+      },
     };
   },
   computed: {},
@@ -122,6 +128,20 @@ export default {
     change_page(argPage) {
       this.pagination.page = argPage;
       this.request_get(this.pagination);
+    },
+    confirm_delete_tag(item) {
+      this.rquest_delete_tag(item);
+    },
+    rquest_delete_tag(item) {
+      AxiosHelper.request({
+        method: 'post',
+        url: this.requestPrefixTag + '/delete',
+        data: {
+          id: item.id,
+        },
+      }).then(response => {
+        this.request_get_tag();
+      });
     },
     inTagModel() {
       this.tagModel.isShow = true;
@@ -132,24 +152,55 @@ export default {
       this.active.index = index;
       this.deleteModel.isShow = true;
     },
+    inUpdateTag(item) {
+      item.isEdit = true;
+    },
+    abortUpdateTag(item) {
+      item.isEdit = false;
+      item.content = item.originContent;
+    },
+    reques_update_tag(item) {
+      item.content &&
+        item.content.trim() !== item.originContent.trim() &&
+        AxiosHelper.request({
+          method: 'post',
+          url: this.requestPrefixTag + '/update',
+          data: {
+            content: item.content,
+            id: item.id,
+          },
+        }).then(response => {
+          if (response.data.isFailed) {
+            this.$Message.warning(response.data.message);
+          } else {
+            item.isEdit = false;
+          }
+        });
+    },
     request_add_tag(argContent) {
-      AxiosHelper.request({
-        method: "post",
-        url: this.requestPrefixTag + "/add",
-        data: {
-          content: argContent
-        }
-      }).then(response => {
-        this.request_get_tag();
-      });
+      argContent &&
+        AxiosHelper.request({
+          method: 'post',
+          url: this.requestPrefixTag + '/add',
+          data: {
+            content: argContent,
+          },
+        }).then(response => {
+          if (response.data.isFailed) {
+            this.$Message.warning(response.data.message);
+          } else {
+            this.tagModel.content = '';
+            this.request_get_tag();
+          }
+        });
     },
     request_get_tag() {
       AxiosHelper.request({
-        method: "post",
-        url: this.requestPrefixTag + "/get"
+        method: 'post',
+        url: this.requestPrefixTag + '/get',
       }).then(response => {
         this.tagModel.list = response.data.map((el, index, arr) => {
-          el.readonly = true;
+          el.originContent = el.content;
           el.isEdit = false;
           return el;
         });
@@ -158,12 +209,12 @@ export default {
     request_get(argPagination) {
       //得到日记信息
       AxiosHelper.request({
-        method: "post",
-        url: this.requestPrefix + "/get",
+        method: 'post',
+        url: this.requestPrefix + '/get',
         data: {
           page: argPagination.page,
-          size: argPagination.size
-        }
+          size: argPagination.size,
+        },
       }).then(response => {
         if (response.data.data.length === 0 && this.pagination.page > 1) {
           let maxPage =
@@ -182,19 +233,19 @@ export default {
     },
     convert(argNotepad) {
       //转换请求过来的日记数据
-      let notepad = { ...argNotepad };
+      let notepad = {...argNotepad};
       let createTime = DateHelper.getDateFormatString(
-        "YYYY-MM-dd",
+        'YYYY-MM-dd',
         false,
         new Date(notepad.createTime)
       );
       notepad.createTime = createTime;
-      if (notepad.title === "") {
+      if (notepad.title === '') {
         notepad.title = createTime;
       }
-      if (notepad.updateTime !== "") {
+      if (notepad.updateTime !== '') {
         notepad.updateTime = DateHelper.getDateFormatString(
-          "YYYY-MM-dd",
+          'YYYY-MM-dd',
           false,
           new Date(notepad.updateTime)
         );
@@ -203,9 +254,9 @@ export default {
     },
     request_add(argNotepad) {
       AxiosHelper.request({
-        method: "post",
-        url: this.requestPrefix + "/add",
-        data: argNotepad
+        method: 'post',
+        url: this.requestPrefix + '/add',
+        data: argNotepad,
       }).then(response => {
         this.pagination.page = 1;
         this.request_get(this.pagination);
@@ -213,9 +264,9 @@ export default {
     },
     request_update(argNotepad) {
       AxiosHelper.request({
-        method: "post",
-        url: this.requestPrefix + "/update",
-        data: argNotepad
+        method: 'post',
+        url: this.requestPrefix + '/update',
+        data: argNotepad,
       }).then(response => {
         let notepad = this.convert(response.data.data);
         this.list.splice(this.active.index, 1, notepad);
@@ -226,19 +277,20 @@ export default {
         this.$refs.autoFocusInput.focus();
       });
     },
-    edit(argNotepad = { title: "", content: "" }, argIndex) {
+    edit(argNotepad = {title: '', content: '', tagIdList: []}, argIndex) {
       //编辑日记
       this.editModel.isShow = true;
-      this.notepad = { ...argNotepad };
+      this.notepad = {...argNotepad};
       this.active.index = argIndex;
+      this.request_get_tag();
     },
     request_del() {
       AxiosHelper.request({
-        method: "post",
-        url: this.requestPrefix + "/del",
+        method: 'post',
+        url: this.requestPrefix + '/del',
         data: {
-          id: this.active.notepad.id
-        }
+          id: this.active.notepad.id,
+        },
       }).then(response => {
         //从前端这里虽然在当前页没有数据时候会多请求一次,但是,一切因该以后台数据为准
         this.request_get(this.pagination);
@@ -254,11 +306,11 @@ export default {
         //修改
         this.request_update(argNotepad);
       }
-    }
+    },
   },
   created() {
     this.request_get(this.pagination);
-  }
+  },
 };
 </script>
 <style lang="less">
@@ -267,8 +319,9 @@ export default {
 #notepad-id {
   font-size: 14px;
 
-   > .app-name {
-    margin: 1em auto;text-align: center;
+  > .app-name {
+    margin: 1em auto;
+    text-align: center;
   }
 
   .first-btn {
@@ -276,15 +329,22 @@ export default {
   }
 
   .add-btn {
-    font-size: 40px;display: block;width: 100px;height: 100px;margin: 10px auto;
+    font-size: 40px;
+    display: block;
+    width: 100px;
+    height: 100px;
+    margin: 10px auto;
   }
 
-   > .wrapper {
-    width: 85%;max-width: 650px;margin: 0 auto;
+  > .wrapper {
+    width: 85%;
+    max-width: 650px;
+    margin: 0 auto;
   }
 
   .no-data {
-    line-height: 40px;text-align: center;
+    line-height: 40px;
+    text-align: center;
   }
 
   .card {
@@ -292,14 +352,34 @@ export default {
   }
 
   .show-area .ivu-input {
-    height: auto;resize: none;border: none;
+    height: auto;
+    resize: none;
+    border: none;
   }
 
   .tag-wrapper {
     .tag {
-      margin-top: 15px;
+      margin: 10px 0 5px 0;
+      cursor: pointer;
+      &:hover {
+        .option {
+          display: block;
+        }
+      }
+      &.in-edit {
+        .option {
+          display: block;
+        }
+      }
+      .content {
+        border-bottom: 1px solid #ccc;
+        height: 32px;
+        line-height: 32px;
+      }
+      .option {
+        display: none;
+      }
     }
   }
 }
-
 </style>
