@@ -3,8 +3,9 @@
     <h1 class="app-name">记事本</h1>
     <div class="wrapper">
 
-      <div class="card-wrapper" v-show="!tagModel.isShow">
+      <div class="card-wrapper" v-show="showModelFlag === 'notepad'">
         <Button class="first-btn" @click="inTagModel()">标签管理</Button>
+         <Button class="first-btn" @click="inFileModel()">文件管理</Button>
         <Button @click="edit()" type="primary" long><span>添加</span></Button>
         <Select placement="top" @on-change="change_filter_tag()" style="margin-top:10px;" v-model="filterTagIdList" multiple placeholder="标签过滤">
           <Option :key="item.id" v-for="item in tagModel.list" :value="item.id">{{item.content}}</Option>
@@ -37,8 +38,8 @@
           暂无数据
         </div>
       </div>
-      <div class="tag-wrapper" v-show="tagModel.isShow">
-        <Button class="first-btn" @click="tagModel.isShow = false">返回</Button>
+      <div class="tag-wrapper" v-show="showModelFlag === 'tag'">
+        <Button class="first-btn" @click="showModelFlag = 'notepad'">返回</Button>
         <div class="first">
           <Row>
             <Col span="18">
@@ -66,7 +67,32 @@
           </div>
         </div>
       </div>
+      <div v-show="showModelFlag === 'file'" class="file-wrapper">
+        <Button class="first-btn" @click="outFileModel()">返回</Button>
+        <Upload :on-success="request_get_file"  ref="upload" :show-upload-list="false" :paste="true" :action="BuiltServiceConfig.prefix + requestPrefixFile + '/upload'"   type="drag" multiple>
+          <div style="height:200px;line-height:200px;">点击或拖拽上传</div>
+        </Upload>
+
+        <div class="upload-wrapper">
+          <div class="file" :key="index" v-for="(item,index) in fileModel.uploadList">
+            <Row>
+              <Col span="14">
+                <div class="name">{{item.name}}</div>
+              </Col>
+              <Col class="option" span="2" offset="1">
+                <Button shape="circle" icon="md-download"></Button>
+              </Col>
+              <Col class="option" span="2">
+                <Button shape="circle" icon="md-remove"></Button>
+              </Col>
+            </Row>
+          </div>
+          
+        </div>
+
+      </div>
     </div>
+
     <Modal v-model="editModel.isShow" :mask-closable='false' @on-visible-change="change_visible">
       <p slot="header"></p>
       <div>
@@ -91,18 +117,24 @@
   </div>
 </template>
 <script>
+import BuiltServiceConfig from '@root/service/app/config.json';
 import DateHelper from '@/assets/lib/DateHelper';
 import AxiosHelper from '@/assets/lib/AxiosHelper';
 export default {
   name: '',
   data() {
     return {
+      showModelFlag: 'notepad', // tag file
+      fileModel: {
+        uploadList: [],
+      },
       tagModel: {
-        isShow: false,
         list: [],
       },
+      BuiltServiceConfig,
       requestPrefix: '/notepad/notepad',
       requestPrefixTag: '/notepad/tag',
+      requestPrefixFile: '/notepad/upload',
       editModel: {
         isShow: false,
       },
@@ -153,7 +185,14 @@ export default {
       });
     },
     inTagModel() {
-      this.tagModel.isShow = true;
+      this.showModelFlag = 'tag';
+    },
+    inFileModel() {
+      this.showModelFlag = 'file';
+      this.request_get_file();
+    },
+    outFileModel() {
+      this.showModelFlag = 'notepad';
     },
     confirm_delete(argNotepad, index) {
       this.active.notepad = argNotepad;
@@ -212,6 +251,14 @@ export default {
           el.isEdit = false;
           return el;
         });
+      });
+    },
+    request_get_file() {
+      AxiosHelper.request({
+        method: 'get',
+        url: this.requestPrefixFile + '/get',
+      }).then(response => {
+        this.fileModel.uploadList = response.data;
       });
     },
     request_get(argPagination, argFilter = {}) {
@@ -328,8 +375,9 @@ export default {
 #notepad-id {
   font-size: 14px;
 
-  > .app-name {
+   > .app-name {
     margin: 1em auto;
+
     text-align: center;
   }
 
@@ -339,13 +387,15 @@ export default {
 
   .add-btn {
     font-size: 40px;
+
     display: block;
+
     width: 100px;
     height: 100px;
     margin: 10px auto;
   }
 
-  > .wrapper {
+   > .wrapper {
     width: 85%;
     max-width: 650px;
     margin: 0 auto;
@@ -353,6 +403,7 @@ export default {
 
   .no-data {
     line-height: 40px;
+
     text-align: center;
   }
 
@@ -362,33 +413,67 @@ export default {
 
   .show-area .ivu-input {
     height: auto;
+
     resize: none;
+
     border: none;
   }
 
   .tag-wrapper {
     .tag {
       margin: 10px 0 5px 0;
+
       cursor: pointer;
+
       &:hover {
         .option {
           display: block;
         }
       }
+
       &.in-edit {
         .option {
           display: block;
         }
       }
+
       .content {
-        border-bottom: 1px solid #ccc;
-        height: 32px;
         line-height: 32px;
+
+        height: 32px;
+
+        border-bottom: 1px solid #ccc;
       }
+
       .option {
         display: none;
       }
     }
   }
+
+  .upload-wrapper {
+    margin-top: 15px;
+
+    .file {
+      margin: 15px 0;
+
+      &:hover {
+        .option {
+          display: block;
+        }
+      }
+    }
+
+    .name {
+      border-bottom: 1px solid #ccc;
+
+.vertical_lineheight(32px);
+    }
+
+    .option {
+      display: none;
+    }
+  }
 }
+
 </style>
