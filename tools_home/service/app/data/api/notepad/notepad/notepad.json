@@ -1,48 +1,39 @@
 [
     {
-        "title": "",
-        "content": "测试",
-        "tagIdList": [],
-        "createTime": 1540439994920,
-        "id": 1540439994920,
-        "updateTime": ""
-    },
-    {
         "title": "2018-10-25",
-        "content": "测试",
+        "content": "记事本标签相关功能\n1.删除标签时  已绑定该标签数据的处理\n2.编辑添加标签时  如果展开了标签  点确定会先关闭标签\n3.一些易用性、代码逻辑优化",
         "tagIdList": [
+            1540439058555,
             1540439061206,
-            1540439027554
+            1540450650761
         ],
-        "createTime": 1540439960406,
-        "id": 1540439960406,
-        "updateTime": 1540440342789
+        "createTime": 1540450490137,
+        "id": 1540450490137,
+        "updateTime": 1540450688584
     },
     {
         "title": "2018-10-25",
         "content": "axios 全局添加错误拦截",
         "createTime": 1540438634425,
         "id": 1540438634425,
-        "updateTime": 1540449654264,
+        "updateTime": 1540451096672,
         "tagIdList": [
-            1540439023984,
             1540439058555,
-            1540439061206
+            1540439061206,
+            1540450650761
         ]
     },
     {
-        "title": "",
+        "title": "2018-10-25",
         "content": "es6 关于foreach内修改原数组  能改变值还是不能改变\n\na [1,2]\na = [{name:1}]",
         "createTime": 1540435391847,
         "id": 1540435391847,
-        "updateTime": ""
-    },
-    {
-        "title": "",
-        "content": "Vue版本Axios.request",
-        "createTime": 1540434312330,
-        "id": 1540434312330,
-        "updateTime": ""
+        "updateTime": 1540451142463,
+        "tagIdList": [
+            1540439058555,
+            1540439061206,
+            1540451127139
+        ]
     },
     {
         "title": "",
@@ -52,39 +43,63 @@
         "updateTime": ""
     },
     {
-        "title": "",
-        "content": "Vscode 代码提示会失灵",
+        "title": "2018-10-25",
+        "content": "Vscode 代码提示会失灵\n当代码被前测到有错误时提示会失灵",
         "createTime": 1540432141295,
         "id": 1540432141295,
-        "updateTime": ""
+        "updateTime": 1540450753673,
+        "tagIdList": [
+            1540439061206,
+            1540439058555,
+            1540439042964
+        ]
     },
     {
-        "title": "",
-        "content": "VScode 进入函数  F12 不好用\n",
+        "title": "2018-10-25",
+        "content": "VScode 进入函数  F12 不好用\n不能由HTML进入方法",
         "createTime": 1540431580143,
         "id": 1540431580143,
-        "updateTime": ""
+        "updateTime": 1540451051287,
+        "tagIdList": [
+            1540439058555,
+            1540439061206,
+            1540439042964
+        ]
     },
     {
-        "title": "",
+        "title": "2018-10-24",
         "content": "写一篇 vue 数组的坑  比如动态添加属性\nthis.list = [{name:1}]\nthis.list[0].age = 12",
         "createTime": 1540396508258,
         "id": 1540396508258,
-        "updateTime": ""
+        "updateTime": 1540450790313,
+        "tagIdList": [
+            1540439058555,
+            1540439054374
+        ]
     },
     {
-        "title": "",
+        "title": "2018-10-24",
         "content": "添加snippet 可以创建vue的方法",
         "createTime": 1540396323175,
         "id": 1540396323175,
-        "updateTime": ""
+        "updateTime": 1540451041713,
+        "tagIdList": [
+            1540439042964,
+            1540439058555,
+            1540439061206
+        ]
     },
     {
-        "title": "",
+        "title": "2018-10-24",
         "content": "记事本支持上传文件和下载功能",
         "createTime": 1540379394174,
         "id": 1540379394174,
-        "updateTime": ""
+        "updateTime": 1540451177215,
+        "tagIdList": [
+            1540439061206,
+            1540439058555,
+            1540450650761
+        ]
     },
     {
         "title": "",
@@ -94,39 +109,40 @@
         "updateTime": ""
     },
     {
-        "title": "",
+        "title": "2018-10-24",
         "content": "选择括号内的 vscode 以及和选择相关的",
         "createTime": 1540370963680,
         "id": 1540370963680,
-        "updateTime": ""
+        "updateTime": 1540451015247,
+        "tagIdList": [
+            1540439058555,
+            1540439061206,
+            1540439042964
+        ]
     },
     {
-        "title": "",
+        "title": "2018-10-23",
         "content": "vuecli的路径  ~ 相对路径  绝对路径",
         "createTime": 1540305050550,
         "id": 1540305050550,
-        "updateTime": ""
+        "updateTime": 1540450993615,
+        "tagIdList": [
+            1540439058555,
+            1540439061206,
+            1540439023984
+        ]
     },
     {
         "title": "2018-10-23",
         "content": "买一鞋子 。",
         "createTime": 1540304317038,
         "id": 1540304317038,
-        "updateTime": 1540357055864
-    },
-    {
-        "title": "",
-        "content": "自己用canvas画一些对称曲线",
-        "createTime": 1540295744672,
-        "id": 1540295744672,
-        "updateTime": ""
-    },
-    {
-        "title": "",
-        "content": "记事本添加分类的功能",
-        "createTime": 1540275536960,
-        "id": 1540275536960,
-        "updateTime": ""
+        "updateTime": 1540450818305,
+        "tagIdList": [
+            1540439058555,
+            1540439061206,
+            1540439050999
+        ]
     },
     {
         "title": "2018-10-21",
@@ -136,38 +152,38 @@
         "updateTime": 1540259065220
     },
     {
-        "title": "",
-        "content": "git默认分支  已经在其他环境上运行项目",
-        "createTime": 1540171397541,
-        "id": 1540171397541,
-        "updateTime": ""
-    },
-    {
-        "title": "",
-        "content": "emmet的一些特性 lorem  自动计算等",
-        "createTime": 1540171417251,
-        "id": 1540171417251,
-        "updateTime": ""
-    },
-    {
-        "title": "",
+        "title": "2018-10-22",
         "content": "关于分页器的一些思索",
         "createTime": 1540173652181,
         "id": 1540173652181,
-        "updateTime": ""
+        "updateTime": 1540450847977,
+        "tagIdList": [
+            1540439058555,
+            1540439054374
+        ]
     },
     {
         "title": "2018-10-22",
         "content": "codepen 上的效果\n\nhttps://codepen.io/pimskie/pen/aRNEYZ\n\nhttps://codepen.io/leusrox/pen/mWZBgM\n\nhttps://codepen.io/VisualAngle/pen/mzKKZW",
         "createTime": 1540186895275,
         "id": 1540186895275,
-        "updateTime": 1540187086499
+        "updateTime": 1540450859904,
+        "tagIdList": [
+            1540439058555,
+            1540439061206,
+            1540450668217
+        ]
     },
     {
         "title": "Canvas效果系列的基本代码",
         "content": "<div id=\"app-id\">\n  <div id=\"header-id\">\n  </div>\n<canvas :style={borderWidth:this.borderWidth+\"px\"} @mouseenter=\"mouse_enter\" @mousemove=\"mouse_move\" @mouseleave=\"mouse_leave\" id=\"effect-id\"></canvas>\n</div>\n\n\n*{\n  margin:0;\n  padding:0;\n}\n#app-id{\n  position:absolute;\n  width:100%;\n  height:100%;\n \n  flex-direction:column;\n  .ivu-slider::before,.ivu-slider::after{\n    display:table;\n    content:\"\";\n  }\n}\n#header-id{\n  width:100%;\n  padding:10px 40px 0;\n  &:after{\n    display:block;\n    content:\" \";\n  }\n  \n}\n#effect-id{\n  display:block;\n  border-color: #D61827;\n  border-style:solid;\n}\n\n\n\nnew Vue({\n  el:\"#app-id\",\n  data:{\n    canvasDom:null,\n    width:0,\n    height:0,\n    pen:null,\n    borderWidth:1,\n    color:\"\",\n    data:[],\n    enterX:0,\n    enterY:0,\n    isStart:false,\n    \n    \n  },\n  methods:{\n    \n    mouse_enter($event){\n      this.isStart = true;\n      this.color = 'hsl('+(Math.random()*360)+',60%,80%)';\n      this.pen.fillStyle =  this.color;\n      this.enterX = $event.pageX - this.canvasDom.offsetLeft - this.borderWidth;\n      this.enterY = $event.pageY - this.canvasDom.offsetTop - this.borderWidth\n      if(this.data.length == 0){\n        this.start();\n      }\n      \n    },\n    mouse_move($event){\n      this.enterX = $event.pageX - this.canvasDom.offsetLeft - this.borderWidth;\n      this.enterY = $event.pageY - this.canvasDom.offsetTop - this.borderWidth\n    },\n   mouse_leave(){\n     this.isStart = false;\n   },\n   start(){\n    \n      if(this.isStart){\n        this.data.push({\n          \n        })\n      }\n     this.pen.clearRect(0,0,this.width,this.height);\n     for(let i=0;i<this.data.length;i++){\n          let item = this.data[i];\n     }\n     \n     this.pen.globalAlpha = 1;\n     if(this.isStart || this.data.length > 0){\n       requestAnimationFrame(()=>{\n         this.start();\n       })\n     }\n     else{\n       this.pen.clearRect(0,0,this.width,this.height)\n     }\n   }\n      \n  },\n  mounted(){\n   this.canvasDom = document.getElementById(\"effect-id\");\n   this.headerDom = document.getElementById(\"header-id\");\n   this.pen = this.canvasDom.getContext(\"2d\");\n  \n   var computed = ()=>{\n      let headerDomComputedStyle = window.getComputedStyle(this.headerDom);\n      let width = window.innerWidth;\n    \n       let height = window.innerHeight - ( parseInt(headerDomComputedStyle.height) || 0)\n      this.canvasDom.setAttribute(\"width\",width-2*this.borderWidth)\n      this.canvasDom.setAttribute(\"height\",height-2*this.borderWidth)\n      this.width = width;\n      this.height = height;\n    }\n   computed();\n   window.addEventListener('resize',computed); \n   \n    \n  }\n})",
         "createTime": 1540190327361,
         "id": 1540190327361,
-        "updateTime": 1540351351078
+        "updateTime": 1540450874130,
+        "tagIdList": [
+            1540450668217,
+            1540439058555,
+            1540439061206
+        ]
     }
 ]

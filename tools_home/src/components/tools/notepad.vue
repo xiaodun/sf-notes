@@ -136,7 +136,7 @@ export default {
     },
     change_page(argPage) {
       this.pagination.page = argPage;
-      this.request_get(this.pagination);
+      this.request_get(this.pagination, {tagIdList: this.filterTagIdList});
     },
     confirm_delete_tag(item) {
       this.rquest_delete_tag(item);
@@ -229,7 +229,7 @@ export default {
           let maxPage =
             ((response.data.total - 1) / this.pagination.size + 1) | 0;
           this.pagination.page = maxPage;
-          this.request_get(this.pagination);
+          this.request_get(this.pagination, {tagIdList: this.filterTagIdList});
         } else {
           this.list = [];
           response.data.data.forEach(el => {
@@ -301,7 +301,7 @@ export default {
         },
       }).then(response => {
         //从前端这里虽然在当前页没有数据时候会多请求一次,但是,一切因该以后台数据为准
-        this.request_get(this.pagination);
+        this.request_get(this.pagination, {tagIdList: this.filterTagIdList});
       });
     },
 
