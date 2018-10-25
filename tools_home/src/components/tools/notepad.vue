@@ -6,6 +6,10 @@
       <div class="card-wrapper" v-show="!tagModel.isShow">
         <Button class="first-btn" @click="inTagModel()">标签管理</Button>
         <Button @click="edit()" type="primary" long><span>添加</span></Button>
+        <Select placement="top" @on-change="change_filter_tag()" style="margin-top:10px;" v-model="filterTagIdList" multiple placeholder="标签过滤">
+          <Option :key="item.id" v-for="item in tagModel.list" :value="item.id">{{item.content}}</Option>
+        </Select>
+        </Select>
         <div v-if="list.length > 0">
           <Card class="card" :bordered="false" v-for="(item,index) in list" :key="item.id">
             <p slot="title">
@@ -30,7 +34,7 @@
           <Page :current="pagination.page" @on-change="change_page" style="margin-top: 20px;margin-bottom:20px;float: right;" :total="pagination.total" :page-size="pagination.size" show-total simple />
         </div>
         <div class="no-data" v-else>
-          赶快创建吧！
+          暂无数据
         </div>
       </div>
       <div class="tag-wrapper" v-show="tagModel.isShow">
@@ -116,6 +120,7 @@ export default {
       list: [
         //存储所有的日记
       ],
+      filterTagIdList: [], //用于过滤的标签id
       notepad: {
         //日记的基本结构 用于日记的添加和修改
         title: '',
@@ -125,6 +130,10 @@ export default {
   },
   computed: {},
   methods: {
+    change_filter_tag() {
+      this.pagination.page = 1;
+      this.request_get(this.pagination, {tagIdList: this.filterTagIdList});
+    },
     change_page(argPage) {
       this.pagination.page = argPage;
       this.request_get(this.pagination);
@@ -145,7 +154,6 @@ export default {
     },
     inTagModel() {
       this.tagModel.isShow = true;
-      this.request_get_tag();
     },
     confirm_delete(argNotepad, index) {
       this.active.notepad = argNotepad;
@@ -206,7 +214,7 @@ export default {
         });
       });
     },
-    request_get(argPagination) {
+    request_get(argPagination, argFilter = {}) {
       //得到日记信息
       AxiosHelper.request({
         method: 'post',
@@ -214,6 +222,7 @@ export default {
         data: {
           page: argPagination.page,
           size: argPagination.size,
+          filter: argFilter,
         },
       }).then(response => {
         if (response.data.data.length === 0 && this.pagination.page > 1) {
@@ -282,7 +291,6 @@ export default {
       this.editModel.isShow = true;
       this.notepad = {...argNotepad};
       this.active.index = argIndex;
-      this.request_get_tag();
     },
     request_del() {
       AxiosHelper.request({
@@ -310,6 +318,7 @@ export default {
   },
   created() {
     this.request_get(this.pagination);
+    this.request_get_tag();
   },
 };
 </script>
