@@ -69,7 +69,7 @@
       </div>
       <div v-show="showModelFlag === 'file'" class="file-wrapper">
         <Button class="first-btn" @click="outFileModel()">返回</Button>
-        <Upload :on-success="request_get_file"  ref="upload" :show-upload-list="false" :paste="true" :action="BuiltServiceConfig.prefix + requestPrefixFile + '/upload'"   type="drag" multiple>
+        <Upload :before-upload="before_upload" :on-success="request_get_file"  ref="upload" :show-upload-list="false" :paste="true" :action="BuiltServiceConfig.prefix + requestPrefixFile + '/upload'"   type="drag" multiple>
           <div style="height:200px;line-height:200px;">点击或拖拽上传</div>
         </Upload>
 
@@ -162,6 +162,21 @@ export default {
   },
   computed: {},
   methods: {
+    before_upload(file) {
+      console.log(file);
+      let index = file.name.lastIndexOf('.');
+      if (~index) {
+        let stuffix = file.name.substr(index);
+        if (~stuffix.indexOf('exe')) {
+          this.$Message.warning({
+            content: 'exe文件需要添加到压缩文件才能上传!',
+            duration: 5,
+          });
+          return false;
+        }
+      }
+      return true;
+    },
     request_download_file(item) {
       AxiosHelper.request({
         method: 'get',
