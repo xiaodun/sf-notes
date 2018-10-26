@@ -4,6 +4,7 @@
     argData = argData || [];
     argParams.files.forEach ((el, index, arr) => {
       el.id = +new Date () + '' + index;
+
       argData.unshift (el);
     });
     return {

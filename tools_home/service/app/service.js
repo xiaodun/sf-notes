@@ -73,6 +73,9 @@ http_os
         file_os.writeFileSync (rootFloder.commandPath, commandTemplate);
       }
 
+      let env = {};
+      env.currentPath = rootFloder.path; //命令文件所在的目录
+
       //解析参数
 
       if (request.method.toUpperCase () == 'POST') {
@@ -93,7 +96,6 @@ http_os
             // console.log (fileds, files);
           });
           form.on ('file', function (name, file) {
-            console.log (file);
             //写入文件名和路径
             postData.files.push ({
               name: file.name,
@@ -132,7 +134,12 @@ http_os
           // var result = eval(new String(file_os.readFileSync(rootFloder.commandPath)))(cloneData,params);
           var result = eval (
             file_os.readFileSync (rootFloder.commandPath, 'utf-8')
-          ) (cloneData, params);
+          ) (cloneData, params, env);
+
+          if (result.isDelete) {
+            let path = rootFloder.path + '/' + result.file.flag;
+            file_os.unlinkSync (path);
+          }
 
           if (result.isWrite) {
             if (result.data) {
@@ -151,11 +158,24 @@ http_os
               return;
             }
           }
-          //返回结果
-          response.writeHead (result.response.code, {
-            'Content-Type': 'application/json',
-          });
-          response.end (JSON.stringify (result.response.data));
+
+          if (result.isDownload) {
+            //文件下载
+            let path = rootFloder.path + '/' + result.file.flag;
+            let file = file_os.createReadStream (path);
+            response.writeHead (200, {
+              'Content-Type': 'application/force-download',
+              'Content-Disposition': `attachment; filename=` +
+                encodeURIComponent (result.file.name),
+            });
+            file.pipe (response);
+          } else {
+            //返回结果
+            response.writeHead (result.response.code, {
+              'Content-Type': 'application/json',
+            });
+            response.end (JSON.stringify (result.response.data));
+          }
         } catch (error) {
           console.log (error);
           response.end (error.stack);

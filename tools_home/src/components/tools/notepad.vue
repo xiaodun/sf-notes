@@ -80,10 +80,10 @@
                 <div class="name">{{item.name}}</div>
               </Col>
               <Col class="option" span="2" offset="1">
-                <Button shape="circle" icon="md-download"></Button>
+                <Button shape="circle" icon="md-download" @click="request_download_file(item)"></Button>
               </Col>
               <Col class="option" span="2">
-                <Button shape="circle" icon="md-remove"></Button>
+                <Button shape="circle" icon="md-remove" @click="request_delete_file(item)"></Button>
               </Col>
             </Row>
           </div>
@@ -162,6 +162,26 @@ export default {
   },
   computed: {},
   methods: {
+    request_download_file(item) {
+      AxiosHelper.request({
+        method: 'get',
+        url: this.requestPrefixFile + '/download' + `?id=${item.id}`,
+        responseType: 'blob',
+      }).then(response => {
+        var blob = response.data;
+        var reader = new FileReader();
+
+        reader.readAsDataURL(blob);
+        reader.onload = function(e) {
+          var a = document.createElement('a');
+          a.download = item.name;
+          a.href = e.target.result;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        };
+      });
+    },
     change_filter_tag() {
       this.pagination.page = 1;
       this.request_get(this.pagination, {tagIdList: this.filterTagIdList});
@@ -240,6 +260,18 @@ export default {
             this.request_get_tag();
           }
         });
+    },
+    request_delete_file(item) {
+      AxiosHelper.request({
+        method: 'post',
+        url: this.requestPrefixFile + '/delete',
+        data: {
+          id: item.id,
+        },
+      }).then(response => {
+        this.$Message.success('已删除!');
+        this.request_get_file();
+      });
     },
     request_get_tag() {
       AxiosHelper.request({
