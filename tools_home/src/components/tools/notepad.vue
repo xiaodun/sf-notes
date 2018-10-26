@@ -7,9 +7,8 @@
         <Button class="first-btn" @click="inTagModel()">标签管理</Button>
          <Button class="first-btn" @click="inFileModel()">文件管理</Button>
         <Button @click="edit()" type="primary" long><span>添加</span></Button>
-        <Select placement="top" @on-change="change_filter_tag()" style="margin-top:10px;" v-model="filterTagIdList" multiple placeholder="标签过滤">
+        <Select :transfer="true"  placement="top" @on-change="change_filter_tag()" style="margin-top:10px;" v-model="filterTagIdList" multiple placeholder="标签过滤">
           <Option :key="item.id" v-for="item in tagModel.list" :value="item.id">{{item.content}}</Option>
-        </Select>
         </Select>
         <div v-if="list.length > 0">
           <Card class="card" :bordered="false" v-for="(item,index) in list" :key="item.id">
@@ -99,7 +98,7 @@
         <Input ref="autoFocusInput" @on-keyup.ctrl.enter="close_edit_model(notepad)" :clearable="true" :rows="10" placeholder="输入内容" v-model="notepad.content" type="textarea" />
         <br>
         <br>
-        <Select v-model="notepad.tagIdList" multiple >
+        <Select  v-model="notepad.tagIdList" multiple >
           <Option :key="item.id" v-for="item in tagModel.list" :value="item.id">{{item.content}}</Option>
         </Select>
         <br>
@@ -163,7 +162,6 @@ export default {
   computed: {},
   methods: {
     before_upload(file) {
-      console.log(file);
       let index = file.name.lastIndexOf('.');
       if (~index) {
         let stuffix = file.name.substr(index);
