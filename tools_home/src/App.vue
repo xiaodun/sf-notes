@@ -1,5 +1,5 @@
 <style lang="less">
-@import '~@/assets/style/base.less';
+@import "~@/assets/style/base.less";
 
 .qrcode-model-wrapper {
   text-align: center;
@@ -11,14 +11,11 @@
   top: 0;
   bottom: 0;
   left: -100%;
-
   overflow-y: auto;
-
-  transition: left .35s ease-out;
-
+  transition: left 0.35s ease-out;
   background-color: #fff;
 
-.sf-shadow-5;
+  .sf-shadow-5;
 
   .ivu-menu {
     &:after {
@@ -32,7 +29,6 @@
 
   .arrow-back-btn {
     font-size: 20px;
-
     border-radius: 0;
   }
 }
@@ -40,28 +36,26 @@
 #top_wrapper {
   margin: 0 0 20px 0;
   padding: 10px 0;
-
   border-bottom: 1px solid #ddd;
 
   .item {
     margin-left: 5px;
   }
 }
-
 </style>
 <template>
   <div id="app">
     <div id="slide-menu" ref="slideMenu">
-     
+
       <Button class="arrow-back-btn" @click="toggleMenu" icon="ios-arrow-back" type="primary" long size="large"></Button>
       <Row>
-        <Col >
+        <Col>
         <Menu @on-select="menu_onselect">
           <MenuItem name="0" to="/">
-            首页
+          首页
           </MenuItem>
           <MenuItem name="1">
-            手机访问
+          手机访问
           </MenuItem>
 
           <Submenu :key="key" :name="key" v-for="(value,key) in menuData">
@@ -89,12 +83,12 @@
   </div>
 </template>
 <script>
-import QRCode from 'qrcodejs2';
-const logo = require('@/assets/logo.png');
+import QRCode from "qrcodejs2";
+const logo = require("@/assets/logo.png");
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    QRCode,
+    QRCode
   },
   methods: {
     menu_onselect(name) {
@@ -102,26 +96,26 @@ export default {
         this.createQecode();
         this.isShowQart = true;
       }
-      this.$refs.slideMenu.classList.remove('spread');
+      this.$refs.slideMenu.classList.remove("spread");
     },
     toggleMenu() {
-      this.$refs.slideMenu.classList.toggle('spread');
+      this.$refs.slideMenu.classList.toggle("spread");
     },
     createQecode() {
-      this.$refs.qrcode.innerHTML = '';
+      this.$refs.qrcode.innerHTML = "";
       if (
-        window.location.hostname == 'localhost' ||
-        window.location.hostname == '127.0.0.1'
+        window.location.hostname == "localhost" ||
+        window.location.hostname == "127.0.0.1"
       ) {
-        this.$refs.qrcode.innerHTML = '请确保你连上了网络！';
+        this.$refs.qrcode.innerHTML = "请确保你连上了网络！";
       } else {
-        let qrcode = new QRCode('qrcode', {
+        let qrcode = new QRCode("qrcode", {
           width: 232, // 设置宽度
           height: 232, // 设置高度
-          text: window.location.href,
+          text: window.location.href
         });
       }
-    },
+    }
   },
   data() {
     return {
@@ -130,76 +124,76 @@ export default {
       config: {
         value: location.href,
         imagePath: logo,
-        filter: 'color',
+        filter: "color"
       },
       menuData: {
         math_postures_vue: {
-          title: '四则运算',
-          icon: 'ios-calculator',
+          title: "四则运算",
+          icon: "ios-calculator",
           childs: [
             {
-              content: '版本1',
+              content: "版本1",
               to: {
-                path: '/math_postures',
-              },
-            },
-          ],
+                path: "/math_postures"
+              }
+            }
+          ]
         },
         clock_vue: {
-          title: '闹钟',
-          icon: 'ios-clock-outline',
+          title: "闹钟",
+          icon: "ios-clock-outline",
           childs: [
             {
-              content: 'pc端版本',
+              content: "pc端版本",
               to: {
-                path: '/clock_vue',
-              },
-            },
-          ],
+                path: "/clock_vue"
+              }
+            }
+          ]
         },
         notepad: {
-          title: '日记本',
-          icon: 'md-book',
+          title: "日记本",
+          icon: "md-book",
           childs: [
             {
-              content: '版本1',
+              content: "版本1",
               to: {
-                path: '/notepad_vue',
-              },
-            },
-          ],
+                path: "/notepad_vue"
+              }
+            }
+          ]
         },
         test_vue: {
-          title: '测试',
+          title: "测试",
           childs: [
             {
-              content: '测试用例',
+              content: "测试用例",
               to: {
-                path: '/test',
-              },
+                path: "/test"
+              }
             },
             {
-              content: '内置后台node服务',
+              content: "内置后台node服务",
               to: {
-                path: '/test_service',
-              },
-            },
-          ],
-        },
-      },
+                path: "/test_service"
+              }
+            }
+          ]
+        }
+      }
     };
   },
   computed: {},
 
   mounted() {
-    if (this.$route.path != '/') {
+    if (this.$route.path != "/") {
       this.is_home = false;
     }
   },
   watch: {
     $route(to, form) {
-      this.is_home = to.path == '/' ? true : false;
-    },
-  },
+      this.is_home = to.path == "/" ? true : false;
+    }
+  }
 };
 </script>

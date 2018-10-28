@@ -1,7 +1,30 @@
 [
     {
+        "title": "2018-10-28",
+        "content": "解决记事本删除可能存在得问题\n本周多关多花一些时间在掘金上  除了canvas之外要抽取几个观点写文章\n将其他几个小应用移动到code喷上\n重写其他几个应用和封装库\n\n找一家新的网吧  下次娱乐换一种方式！",
+        "tagIdList": [
+            1540439050999,
+            1540439058555,
+            1540697906401
+        ],
+        "createTime": 1540697866447,
+        "id": 1540697866447,
+        "updateTime": 1540698435787
+    },
+    {
+        "title": "",
+        "content": "轮播词句组件\n\n你不能认可自己的缺点，亦不能发挥自己的长处\n你不能坦然面对痛楚，亦不能享受喜悦。\n\n每个人都有自己的路要走。\n\n我过去的苦难来自于不能接受自己的内心的黑暗！\n\n重要的不是一个人能力，而是他的选择。\n\n一辈子不长  对自己好一点。\n\n只要彼此的心向着光明前行，我们终会再次相遇，无论来世，无论今生。\n\n昨夜西风凋碧树，独上高楼望尽天涯路。\n衣着渐宽终不悔，为伊消得人憔悴。\n众里寻它千百度，蓦然回首，那人却在灯火阑珊处。\n\n芝兰生于幽谷，不已无人而不芳。\n\n",
+        "tagIdList": [
+            1540439058555,
+            1540439061206
+        ],
+        "createTime": 1540568767564,
+        "id": 1540568767564,
+        "updateTime": ""
+    },
+    {
         "title": "2018-10-25",
-        "content": "记事本标签相关功能\n1.删除标签时  已绑定该标签数据的处理\n2.编辑添加标签时  如果展开了标签  点确定会先关闭标签\n3.一些易用性、代码逻辑优化",
+        "content": "记事本标签相关功能\n删除标签时  已绑定该标签数据的处理\n",
         "tagIdList": [
             1540439058555,
             1540439061206,
@@ -9,19 +32,7 @@
         ],
         "createTime": 1540450490137,
         "id": 1540450490137,
-        "updateTime": 1540450688584
-    },
-    {
-        "title": "2018-10-25",
-        "content": "axios 全局添加错误拦截",
-        "createTime": 1540438634425,
-        "id": 1540438634425,
-        "updateTime": 1540451096672,
-        "tagIdList": [
-            1540439058555,
-            1540439061206,
-            1540450650761
-        ]
+        "updateTime": 1540568140800
     },
     {
         "title": "",
@@ -73,18 +84,6 @@
         ]
     },
     {
-        "title": "2018-10-23",
-        "content": "买一鞋子 。",
-        "createTime": 1540304317038,
-        "id": 1540304317038,
-        "updateTime": 1540450818305,
-        "tagIdList": [
-            1540439058555,
-            1540439061206,
-            1540439050999
-        ]
-    },
-    {
         "title": "2018-10-21",
         "content": "写一篇文章 \n\nreact代码格式化\nemmet tab扩展\nAll Autocomplete",
         "createTime": 1540124223929,
@@ -116,10 +115,10 @@
     },
     {
         "title": "Canvas效果系列的基本代码",
-        "content": "<div id=\"app-id\">\n  <div id=\"header-id\">\n  </div>\n<canvas :style={borderWidth:this.borderWidth+\"px\"} @mouseenter=\"mouse_enter\" @mousemove=\"mouse_move\" @mouseleave=\"mouse_leave\" id=\"effect-id\"></canvas>\n</div>\n\n\n*{\n  margin:0;\n  padding:0;\n}\n#app-id{\n  position:absolute;\n  width:100%;\n  height:100%;\n \n  flex-direction:column;\n  .ivu-slider::before,.ivu-slider::after{\n    display:table;\n    content:\"\";\n  }\n}\n#header-id{\n  width:100%;\n  padding:10px 40px 0;\n  &:after{\n    display:block;\n    content:\" \";\n  }\n  \n}\n#effect-id{\n  display:block;\n  border-color: #D61827;\n  border-style:solid;\n}\n\n\n\nnew Vue({\n  el:\"#app-id\",\n  data:{\n    canvasDom:null,\n    width:0,\n    height:0,\n    pen:null,\n    borderWidth:1,\n    color:\"\",\n    data:[],\n    enterX:0,\n    enterY:0,\n    isStart:false,\n    \n    \n  },\n  methods:{\n    \n    mouse_enter($event){\n      this.isStart = true;\n      this.color = 'hsl('+(Math.random()*360)+',60%,80%)';\n      this.pen.fillStyle =  this.color;\n      this.enterX = $event.pageX - this.canvasDom.offsetLeft - this.borderWidth;\n      this.enterY = $event.pageY - this.canvasDom.offsetTop - this.borderWidth\n      if(this.data.length == 0){\n        this.start();\n      }\n      \n    },\n    mouse_move($event){\n      this.enterX = $event.pageX - this.canvasDom.offsetLeft - this.borderWidth;\n      this.enterY = $event.pageY - this.canvasDom.offsetTop - this.borderWidth\n    },\n   mouse_leave(){\n     this.isStart = false;\n   },\n   start(){\n    \n      if(this.isStart){\n        this.data.push({\n          \n        })\n      }\n     this.pen.clearRect(0,0,this.width,this.height);\n     for(let i=0;i<this.data.length;i++){\n          let item = this.data[i];\n     }\n     \n     this.pen.globalAlpha = 1;\n     if(this.isStart || this.data.length > 0){\n       requestAnimationFrame(()=>{\n         this.start();\n       })\n     }\n     else{\n       this.pen.clearRect(0,0,this.width,this.height)\n     }\n   }\n      \n  },\n  mounted(){\n   this.canvasDom = document.getElementById(\"effect-id\");\n   this.headerDom = document.getElementById(\"header-id\");\n   this.pen = this.canvasDom.getContext(\"2d\");\n  \n   var computed = ()=>{\n      let headerDomComputedStyle = window.getComputedStyle(this.headerDom);\n      let width = window.innerWidth;\n    \n       let height = window.innerHeight - ( parseInt(headerDomComputedStyle.height) || 0)\n      this.canvasDom.setAttribute(\"width\",width-2*this.borderWidth)\n      this.canvasDom.setAttribute(\"height\",height-2*this.borderWidth)\n      this.width = width;\n      this.height = height;\n    }\n   computed();\n   window.addEventListener('resize',computed); \n   \n    \n  }\n})",
+        "content": "\nhttps://unpkg.com/iview/dist/styles/iview.css\n\nhttps://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.min.js\nhttps://cdnjs.cloudflare.com/ajax/libs/iview/3.0.1/iview.min.js\n\n<div id=\"app-id\">\n  <div id=\"header-id\">\n  </div>\n<canvas :style={borderWidth:this.borderWidth+\"px\"} @mouseenter=\"mouse_enter\" @mousemove=\"mouse_move\" @mouseleave=\"mouse_leave\" id=\"effect-id\"></canvas>\n</div>\n\n\n*{\n  margin:0;\n  padding:0;\n}\n#app-id{\n  position:absolute;\n  width:100%;\n  height:100%;\n \n  flex-direction:column;\n  .ivu-slider::before,.ivu-slider::after{\n    display:table;\n    content:\"\";\n  }\n}\n#header-id{\n  width:100%;\n  padding:10px 40px 0;\n  &:after{\n    display:block;\n    content:\" \";\n  }\n  \n}\n#effect-id{\n  display:block;\n  border-color: #D61827;\n  border-style:solid;\n}\n\n\n\nnew Vue({\n  el:\"#app-id\",\n  data:{\n    canvasDom:null,\n    width:0,\n    height:0,\n    pen:null,\n    borderWidth:1,\n    color:\"\",\n    data:[],\n    enterX:0,\n    enterY:0,\n    isStart:false,\n    \n    \n  },\n  methods:{\n    \n    mouse_enter($event){\n      this.isStart = true;\n      this.color = 'hsl('+(Math.random()*360)+',60%,80%)';\n      this.pen.fillStyle =  this.color;\n      this.enterX = $event.pageX - this.canvasDom.offsetLeft - this.borderWidth;\n      this.enterY = $event.pageY - this.canvasDom.offsetTop - this.borderWidth\n      if(this.data.length == 0){\n        this.start();\n      }\n      \n    },\n    mouse_move($event){\n      this.enterX = $event.pageX - this.canvasDom.offsetLeft - this.borderWidth;\n      this.enterY = $event.pageY - this.canvasDom.offsetTop - this.borderWidth\n    },\n   mouse_leave(){\n     this.isStart = false;\n   },\n   start(){\n    \n      if(this.isStart){\n        this.data.push({\n          \n        })\n      }\n     this.pen.clearRect(0,0,this.width,this.height);\n     for(let i=0;i<this.data.length;i++){\n          let item = this.data[i];\n     }\n     \n     this.pen.globalAlpha = 1;\n     if(this.isStart || this.data.length > 0){\n       requestAnimationFrame(()=>{\n         this.start();\n       })\n     }\n     else{\n       this.pen.clearRect(0,0,this.width,this.height)\n     }\n   }\n      \n  },\n  mounted(){\n   this.canvasDom = document.getElementById(\"effect-id\");\n   this.headerDom = document.getElementById(\"header-id\");\n   this.pen = this.canvasDom.getContext(\"2d\");\n  \n   var computed = ()=>{\n      let headerDomComputedStyle = window.getComputedStyle(this.headerDom);\n      let width = window.innerWidth;\n    \n       let height = window.innerHeight - ( parseInt(headerDomComputedStyle.height) || 0)\n      this.canvasDom.setAttribute(\"width\",width-2*this.borderWidth)\n      this.canvasDom.setAttribute(\"height\",height-2*this.borderWidth)\n      this.width = width;\n      this.height = height;\n    }\n   computed();\n   window.addEventListener('resize',computed); \n   \n    \n  }\n})",
         "createTime": 1540190327361,
         "id": 1540190327361,
-        "updateTime": 1540450874130,
+        "updateTime": 1540608194504,
         "tagIdList": [
             1540450668217,
             1540439058555,
