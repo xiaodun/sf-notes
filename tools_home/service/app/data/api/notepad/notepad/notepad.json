@@ -35,13 +35,6 @@
         "updateTime": 1540568140800
     },
     {
-        "title": "",
-        "content": "解决bat 方式启动内置服务器  发生异常或结束进程时cmd退出",
-        "createTime": 1540432266031,
-        "id": 1540432266031,
-        "updateTime": ""
-    },
-    {
         "title": "2018-10-24",
         "content": "写一篇 vue 数组的坑  比如动态添加属性\nthis.list = [{name:1}]\nthis.list[0].age = 12",
         "createTime": 1540396508258,
