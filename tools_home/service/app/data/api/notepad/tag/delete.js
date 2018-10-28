@@ -1,10 +1,10 @@
 (function () {
   return function (argData, argParams) {
     //argData 数据的副本
-    let index = argData.findIndex ((el, index, arr) => {
+    let index = argData.findIndex((el, index, arr) => {
       return argParams.id === el.id;
     });
-    argData.splice (index, 1);
+    argData.splice(index, 1);
     return {
       isWrite: true, //是否覆盖数据
       data: argData, //需要存储的新数据
@@ -15,4 +15,4 @@
       },
     };
   };
-}) ();
+})();
