@@ -1,6 +1,17 @@
 [
     {
         "title": "2018-10-28",
+        "content": "闹钟在使用的时候发现bug\n指定间隔 设置为30分钟是不会响\n5分钟是第一次和第二次都正常，编辑之后也正常\n\n预计问题出在\n比如从8点到九点的这种跨越出现问题\n30分钟后由于手机锁屏浏览器不活动了  以设置一个7:40的闹钟测试！\n",
+        "tagIdList": [
+            1540733994645,
+            1540734005794
+        ],
+        "createTime": 1540733989203,
+        "id": 1540733989203,
+        "updateTime": 1540734022365
+    },
+    {
+        "title": "2018-10-28",
         "content": "标签管理和文件管理不好区分\n添加记事时候存在过滤  会出现两个问题\n\n再次获取的请求不带过滤条件\n分页的时候又会加上过滤条件\n",
         "tagIdList": [
             1540450650761
@@ -26,16 +37,6 @@
         "createTime": 1540568767564,
         "id": 1540568767564,
         "updateTime": ""
-    },
-    {
-        "title": "2018-10-25",
-        "content": "记事本标签相关功能\n删除标签时  已绑定该标签数据的处理\n",
-        "tagIdList": [
-            1540439058555
-        ],
-        "createTime": 1540450490137,
-        "id": 1540450490137,
-        "updateTime": 1540568140800
     },
     {
         "title": "2018-10-24",
@@ -89,21 +90,12 @@
     },
     {
         "title": "2018-10-22",
-        "content": "codepen 上的效果\n\nhttps://codepen.io/pimskie/pen/aRNEYZ\n\nhttps://codepen.io/leusrox/pen/mWZBgM\n\nhttps://codepen.io/VisualAngle/pen/mzKKZW",
+        "content": "codepen 上的效果\n\nhttps://codepen.io/pimskie/pen/aRNEYZ\n\nhttps://codepen.io/leusrox/pen/mWZBgM\n\nhttps://codepen.io/VisualAngle/pen/mzKKZW\nhttps://codepen.io/pavlovsk/pen/OBdzBj",
         "createTime": 1540186895275,
         "id": 1540186895275,
-        "updateTime": 1540450859904,
+        "updateTime": 1540730089670,
         "tagIdList": [
-            1540439058555
-        ]
-    },
-    {
-        "title": "Canvas效果系列的基本代码",
-        "content": "\nhttps://unpkg.com/iview/dist/styles/iview.css\n\nhttps://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.min.js\nhttps://cdnjs.cloudflare.com/ajax/libs/iview/3.0.1/iview.min.js\n\n<div id=\"app-id\">\n  <div id=\"header-id\">\n  </div>\n<canvas :style={borderWidth:this.borderWidth+\"px\"} @mouseenter=\"mouse_enter\" @mousemove=\"mouse_move\" @mouseleave=\"mouse_leave\" id=\"effect-id\"></canvas>\n</div>\n\n\n*{\n  margin:0;\n  padding:0;\n}\n#app-id{\n  position:absolute;\n  width:100%;\n  height:100%;\n \n  flex-direction:column;\n  .ivu-slider::before,.ivu-slider::after{\n    display:table;\n    content:\"\";\n  }\n}\n#header-id{\n  width:100%;\n  padding:10px 40px 0;\n  &:after{\n    display:block;\n    content:\" \";\n  }\n  \n}\n#effect-id{\n  display:block;\n  border-color: #D61827;\n  border-style:solid;\n}\n\n\n\nnew Vue({\n  el:\"#app-id\",\n  data:{\n    canvasDom:null,\n    width:0,\n    height:0,\n    pen:null,\n    borderWidth:1,\n    color:\"\",\n    data:[],\n    enterX:0,\n    enterY:0,\n    isStart:false,\n    \n    \n  },\n  methods:{\n    \n    mouse_enter($event){\n      this.isStart = true;\n      this.color = 'hsl('+(Math.random()*360)+',60%,80%)';\n      this.pen.fillStyle =  this.color;\n      this.enterX = $event.pageX - this.canvasDom.offsetLeft - this.borderWidth;\n      this.enterY = $event.pageY - this.canvasDom.offsetTop - this.borderWidth\n      if(this.data.length == 0){\n        this.start();\n      }\n      \n    },\n    mouse_move($event){\n      this.enterX = $event.pageX - this.canvasDom.offsetLeft - this.borderWidth;\n      this.enterY = $event.pageY - this.canvasDom.offsetTop - this.borderWidth\n    },\n   mouse_leave(){\n     this.isStart = false;\n   },\n   start(){\n    \n      if(this.isStart){\n        this.data.push({\n          \n        })\n      }\n     this.pen.clearRect(0,0,this.width,this.height);\n     for(let i=0;i<this.data.length;i++){\n          let item = this.data[i];\n     }\n     \n     this.pen.globalAlpha = 1;\n     if(this.isStart || this.data.length > 0){\n       requestAnimationFrame(()=>{\n         this.start();\n       })\n     }\n     else{\n       this.pen.clearRect(0,0,this.width,this.height)\n     }\n   }\n      \n  },\n  mounted(){\n   this.canvasDom = document.getElementById(\"effect-id\");\n   this.headerDom = document.getElementById(\"header-id\");\n   this.pen = this.canvasDom.getContext(\"2d\");\n  \n   var computed = ()=>{\n      let headerDomComputedStyle = window.getComputedStyle(this.headerDom);\n      let width = window.innerWidth;\n    \n       let height = window.innerHeight - ( parseInt(headerDomComputedStyle.height) || 0)\n      this.canvasDom.setAttribute(\"width\",width-2*this.borderWidth)\n      this.canvasDom.setAttribute(\"height\",height-2*this.borderWidth)\n      this.width = width;\n      this.height = height;\n    }\n   computed();\n   window.addEventListener('resize',computed); \n   \n    \n  }\n})",
-        "createTime": 1540190327361,
-        "id": 1540190327361,
-        "updateTime": 1540608194504,
-        "tagIdList": [
+            1540439058555,
             1540450668217
         ]
     }
