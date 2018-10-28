@@ -7,7 +7,7 @@
                 使用内置后台服务器
                 <p slot="content">
                     必须手动打开服务器！<br>
-                    服务器用nodejs编写，位于/service/app/service.js 在tools_home文件夹下有启动的bat文件 <br>
+                    服务器用nodejs编写，位于/service/app/service.js 在tools_home文件夹下 start-service.bat用来启动内置服务 <br>
                     如对同级目录config.json中配置有改动 重启项目和内置服务器即可！
                     <Collapse accordion>
                         <Panel name="0-1">
