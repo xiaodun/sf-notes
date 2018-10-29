@@ -113,8 +113,8 @@
     <div class="wrapper">
 
       <div class="card-wrapper" v-show="showModelFlag === 'notepad'">
-        <Button icon="ios-pricetag" class="first-btn" @click="inTagModel()">标签管理</Button>
-        <Button icon="ios-folder"  class="first-btn" @click="inFileModel()">文件管理</Button>
+        <Button icon="ios-pricetag" class="first-btn" @click="in_tag_model()">标签管理</Button>
+        <Button icon="ios-folder"  class="first-btn" @click="in_file_model()">文件管理</Button>
         <Button @click="edit()" type="primary" long><span>添加</span></Button>
         <Select :transfer="true" placement="top" @on-change="change_filter_tag()" style="margin-top:10px;" v-model="filterTagIdList" multiple placeholder="标签过滤">
           <Option :key="item.id" v-for="item in tagModel.list" :value="item.id">{{item.content}}</Option>
@@ -164,19 +164,19 @@
               <Input v-show="item.isEdit" v-model="item.content" />
               </Col>
               <Col class="option" span="2" offset="1">
-              <Button v-show="!item.isEdit" @click="inUpdateTag(item)" shape="circle" icon="md-create"></Button>
+              <Button v-show="!item.isEdit" @click="in_update_tag(item)" shape="circle" icon="md-create"></Button>
               <Button v-show="item.isEdit" shape="circle" @click="reques_update_tag(item)" icon="md-checkmark"></Button>
               </Col>
               <Col class="option" span="2">
               <Button v-show="!item.isEdit" @click="confirm_delete_tag(item)" shape="circle" icon="md-remove"></Button>
-              <Button v-show="item.isEdit" @click="abortUpdateTag(item)" shape="circle" icon="md-close"></Button>
+              <Button v-show="item.isEdit" @click="abort_update_tag(item)" shape="circle" icon="md-close"></Button>
               </Col>
             </Row>
           </div>
         </div>
       </div>
       <div v-show="showModelFlag === 'file'" class="file-wrapper">
-        <Button class="first-btn" @click="outFileModel()">返回</Button>
+        <Button class="first-btn" @click="out_file_model()">返回</Button>
         <Upload :before-upload="before_upload" :on-success="request_get_file" ref="upload" :show-upload-list="false" :paste="true" :action="BuiltServiceConfig.prefix + requestPrefixFile + '/upload'" type="drag" multiple>
           <div style="height:200px;line-height:200px;">点击或拖拽上传</div>
         </Upload>
@@ -340,14 +340,14 @@ export default {
         this.request_get(this.pagination, {tagIdList: this.filterTagIdList});
       });
     },
-    inTagModel() {
+    in_tag_model() {
       this.showModelFlag = 'tag';
     },
-    inFileModel() {
+    in_file_model() {
       this.showModelFlag = 'file';
       this.request_get_file();
     },
-    outFileModel() {
+    out_file_model() {
       this.showModelFlag = 'notepad';
     },
     confirm_delete(argNotepad, index) {
@@ -355,10 +355,10 @@ export default {
       this.active.index = index;
       this.deleteModel.isShow = true;
     },
-    inUpdateTag(item) {
+    in_update_tag(item) {
       item.isEdit = true;
     },
-    abortUpdateTag(item) {
+    abort_update_tag(item) {
       item.isEdit = false;
       item.content = item.originContent;
     },
@@ -480,6 +480,7 @@ export default {
       return notepad;
     },
     request_add(argNotepad) {
+      this.filterTagIdList = [];
       AxiosHelper.request({
         method: 'post',
         url: this.requestPrefix + '/add',
