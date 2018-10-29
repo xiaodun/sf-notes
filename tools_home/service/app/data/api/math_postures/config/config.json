@@ -1,0 +1,26 @@
+{
+    "signModel": [
+        {
+            "key": "add",
+            "isInclude": true
+        },
+        {
+            "key": "sub",
+            "isInclude": true
+        },
+        {
+            "key": "multiply",
+            "isInclude": false
+        },
+        {
+            "key": "divide",
+            "isInclude": false
+        }
+    ],
+    "count": 5,
+    "isIncludeBrackets": true,
+    "numberModel": {
+        "max": 20,
+        "count": 2
+    }
+}
