@@ -5,27 +5,33 @@
 
 #math-postures-id {
   position: relative;
+
   box-sizing: border-box;
   width: 85%;
   max-width: 960px;
   margin: 0 auto 10px;
   padding: 10px;
+
   border-radius: 10px;
   background-color: #fff;
 
   &:before {
     display: table;
+
     content: ' ';
   }
 
   .info {
     font-size: 14px;
+
     letter-spacing: 1px;
+
     color: #5e5e5e;
   }
 
   .title {
     margin: 40px 0 60px 0;
+
     color: #fb0;
   }
 
@@ -39,18 +45,22 @@
 
   .start {
     font-size: 40px;
+
     width: 100px;
     height: 100px;
     margin-right: 30px;
     margin-left: auto;
-    box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14),
-      0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.3);
+
+    box-shadow: 0 8px 10px 1px rgba(0, 0, 0, .14),
+    0 3px 14px 2px rgba(0, 0, 0, .12), 0 5px 5px -3px rgba(0, 0, 0, .3);
   }
 
   .list-leave-active {
     overflow: hidden;
+
     height: 60px;
-    transition: all 0.35s linear;
+
+    transition: all .35s linear;
   }
 
   .list-leave-to {
@@ -58,6 +68,7 @@
     height: 0;
   }
 }
+
 </style>
 <template>
   <div id="math-postures-id">
