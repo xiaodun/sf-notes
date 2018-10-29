@@ -13,18 +13,6 @@
     },
     {
         "title": "",
-        "content": "写一个for循环的snippet",
-        "tagIdList": [
-            1540439061206,
-            1540439058555,
-            1540439042964
-        ],
-        "createTime": 1540785220600,
-        "id": 1540785220600,
-        "updateTime": ""
-    },
-    {
-        "title": "",
         "content": "关于生成阶乘数据的写法\ngenerate_rank_sign() {\n      let sign = this.get_include_sign();\n      let current = this.numberModel.count - 1;\n\n      let arr = [];\n      let min = '',\n        max = '';\n      for (let i = 0; i < current; i++) {\n        min += 1;\n        max += sign.length + 1;\n      }\n\n      for (let i = min; i <= max; i++) {\n        let str_i = i + '';\n        let flag = str_i.split('').some(el => el > sign.length || el == 0);\n        if (!flag) {\n          arr.push(str_i);\n        }\n      }\n      return arr\n        .map(el => el.split(''))\n        .map(el => el.map((e, i) => sign[e - 1]));\n    },",
         "tagIdList": [
             1540439058555,
