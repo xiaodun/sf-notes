@@ -1,5 +1,52 @@
 [
     {
+        "title": "",
+        "content": "ctrl + d 如果选多了  怎么减少",
+        "tagIdList": [
+            1540439061206,
+            1540439058555,
+            1540439042964
+        ],
+        "createTime": 1540802072922,
+        "id": 1540802072922,
+        "updateTime": ""
+    },
+    {
+        "title": "",
+        "content": "写一个for循环的snippet",
+        "tagIdList": [
+            1540439061206,
+            1540439058555,
+            1540439042964
+        ],
+        "createTime": 1540785220600,
+        "id": 1540785220600,
+        "updateTime": ""
+    },
+    {
+        "title": "",
+        "content": "关于生成阶乘数据的写法\ngenerate_rank_sign() {\n      let sign = this.get_include_sign();\n      let current = this.numberModel.count - 1;\n\n      let arr = [];\n      let min = '',\n        max = '';\n      for (let i = 0; i < current; i++) {\n        min += 1;\n        max += sign.length + 1;\n      }\n\n      for (let i = min; i <= max; i++) {\n        let str_i = i + '';\n        let flag = str_i.split('').some(el => el > sign.length || el == 0);\n        if (!flag) {\n          arr.push(str_i);\n        }\n      }\n      return arr\n        .map(el => el.split(''))\n        .map(el => el.map((e, i) => sign[e - 1]));\n    },",
+        "tagIdList": [
+            1540439058555,
+            1540439054374
+        ],
+        "createTime": 1540783844345,
+        "id": 1540783844345,
+        "updateTime": ""
+    },
+    {
+        "title": "2018-10-29",
+        "content": "将其他分支的提交合并到主分支\n主分支的更改下发到其他分支",
+        "tagIdList": [
+            1540439061206,
+            1540439058555,
+            1540450672704
+        ],
+        "createTime": 1540779567485,
+        "id": 1540779567485,
+        "updateTime": 1540785128616
+    },
+    {
         "title": "2018-10-28",
         "content": "闹钟在使用的时候发现bug\n指定间隔 设置为30分钟是不会响\n5分钟是第一次和第二次都正常，编辑之后也正常\n\n预计问题出在\n比如从8点到九点的这种跨越出现问题\n30分钟后由于手机锁屏浏览器不活动了  以设置一个7:40的闹钟测试！\n",
         "tagIdList": [
@@ -45,23 +92,6 @@
         "id": 1540396508258,
         "updateTime": 1540450790313,
         "tagIdList": []
-    },
-    {
-        "title": "",
-        "content": "canvas 动画中 正向和反向能否通过一个函数进行  而不用分开进行处理\n减少代码的行数",
-        "createTime": 1540373050113,
-        "id": 1540373050113,
-        "updateTime": ""
-    },
-    {
-        "title": "2018-10-24",
-        "content": "选择括号内的 vscode 以及和选择相关的",
-        "createTime": 1540370963680,
-        "id": 1540370963680,
-        "updateTime": 1540451015247,
-        "tagIdList": [
-            1540439058555
-        ]
     },
     {
         "title": "2018-10-23",

@@ -15,7 +15,7 @@
 
   &:before {
     display: table;
-    content: " ";
+    content: ' ';
   }
 
   .info {
@@ -91,7 +91,7 @@
         <CellGroup>
           <Cell>
 
-            <Button size="small" slot="extra" type="info" @click="configModal.isShow = true" shape="circle" icon="ios-hammer-outline" class="update_config"></Button>
+            <Button size="small" slot="extra" type="info" @click="edit_config_modal" shape="circle" icon="ios-hammer-outline" class="update_config"></Button>
           </Cell>
           <Cell title="包含的运算">
             <p slot="extra">
@@ -132,9 +132,9 @@
       <Form ref="formInline">
         <transition-group name="list">
 
-          <FormItem :key="item" v-show="answer[index].isShow" v-for="(item ,index ) in expressionsList">
-            <span class="expression">{{item}}</span>
-            <Input number :key="item" @focus="'focus'+index" :ref="'input'+index" type="text" @on-keydown.enter="submit" v-model="answer[index].user_result" />
+          <FormItem :key="index" v-show="item.isShow" v-for="(item,index ) in answer">
+            <span class="expression">{{item.expression}}</span>
+            <Input  @focus="'focus'+index" :ref="'input'+index" type="text" @on-keydown.enter="submit" v-model="item.userResult" />
           </FormItem>
         </transition-group>
         <FormItem>
@@ -145,7 +145,7 @@
 
       </div>
     </div>
-    <Modal v-model="configModal.isShow" title="修改配置" :mask-closable="false">
+    <Modal @on-ok="close_config_modal" v-model="configModal.isShow" title="修改配置" :mask-closable="false">
       <Form :label-width="120" label-position="left">
         <FormItem label="包含的运算">
 
@@ -163,10 +163,10 @@
           </Select>
         </FormItem>
         <FormItem label="数字的个数">
-          <Slider show-tip="always" style="width: 100px;" v-model="numberModel.count" :min="2" :max="5"></Slider>
+          <Slider show-tip="always" style="width: 100px;" v-model="configModal.numberModel.count" :min="2" :max="5"></Slider>
         </FormItem>
         <FormItem label="单个数字最大值">
-          <Slider show-tip="always" style="width: 100px;" v-model="numberModel.max" :min="10" :max="30"></Slider>
+          <Slider show-tip="always" style="width: 100px;" v-model="configModal.numberModel.max" :min="10" :max="30"></Slider>
         </FormItem>
       </Form>
     </Modal>
@@ -175,50 +175,47 @@
 
 <script>
 export default {
-  name: "math_postures",
+  name: 'math_postures',
   data() {
     return {
       answer: [],
       configModal: {
         isShow: false,
-        signModel: {}
+        signModel: {},
+        numberModel: {},
       },
       signModel: {
         add: {
-          value: "+",
-          content: "加法",
-          isInclude: true
+          value: '+',
+          content: '加法',
+          isInclude: true,
         },
         sub: {
-          value: "-",
-          content: "减法",
-          isInclude: true
+          value: '-',
+          content: '减法',
+          isInclude: true,
         },
         multiply: {
-          value: "*",
-          content: "乘法",
-          isInclude: true
+          value: '*',
+          content: '乘法',
+          isInclude: true,
         },
         divide: {
-          value: "/",
-          content: "除法",
-          isInclude: false
-        }
+          value: '/',
+          content: '除法',
+          isInclude: false,
+        },
       },
       isAnswerModel: false,
-      expressionsList: [],
-      expressionsResultList: [],
       count: 10, //题目的总个数
       isIncludeBrackets: false,
-      number_range: 10,
-      number_count: 2,
       include_float_number: false,
       max_expression_number: 20,
       numberModel: {
         max: 10,
         count: 2,
-        isHasFloat: false
-      }
+        isHasFloat: false,
+      },
     };
   },
   computed: {
@@ -228,53 +225,60 @@ export default {
         let sign = this.signModel[key];
         sign.isInclude && result.push(sign.content);
       }
-      return result.join("、");
-    }
+      return result.join('、');
+    },
   },
   methods: {
+    close_config_modal() {
+      this.configModal.isShow = false;
+      this.isIncludeBrackets = this.configModal.isIncludeBrackets;
+      this.count = this.configModal.count;
+      this.signModel = {...this.configModal.signModel};
+      this.numberModel = {...this.configModal.numberModel};
+    },
+    edit_config_modal() {
+      this.configModal.isShow = true;
+      this.configModal.signModel = JSON.parse(JSON.stringify(this.signModel));
+      this.configModal.numberModel = {...this.numberModel};
+      this.configModal.count = this.count;
+      this.configModal.isIncludeBrackets = this.isIncludeBrackets;
+    },
     submit() {
       this.answer.forEach(el => {
-        var flag = el.result == el.user_result;
+        var flag = el.result == el.userResult;
         if (flag) {
           el.isShow = false;
         }
       });
       let index = this.answer.findIndex(el => el.isShow);
-      if (index != -1) {
-        this.$refs["input" + index][0].focus();
+      if (index !== -1) {
+        this.$refs['input' + index][0].focus();
       }
       if (this.answer.every(el => !el.isShow)) {
-        this.$Message.success(i18n.t("quan_bu_da_dui"));
+        this.$Message.success('全部答对');
         this.isAnswerModel = false;
-        this.expressionsList = [];
+        this.answer = [];
       }
     },
     change_include_sign(argKey) {
       if (this.get_include_sign().length == 0) {
-        this.$nextTick(() => (this.signModel[argKey].isInclude = true));
+        this.$nextTick(
+          () => (this.configModal.signModel[argKey].isInclude = true)
+        );
       }
     },
     toggle_model() {
       this.isAnswerModel = !this.isAnswerModel;
-      this.expressionsList = [];
+      this.answer = [];
       if (this.isAnswerModel) {
         this.generate_expressions();
         this.$nextTick(() => {
-          // this.$refs['input0'][0].$refs.input.focus();
-
-          for (let i = 0; i < 10; i++) {
-            this.$refs["input" + i][0].$refs.input.type = "number";
-          }
-          this.$refs["input0"][0].focus();
+          this.$refs['input0'][0].focus();
         });
       }
     },
     generate_expressions() {
-      let sign_list = this.generate_rank_sign(),
-        current = 0;
-      console.log(sign_list);
-      let array = [],
-        arr_map_result = [],
+      let current = 0,
         generated = [];
       var max = 16000,
         a = 0;
@@ -283,308 +287,272 @@ export default {
           //防止用户配置不够生成指定个数的式子
           break;
         }
-        let one_number_rank = this.get_one_number_rank(),
-          one_sign_rank =
-            sign_list[Math.floor(Math.random() * sign_list.length)];
-        let parse_arr = [];
-        for (let i = 0; i < one_number_rank.length - 1; i++) {
-          parse_arr.push(one_number_rank[i], one_sign_rank[i]);
+
+        //数字、字符混合的数组 [1,"+",2]
+        let oneNumberRank = this.get_one_number_rank(),
+          oneSignRank = this.get_one_sign_rank();
+
+        let parseArr = [];
+        for (let i = 0; i < oneNumberRank.length - 1; i++) {
+          parseArr.push(oneNumberRank[i], oneSignRank[i]);
         }
-        parse_arr.push(one_number_rank[one_number_rank.length - 1]);
+        parseArr.push(oneNumberRank[oneNumberRank.length - 1]);
         if (this.isIncludeBrackets) {
-          parse_arr = this.add_brackets_for_expression(parse_arr);
+          parseArr = this.add_brackets_for_expression(parseArr);
         }
 
-        let str_number = this.format_parse_arr(parse_arr);
-        if (!~generated.indexOf(str_number)) {
-          generated.push(str_number);
-          let result = this.computed_expression([].concat(parse_arr));
+        //将符合的式子放入answer
+        let strNumber = this.format_parse_arr(parseArr);
+        let isHave = this.answer.some(el => el.expression === strNumber);
+        if (!isHave) {
+          let result = this.computed_expression([...parseArr]);
           let isAllow = this.is_allow_result(result);
           if (isAllow) {
             current++;
-            array.push(str_number);
-            arr_map_result.push(result);
+            this.answer.push({
+              expression: strNumber,
+              result,
+              isShow: true,
+            });
           }
         }
       }
-      this.expressionsList = array;
-      this.expressionsResultList = arr_map_result;
-
-      this.answer = this.expressionsResultList.map((el, index) => {
-        var data = {};
-        data.isShow = true;
-        data.result = el;
-        return data;
-      });
     },
-    format_parse_arr(parse_arr) {
-      let str_number = "";
+    format_parse_arr(parseArr) {
+      /**
+       * 生成的式子具有一点的格式
+       */
+      let strNumber = '';
       let i;
-      for (i = 0; i < parse_arr.length - 1; i++) {
-        str_number += parse_arr[i];
-        if (parse_arr[i] != "(" && parse_arr[i + 1] != ")") {
-          str_number += " ";
+      for (i = 0; i < parseArr.length - 1; i++) {
+        strNumber += parseArr[i];
+        if (parseArr[i] != '(' && parseArr[i + 1] != ')') {
+          strNumber += ' ';
         }
       }
-      str_number += parse_arr[i];
-      return str_number;
+      strNumber += parseArr[i];
+      return strNumber;
     },
-    add_brackets_for_expression(parse_arr) {
-      let max_num_brackets = this.get_number_brackets();
-      // let max = 16000,a=0;
-      let expression = [].concat(parse_arr);
-      if (max_num_brackets > 0) {
-        let num_brackets = Math.floor(Math.random() * (max_num_brackets + 1));
-        if (num_brackets == 0) {
-          return parse_arr;
-        }
-        let currentLeft = 0,
-          currentRight = 0;
-        for (let i = 0; i < expression.length; i++) {
-          /* if(a++>max){
-              console.log(12)
-              return;
-            }*/
-          if (currentLeft != num_brackets || currentRight != num_brackets) {
-            let is_add = Math.random() - 0.5 > 0 ? true : false;
-            if (is_add) {
-              let sign;
-              if (currentRight == currentLeft) {
-                sign = "(";
-              } else {
-                if (currentLeft > currentRight && currentLeft != num_brackets) {
-                  Math.random() - 0.5 > 0 ? (sign = "(") : (sign = ")");
-                } else {
-                  sign = ")";
-                }
-              }
+    add_brackets_for_expression(parseArr) {
+      //最大放入括号的数量
+      let maxNumNrackets = this.get_number_brackets();
+      let expression = [...parseArr];
 
-              let flag = true;
-              if (sign == ")") {
-                let close_left_brackets_ind = expression.lastIndexOf("(", i);
-                if (i - close_left_brackets_ind - 1 <= 2) {
-                  flag = false;
-                } else {
-                  if (!this.is_sign(expression[i])) {
-                    flag = false;
-                    if (i == expression.length - 1) {
-                      i++;
-                      flag = true;
-                    }
-                  }
-                }
+      //随机生成该放入的括号数量
+      let numBrackets = Math.floor(Math.random() * (maxNumNrackets + 1));
+      if (numBrackets < 1) {
+        return parseArr;
+      }
+
+      let currentLeft = 0,
+        currentRight = 0;
+      for (let i = 0; i < expression.length; i++) {
+        if (currentLeft != numBrackets || currentRight != numBrackets) {
+          let isAdd = Math.random() - 0.5 > 0 ? true : false;
+          if (isAdd) {
+            let sign;
+            if (currentRight == currentLeft) {
+              sign = '(';
+            } else {
+              if (currentLeft > currentRight && currentLeft != numBrackets) {
+                Math.random() - 0.5 > 0 ? (sign = '(') : (sign = ')');
               } else {
-                if (this.is_sign(expression[i])) {
-                  flag = false;
-                }
-              }
-              if (flag) {
-                expression.splice(i, 0, sign);
-                if (sign == "(") {
-                  currentLeft++;
-                } else {
-                  currentRight++;
-                }
-                i++;
+                sign = ')';
               }
             }
-          }
 
-          if (currentLeft != currentRight && i >= expression.length - 1) {
-            i = -1;
-            expression = [].concat(parse_arr);
-            currentLeft = 0;
-            currentRight = 0;
+            let flag = true;
+            if (sign == ')') {
+              let closeLeftBracketsIndex = expression.lastIndexOf('(', i);
+              if (i - closeLeftBracketsIndex - 1 <= 2) {
+                flag = false;
+              } else {
+                if (!this.is_sign(expression[i])) {
+                  flag = false;
+                  if (i == expression.length - 1) {
+                    i++;
+                    flag = true;
+                  }
+                }
+              }
+            } else {
+              if (this.is_sign(expression[i])) {
+                flag = false;
+              }
+            }
+            if (flag) {
+              expression.splice(i, 0, sign);
+              if (sign == '(') {
+                currentLeft++;
+              } else {
+                currentRight++;
+              }
+              i++;
+            }
           }
+        }
+
+        if (currentLeft != currentRight && i >= expression.length - 1) {
+          i = -1;
+          expression = [].concat(parseArr);
+          currentLeft = 0;
+          currentRight = 0;
         }
       }
 
       return expression;
     },
-    is_include_with_expression(expression) {
-      let sign = this.get_include_sign();
-      return sign.some(el => !expression.indexOf(el));
-    },
     is_allow_result(result) {
-      let flag = false;
-      if (!Number.isNaN(result) && result > 0 && result != window.Infinity) {
-        flag = true;
+      //是大于零的有理数
+      if (!(!Number.isNaN(result) && result > 0 && result != window.Infinity)) {
+        return false;
       }
 
-      if ((result + "").includes(".") && !/^\d+\.\d{0,2}$/.test(result)) {
+      if (!this.is_allow_float_number(result)) {
+        return false;
+      }
+      return true;
+    },
+    is_allow_float_number(result) {
+      /*
+         *  如果结果是不规则的小数或者小数点个数超过3位  则放弃这个式子 0.1 + 0.2 不等于 0.3 这种  
+         */
+      let flag = true;
+      if ((result + '').includes('.') && !/^\d+\.\d{0,2}$/.test(result)) {
         flag = false;
       }
       return flag;
     },
-    deal_brackets(parse_arr) {
-      let left = 0,
-        right = 0;
-      for (let i = 0; i < parse_arr.length; i++) {
-        if (parse_arr[i] == "(") {
-          left = i;
-        } else if (parse_arr[i] == ")") {
-          right = i;
-          break;
+    deal_brackets(parseArr) {
+      if (parseArr.includes('(')) {
+        let left = 0,
+          right = 0;
+        for (let i = 0; i < parseArr.length; i++) {
+          if (parseArr[i] == '(') {
+            left = i;
+          } else if (parseArr[i] == ')') {
+            right = i;
+            break;
+          }
         }
+        let arr = parseArr
+          .slice(0, left)
+          .concat(this.computed_expression(parseArr.slice(left + 1, right)))
+          .concat(parseArr.slice(right + 1));
+        if (arr.includes('(') || arr.includes(')')) {
+          arr = this.deal_brackets(arr);
+        }
+        return arr;
+      } else {
+        return parseArr;
       }
-      let arr = parse_arr
-        .slice(0, left)
-        .concat(this.computed_expression(parse_arr.slice(left + 1, right)))
-        .concat(parse_arr.slice(right + 1));
-      if (arr.includes("(") || arr.includes(")")) {
-        arr = this.deal_brackets(arr);
-      }
-      return arr;
     },
-    computed_expression(parse_arr) {
-      if (this.isIncludeBrackets) {
-        if (parse_arr.includes("(")) {
-          parse_arr = this.deal_brackets(parse_arr);
-        }
-      }
-      if (parse_arr == null) {
-        return Number.NaN;
-      }
-      if (this.include_multiply || this.include_divide) {
-        parse_arr = this.deal_multiply_divide(parse_arr);
-      }
-
-      if (parse_arr == null) {
+    computed_expression(parseArr) {
+      parseArr = this.deal_brackets(parseArr);
+      if (parseArr == null) {
         return Number.NaN;
       }
 
-      if (parse_arr.length == 1) {
-        return parse_arr[0];
+      parseArr = this.deal_multiply_divide(parseArr);
+      if (parseArr == null) {
+        return Number.NaN;
       }
 
+      if (parseArr.length == 1) {
+        return parseArr[0];
+      }
+
+      //对减法进行运算
       let count = 0;
-
-      for (let i = 0; i < parse_arr.length; i += 2) {
-        if (parse_arr[i - 1] == "-") {
-          count -= +parse_arr[i];
+      for (let i = 0; i < parseArr.length; i += 2) {
+        if (parseArr[i - 1] == '-') {
+          count -= +parseArr[i];
           if (count < 0) {
             count = window.NaN;
             break;
           }
         } else {
-          count += +parse_arr[i];
+          count += +parseArr[i];
         }
       }
 
       return count;
     },
-    deal_multiply_divide(parse_arr) {
-      let arr_number = [],
-        lastNumber_str = "";
-      for (let i = 0; i < parse_arr.length; i++) {
-        let result;
-        if (parse_arr[i + 1] == this.sign_multiply) {
-          result = parse_arr[i] * parse_arr[i + 2];
-        } else if (parse_arr[i + 1] == this.sign_divide) {
-          result = parse_arr[i] / parse_arr[i + 2];
-        } else {
-          arr_number.push(parse_arr[i]);
-        }
+    deal_multiply_divide(parseArr) {
+      if (
+        parseArr.includes(this.signModel.multiply.value) ||
+        parseArr.includes(this.signModel.divide.value)
+      ) {
+        let arr_number = [];
+        for (let i = 0; i < parseArr.length; i++) {
+          let result;
+          if (parseArr[i + 1] === this.signModel.multiply.value) {
+            result = parseArr[i] * parseArr[i + 2];
+          } else if (parseArr[i + 1] === this.signModel.divide.value) {
+            result = parseArr[i] / parseArr[i + 2];
+          } else {
+            arr_number.push(parseArr[i]);
+          }
 
-        if (
-          result &&
-          !!~("" + result).indexOf(".") &&
-          !/^\d+\.\d{0,2}$/.test(result)
-        ) {
-          arr_number = null;
-          break;
-        }
+          if (!this.is_allow_float_number(result)) {
+            arr_number = null;
+            break;
+          }
 
-        if (result) {
-          parse_arr.splice(i, 3, result);
-          i -= 1;
+          if (result) {
+            parseArr.splice(i, 3, result);
+            i -= 1;
+          }
         }
+        return arr_number;
+      } else {
+        return parseArr;
       }
-      // console.table(arr_number);
-      return arr_number;
-    },
-    get_parse_number_strArr(expression) {
-      expression = expression.replace(/\s+/g, "");
-      let arr = [],
-        lastNumber_str = "";
-      for (let i = 0; i < expression.length; i++) {
-        if (this.is_sign(expression.charAt(i))) {
-          arr.push(lastNumber_str);
-          arr.push(expression.charAt(i));
-          lastNumber_str = "";
-        } else {
-          lastNumber_str += expression.charAt(i);
-        }
-      }
-      arr.push(lastNumber_str);
-      return arr;
     },
     is_sign(sign) {
-      let sign_arr = [
-        this.sign_add,
-        this.sign_sub,
-        this.sign_multiply,
-        this.sign_divide
-      ];
-      return !!~sign_arr.indexOf(sign);
+      let list = this.get_include_sign();
+      return list.includes(sign);
     },
     get_one_number_rank() {
+      /**
+       * 生成一个由数组组成的数组 [1,8,7]
+       */
       let arr = [];
-      for (let i = 0; i < this.number_count; i++) {
-        arr[i] = Math.floor(Math.random() * (this.number_range + 1));
+      for (let i = 0; i < this.numberModel.count; i++) {
+        arr[i] = Math.floor(Math.random() * (this.numberModel.max + 1));
         if (this.include_float_number) {
         }
       }
       return arr;
     },
+
     get_include_sign() {
       let result = [];
       for (let key in this.signModel) {
         let sign = this.signModel[key];
         if (sign.isInclude) {
-          result.push(sign.content);
+          result.push(sign.value);
         }
       }
       return result;
     },
-
-    get_number_generate_count(rank_sign_length) {
-      let number_range = this.include_float_number
-        ? this.number * 10
-        : this.number;
-      let max_num =
-        rank_sign_length * Math.pow(number_range, this.number_count);
-      if (this.include_brackets) {
-      }
-      return max_num;
-    },
     get_number_brackets() {
-      return ((this.number_count - 1) / 2) | 0;
+      return ((this.numberModel.count - 1) / 2) | 0;
     },
-    generate_rank_sign() {
-      let sign = this.get_include_sign();
-      let current = this.number_count - 1;
-
-      let arr = [];
-      let min = "",
-        max = "";
-      for (let i = 0; i < current; i++) {
-        min += 1;
-        max += sign.length + 1;
+    get_one_sign_rank() {
+      /**
+       * 生成由运算符号组成的序列  ["+","-"]
+       */
+      let list = [],
+        count = this.numberModel.count - 1,
+        singList = this.get_include_sign();
+      for (let i = 0; i < count; i++) {
+        let pos = (Math.random() * singList.length) | 0;
+        list.push(singList[pos]);
       }
-
-      for (let i = min; i <= max; i++) {
-        let str_i = i + "";
-        let flag = str_i.split("").some(el => el > sign.length || el == 0);
-        if (!flag) {
-          arr.push(str_i);
-        }
-      }
-      return arr
-        .map(el => el.split(""))
-        .map(el => el.map((e, i) => sign[e - 1]));
-    }
+      return list;
+    },
   },
-  mounted() {}
+  mounted() {},
 };
 </script>
