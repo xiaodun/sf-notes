@@ -3,7 +3,7 @@
   color: #9ea7b4;
 }
 
-#math_postures_vue {
+#math-postures-id {
   position: relative;
   box-sizing: border-box;
   width: 85%;
@@ -60,7 +60,7 @@
 }
 </style>
 <template>
-  <div id="math_postures_vue">
+  <div id="math-postures-id">
     <h1 class="title">
       <Button class="start" :icon="isAnswerModel === false ?'md-play':'md-power'" :type="isAnswerModel === false ?'success':'error'" shape="circle" @click="toggle_model()"></Button>
       四则运算题
