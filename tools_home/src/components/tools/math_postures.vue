@@ -174,10 +174,12 @@
 </template>
 
 <script>
+import AxiosHelper from '@/assets/lib/AxiosHelper';
 export default {
   name: 'math_postures',
   data() {
     return {
+      requestPrefixConfig: 'math_postures/config/',
       answer: [],
       configModal: {
         isShow: false,
@@ -214,7 +216,6 @@ export default {
       numberModel: {
         max: 10,
         count: 2,
-        isHasFloat: false,
       },
     };
   },
@@ -229,12 +230,17 @@ export default {
     },
   },
   methods: {
+    /**
+     * 数据结构导致的痛楚
+     */
     close_config_modal() {
       this.configModal.isShow = false;
       this.isIncludeBrackets = this.configModal.isIncludeBrackets;
       this.count = this.configModal.count;
       this.signModel = {...this.configModal.signModel};
       this.numberModel = {...this.configModal.numberModel};
+      let config = this.convert_config_for_request();
+      this.request_save_config(config);
     },
     edit_config_modal() {
       this.configModal.isShow = true;
@@ -242,6 +248,48 @@ export default {
       this.configModal.numberModel = {...this.numberModel};
       this.configModal.count = this.count;
       this.configModal.isIncludeBrackets = this.isIncludeBrackets;
+    },
+    request_save_config(argConfig) {
+      AxiosHelper.request({
+        method: 'post',
+        url: this.requestPrefixConfig + '/saveConfig',
+        data: argConfig,
+      }).then(response => {
+        this.$Message.success('保存成功');
+      });
+    },
+    request_get_config() {
+      AxiosHelper.request({
+        method: 'get',
+        url: this.requestPrefixConfig + '/getConfig',
+      }).then(response => {
+        let data = response.data;
+        if (data && JSON.stringify(data) !== '{}') {
+          data.signModel.forEach((el, index, arr) => {
+            this.signModel[el.key].isInclude = el.isInclude;
+          });
+          this.numberModel = data.numberModel;
+          this.isIncludeBrackets = data.isIncludeBrackets;
+          this.count = data.count;
+        }
+      });
+    },
+    convert_config_for_request() {
+      let data = {
+        signModel: [],
+      };
+      for (let key in this.configModal.signModel) {
+        let el = this.configModal.signModel[key];
+        data.signModel.push({
+          key: key,
+          isInclude: el.isInclude,
+        });
+      }
+
+      data.count = this.configModal.count;
+      data.isIncludeBrackets = this.configModal.isIncludeBrackets;
+      data.numberModel = {...this.configModal.numberModel};
+      return data;
     },
     submit() {
       this.answer.forEach(el => {
@@ -520,8 +568,6 @@ export default {
       let arr = [];
       for (let i = 0; i < this.numberModel.count; i++) {
         arr[i] = Math.floor(Math.random() * (this.numberModel.max + 1));
-        if (this.include_float_number) {
-        }
       }
       return arr;
     },
@@ -553,6 +599,9 @@ export default {
       return list;
     },
   },
-  mounted() {},
+
+  mounted() {
+    this.request_get_config();
+  },
 };
 </script>
