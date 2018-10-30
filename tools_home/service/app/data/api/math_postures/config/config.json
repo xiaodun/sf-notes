@@ -21,6 +21,6 @@
     "isIncludeBrackets": true,
     "numberModel": {
         "max": 20,
-        "count": 2
+        "count": 4
     }
 }
