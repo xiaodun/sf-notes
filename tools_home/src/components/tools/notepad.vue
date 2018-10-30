@@ -163,14 +163,13 @@
               <div class="content" v-show="!item.isEdit">{{item.content}}</div>
               <Input v-show="item.isEdit" v-model="item.content" />
               </Col>
-              <Col class="option" span="2" offset="1">
-              <Button v-show="!item.isEdit" @click="in_update_tag(item)" shape="circle" icon="md-create"></Button>
-              <Button v-show="item.isEdit" shape="circle" @click="reques_update_tag(item)" icon="md-checkmark"></Button>
-              </Col>
-              <Col class="option" span="2">
-              <Button v-show="!item.isEdit" @click="confirm_delete_tag(item)" shape="circle" icon="md-remove"></Button>
+              <Col class="option" span="8" offset="1" >
+              <Button style="margin-right:10px;" v-show="!item.isEdit" @click="in_update_tag(item)" shape="circle" icon="md-create"></Button>
+              <Button  v-show="!item.isEdit" @click="confirm_delete_tag(item)" shape="circle" icon="md-remove"></Button>
+              <Button style="margin-right:10px;" v-show="item.isEdit" shape="circle" @click="reques_update_tag(item)" icon="md-checkmark"></Button>
               <Button v-show="item.isEdit" @click="abort_update_tag(item)" shape="circle" icon="md-close"></Button>
               </Col>
+            
             </Row>
           </div>
         </div>
@@ -187,10 +186,8 @@
               <Col span="14">
               <div class="name">{{item.name}}</div>
               </Col>
-              <Col class="option" span="2" offset="1">
-              <Button shape="circle" icon="md-download" @click="request_download_file(item)"></Button>
-              </Col>
-              <Col class="option" span="2">
+              <Col class="option" span="8" offset="1">
+              <Button style="margin-right:10px" shape="circle" icon="md-download" @click="request_download_file(item)"></Button>
               <Button shape="circle" icon="md-remove" @click="request_delete_file(item)"></Button>
               </Col>
             </Row>
