@@ -90,12 +90,12 @@
     },
     {
         "title": "2018-10-22",
-        "content": "codepen 上的效果\n\nhttps://codepen.io/pimskie/pen/aRNEYZ\n\nhttps://codepen.io/leusrox/pen/mWZBgM\n\nhttps://codepen.io/VisualAngle/pen/mzKKZW\nhttps://codepen.io/pavlovsk/pen/OBdzBj",
+        "content": "http://lea.verou.me/css3patterns/#\n\nhttps://codepen.io/pimskie/pen/aRNEYZ\n\nhttps://codepen.io/leusrox/pen/mWZBgM\n\nhttps://codepen.io/VisualAngle/pen/mzKKZW\nhttps://codepen.io/pavlovsk/pen/OBdzBj\nhttps://bennettfeely.com/gradients/",
         "createTime": 1540186895275,
         "id": 1540186895275,
-        "updateTime": 1540730089670,
+        "updateTime": 1540817247704,
         "tagIdList": [
-            1540439058555
+            1540817013505
         ]
     }
 ]
