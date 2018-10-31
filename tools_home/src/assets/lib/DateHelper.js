@@ -330,7 +330,6 @@ class Helper {
     this.publicHoliday = {
       2018: [
         {
-          //start_month 和 start_date 表示该节日最早的活动日期
           month: 8,
           date: 15,
           isLunar: true,
@@ -351,6 +350,7 @@ class Helper {
     };
   }
   get_format_date (argFormat = 'YYYY-MM-dd') {
+    //得到格式化的日期
     let str = argFormat,
       dateElements = this.get_elements (),
       regexpObj = {
@@ -392,6 +392,7 @@ class Helper {
         }
       });
     }
+    //补0
     function add_zero (origin, target) {
       if (origin.length == 2 && ('' + target).length == 1) {
         return '0' + target;
@@ -468,7 +469,7 @@ class Helper {
     return new Helper (previousVanillaDate);
   }
   turnedLunar () {
-    //将公历时间传为农历\
+    //将公历时间传为农历
     let get_lunar_countday = year => {
       var i, sum = 348;
       for (i = 0x8000; i > 0x8; i >>= 1) {
@@ -562,17 +563,6 @@ class Helper {
     vanillaDate.setMonth (month - 1);
     vanillaDate.setDate (date);
     return new Helper (vanillaDate);
-  }
-  get_next_festivallist () {
-    let list = [],
-      dateElements = this.get_elements (),
-      lunarDateElements = this.turnedLunar ().get_elements ();
-    this.festivalList.forEach ((festival, index, arr) => {
-      if (festival.isLunar) {
-      } else {
-      }
-    });
-    return list;
   }
   get_current_festivallist () {
     //当前日期是否位节假日
