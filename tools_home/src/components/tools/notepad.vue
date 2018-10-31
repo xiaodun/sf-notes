@@ -178,7 +178,7 @@
       <!-- 文件管理 -->
       <div v-show="showModelFlag === 'file'" class="file-wrapper">
         <Button class="first-btn" @click="out_file_model()">返回</Button>
-        <Upload :before-upload="before_upload" :on-success="request_get_file" ref="upload" :show-upload-list="false" :paste="true" :action="BuiltServiceConfig.prefix + requestPrefixFile + '/upload'" type="drag" multiple>
+        <Upload :before-upload="before_upload" :on-error="upload_error" :on-success="request_get_file" ref="upload" :show-upload-list="false" :paste="true" :action="BuiltServiceConfig.prefix + requestPrefixFile + '/upload'" type="drag" multiple>
           <div style="height:200px;line-height:200px;">点击或拖拽上传</div>
         </Upload>
         <!-- 上传 -->
@@ -275,6 +275,9 @@ export default {
   },
   computed: {},
   methods: {
+    upload_error() {
+      this.$Message.error('上传失败,尝试上传压缩包!');
+    },
     before_upload(file) {
       //文件上传前的钩子
 
