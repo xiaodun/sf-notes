@@ -4,7 +4,7 @@
 #notepad-id {
   font-size: 14px;
 
-   > .app-name {
+  > .app-name {
     margin: 1em auto;
 
     text-align: center;
@@ -25,7 +25,7 @@
     margin: 10px auto;
   }
 
-   > .wrapper {
+  > .wrapper {
     width: 85%;
     max-width: 650px;
     margin: 0 auto;
@@ -97,7 +97,7 @@
     .name {
       border-bottom: 1px solid #ccc;
 
-.vertical_lineheight(32px);
+      .vertical_lineheight(32px);
     }
 
     .option {
@@ -105,7 +105,6 @@
     }
   }
 }
-
 </style>
 <template>
   <div id="notepad-id">
@@ -458,21 +457,27 @@ export default {
     convert(argNotepad) {
       //转换请求过来的日记数据
       let notepad = {...argNotepad};
-      let createTime = DateHelper.getDateFormatString(
-        'YYYY-MM-dd',
-        false,
-        new Date(notepad.createTime)
-      );
+      let createTime = DateHelper.get_instance_timestamp(
+        notepad.createTime
+      ).get_format_date();
+      // let createTime = DateHelper.getDateFormatString(
+      //   'YYYY-MM-dd',
+      //   false,
+      //   new Date(notepad.createTime)
+      // );
       notepad.createTime = createTime;
       if (notepad.title === '') {
         notepad.title = createTime;
       }
       if (notepad.updateTime !== '') {
-        notepad.updateTime = DateHelper.getDateFormatString(
-          'YYYY-MM-dd',
-          false,
-          new Date(notepad.updateTime)
-        );
+        notepad.updateTime = DateHelper.get_instance_timestamp(
+          notepad.updateTime
+        ).get_format_date();
+        // notepad.updateTime = DateHelper.getDateFormatString(
+        //   'YYYY-MM-dd',
+        //   false,
+        //   new Date(notepad.updateTime)
+        // );
       }
       return notepad;
     },
