@@ -1,5 +1,6 @@
 <template>
   <div id="nav_vue">
+    <Alert type="warning">这是古老的版本!请下载最新的分支</Alert>
   	<router-link to="/test">测试用例</router-link>
     <h2>四则运算</h2>
     <router-link to="/math_postures">版本1</router-link>
@@ -18,17 +19,14 @@
 </template>
 <script>
 export default {
-  name: "nav_vue",
+  name: 'nav_vue',
   data() {
     return {
-      message: "xuxiao is boy"
-    }
+      message: 'xuxiao is boy',
+    };
   },
-  
-}
-
+};
 </script>
 <style lang="less" scoped=>
-@import "~@/assets/style/base.less";
-
+@import '~@/assets/style/base.less';
 </style>
