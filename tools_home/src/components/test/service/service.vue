@@ -57,107 +57,124 @@
   </div>
 </template>
 <script>
-import axios from "axios";
-import VConsole from "vconsole";
+import axios from 'axios';
+import VConsole from 'vconsole';
 import builtService from '@root/service/app/config.json';
 export default {
-  name: "test_service_vue",
+  name: 'test_service_vue',
   data() {
     return {
-      result:"",
+      result: '',
       serviceForm: {
-        port:builtService.port,
-        requestType: "post",
-        command: "",
-        appName: "test",
-        dataName: "test",
+        port: builtService.port,
+        requestType: 'post',
+        command: '',
+        appName: 'test',
+        dataName: 'test',
         prefix: builtService.prefix,
-        
-        postContent:JSON.stringify([
+
+        postContent: JSON.stringify([
           {
-            id:12,
-            color:"red",
+            id: 12,
+            color: 'red',
           },
           {
-            id:13,
-            color:"green",
-          }
+            id: 13,
+            color: 'green',
+          },
         ]),
-        getContent:"id=12",
+        getContent: 'id=12',
       },
       validatorRules: {
         port: [
           {
-            required: true,message:" "
-          }
+            required: true,
+            message: ' ',
+          },
         ],
         command: [
           {
-            required: true,message:" "
-          }
+            required: true,
+            message: ' ',
+          },
         ],
         appName: [
           {
-            required: true,message:" "
-          }
+            required: true,
+            message: ' ',
+          },
         ],
         dataName: [
           {
-            required: true,message:" "
-          }
+            required: true,
+            message: ' ',
+          },
         ],
         prefix: [
           {
-            required: true,message:" "
-          }
-        ]
-      }
+            required: true,
+            message: ' ',
+          },
+        ],
+      },
     };
   },
   computed: {},
   methods: {
-    handleSubmit(){
-      this.$refs.serviceForm.validate((valid)=>{
-        if(valid){
-          let url = `/${this.serviceForm.prefix}/${this.serviceForm.appName}/${this.serviceForm.dataName}/${this.serviceForm.command}`;
-          if(this.serviceForm.requestType == 'post'){
-            axios.post(url,{
-              data:JSON.parse(this.serviceForm.postContent),
-            })
-            .then((response)=>{
-              this.$refs.result_dom.textContent = JSON.stringify(response.data);
-            })
-            .catch((response)=>{
-              this.$refs.result_dom.textContent = JSON.stringify(response.data);
-            })
-            
-          }
-          else if(this.serviceForm.requestType == 'get'){
-            axios.get(url+"?"+this.serviceForm.getContent).then(response=>{
-               this.$refs.result_dom.textContent = JSON.stringify(response.data);
-            })
-            .catch((response)=>{
-                
-               this.$refs.result_dom.textContent = JSON.stringify(response.data);
-
-            })
+    handleSubmit() {
+      this.$refs.serviceForm.validate(valid => {
+        if (valid) {
+          let url = `/${this.serviceForm.prefix}/${this.serviceForm.appName}/${
+            this.serviceForm.dataName
+          }/${this.serviceForm.command}`;
+          if (this.serviceForm.requestType == 'post') {
+            axios
+              .post(url, {
+                data: JSON.parse(this.serviceForm.postContent),
+              })
+              .then(response => {
+                this.$refs.result_dom.textContent = JSON.stringify(
+                  response.data
+                );
+              })
+              .catch(response => {
+                this.$refs.result_dom.textContent = JSON.stringify(
+                  response.data
+                );
+              });
+          } else if (this.serviceForm.requestType == 'get') {
+            axios
+              .get(url + '?' + this.serviceForm.getContent)
+              .then(response => {
+                this.$refs.result_dom.textContent = JSON.stringify(
+                  response.data
+                );
+              })
+              .catch(response => {
+                this.$refs.result_dom.textContent = JSON.stringify(
+                  response.data
+                );
+              });
           }
         }
-      })
-    }
+      });
+    },
   },
-  mounted() {}
+  mounted() {},
 };
 </script>
 <style lang="less">
 #test_service_vue {
-  width: 85%;max-width: 900px;margin: 20px auto;
+  width: 85%;
+  max-width: 900px;
+  margin: 20px auto;
 
   .describe {
     margin-left: 100px;
 
     p {
-      font-size: 16px;margin-bottom: 3px;
+      font-size: 16px;
+      margin-bottom: 3px;
     }
   }
 
@@ -165,5 +182,4 @@ export default {
     margin-left: 100px;
   }
 }
-
 </style>
