@@ -148,7 +148,7 @@
           </FormItem>
         </transition-group>
         <FormItem>
-          <Button @click="submit" class="submit" size="large" type="primary" v-t="'ti_jiao'"></Button>
+          <Button @click="submit" class="submit" size="large" type="primary" >提交</Button>
         </FormItem>
       </Form>
       <div>

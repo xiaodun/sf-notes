@@ -18,7 +18,7 @@
         }
     ],
     "count": 5,
-    "isIncludeBrackets": true,
+    "isIncludeBrackets": false,
     "numberModel": {
         "max": 10,
         "count": 3
