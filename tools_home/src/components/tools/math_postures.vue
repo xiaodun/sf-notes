@@ -51,8 +51,8 @@
     margin-right: 30px;
     margin-left: auto;
 
-    box-shadow: 0 8px 10px 1px rgba(0, 0, 0, .14),
-    0 3px 14px 2px rgba(0, 0, 0, .12), 0 5px 5px -3px rgba(0, 0, 0, .3);
+    box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14),
+      0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.3);
   }
 
   .list-leave-active {
@@ -60,7 +60,7 @@
 
     height: 60px;
 
-    transition: all .35s linear;
+    transition: all 0.35s linear;
   }
 
   .list-leave-to {
@@ -68,7 +68,6 @@
     height: 0;
   }
 }
-
 </style>
 <template>
   <div id="math-postures-id">
@@ -149,7 +148,7 @@
           </FormItem>
         </transition-group>
         <FormItem>
-          <Button @click="submit" class="submit" size="large" type="primary" v-t="'ti_jiao'"></Button>
+          <Button @click="submit" class="submit" size="large" type="primary" >提交</Button>
         </FormItem>
       </Form>
       <div>
@@ -190,7 +189,7 @@ export default {
   name: 'math_postures',
   data() {
     return {
-      requestPrefixConfig: 'math_postures/config/',
+      requestPrefixConfig: '/math_postures/config/', //请求前缀
       answer: [],
       configModal: {
         isShow: false,
@@ -222,16 +221,15 @@ export default {
       isAnswerModel: false,
       count: 10, //题目的总个数
       isIncludeBrackets: false,
-      include_float_number: false,
-      max_expression_number: 20,
       numberModel: {
-        max: 10,
-        count: 2,
+        max: 10, //数的最大值
+        count: 2, //数字的个数
       },
     };
   },
   computed: {
     include_sign_info() {
+      //["+","-"] 转换为 "乘法、除法"
       var result = [];
       for (let key in this.signModel) {
         let sign = this.signModel[key];
@@ -245,6 +243,7 @@ export default {
      * 数据结构导致的痛楚
      */
     close_config_modal() {
+      //关闭配置模态框
       this.configModal.isShow = false;
       this.isIncludeBrackets = this.configModal.isIncludeBrackets;
       this.count = this.configModal.count;
@@ -254,6 +253,7 @@ export default {
       this.request_save_config(config);
     },
     edit_config_modal() {
+      //打开编辑配置模态框
       this.configModal.isShow = true;
       this.configModal.signModel = JSON.parse(JSON.stringify(this.signModel));
       this.configModal.numberModel = {...this.numberModel};
@@ -261,6 +261,7 @@ export default {
       this.configModal.isIncludeBrackets = this.isIncludeBrackets;
     },
     request_save_config(argConfig) {
+      //提交保存配置
       AxiosHelper.request({
         method: 'post',
         url: this.requestPrefixConfig + '/saveConfig',
@@ -270,12 +271,14 @@ export default {
       });
     },
     request_get_config() {
+      //提交 获取配置
       AxiosHelper.request({
         method: 'get',
         url: this.requestPrefixConfig + '/getConfig',
       }).then(response => {
         let data = response.data;
         if (data && JSON.stringify(data) !== '{}') {
+          //数据转换
           data.signModel.forEach((el, index, arr) => {
             this.signModel[el.key].isInclude = el.isInclude;
           });
@@ -286,6 +289,7 @@ export default {
       });
     },
     convert_config_for_request() {
+      //将配置数据转换后台村存储的格式
       let data = {
         signModel: [],
       };
@@ -303,16 +307,21 @@ export default {
       return data;
     },
     submit() {
+      //回答正确的隐藏
       this.answer.forEach(el => {
         var flag = el.result == el.userResult;
         if (flag) {
           el.isShow = false;
         }
       });
+
+      //最靠前的未回答对的获得焦点
       let index = this.answer.findIndex(el => el.isShow);
       if (index !== -1) {
         this.$refs['input' + index][0].focus();
       }
+
+      //全部答对
       if (this.answer.every(el => !el.isShow)) {
         this.$Message.success('全部答对');
         this.isAnswerModel = false;
@@ -320,17 +329,21 @@ export default {
       }
     },
     change_include_sign(argKey) {
+      //修改包含的运算
       if (this.get_include_sign().length == 0) {
+        // 如果只包含一种运算  则不能够取消勾选
         this.$nextTick(
           () => (this.configModal.signModel[argKey].isInclude = true)
         );
       }
     },
     toggle_model() {
+      //切换模式
       this.isAnswerModel = !this.isAnswerModel;
       this.answer = [];
       if (this.isAnswerModel) {
         this.generate_expressions();
+        //自动获得焦点
         this.$nextTick(() => {
           this.$refs['input0'][0].focus();
         });
@@ -397,12 +410,12 @@ export default {
       let maxNumNrackets = this.get_number_brackets();
       let expression = [...parseArr];
 
-      //随机生成该放入的括号数量
+      //随机生成放入的括号数量
       let numBrackets = Math.floor(Math.random() * (maxNumNrackets + 1));
       if (numBrackets < 1) {
         return parseArr;
       }
-
+      //加括号
       let currentLeft = 0,
         currentRight = 0;
       for (let i = 0; i < expression.length; i++) {
@@ -474,7 +487,7 @@ export default {
     },
     is_allow_float_number(result) {
       /*
-         *  如果结果是不规则的小数或者小数点个数超过3位  则放弃这个式子 0.1 + 0.2 不等于 0.3 这种  
+         *  如果结果是不规则的小数或者小数点个数超过2位  则放弃这个式子 0.1 + 0.2 不等于 0.3 这种  
          */
       let flag = true;
       if ((result + '').includes('.') && !/^\d+\.\d{0,2}$/.test(result)) {
@@ -483,6 +496,7 @@ export default {
       return flag;
     },
     deal_brackets(parseArr) {
+      //处理括号
       if (parseArr.includes('(')) {
         let left = 0,
           right = 0;
@@ -507,6 +521,8 @@ export default {
       }
     },
     computed_expression(parseArr) {
+      //计算一个式子
+
       parseArr = this.deal_brackets(parseArr);
       if (parseArr == null) {
         return Number.NaN;
@@ -538,6 +554,7 @@ export default {
       return count;
     },
     deal_multiply_divide(parseArr) {
+      //处理乘除运算
       if (
         parseArr.includes(this.signModel.multiply.value) ||
         parseArr.includes(this.signModel.divide.value)
@@ -569,12 +586,13 @@ export default {
       }
     },
     is_sign(sign) {
+      //是否为一个符号
       let list = this.get_include_sign();
       return list.includes(sign);
     },
     get_one_number_rank() {
       /**
-       * 生成一个由数组组成的数组 [1,8,7]
+       * 生成一个由数组成的数组 [1,8,7]
        */
       let arr = [];
       for (let i = 0; i < this.numberModel.count; i++) {
@@ -584,6 +602,7 @@ export default {
     },
 
     get_include_sign() {
+      //得到包含的符号["+","-"]
       let result = [];
       for (let key in this.signModel) {
         let sign = this.signModel[key];
@@ -594,6 +613,7 @@ export default {
       return result;
     },
     get_number_brackets() {
+      //根据参与运算的数字个数  得出最多可以加几个括号
       return ((this.numberModel.count - 1) / 2) | 0;
     },
     get_one_sign_rank() {

@@ -4,7 +4,7 @@
 #notepad-id {
   font-size: 14px;
 
-   > .app-name {
+  > .app-name {
     margin: 1em auto;
 
     text-align: center;
@@ -25,7 +25,7 @@
     margin: 10px auto;
   }
 
-   > .wrapper {
+  > .wrapper {
     width: 85%;
     max-width: 650px;
     margin: 0 auto;
@@ -97,7 +97,7 @@
     .name {
       border-bottom: 1px solid #ccc;
 
-.vertical_lineheight(32px);
+      .vertical_lineheight(32px);
     }
 
     .option {
@@ -105,7 +105,6 @@
     }
   }
 }
-
 </style>
 <template>
   <div id="notepad-id">
@@ -119,6 +118,7 @@
         <Select :transfer="true" placement="top" @on-change="change_filter_tag()" style="margin-top:10px;" v-model="filterTagIdList" multiple placeholder="标签过滤">
           <Option :key="item.id" v-for="item in tagModel.list" :value="item.id">{{item.content}}</Option>
         </Select>
+        <!-- 记事的展示 -->
         <div v-if="list.length > 0">
           <Card class="card" :bordered="false" v-for="(item,index) in list" :key="item.id">
             <p slot="title">
@@ -146,6 +146,7 @@
           暂无数据
         </div>
       </div>
+      <!-- 标签管理 -->
       <div class="tag-wrapper" v-show="showModelFlag === 'tag'">
         <Button class="first-btn" @click="showModelFlag = 'notepad'">返回</Button>
         <div class="first">
@@ -174,12 +175,13 @@
           </div>
         </div>
       </div>
+      <!-- 文件管理 -->
       <div v-show="showModelFlag === 'file'" class="file-wrapper">
         <Button class="first-btn" @click="out_file_model()">返回</Button>
-        <Upload :before-upload="before_upload" :on-success="request_get_file" ref="upload" :show-upload-list="false" :paste="true" :action="BuiltServiceConfig.prefix + requestPrefixFile + '/upload'" type="drag" multiple>
+        <Upload :before-upload="before_upload" :on-error="upload_error" :on-success="request_get_file" ref="upload" :show-upload-list="false" :paste="true" :action="BuiltServiceConfig.prefix + requestPrefixFile + '/upload'" type="drag" multiple>
           <div style="height:200px;line-height:200px;">点击或拖拽上传</div>
         </Upload>
-
+        <!-- 上传 -->
         <div class="upload-wrapper">
           <div class="file" :key="index" v-for="(item,index) in fileModel.uploadList">
             <Row>
@@ -197,7 +199,7 @@
 
       </div>
     </div>
-
+    <!-- 修改记事 -->
     <Modal v-model="editModel.isShow" :mask-closable='false' @on-visible-change="change_visible">
       <p slot="header"></p>
       <div>
@@ -222,6 +224,7 @@
   </div>
 </template>
 <script>
+//内置服务器配置
 import BuiltServiceConfig from '@root/service/app/config.json';
 import DateHelper from '@/assets/lib/DateHelper';
 import AxiosHelper from '@/assets/lib/AxiosHelper';
@@ -229,28 +232,33 @@ export default {
   name: '',
   data() {
     return {
-      showModelFlag: 'notepad', // tag file
+      showModelFlag: 'notepad', // tag 、 file
       fileModel: {
-        uploadList: [],
+        //文件管理相关
+        uploadList: [], //以上传文件
       },
       tagModel: {
-        list: [],
+        //标签管理相关
+        list: [], //已有标签
       },
       BuiltServiceConfig,
-      requestPrefix: '/notepad/notepad',
-      requestPrefixTag: '/notepad/tag',
-      requestPrefixFile: '/notepad/upload',
+      requestPrefix: '/notepad/notepad', //记事 请求前缀
+      requestPrefixTag: '/notepad/tag', //标签管理请求前缀
+      requestPrefixFile: '/notepad/upload', //上传文件请求前缀
       editModel: {
+        //编辑记事的Modal
         isShow: false,
       },
       deleteModel: {
+        //删除记事的Modal
         isShow: false,
       },
       active: {
-        //当前活动的日记
+        //当前活动的记事的索引
         index: '',
       },
       pagination: {
+        //记事 的分页器
         page: 1,
         size: 3,
       },
@@ -267,11 +275,18 @@ export default {
   },
   computed: {},
   methods: {
+    upload_error() {
+      this.$Message.error('上传失败,尝试上传压缩包!');
+    },
     before_upload(file) {
+      //文件上传前的钩子
+
+      //获取文件的后缀
       let index = file.name.lastIndexOf('.');
       if (~index) {
         let stuffix = file.name.substr(index);
         if (~stuffix.indexOf('exe')) {
+          //对exe格式的处理
           this.$Message.warning({
             content: 'exe文件需要添加到压缩文件才能上传!',
             duration: 5,
@@ -282,6 +297,7 @@ export default {
       return true;
     },
     request_download_file(item) {
+      //提交下载文件
       AxiosHelper.request({
         method: 'get',
         url: this.requestPrefixFile + '/download' + `?id=${item.id}`,
@@ -302,14 +318,17 @@ export default {
       });
     },
     change_filter_tag() {
+      //过滤内容发生变化
       this.pagination.page = 1;
       this.request_get(this.pagination, {tagIdList: this.filterTagIdList});
     },
     change_page(argPage) {
+      //切换记事分页器
       this.pagination.page = argPage;
       this.request_get(this.pagination, {tagIdList: this.filterTagIdList});
     },
     confirm_delete_tag(item) {
+      //确认是否删除标签
       this.$Modal.confirm({
         title: '删除标签',
         content: '所有绑定了该标签的记事都会移除该标签,这个操作不可逆！',
@@ -317,6 +336,7 @@ export default {
       });
     },
     rquest_delete_tag(item) {
+      //提交删除标签
       AxiosHelper.request({
         method: 'post',
         url: this.requestPrefixTag + '/delete',
@@ -338,28 +358,35 @@ export default {
       });
     },
     in_tag_model() {
+      //进入标签管理
       this.showModelFlag = 'tag';
     },
     in_file_model() {
+      //进入文件管理
       this.showModelFlag = 'file';
       this.request_get_file();
     },
     out_file_model() {
+      //退出文件管理
       this.showModelFlag = 'notepad';
     },
     confirm_delete(argNotepad, index) {
+      //确认是否删除记事
       this.active.notepad = argNotepad;
       this.active.index = index;
       this.deleteModel.isShow = true;
     },
     in_update_tag(item) {
+      //进入修改标签模式
       item.isEdit = true;
     },
     abort_update_tag(item) {
+      //放弃标签的修改
       item.isEdit = false;
       item.content = item.originContent;
     },
     reques_update_tag(item) {
+      //提交标签的修改
       item.content &&
         item.content.trim() !== item.originContent.trim() &&
         AxiosHelper.request({
@@ -371,6 +398,7 @@ export default {
           },
         }).then(response => {
           if (response.data.isFailed) {
+            //当新命名的标签与已有标签重名时
             this.$Message.warning(response.data.message);
           } else {
             item.isEdit = false;
@@ -378,6 +406,7 @@ export default {
         });
     },
     request_add_tag(argContent) {
+      //提交新增标签
       argContent &&
         AxiosHelper.request({
           method: 'post',
@@ -387,6 +416,7 @@ export default {
           },
         }).then(response => {
           if (response.data.isFailed) {
+            // 当新增标签与已有标签重名时
             this.$Message.warning(response.data.message);
           } else {
             this.tagModel.content = '';
@@ -395,6 +425,7 @@ export default {
         });
     },
     request_delete_file(item) {
+      //提交删除文件
       AxiosHelper.request({
         method: 'post',
         url: this.requestPrefixFile + '/delete',
@@ -408,6 +439,7 @@ export default {
       });
     },
     request_get_tag() {
+      //提交获取标签
       AxiosHelper.request({
         method: 'post',
         url: this.requestPrefixTag + '/get',
@@ -420,6 +452,7 @@ export default {
       });
     },
     request_get_file() {
+      //提交获取文件
       AxiosHelper.request({
         method: 'get',
         url: this.requestPrefixFile + '/get',
@@ -439,6 +472,7 @@ export default {
         },
       }).then(response => {
         if (response.data.data.length === 0 && this.pagination.page > 1) {
+          //获取的数据条数为0 且不是第一页  会根据后台返回的数据计算最大的一页进行请求
           let maxPage =
             ((response.data.total - 1) / this.pagination.size + 1) | 0;
           this.pagination.page = maxPage;
@@ -458,25 +492,24 @@ export default {
     convert(argNotepad) {
       //转换请求过来的日记数据
       let notepad = {...argNotepad};
-      let createTime = DateHelper.getDateFormatString(
-        'YYYY-MM-dd',
-        false,
-        new Date(notepad.createTime)
-      );
+      let createTime = DateHelper.get_instance_timestamp(
+        notepad.createTime
+      ).get_format_date();
       notepad.createTime = createTime;
+      //标题默认为创建日期
       if (notepad.title === '') {
         notepad.title = createTime;
       }
+
       if (notepad.updateTime !== '') {
-        notepad.updateTime = DateHelper.getDateFormatString(
-          'YYYY-MM-dd',
-          false,
-          new Date(notepad.updateTime)
-        );
+        notepad.updateTime = DateHelper.get_instance_timestamp(
+          notepad.updateTime
+        ).get_format_date();
       }
       return notepad;
     },
     request_add(argNotepad) {
+      //提交添加记事
       this.filterTagIdList = [];
       AxiosHelper.request({
         method: 'post',
@@ -488,6 +521,7 @@ export default {
       });
     },
     request_update(argNotepad) {
+      //提交更改记事
       AxiosHelper.request({
         method: 'post',
         url: this.requestPrefix + '/update',
@@ -498,6 +532,7 @@ export default {
       });
     },
     change_visible() {
+      //编辑、修改记事的时候  自动获得焦点
       this.$nextTick(() => {
         this.$refs.autoFocusInput.focus();
       });
@@ -509,6 +544,7 @@ export default {
       this.active.index = argIndex;
     },
     request_del() {
+      //请求删除记事
       AxiosHelper.request({
         method: 'post',
         url: this.requestPrefix + '/del',
@@ -517,6 +553,7 @@ export default {
         },
       }).then(response => {
         //从前端这里虽然在当前页没有数据时候会多请求一次,但是,一切因该以后台数据为准
+        //也是为了将逻辑内聚在request_get
         this.request_get(this.pagination, {tagIdList: this.filterTagIdList});
       });
     },

@@ -1,5 +1,19 @@
 <template>
   <div id="clock_vue">
+    <!-- 提示 -->
+    <Alert type="warning" :closable="true">
+      废弃声明
+      <div slot="desc">
+
+      遗憾的是这个应用被废弃了,将不会再有更新,也没有试用新的命名规范和封装逻辑,但是其对闹钟操作的探索仍是值得借鉴的 <br>
+      同时,它也是移动端开发的一块敲门砖，会在H5开发、混合式开发中得以重现 <br>
+      用来听歌也是不错的！ <br>
+      主要的问题:在浏览器中运行,在设备长时间待机后会影响闹钟的使用(这一点在开发时也考虑过，当时主要为了锻炼逻辑以及vue等框架的使用) <br>
+      已发现的bug有: <br>  
+      1.指定间隔时 跨域时间段闹钟不会响 <br>
+      2.提醒农历节日还有几天到来时 阴历未转换为对应的公历去判断差多少天
+      </div>
+    </Alert>
     <!-- 添加闹钟时播放铃声用的 -->
     <audio ref="audioDom">您的浏览器不支持 audio 标签。</audio>
     <!-- 闹钟响的时候  用来播放铃声用的 -->
@@ -224,66 +238,66 @@
   </div>
 </template>
 <script>
-import DateHelper from "@/assets/lib/DateHelper";
-import { UrlHelper } from "@/assets/lib/PathHelper";
-import Tools from "@/assets/lib/Tools";
-import axios from "axios";
+import DateHelper from '@/assets/lib/older/DateHelper';
+import {UrlHelper} from '@/assets/lib//older/PathHelper';
+import Tools from '@/assets/lib/older/Tools';
+import axios from 'axios';
 export default {
-  name: "",
+  name: '',
   data() {
     return {
-      weekAlias: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"],
+      weekAlias: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
       showPlayingTip: false,
       clockList: [],
-      errorTip: "",
+      errorTip: '',
       clocking_model: false,
       current_clocking_data: {},
       playLoading: false,
-      currentMusicName: "",
+      currentMusicName: '',
       isShowPlayBtn: true,
       eidt_clock_data: {},
       close_edit_model: false,
       musicData: [
         {
-          name: "短铃声",
-          path: "/static/music/b.mp3"
+          name: '短铃声',
+          path: '/static/music/b.mp3',
         },
         {
-          name: "短铃声c",
-          path: "/static/music/c.mp3"
+          name: '短铃声c',
+          path: '/static/music/c.mp3',
         },
         {
-          name: "短铃声d",
-          path: "/static/music/d.mp3"
+          name: '短铃声d',
+          path: '/static/music/d.mp3',
         },
         {
-          name: "短铃声e",
-          path: "/static/music/e.mp3"
+          name: '短铃声e',
+          path: '/static/music/e.mp3',
         },
 
         {
-          name: "冯提莫 - 佛系少女",
-          path: "/static/music/冯提莫 - 佛系少女.mp3"
+          name: '冯提莫 - 佛系少女',
+          path: '/static/music/冯提莫 - 佛系少女.mp3',
         },
         {
-          name: "陈一发儿 - 成都",
-          path: "/static/music/陈一发儿 - 成都.mp3"
-        }
+          name: '陈一发儿 - 成都',
+          path: '/static/music/陈一发儿 - 成都.mp3',
+        },
       ],
       festival_notice_value: 3, //指定节日前几点提醒
-      currentDate: "",
-      currentlunarDate: "",
-      currentTime: "",
-      timeAreaAlias: "",
-      week: "",
-      lunarString: "",
+      currentDate: '',
+      currentlunarDate: '',
+      currentTime: '',
+      timeAreaAlias: '',
+      week: '',
+      lunarString: '',
       festivalNotice: {
-        next: "",
-        current: "",
-        holiday: "",
-        add: "",
-        nextAdd: "",
-        clock_name: ""
+        next: '',
+        current: '',
+        holiday: '',
+        add: '',
+        nextAdd: '',
+        clock_name: '',
       },
       spaceClockHook: {},
       add_clock_data: this.initialClockModal(),
@@ -295,7 +309,7 @@ export default {
         //   remark: "测试",
         //   currentMusicSrc: "/static/music/c.mp3"
         // }
-      ]
+      ],
     };
   },
   methods: {
@@ -324,26 +338,26 @@ export default {
     },
     confirmDeleteClock(index) {
       this.$Modal.error({
-        title: "删除闹钟",
-        content: "你确定删除吗?",
+        title: '删除闹钟',
+        content: '你确定删除吗?',
         onOk: () => {
           this.clockList.splice(index, 1);
           this.saveClockMessage();
-        }
+        },
       });
     },
     initialClockModal() {
       return {
-        model: "time",
+        model: 'time',
         space: 10,
-        minutes: "",
-        hour: "",
-        ring_model: "endWidthClose",
-        currentMusicSrc: "/static/music/冯提莫 - 佛系少女.mp3",
+        minutes: '',
+        hour: '',
+        ring_model: 'endWidthClose',
+        currentMusicSrc: '/static/music/冯提莫 - 佛系少女.mp3',
         include_today: true,
-        repeat: "every_day",
-        clock_name: "",
-        espce: []
+        repeat: 'every_day',
+        clock_name: '',
+        espce: [],
       };
     },
     closePlayTip() {
@@ -351,14 +365,14 @@ export default {
     },
     getMusicData(ArgSrc) {
       let src;
-      if (ArgSrc.constructor !== "Object") {
+      if (ArgSrc.constructor !== 'Object') {
         src = ArgSrc;
       }
       let musicData = this.musicData.find(el => el.path == src);
       return musicData;
     },
     close_clocking_model() {
-      if (this.current_clocking_data.ring_model == "endWidthClose") {
+      if (this.current_clocking_data.ring_model == 'endWidthClose') {
         this.$refs.quarterBellDom.src = undefined;
       } else {
         this.showPlayingTip = true;
@@ -395,38 +409,38 @@ export default {
     cancel_add_clock() {
       this.add_clock_data = this.initialClockModal();
       this.add_clock_modal = false;
-      this.errorTip = "";
+      this.errorTip = '';
     },
     save_clock(data, flag) {
-      this.errorTip = "";
-      if (data.model == "time") {
+      this.errorTip = '';
+      if (data.model == 'time') {
         if (
           !(
-            data.hour.trim() != "" &&
+            data.hour.trim() != '' &&
             Number.isInteger(+data.hour) &&
             data.hour >= 0 &&
             data.hour <= 24
           )
         ) {
-          this.errorTip = "固定时间=>小时格式错误";
+          this.errorTip = '固定时间=>小时格式错误';
           return;
         }
         if (
           !(
-            data.minutes.trim() != "" &&
+            data.minutes.trim() != '' &&
             Number.isInteger(+data.minutes) &&
             data.minutes >= 0 &&
             data.minutes <= 60
           )
         ) {
-          this.errorTip = "固定时间=>分钟格式错误";
+          this.errorTip = '固定时间=>分钟格式错误';
           return;
         }
       }
 
-      if (data.repeat == "use_define") {
+      if (data.repeat == 'use_define') {
         if (!(data.use_define && data.use_define.length > 0)) {
-          this.errorTip = "重复=>自定义周期没有选择";
+          this.errorTip = '重复=>自定义周期没有选择';
           return;
         }
       }
@@ -438,15 +452,15 @@ export default {
       if (flag == 0) {
         //添加闹钟
         this.add_clock_modal = false;
-        if (data.clock_name.trim() == "") {
-          data.clock_name = "闹钟" + (this.clockList.length + 1);
+        if (data.clock_name.trim() == '') {
+          data.clock_name = '闹钟' + (this.clockList.length + 1);
         }
 
         data.isOpen = true;
         data.createTimestamp = +new Date();
 
         data.rightModelName = this.$refs.rightModelDomAdd.$el.querySelector(
-          ".ivu-select-selected-value"
+          '.ivu-select-selected-value'
         ).textContent;
         this.clockList.push(data);
         this.add_clock_data = this.initialClockModal();
@@ -456,26 +470,26 @@ export default {
         );
         this.clockList.splice(clockIndex, 1, data);
         data.rightModelName = this.$refs.rightModelDomEdit.$el.querySelector(
-          ".ivu-select-selected-value"
+          '.ivu-select-selected-value'
         ).textContent;
         this.close_edit_model = false;
       }
-      this.errorTip = "";
+      this.errorTip = '';
       this.saveClockMessage();
     },
     saveClockMessage() {
       window.localStorage.setItem(
-        "clock_message",
+        'clock_message',
         JSON.stringify(this.clockList)
       );
     },
     initialNotic(notic, dateElements) {
       this.festivalNotice = {
-        next: "",
-        current: "",
-        holiday: "",
-        add: "",
-        nextAdd: ""
+        next: '',
+        current: '',
+        holiday: '',
+        add: '',
+        nextAdd: '',
       };
       //下一个节日
       for (let i = 0; i < notic.nextFestival.length; i++) {
@@ -552,20 +566,20 @@ export default {
       }
     },
     getClockMessage() {
-      return JSON.parse(window.localStorage.getItem("clock_message")) || [];
-    }
+      return JSON.parse(window.localStorage.getItem('clock_message')) || [];
+    },
   },
   computed: {
     sortClockData() {
       return this.clockList;
-    }
+    },
   },
 
   mounted() {
     var _this = this;
     this.clockList = this.getClockMessage();
     this.$refs.audioDom.addEventListener(
-      "canplaythrough",
+      'canplaythrough',
       () => {
         this.playLoading = false;
         this.isShowPlayBtn = false;
@@ -574,7 +588,7 @@ export default {
       false
     );
     this.$refs.audioDom.addEventListener(
-      "ended",
+      'ended',
       () => {
         this.isShowPlayBtn = true;
 
@@ -584,14 +598,14 @@ export default {
     );
 
     this.$refs.quarterBellDom.addEventListener(
-      "canplaythrough",
+      'canplaythrough',
       () => {
         this.$refs.quarterBellDom.play();
       },
       false
     );
     this.$refs.quarterBellDom.addEventListener(
-      "ended",
+      'ended',
       () => {
         //已经播放完的路径
         let src = UrlHelper.getUri(this.$refs.quarterBellDom.src);
@@ -600,7 +614,7 @@ export default {
         if (!this.clocking_model) {
           //模态框关闭之后的铃声播放处理
 
-          if (this.current_clocking_data.ring_model == "endWidthAllPlayOne") {
+          if (this.current_clocking_data.ring_model == 'endWidthAllPlayOne') {
             //循环播放铃声列表
             let currentIndex = this.musicData.findIndex(el => {
               if (el.path == src) {
@@ -622,7 +636,7 @@ export default {
               this.showPlayingTip = false;
             }
           } else if (
-            this.current_clocking_data.ring_model == "endWidthPlayOne"
+            this.current_clocking_data.ring_model == 'endWidthPlayOne'
           ) {
             this.showPlayingTip = false;
           }
@@ -633,26 +647,26 @@ export default {
       },
       false
     );
-    let testTimeStr = "2018-11-2 17:00";
+    let testTimeStr = '2018-11-2 17:00';
     var flag = Tools.timeout({
       func: () => {
         // let originalDate = DateHelper.getOriginalDate(testTimeStr);
         let originalDate = DateHelper.getOriginalDate();
         let dateElements = DateHelper.getElements(false, originalDate);
         this.currentTime = DateHelper.getDateFormatString(
-          "HH:mm:ss",
+          'HH:mm:ss',
           false,
           originalDate
         );
         this.timeAreaAlias = DateHelper.getTimeAreaAlias(originalDate);
         this.week = DateHelper.getWeek(originalDate);
         this.currentDate = DateHelper.getDateFormatString(
-          "YYYY-MM-dd",
+          'YYYY-MM-dd',
           false,
           originalDate
         );
         this.lunarString = DateHelper.getDateFormatString(
-          "MM-dd",
+          'MM-dd',
           true,
           originalDate
         );
@@ -661,9 +675,9 @@ export default {
           dateElements
         );
       },
-      immediately: true
+      immediately: true,
     });
-  
+
     var lastMintes;
     // 效检闹钟
     Tools.timeout({
@@ -702,17 +716,16 @@ export default {
           }
 
           //跳过法定节假日 和 双休日
-          if (el.repeat != "once") {
-            if (el.espce.includes("holiday_festival")) {
+          if (el.repeat != 'once') {
+            if (el.espce.includes('holiday_festival')) {
               if (DateHelper.isHolidayFestival()) {
                 return;
               }
             }
           }
           //跳过周6和周日
-          if(el.repeat == "every_day"){
-
-            if (el.espce.includes("holiday_double_cease_day")) {
+          if (el.repeat == 'every_day') {
+            if (el.espce.includes('holiday_double_cease_day')) {
               if (
                 currentDateElements.day == 6 ||
                 currentDateElements.day == 7
@@ -726,20 +739,20 @@ export default {
 
           //重复方式为自定义
 
-          if (el.repeat == "use_define") {
+          if (el.repeat == 'use_define') {
             if (!el.use_define.includes(+currentDateElements.day)) {
               return;
             }
           }
 
-          if (el.model == "time") {
+          if (el.model == 'time') {
             if (
               currentDateElements.hours == el.hour &&
               currentDateElements.minutes == el.minutes
             ) {
               rightTime = true;
             }
-          } else if (el.model == "space") {
+          } else if (el.model == 'space') {
             let lastRunDateelements = _this.spaceClockHook[el.createTimestamp];
             if (lastRunDateelements == null) {
               //考虑到程序可能被关闭 在开启
@@ -765,7 +778,7 @@ export default {
           if (rightTime) {
             //响铃
             this.clock_queqe.push(el);
-            if (el.repeat == "once") {
+            if (el.repeat == 'once') {
               el.isOpen = false;
               // arr[index].isOpen = false
               this.saveClockMessage();
@@ -774,7 +787,7 @@ export default {
         });
       },
       immediately: true,
-      time: 1000
+      time: 1000,
     });
     //始终检测是否响铃
     Tools.timeout({
@@ -789,13 +802,13 @@ export default {
           }
         }
       },
-      immediately: true
+      immediately: true,
     });
-  }
+  },
 };
 </script>
 <style lang="less">
-@import "~@/assets/style/base.less";
+@import '~@/assets/style/base.less';
 #clock_vue {
   width: 85%;
   max-width: 800px;

@@ -1,53 +1,34 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-Vue.use(Router)
+import Vue from 'vue';
+import Router from 'vue-router';
+Vue.use (Router);
 
-const router = new Router({
+const router = new Router ({
   routes: [
     {
       path: '/test',
-      component:()=>import('@/components/test/test'),
-
+      component: () => import ('@/components/test/test'),
     },
     {
       path: '/test_service',
-      component:()=>import('@/components/test/service/service'),
-
+      component: () => import ('@/components/test/service/service'),
     },
-    // {
-    //   path: '/lol_box',
-    //   component:()=>import('@/components/tools/lol_box'),
-
-    // },
     {
       path: '/notepad_vue',
-      component:()=>import('@/components/tools/notepad'),
-
+      component: () => import ('@/components/tools/notepad'),
     },
     {
       path: '/clock_vue',
-      component:()=>import('@/components/tools/clock'),
-      
-
+      component: () => import ('@/components/tools/older/clock'),
     },
-    // {
-    //   path: '/wave',
-    //   component:()=>import('@/components/tools/wave'),
 
-    // },
     {
-      path: '/rotate_clock',
-      component:()=>import('@/components/tools/rotate_clock'),
-
+      path: '/math_postures',
+      component: () => import ('@/components/tools/math_postures'),
     },
     {
-    	path:'/math_postures',
-    	component:()=>import('@/components/tools/math_postures')
+      path: '/',
+      component: () => import ('@/components/index'),
     },
-    {
-    	path:"/",
-    	component:()=>import('@/components/index')
-    }
-  ]
-})
-export default router
+  ],
+});
+export default router;
