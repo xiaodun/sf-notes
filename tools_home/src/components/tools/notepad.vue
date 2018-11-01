@@ -2,6 +2,15 @@
 @import '~@/assets/style/base.less';
 
 #notepad-id {
+  .uploading-enter-active,
+  .uploading-leave-active {
+    transition: all 0.5s;
+  }
+  .uploading-enter,
+  .uploading-leave-to {
+    opacity: 0;
+    transform: translateY(30px);
+  }
   font-size: 14px;
 
   > .app-name {
@@ -178,11 +187,20 @@
       <!-- 文件管理 -->
       <div v-show="showModelFlag === 'file'" class="file-wrapper">
         <Button class="first-btn" @click="out_file_model()">返回</Button>
-        <Upload :on-error="upload_error" :on-success="request_get_file" ref="upload" :show-upload-list="false" :paste="true" :action="BuiltServiceConfig.prefix + requestPrefixFile + '/upload'" type="drag" multiple>
+        <Upload :on-progress="upload_progress" :on-error="upload_error" :on-success="request_get_file" ref="upload" :show-upload-list="false" :paste="true" :action="BuiltServiceConfig.prefix + requestPrefixFile + '/upload'" type="drag" multiple>
           <div style="height:200px;line-height:200px;">点击或拖拽上传</div>
         </Upload>
         <!-- 上传 -->
         <div class="upload-wrapper">
+          <!-- 正在上传的文件 -->
+          <transition-group tag="div" name="uploading">
+
+            <div class="uploading" :key="index" v-for="(item,index) in fileModel.uploadingList">
+              <div>{{item.name}}</div>
+              <Progress :percent="item.percent" />
+            </div>
+          </transition-group>
+          <!-- 已经上传完毕 -->
           <div class="file" :key="index" v-for="(item,index) in fileModel.uploadList">
             <Row>
               <Col span="14">
@@ -236,6 +254,7 @@ export default {
       fileModel: {
         //文件管理相关
         uploadList: [], //以上传文件
+        uploadingList: [], //正在上传的文件
       },
       tagModel: {
         //标签管理相关
@@ -275,8 +294,29 @@ export default {
   },
   computed: {},
   methods: {
-    upload_error(error) {
-      console.log(error);
+    upload_progress(event, file) {
+      let index = this.fileModel.uploadingList.findIndex(
+        el => el.file === file
+      );
+
+      if (index === -1) {
+        let uploadingFile = {};
+        uploadingFile.name = file.name;
+        uploadingFile.percent = event.percent | 0;
+        uploadingFile.file = file;
+        this.fileModel.uploadingList.push(uploadingFile);
+      } else {
+        this.fileModel.uploadingList[index].percent = event.percent | 0;
+      }
+      if (event.percent === 100) {
+        this.fileModel.uploadingList.splice(index, 1);
+      }
+    },
+    upload_error(error, file, filelist) {
+      let index = this.fileModel.uploadingList.findIndex(
+        el => el.file === file
+      );
+      this.fileModel.uploadingList.splice(index);
       this.$Message.error('上传失败!');
     },
     request_download_file(item) {
