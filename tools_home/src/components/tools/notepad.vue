@@ -113,7 +113,7 @@
 
       <div class="card-wrapper" v-show="showModelFlag === 'notepad'">
         <Button icon="ios-pricetag" class="first-btn" @click="in_tag_model()">标签管理</Button>
-        <Button icon="ios-folder"  class="first-btn" @click="in_file_model()">文件管理</Button>
+        <Button icon="ios-folder" class="first-btn" @click="in_file_model()">文件管理</Button>
         <Button @click="edit()" type="primary" long><span>添加</span></Button>
         <Select :transfer="true" placement="top" @on-change="change_filter_tag()" style="margin-top:10px;" v-model="filterTagIdList" multiple placeholder="标签过滤">
           <Option :key="item.id" v-for="item in tagModel.list" :value="item.id">{{item.content}}</Option>
@@ -164,13 +164,13 @@
               <div class="content" v-show="!item.isEdit">{{item.content}}</div>
               <Input v-show="item.isEdit" v-model="item.content" />
               </Col>
-              <Col class="option" span="8" offset="1" >
+              <Col class="option" span="8" offset="1">
               <Button style="margin-right:10px;" v-show="!item.isEdit" @click="in_update_tag(item)" shape="circle" icon="md-create"></Button>
-              <Button  v-show="!item.isEdit" @click="confirm_delete_tag(item)" shape="circle" icon="md-remove"></Button>
+              <Button v-show="!item.isEdit" @click="confirm_delete_tag(item)" shape="circle" icon="md-remove"></Button>
               <Button style="margin-right:10px;" v-show="item.isEdit" shape="circle" @click="reques_update_tag(item)" icon="md-checkmark"></Button>
               <Button v-show="item.isEdit" @click="abort_update_tag(item)" shape="circle" icon="md-close"></Button>
               </Col>
-            
+
             </Row>
           </div>
         </div>
@@ -304,17 +304,23 @@ export default {
         responseType: 'blob',
       }).then(response => {
         var blob = response.data;
-        var reader = new FileReader();
-
-        reader.readAsDataURL(blob);
-        reader.onload = function(e) {
-          var a = document.createElement('a');
-          a.download = item.name;
-          a.href = e.target.result;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-        };
+        var a = document.createElement('a');
+        a.download = item.name;
+        a.href = URL.createObjectURL(blob);
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(a.href);
+        // var reader = new FileReader();
+        // reader.readAsDataURL(blob);
+        // reader.onload = function(e) {
+        //   var a = document.createElement('a');
+        //   a.download = item.name;
+        //   a.href = e.target.result;
+        //   document.body.appendChild(a);
+        //   a.click();
+        //   a.remove();
+        // };
       });
     },
     change_filter_tag() {

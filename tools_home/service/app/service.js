@@ -27,9 +27,6 @@ http_os
         command = urlElementsArr[3].slice (0, paramsPos);
       }
 
-      if (!(prefix && appName && dataName && command)) {
-      }
-
       //创建结构
       let floderPathArr = (config.abspath
         ? config.abspath.split ('/')
@@ -72,9 +69,6 @@ http_os
       if (!file_os.existsSync (rootFloder.commandPath)) {
         file_os.writeFileSync (rootFloder.commandPath, commandTemplate);
       }
-
-      let env = {};
-      env.currentPath = rootFloder.path; //命令文件所在的目录
 
       //解析参数
 
@@ -134,7 +128,7 @@ http_os
           // var result = eval(new String(file_os.readFileSync(rootFloder.commandPath)))(cloneData,params);
           var result = eval (
             file_os.readFileSync (rootFloder.commandPath, 'utf-8')
-          ) (cloneData, params, env);
+          ) (cloneData, params);
 
           if (result.isDelete) {
             let path = rootFloder.path + '/' + result.file.flag;
@@ -160,15 +154,27 @@ http_os
           }
 
           if (result.isDownload) {
-            //文件下载
+            // 文件下载;
             let path = rootFloder.path + '/' + result.file.flag;
             let file = file_os.createReadStream (path);
+            console.log (file);
             response.writeHead (200, {
-              'Content-Type': 'application/force-download',
+              'Content-Type': 'application/octet-stream',
               'Content-Disposition': `attachment; filename=` +
                 encodeURIComponent (result.file.name),
             });
             file.pipe (response);
+
+            // var readStream = file_os.ReadStream (path);
+            // response.writeHead (200, {
+            //   'Content-Type': result.file.type,
+            //   'Accept-Ranges': 'bytes',
+            // });
+            // readStream.on ('close', function () {
+            //   response.end ();
+            //   console.log ('Stream finished.');
+            // });
+            // readStream.pipe (response);
           } else {
             //返回结果
             response.writeHead (result.response.code, {

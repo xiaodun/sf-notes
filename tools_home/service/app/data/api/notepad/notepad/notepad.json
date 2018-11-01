@@ -1,5 +1,17 @@
 [
     {
+        "title": "",
+        "content": "常用的加载动画",
+        "tagIdList": [
+            1540439061206,
+            1540439058555,
+            1540697906401
+        ],
+        "createTime": 1541038735966,
+        "id": 1541038735966,
+        "updateTime": ""
+    },
+    {
         "title": "2018-10-30",
         "content": "显示上传进度   并支持音频文件的传输  大文件传输失败！！！",
         "tagIdList": [
@@ -13,19 +25,8 @@
         "updateTime": 1540911981370
     },
     {
-        "title": "",
-        "content": "移动端  二维码抖动",
-        "tagIdList": [
-            1540439058555,
-            1540439061206
-        ],
-        "createTime": 1540974549082,
-        "id": 1540974549082,
-        "updateTime": ""
-    },
-    {
-        "title": "",
-        "content": "无法格式化vue的html",
+        "title": "2018-10-31",
+        "content": "无法格式化vue的html\n\n使用vscode编辑vue文件时发现突然格式化代码不会对<template> </template>之间的html生效了，解决办法很简单\n\n \n\n文件 --> 首选项 ---> 设置 \n\n搜索      vetur.format.defaultFormatter.html    （前提当然是你已经装了  \"vetur\" 插件）\n\n可以看到值为 none",
         "tagIdList": [
             1540439058555,
             1540439061206,
@@ -33,7 +34,7 @@
         ],
         "createTime": 1540974385209,
         "id": 1540974385209,
-        "updateTime": ""
+        "updateTime": 1541044324654
     },
     {
         "title": "",
