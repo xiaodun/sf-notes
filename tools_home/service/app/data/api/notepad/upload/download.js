@@ -8,6 +8,7 @@
         file = {
           flag: el.flag,
           name: el.name,
+          type:el.type
         };
         return true;
       }
