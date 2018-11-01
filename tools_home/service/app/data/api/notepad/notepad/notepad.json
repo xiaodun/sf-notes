@@ -1,6 +1,14 @@
 [
     {
         "title": "",
+        "content": "下载按钮动画添加动画",
+        "tagIdList": [],
+        "createTime": 1541082458915,
+        "id": 1541082458915,
+        "updateTime": ""
+    },
+    {
+        "title": "",
         "content": "上传文件时  上传文件夹和超过后指定大小的报错区分",
         "tagIdList": [
             1540734005794,
@@ -15,14 +23,6 @@
     },
     {
         "title": "",
-        "content": "弄一个2-3G的视频作为测试",
-        "tagIdList": [],
-        "createTime": 1541059235123,
-        "id": 1541059235123,
-        "updateTime": ""
-    },
-    {
-        "title": "",
         "content": "常用的加载动画",
         "tagIdList": [
             1540439061206,
@@ -32,31 +32,6 @@
         "createTime": 1541038735966,
         "id": 1541038735966,
         "updateTime": ""
-    },
-    {
-        "title": "2018-10-30",
-        "content": "显示上传进度   并支持音频文件的传输  大文件传输失败！！！",
-        "tagIdList": [
-            1540734005794,
-            1540450650761,
-            1540439061206,
-            1540439058555
-        ],
-        "createTime": 1540911332195,
-        "id": 1540911332195,
-        "updateTime": 1540911981370
-    },
-    {
-        "title": "2018-10-31",
-        "content": "无法格式化vue的html\n\n使用vscode编辑vue文件时发现突然格式化代码不会对<template> </template>之间的html生效了，解决办法很简单\n\n \n\n文件 --> 首选项 ---> 设置 \n\n搜索      vetur.format.defaultFormatter.html    （前提当然是你已经装了  \"vetur\" 插件）\n\n可以看到值为 none",
-        "tagIdList": [
-            1540439058555,
-            1540439061206,
-            1540439042964
-        ],
-        "createTime": 1540974385209,
-        "id": 1540974385209,
-        "updateTime": 1541044324654
     },
     {
         "title": "",
