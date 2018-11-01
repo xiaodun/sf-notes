@@ -18,7 +18,7 @@
   &:before {
     display: table;
 
-    content: ' ';
+    content: " ";
   }
 
   .info {
@@ -144,11 +144,11 @@
 
           <FormItem :key="index" v-show="item.isShow" v-for="(item,index ) in answer">
             <span class="expression">{{item.expression}}</span>
-            <Input  @focus="'focus'+index" :ref="'input'+index" type="text" @on-keydown.enter="submit" v-model="item.userResult" />
+            <Input @focus="'focus'+index" :ref="'input'+index" type="text" @on-keydown.enter="submit" v-model="item.userResult" />
           </FormItem>
         </transition-group>
         <FormItem>
-          <Button @click="submit" class="submit" size="large" type="primary" >提交</Button>
+          <Button @click="submit" class="submit" size="large" type="primary">提交</Button>
         </FormItem>
       </Form>
       <div>
@@ -184,47 +184,47 @@
 </template>
 
 <script>
-import AxiosHelper from '@/assets/lib/AxiosHelper';
+import AxiosHelper from "@/assets/lib/AxiosHelper";
 export default {
-  name: 'math_postures',
+  name: "math_postures",
   data() {
     return {
-      requestPrefixConfig: '/math_postures/config/', //请求前缀
+      requestPrefixConfig: "/math_postures/config/", //请求前缀
       answer: [],
       configModal: {
         isShow: false,
         signModel: {},
-        numberModel: {},
+        numberModel: {}
       },
       signModel: {
         add: {
-          value: '+',
-          content: '加法',
-          isInclude: true,
+          value: "+",
+          content: "加法",
+          isInclude: true
         },
         sub: {
-          value: '-',
-          content: '减法',
-          isInclude: true,
+          value: "-",
+          content: "减法",
+          isInclude: true
         },
         multiply: {
-          value: '*',
-          content: '乘法',
-          isInclude: true,
+          value: "*",
+          content: "乘法",
+          isInclude: true
         },
         divide: {
-          value: '/',
-          content: '除法',
-          isInclude: false,
-        },
+          value: "/",
+          content: "除法",
+          isInclude: false
+        }
       },
       isAnswerModel: false,
       count: 10, //题目的总个数
       isIncludeBrackets: false,
       numberModel: {
         max: 10, //数的最大值
-        count: 2, //数字的个数
-      },
+        count: 2 //数字的个数
+      }
     };
   },
   computed: {
@@ -235,8 +235,8 @@ export default {
         let sign = this.signModel[key];
         sign.isInclude && result.push(sign.content);
       }
-      return result.join('、');
-    },
+      return result.join("、");
+    }
   },
   methods: {
     /**
@@ -247,8 +247,8 @@ export default {
       this.configModal.isShow = false;
       this.isIncludeBrackets = this.configModal.isIncludeBrackets;
       this.count = this.configModal.count;
-      this.signModel = {...this.configModal.signModel};
-      this.numberModel = {...this.configModal.numberModel};
+      this.signModel = { ...this.configModal.signModel };
+      this.numberModel = { ...this.configModal.numberModel };
       let config = this.convert_config_for_request();
       this.request_save_config(config);
     },
@@ -256,28 +256,28 @@ export default {
       //打开编辑配置模态框
       this.configModal.isShow = true;
       this.configModal.signModel = JSON.parse(JSON.stringify(this.signModel));
-      this.configModal.numberModel = {...this.numberModel};
+      this.configModal.numberModel = { ...this.numberModel };
       this.configModal.count = this.count;
       this.configModal.isIncludeBrackets = this.isIncludeBrackets;
     },
     request_save_config(argConfig) {
       //提交保存配置
       AxiosHelper.request({
-        method: 'post',
-        url: this.requestPrefixConfig + '/saveConfig',
-        data: argConfig,
+        method: "post",
+        url: this.requestPrefixConfig + "/saveConfig",
+        data: argConfig
       }).then(response => {
-        this.$Message.success('保存成功');
+        this.$Message.success("保存成功");
       });
     },
     request_get_config() {
       //提交 获取配置
       AxiosHelper.request({
-        method: 'get',
-        url: this.requestPrefixConfig + '/getConfig',
+        method: "get",
+        url: this.requestPrefixConfig + "/getConfig"
       }).then(response => {
         let data = response.data;
-        if (data && JSON.stringify(data) !== '{}') {
+        if (data && JSON.stringify(data) !== "{}") {
           //数据转换
           data.signModel.forEach((el, index, arr) => {
             this.signModel[el.key].isInclude = el.isInclude;
@@ -291,19 +291,19 @@ export default {
     convert_config_for_request() {
       //将配置数据转换后台村存储的格式
       let data = {
-        signModel: [],
+        signModel: []
       };
       for (let key in this.configModal.signModel) {
         let el = this.configModal.signModel[key];
         data.signModel.push({
           key: key,
-          isInclude: el.isInclude,
+          isInclude: el.isInclude
         });
       }
 
       data.count = this.configModal.count;
       data.isIncludeBrackets = this.configModal.isIncludeBrackets;
-      data.numberModel = {...this.configModal.numberModel};
+      data.numberModel = { ...this.configModal.numberModel };
       return data;
     },
     submit() {
@@ -318,12 +318,12 @@ export default {
       //最靠前的未回答对的获得焦点
       let index = this.answer.findIndex(el => el.isShow);
       if (index !== -1) {
-        this.$refs['input' + index][0].focus();
+        this.$refs["input" + index][0].focus();
       }
 
       //全部答对
       if (this.answer.every(el => !el.isShow)) {
-        this.$Message.success('全部答对');
+        this.$Message.success("全部答对");
         this.isAnswerModel = false;
         this.answer = [];
       }
@@ -345,7 +345,7 @@ export default {
         this.generate_expressions();
         //自动获得焦点
         this.$nextTick(() => {
-          this.$refs['input0'][0].focus();
+          this.$refs["input0"][0].focus();
         });
       }
     },
@@ -384,7 +384,7 @@ export default {
             this.answer.push({
               expression: strNumber,
               result,
-              isShow: true,
+              isShow: true
             });
           }
         }
@@ -394,12 +394,12 @@ export default {
       /**
        * 生成的式子具有一点的格式
        */
-      let strNumber = '';
+      let strNumber = "";
       let i;
       for (i = 0; i < parseArr.length - 1; i++) {
         strNumber += parseArr[i];
-        if (parseArr[i] != '(' && parseArr[i + 1] != ')') {
-          strNumber += ' ';
+        if (parseArr[i] != "(" && parseArr[i + 1] != ")") {
+          strNumber += " ";
         }
       }
       strNumber += parseArr[i];
@@ -424,18 +424,18 @@ export default {
           if (isAdd) {
             let sign;
             if (currentRight == currentLeft) {
-              sign = '(';
+              sign = "(";
             } else {
               if (currentLeft > currentRight && currentLeft != numBrackets) {
-                Math.random() - 0.5 > 0 ? (sign = '(') : (sign = ')');
+                Math.random() - 0.5 > 0 ? (sign = "(") : (sign = ")");
               } else {
-                sign = ')';
+                sign = ")";
               }
             }
 
             let flag = true;
-            if (sign == ')') {
-              let closeLeftBracketsIndex = expression.lastIndexOf('(', i);
+            if (sign == ")") {
+              let closeLeftBracketsIndex = expression.lastIndexOf("(", i);
               if (i - closeLeftBracketsIndex - 1 <= 2) {
                 flag = false;
               } else {
@@ -454,7 +454,7 @@ export default {
             }
             if (flag) {
               expression.splice(i, 0, sign);
-              if (sign == '(') {
+              if (sign == "(") {
                 currentLeft++;
               } else {
                 currentRight++;
@@ -490,20 +490,20 @@ export default {
          *  如果结果是不规则的小数或者小数点个数超过2位  则放弃这个式子 0.1 + 0.2 不等于 0.3 这种  
          */
       let flag = true;
-      if ((result + '').includes('.') && !/^\d+\.\d{0,2}$/.test(result)) {
+      if ((result + "").includes(".") && !/^\d+\.\d{0,2}$/.test(result)) {
         flag = false;
       }
       return flag;
     },
     deal_brackets(parseArr) {
       //处理括号
-      if (parseArr.includes('(')) {
+      if (parseArr.includes("(")) {
         let left = 0,
           right = 0;
         for (let i = 0; i < parseArr.length; i++) {
-          if (parseArr[i] == '(') {
+          if (parseArr[i] == "(") {
             left = i;
-          } else if (parseArr[i] == ')') {
+          } else if (parseArr[i] == ")") {
             right = i;
             break;
           }
@@ -512,7 +512,7 @@ export default {
           .slice(0, left)
           .concat(this.computed_expression(parseArr.slice(left + 1, right)))
           .concat(parseArr.slice(right + 1));
-        if (arr.includes('(') || arr.includes(')')) {
+        if (arr.includes("(") || arr.includes(")")) {
           arr = this.deal_brackets(arr);
         }
         return arr;
@@ -540,7 +540,7 @@ export default {
       //对减法进行运算
       let count = 0;
       for (let i = 0; i < parseArr.length; i += 2) {
-        if (parseArr[i - 1] == '-') {
+        if (parseArr[i - 1] == "-") {
           count -= +parseArr[i];
           if (count < 0) {
             count = window.NaN;
@@ -628,11 +628,11 @@ export default {
         list.push(singList[pos]);
       }
       return list;
-    },
+    }
   },
 
   mounted() {
     this.request_get_config();
-  },
+  }
 };
 </script>
