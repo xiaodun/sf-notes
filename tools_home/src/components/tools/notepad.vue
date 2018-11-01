@@ -178,7 +178,7 @@
       <!-- 文件管理 -->
       <div v-show="showModelFlag === 'file'" class="file-wrapper">
         <Button class="first-btn" @click="out_file_model()">返回</Button>
-        <Upload :before-upload="before_upload" :on-error="upload_error" :on-success="request_get_file" ref="upload" :show-upload-list="false" :paste="true" :action="BuiltServiceConfig.prefix + requestPrefixFile + '/upload'" type="drag" multiple>
+        <Upload :on-error="upload_error" :on-success="request_get_file" ref="upload" :show-upload-list="false" :paste="true" :action="BuiltServiceConfig.prefix + requestPrefixFile + '/upload'" type="drag" multiple>
           <div style="height:200px;line-height:200px;">点击或拖拽上传</div>
         </Upload>
         <!-- 上传 -->
@@ -275,26 +275,9 @@ export default {
   },
   computed: {},
   methods: {
-    upload_error() {
-      this.$Message.error('上传失败,尝试上传压缩包!');
-    },
-    before_upload(file) {
-      //文件上传前的钩子
-
-      //获取文件的后缀
-      let index = file.name.lastIndexOf('.');
-      if (~index) {
-        let stuffix = file.name.substr(index);
-        if (~stuffix.indexOf('exe')) {
-          //对exe格式的处理
-          this.$Message.warning({
-            content: 'exe文件需要添加到压缩文件才能上传!',
-            duration: 5,
-          });
-          return false;
-        }
-      }
-      return true;
+    upload_error(error) {
+      console.log(error);
+      this.$Message.error('上传失败!');
     },
     request_download_file(item) {
       //提交下载文件
@@ -311,16 +294,6 @@ export default {
         a.click();
         a.remove();
         URL.revokeObjectURL(a.href);
-        // var reader = new FileReader();
-        // reader.readAsDataURL(blob);
-        // reader.onload = function(e) {
-        //   var a = document.createElement('a');
-        //   a.download = item.name;
-        //   a.href = e.target.result;
-        //   document.body.appendChild(a);
-        //   a.click();
-        //   a.remove();
-        // };
       });
     },
     change_filter_tag() {
