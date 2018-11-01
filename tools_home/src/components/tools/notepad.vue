@@ -2,6 +2,15 @@
 @import '~@/assets/style/base.less';
 
 #notepad-id {
+  .uploading-enter-active,
+  .uploading-leave-active {
+    transition: all 0.5s;
+  }
+  .uploading-enter,
+  .uploading-leave-to {
+    opacity: 0;
+    transform: translateY(30px);
+  }
   font-size: 14px;
 
   > .app-name {
@@ -113,7 +122,7 @@
 
       <div class="card-wrapper" v-show="showModelFlag === 'notepad'">
         <Button icon="ios-pricetag" class="first-btn" @click="in_tag_model()">标签管理</Button>
-        <Button icon="ios-folder"  class="first-btn" @click="in_file_model()">文件管理</Button>
+        <Button icon="ios-folder" class="first-btn" @click="in_file_model()">文件管理</Button>
         <Button @click="edit()" type="primary" long><span>添加</span></Button>
         <Select :transfer="true" placement="top" @on-change="change_filter_tag()" style="margin-top:10px;" v-model="filterTagIdList" multiple placeholder="标签过滤">
           <Option :key="item.id" v-for="item in tagModel.list" :value="item.id">{{item.content}}</Option>
@@ -164,13 +173,13 @@
               <div class="content" v-show="!item.isEdit">{{item.content}}</div>
               <Input v-show="item.isEdit" v-model="item.content" />
               </Col>
-              <Col class="option" span="8" offset="1" >
+              <Col class="option" span="8" offset="1">
               <Button style="margin-right:10px;" v-show="!item.isEdit" @click="in_update_tag(item)" shape="circle" icon="md-create"></Button>
-              <Button  v-show="!item.isEdit" @click="confirm_delete_tag(item)" shape="circle" icon="md-remove"></Button>
+              <Button v-show="!item.isEdit" @click="confirm_delete_tag(item)" shape="circle" icon="md-remove"></Button>
               <Button style="margin-right:10px;" v-show="item.isEdit" shape="circle" @click="reques_update_tag(item)" icon="md-checkmark"></Button>
               <Button v-show="item.isEdit" @click="abort_update_tag(item)" shape="circle" icon="md-close"></Button>
               </Col>
-            
+
             </Row>
           </div>
         </div>
@@ -178,11 +187,20 @@
       <!-- 文件管理 -->
       <div v-show="showModelFlag === 'file'" class="file-wrapper">
         <Button class="first-btn" @click="out_file_model()">返回</Button>
-        <Upload :before-upload="before_upload" :on-error="upload_error" :on-success="request_get_file" ref="upload" :show-upload-list="false" :paste="true" :action="BuiltServiceConfig.prefix + requestPrefixFile + '/upload'" type="drag" multiple>
+        <Upload :on-progress="upload_progress" :on-error="upload_error" :on-success="request_get_file" ref="upload" :show-upload-list="false" :paste="true" :action="BuiltServiceConfig.prefix + requestPrefixFile + '/upload'" type="drag" multiple>
           <div style="height:200px;line-height:200px;">点击或拖拽上传</div>
         </Upload>
         <!-- 上传 -->
         <div class="upload-wrapper">
+          <!-- 正在上传的文件 -->
+          <transition-group tag="div" name="uploading">
+
+            <div class="uploading" :key="index" v-for="(item,index) in fileModel.uploadingList">
+              <div>{{item.name}}</div>
+              <Progress :percent="item.percent" />
+            </div>
+          </transition-group>
+          <!-- 已经上传完毕 -->
           <div class="file" :key="index" v-for="(item,index) in fileModel.uploadList">
             <Row>
               <Col span="14">
@@ -236,6 +254,7 @@ export default {
       fileModel: {
         //文件管理相关
         uploadList: [], //以上传文件
+        uploadingList: [], //正在上传的文件
       },
       tagModel: {
         //标签管理相关
@@ -275,26 +294,30 @@ export default {
   },
   computed: {},
   methods: {
-    upload_error() {
-      this.$Message.error('上传失败,尝试上传压缩包!');
-    },
-    before_upload(file) {
-      //文件上传前的钩子
+    upload_progress(event, file) {
+      let index = this.fileModel.uploadingList.findIndex(
+        el => el.file === file
+      );
 
-      //获取文件的后缀
-      let index = file.name.lastIndexOf('.');
-      if (~index) {
-        let stuffix = file.name.substr(index);
-        if (~stuffix.indexOf('exe')) {
-          //对exe格式的处理
-          this.$Message.warning({
-            content: 'exe文件需要添加到压缩文件才能上传!',
-            duration: 5,
-          });
-          return false;
-        }
+      if (index === -1) {
+        let uploadingFile = {};
+        uploadingFile.name = file.name;
+        uploadingFile.percent = event.percent | 0;
+        uploadingFile.file = file;
+        this.fileModel.uploadingList.push(uploadingFile);
+      } else {
+        this.fileModel.uploadingList[index].percent = event.percent | 0;
       }
-      return true;
+      if (event.percent === 100) {
+        this.fileModel.uploadingList.splice(index, 1);
+      }
+    },
+    upload_error(error, file, filelist) {
+      let index = this.fileModel.uploadingList.findIndex(
+        el => el.file === file
+      );
+      this.fileModel.uploadingList.splice(index);
+      this.$Message.error('上传失败!');
     },
     request_download_file(item) {
       //提交下载文件
@@ -304,17 +327,13 @@ export default {
         responseType: 'blob',
       }).then(response => {
         var blob = response.data;
-        var reader = new FileReader();
-
-        reader.readAsDataURL(blob);
-        reader.onload = function(e) {
-          var a = document.createElement('a');
-          a.download = item.name;
-          a.href = e.target.result;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-        };
+        var a = document.createElement('a');
+        a.download = item.name;
+        a.href = URL.createObjectURL(blob);
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(a.href);
       });
     },
     change_filter_tag() {
