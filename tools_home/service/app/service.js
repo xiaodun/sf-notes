@@ -116,6 +116,19 @@ var server = http_os.createServer (function (request, response) {
       var params = url_os.parse (request.url, true).query;
       executeCommand (params);
     }
+    function createFloder (List) {
+      try {
+        let path = '';
+        list.forEach (el => {
+          path += el;
+          if (!file_os.existsSync (path)) {
+            file_os.mkdirSync (path);
+          }
+        });
+      } catch (error) {
+        response.end (error.stack);
+      }
+    }
     function executeCommand (params) {
       try {
         //执行命令
@@ -127,7 +140,7 @@ var server = http_os.createServer (function (request, response) {
         // var result = eval(new String(file_os.readFileSync(rootFloder.commandPath)))(cloneData,params);
         var result = eval (
           file_os.readFileSync (rootFloder.commandPath, 'utf-8')
-        ) (cloneData, params);
+        ) (cloneData, params, external);
 
         if (result.isDelete) {
           let path = rootFloder.path + '/' + result.file.flag;
@@ -154,7 +167,6 @@ var server = http_os.createServer (function (request, response) {
           // 文件下载;
           let path = rootFloder.path + '/' + result.file.flag;
           let file = file_os.createReadStream (path);
-          console.log (file);
           response.writeHead (200, {
             'Content-Type': 'application/octet-stream',
             'Content-Disposition': `attachment; filename=` +
