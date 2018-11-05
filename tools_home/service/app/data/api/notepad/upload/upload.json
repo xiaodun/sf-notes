@@ -1,5 +1,11 @@
 [
     {
+        "name": "images.zip",
+        "type": "application/x-zip-compressed",
+        "flag": "upload_feaf19db294ef945d719f757d1c2453d",
+        "id": "15414112583110"
+    },
+    {
         "name": "vue-templete.code-snippets",
         "type": "application/octet-stream",
         "flag": "upload_479f55cef6f97d74394a53cac9729ed4",
