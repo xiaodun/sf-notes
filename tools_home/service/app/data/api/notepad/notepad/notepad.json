@@ -1,35 +1,36 @@
 [
     {
         "title": "",
-        "content": "https://codeday.me/bug/20170807/50688.html",
-        "tagIdList": [
-            1540734005794
-        ],
-        "createTime": 1541150414844,
-        "id": 1541150414844,
+        "content": "写一个自己vue组件库\n\nhttps://blog.csdn.net/liuyangjike/article/details/82145771\n",
+        "tagIdList": [],
+        "createTime": 1541859674722,
+        "id": 1541859674722,
         "updateTime": ""
     },
     {
-        "title": "",
-        "content": "下载按钮动画添加动画",
-        "tagIdList": [],
-        "createTime": 1541082458915,
-        "id": 1541082458915,
-        "updateTime": ""
+        "title": "2018-11-10",
+        "content": "canvas相关\n\nnodejs 视频\nhttps://codeday.me/bug/20170807/50688.html\n\n关于生成阶乘数据的写法\ngenerate_rank_sign() {\n      let sign = this.get_include_sign();\n      let current = this.numberModel.count - 1;\n\n      let arr = [];\n      let min = '',\n        max = '';\n      for (let i = 0; i < current; i++) {\n        min += 1;\n        max += sign.length + 1;\n      }\n\n      for (let i = min; i <= max; i++) {\n        let str_i = i + '';\n        let flag = str_i.split('').some(el => el > sign.length || el == 0);\n        if (!flag) {\n          arr.push(str_i);\n        }\n      }\n      return arr\n        .map(el => el.split(''))\n        .map(el => el.map((e, i) => sign[e - 1]));\n    },\n\n写一篇 vue 数组的坑  比如动态添加属性\nthis.list = [{name:1}]\nthis.list[0].age = 12\n\n写一篇文章 \n\nreact代码格式化\nemmet tab扩展\nAll Autocomplete",
+        "tagIdList": [
+            1540697906401,
+            1540439058555,
+            1540439054374
+        ],
+        "createTime": 1541830121481,
+        "id": 1541830121481,
+        "updateTime": 1541857254934
     },
     {
         "title": "2018-11-01",
-        "content": "上传文件时  上传文件夹和超过后指定大小的报错区分\n文件名超出长度的提示",
+        "content": "下载按钮动画添加动画\n\n上传文件时  上传文件夹和超过后指定大小的报错区分\n文件名超出长度的提示",
         "tagIdList": [
-            1540734005794,
-            1540697906401,
-            1540450650761,
             1540439058555,
-            1540439061206
+            1540439061206,
+            1540450650761,
+            1540697906401
         ],
-        "createTime": 1541062343489,
-        "id": 1541062343489,
-        "updateTime": 1541124376783
+        "createTime": 1541082458915,
+        "id": 1541082458915,
+        "updateTime": 1541830163189
     },
     {
         "title": "",
@@ -41,28 +42,6 @@
         ],
         "createTime": 1541038735966,
         "id": 1541038735966,
-        "updateTime": ""
-    },
-    {
-        "title": "",
-        "content": "视频播放组件",
-        "tagIdList": [
-            1540734005794,
-            1540439058555,
-            1540439061206
-        ],
-        "createTime": 1540968714417,
-        "id": 1540968714417,
-        "updateTime": ""
-    },
-    {
-        "title": "",
-        "content": "关于生成阶乘数据的写法\ngenerate_rank_sign() {\n      let sign = this.get_include_sign();\n      let current = this.numberModel.count - 1;\n\n      let arr = [];\n      let min = '',\n        max = '';\n      for (let i = 0; i < current; i++) {\n        min += 1;\n        max += sign.length + 1;\n      }\n\n      for (let i = min; i <= max; i++) {\n        let str_i = i + '';\n        let flag = str_i.split('').some(el => el > sign.length || el == 0);\n        if (!flag) {\n          arr.push(str_i);\n        }\n      }\n      return arr\n        .map(el => el.split(''))\n        .map(el => el.map((e, i) => sign[e - 1]));\n    },",
-        "tagIdList": [
-            1540439058555
-        ],
-        "createTime": 1540783844345,
-        "id": 1540783844345,
         "updateTime": ""
     },
     {
@@ -85,21 +64,6 @@
         "updateTime": ""
     },
     {
-        "title": "2018-10-24",
-        "content": "写一篇 vue 数组的坑  比如动态添加属性\nthis.list = [{name:1}]\nthis.list[0].age = 12",
-        "createTime": 1540396508258,
-        "id": 1540396508258,
-        "updateTime": 1540450790313,
-        "tagIdList": []
-    },
-    {
-        "title": "2018-10-21",
-        "content": "写一篇文章 \n\nreact代码格式化\nemmet tab扩展\nAll Autocomplete",
-        "createTime": 1540124223929,
-        "id": 1540124223929,
-        "updateTime": 1540259065220
-    },
-    {
         "title": "2018-10-22",
         "content": "关于分页器的一些思索",
         "createTime": 1540173652181,
@@ -109,10 +73,10 @@
     },
     {
         "title": "2018-10-22",
-        "content": "http://lea.verou.me/css3patterns/#\n\nhttps://codepen.io/pimskie/pen/aRNEYZ\n\nhttps://codepen.io/leusrox/pen/mWZBgM\n\nhttps://codepen.io/VisualAngle/pen/mzKKZW\nhttps://codepen.io/pavlovsk/pen/OBdzBj\nhttps://bennettfeely.com/gradients/",
+        "content": "http://lea.verou.me/css3patterns/#\n\nhttps://codepen.io/pimskie/pen/aRNEYZ\n\nhttps://codepen.io/leusrox/pen/mWZBgM\n\nhttps://codepen.io/VisualAngle/pen/mzKKZW\nhttps://codepen.io/pavlovsk/pen/OBdzBj\nhttps://bennettfeely.com/gradients/\n\nhttps://codepen.io/DonKarlssonSan/pen/gBVRjG",
         "createTime": 1540186895275,
         "id": 1540186895275,
-        "updateTime": 1540817247704,
+        "updateTime": 1541223587573,
         "tagIdList": [
             1540817013505
         ]
