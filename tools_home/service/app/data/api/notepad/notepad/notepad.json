@@ -1,5 +1,15 @@
 [
     {
+        "title": "",
+        "content": "进度条 占位符动画",
+        "tagIdList": [
+            1540734005794
+        ],
+        "createTime": 1541951785255,
+        "id": 1541951785255,
+        "updateTime": ""
+    },
+    {
         "title": "2018-11-10",
         "content": "canvas相关\n\nnodejs 视频\nhttps://codeday.me/bug/20170807/50688.html\n\n关于生成阶乘数据的写法\ngenerate_rank_sign() {\n      let sign = this.get_include_sign();\n      let current = this.numberModel.count - 1;\n\n      let arr = [];\n      let min = '',\n        max = '';\n      for (let i = 0; i < current; i++) {\n        min += 1;\n        max += sign.length + 1;\n      }\n\n      for (let i = min; i <= max; i++) {\n        let str_i = i + '';\n        let flag = str_i.split('').some(el => el > sign.length || el == 0);\n        if (!flag) {\n          arr.push(str_i);\n        }\n      }\n      return arr\n        .map(el => el.split(''))\n        .map(el => el.map((e, i) => sign[e - 1]));\n    },\n\n写一篇 vue 数组的坑  比如动态添加属性\nthis.list = [{name:1}]\nthis.list[0].age = 12\n\n写一篇文章 \n\nreact代码格式化\nemmet tab扩展\nAll Autocomplete",
         "tagIdList": [
