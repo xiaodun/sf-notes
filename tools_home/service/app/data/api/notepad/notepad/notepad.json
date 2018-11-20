@@ -1,17 +1,27 @@
 [
     {
-        "title": "",
-        "content": "进度条 占位符动画",
+        "title": "2018-11-19",
+        "content": "cursor:not-allowed 无效\n.first {\n  cursor: not-allowed;\n  pointer-events: none;\n}\n\n\nposition:fixed  的嵌套使用\n\npost请求只穿字符串\n\n\"changeOrigin\": false\n\nhttps://marskid.net/2018/01/14/webpack-devserver-proxy/",
         "tagIdList": [
-            1540734005794
+            1542621742967
         ],
-        "createTime": 1541951785255,
-        "id": 1541951785255,
-        "updateTime": ""
+        "createTime": 1542621686566,
+        "id": 1542621686566,
+        "updateTime": 1542716321771
+    },
+    {
+        "title": "2018-11-17",
+        "content": "\n加载动画\nhttps://codepen.io/pedox/pen/PwQezw  重要\n\n\nhttps://www.jianshu.com/p/6d3aafe8240f  \n\nhttps://www.html5tricks.com/demo/svg-css3-loading-icons/index.html\n\nhttps://www.cnblogs.com/lhb25/p/loading-spinners-animated-with-css3.html",
+        "tagIdList": [
+            1540817013505
+        ],
+        "createTime": 1542453402031,
+        "id": 1542453402031,
+        "updateTime": 1542454269287
     },
     {
         "title": "2018-11-10",
-        "content": "canvas相关\n\nnodejs 视频\nhttps://codeday.me/bug/20170807/50688.html\n\n关于生成阶乘数据的写法\ngenerate_rank_sign() {\n      let sign = this.get_include_sign();\n      let current = this.numberModel.count - 1;\n\n      let arr = [];\n      let min = '',\n        max = '';\n      for (let i = 0; i < current; i++) {\n        min += 1;\n        max += sign.length + 1;\n      }\n\n      for (let i = min; i <= max; i++) {\n        let str_i = i + '';\n        let flag = str_i.split('').some(el => el > sign.length || el == 0);\n        if (!flag) {\n          arr.push(str_i);\n        }\n      }\n      return arr\n        .map(el => el.split(''))\n        .map(el => el.map((e, i) => sign[e - 1]));\n    },\n\n写一篇 vue 数组的坑  比如动态添加属性\nthis.list = [{name:1}]\nthis.list[0].age = 12\n\n写一篇文章 \n\nreact代码格式化\nemmet tab扩展\nAll Autocomplete",
+        "content": "\npost  发送一个字符串\n\nnodejs 视频\nhttps://codeday.me/bug/20170807/50688.html\n\n写一篇文章 \n\nreact代码格式化\nemmet tab扩展\nAll Autocomplete",
         "tagIdList": [
             1540697906401,
             1540439058555,
@@ -19,7 +29,7 @@
         ],
         "createTime": 1541830121481,
         "id": 1541830121481,
-        "updateTime": 1541857254934
+        "updateTime": 1542714784828
     },
     {
         "title": "2018-11-01",
@@ -33,18 +43,6 @@
         "createTime": 1541082458915,
         "id": 1541082458915,
         "updateTime": 1541830163189
-    },
-    {
-        "title": "",
-        "content": "常用的加载动画",
-        "tagIdList": [
-            1540439061206,
-            1540439058555,
-            1540697906401
-        ],
-        "createTime": 1541038735966,
-        "id": 1541038735966,
-        "updateTime": ""
     },
     {
         "title": "2018-10-29",
