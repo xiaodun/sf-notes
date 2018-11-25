@@ -2,7 +2,7 @@
     return function (argData = [], argParams) {
         //argData 数据的副本
 
-        let index = (Math.random() * argData.length + 1) | 0;
+        let index = (Math.random() * argData.length) | 0;
         return {
 
             isWrite: false,//是否覆盖数据
