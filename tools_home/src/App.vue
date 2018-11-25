@@ -36,10 +36,23 @@
 #top_wrapper {
   margin: 0 0 20px 0;
   padding: 10px 0;
+  font-size: 0;
   border-bottom: 1px solid #ddd;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   .item {
     margin-left: 5px;
+  }
+  .personal-word {
+    margin-left: 30px;
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 16px;
+    letter-spacing: 1px;
+    font-weight: 500;
+    font-family: "华文细黑";
   }
 }
 </style>
@@ -75,6 +88,9 @@
     </Modal>
     <div id="top_wrapper">
       <Button icon="md-menu" class="item" @click="toggleMenu"></Button>
+      <div class="personal-word">
+        {{personalWord}}
+      </div>
     </div>
     <div id="main-wrapper">
 
@@ -83,6 +99,7 @@
   </div>
 </template>
 <script>
+import AxiosHelper from "@/assets/lib/AxiosHelper";
 import QRCode from "qrcodejs2";
 const logo = require("@/assets/logo.png");
 export default {
@@ -91,6 +108,14 @@ export default {
     QRCode
   },
   methods: {
+    request_personal_word() {
+      AxiosHelper.request({
+        method: "get",
+        url: "/personal/word/get"
+      }).then(response => {
+        this.personalWord = response.data.data.content;
+      });
+    },
     menu_onselect(name) {
       if (name == 1) {
         this.createQecode();
@@ -119,6 +144,7 @@ export default {
   },
   data() {
     return {
+      personalWord: "",
       is_home: true,
       isShowQart: false,
       config: {
@@ -186,6 +212,7 @@ export default {
   computed: {},
 
   mounted() {
+    this.request_personal_word();
     if (this.$route.path != "/") {
       this.is_home = false;
     }
