@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum=1.0,maximum-1.0,user-scalable=no">
+    <script src="https://cdn.bootcss.com/touchjs/0.2.14/touch.min.js"> </script>
+    <script src="https://cdn.bootcss.com/zepto/1.2.0/zepto.js"></script>
+    <style>
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  font-family: Helvetica Arial sans-serif;
+
+  overflow: hidden;
+  overflow-y: auto;
+
+  width: 100%;
+  height: 100%;
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+.footer {
+  font-size: 0;
+  line-height: 40px;
+
+  position: fixed;
+  bottom: 0;
+
+  width: 100%;
+  height: 40px;
+
+  text-align: center;
+
+  color: #333;
+  background-image: linear-gradient(#fffefe, #dcdada);
+  background-clip: padding-box;
+  box-shadow: -1px 0 2px 1px #ddd;
+}
+
+.footer .item {
+  font-size: 12px;
+  font-weight: 600;
+
+  display: inline-block;
+
+  box-sizing: border-box;
+  width: 25%;
+
+  cursor: pointer;
+  user-select: none;
+
+  text-shadow: 0 1px 0 #d8cdcd;
+}
+
+.footer .item.selected {
+  color: #f3f3f3;
+  background-image: linear-gradient(#636262, #292828);
+  text-shadow: 1px 1px 0 #252525;
+}
+
+.footer .item .span {
+  vertical-align: middle;
+}
+
+.page {
+  position: absolute;
+  top: 0;
+
+  overflow-x: hidden;
+
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 0 10px;
+  padding-top: 40px;
+  padding-bottom: 45px;
+}
+
+#page-2 {
+  margin-left: 100%;
+}
+
+#page-3 {
+  margin-left: 200%;
+}
+
+#page-4 {
+  margin-left: 300%;
+}
+
+.page.selected {
+  display: block;
+}
+
+.header {
+  line-height: 35px;
+
+  position: fixed;
+  z-index: 100;
+
+  width: 100%;
+  height: 35px;
+  padding-left: 15px;
+
+  color: #fff;
+  background-color: #5a5a5a;
+}
+
+.header .name {
+  font-size: 16px;
+
+  text-shadow: 0 1px 1px #656464;
+}
+
+.page-container {
+  width: 100%;
+  height: 100%;
+}
+
+    </style>
+
+<body>
+    <div class="header">
+        <h5 class="name">微信</h5>
+    </div>
+    >
+    <div class="page-container">
+
+        <div class="page" id="page-1">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facere,
+            dolorem.
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Inventore tempore est id non eaque,
+            repellendus
+            nulla
+            dolorem fugit rem voluptate ullam laboriosam, blanditiis consectetur eum facere iste quia at sequi?
+            Similique
+            ratione dolorem natus officia alias ab voluptatum possimus tempora sint laudantium placeat temporibus
+            explicabo
+            voluptas reprehenderit dolores libero assumenda eos nisi, rem error eligendi quibusdam? Enim distinctio
+            asperiores minima dolore, ab totam accusantium, sapiente omnis voluptatum itaque voluptatem deserunt
+            suscipit.
+            Architecto, placeat! Blanditiis esse ab nobis rem magnam praesentium cum eveniet, distinctio facere
+            reiciendis
+            asperiores vitae enim est vel, consequuntur impedit amet in? Ut, itaque sequi. Dignissimos, asperiores
+            ab!
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius rem, mollitia iste quia exercitationem
+            nam
+            est
+            labore corporis quam deserunt consequatur architecto accusantium vero voluptatum officia quasi odit
+            eaque
+            voluptates recusandae saepe eligendi tenetur! Esse, consequuntur inventore illum doloribus recusandae
+            exercitationem eius blanditiis odit dignissimos, quis voluptas! Debitis vero laborum accusantium, nobis
+            in
+            asperiores itaque impedit quos quam incidunt sint recusandae accusamus illum harum similique culpa illo
+            quis ut
+            molestiae velit consequatur amet. Maiores dolorem illo error accusantium. Molestiae nesciunt
+            accusantium id
+            dolorem saepe a ad eligendi officiis repellendus nemo laboriosam eum quod nostrum dolore tenetur
+            maxime,
+            illum
+            ipsam iste.
+            <br>
+            最后一啊很难过
+        </div>
+        <div class="page" id="page-2">Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum, eius1?</div>
+        <div class="page" id="page-3">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ut, at2?</div>
+        <div class="page" id="page-4">Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut, repellat3?</div>
+    </div>
+
+    <div class="footer">
+        <div data-rel="#page-1" class="item tab-1 selected"><span>微信</span></div>
+        <div data-rel="#page-2" class="item tab-2"><span>通讯录</span></div>
+        <div data-rel="#page-3" class="item tab-3"><span>发现</span></div>
+        <div data-rel="#page-4" class="item tab-4"><span>我</span></div>
+    </div>
+</body>
+<script>
+    // 
+    let pageChangeThreshold = 100;
+    let $pageContainerDom = $(".page-container");
+    $('.footer .item ').on('touchend', function () {
+        $(this).addClass('selected').siblings().removeClass('selected');
+        let pageDom = $($(this).attr("data-rel"));
+        if (!pageDom.hasClass('selected')) {
+            $pageContainerDom.css({
+                marginLeft: -$('.page').width() * $(this).index()
+            })
+        }
+    })
+    $('.page').on("swiping", function (event) {
+
+        let direction = event.detail.direction;
+        if ((direction === 'right' ||  direction === 'left') && !((direction === 'right' && $(this).index() === 0) || (direction === 'left' && $(this).index() ===
+                $('.page').length - 1)) ) {
+            //向左滑动时候不是第一个 、向右滑动时不是最后一个
+
+            
+
+                $pageContainerDom.css({
+                    marginLeft: -$(this).width() * $(this).index() + event.detail.distanceX
+                })
+                let index = $(this).index();
+
+                if (Math.abs(event.detail.distanceX) > pageChangeThreshold) {
+                    $pageContainerDom.css({
+                        marginLeft: -$(this).width() * (direction === 'left' ? index + 1 : index - 1)
+                    })
+
+                    $('.footer .item ').eq(direction === 'left' ? index + 1 : index - 1).addClass('selected').siblings()
+                        .removeClass('selected')
+                }
+            }
+        
+        event.preventDefault();
+    })
+    $('.page').on("swipeend", function (event) {
+    
+
+        if(Math.abs(event.detail.distanceX) < pageChangeThreshold){
+            $pageContainerDom.css({
+                marginLeft: -$('.page').width() * $(this).index()
+            })
+        }
+    })
+</script>
+
+</htm>
