@@ -127,13 +127,16 @@
 </style>
 <template>
   <div id="notepad-id">
+
     <h1 class="app-name">记事本</h1>
+
     <div class="wrapper">
 
       <div
         class="card-wrapper"
         v-show="showModelFlag === 'notepad'"
       >
+
         <Button
           icon="ios-pricetag"
           class="first-btn"
@@ -831,6 +834,7 @@ export default {
   created() {
     this.request_get(this.pagination);
     this.request_get_tag();
+    console.log(this.$store);
   }
 };
 </script>
