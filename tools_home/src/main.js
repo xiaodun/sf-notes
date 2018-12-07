@@ -5,12 +5,14 @@ import App from './App';
 import router from './router';
 import iView from 'iView';
 import 'iview/dist/styles/iview.css';
+import store from './vuex/store.js';
 Vue.use (iView);
 
 /* eslint-disable no-new */
 new Vue ({
   el: '#app',
   router,
+  store,
   components: {App},
   template: '<App/>',
 });
