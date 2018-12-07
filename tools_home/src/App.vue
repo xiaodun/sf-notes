@@ -58,36 +58,71 @@
 </style>
 <template>
   <div id="app">
-    <div id="slide-menu" ref="slideMenu">
+    <div
+      id="slide-menu"
+      ref="slideMenu"
+    >
 
-      <Button class="arrow-back-btn" @click="toggleMenu" icon="ios-arrow-back" type="primary" long size="large"></Button>
+      <Button
+        class="arrow-back-btn"
+        @click="toggleMenu"
+        icon="ios-arrow-back"
+        type="primary"
+        long
+        size="large"
+      ></Button>
       <Row>
         <Col>
         <Menu @on-select="menu_onselect">
-          <MenuItem name="0" to="/">
+          <MenuItem
+            name="0"
+            to="/"
+          >
           首页
           </MenuItem>
           <MenuItem name="1">
           手机访问
           </MenuItem>
 
-          <Submenu :key="key" :name="key" v-for="(value,key) in menuData">
+          <Submenu
+            :key="key"
+            :name="key"
+            v-for="(value,key) in menuData"
+          >
             <template slot="title">
               <Icon :type="value.icon" />
               {{value.title}}
             </template>
-            <MenuItem :to="item.to" v-for="(item,index) in value.childs" :name="key+'-'+index" :key="key+'-'+index">{{item.content}}</MenuItem>
+            <MenuItem
+              :to="item.to"
+              v-for="(item,index) in value.childs"
+              :name="key+'-'+index"
+              :key="key+'-'+index"
+            >{{item.content}}</MenuItem>
           </Submenu>
 
         </Menu>
         </Col>
       </Row>
     </div>
-    <Modal class-name="qrcode-model-wrapper" title="用手机扫描" :styles="{display:'inline-block',width:'auto'}" :footer-hide="true" v-model="isShowQart">
-      <div id="qrcode" ref="qrcode"></div>
+    <Modal
+      class-name="qrcode-model-wrapper"
+      title="用手机扫描"
+      :styles="{display:'inline-block',width:'auto'}"
+      :footer-hide="true"
+      v-model="isShowQart"
+    >
+      <div
+        id="qrcode"
+        ref="qrcode"
+      ></div>
     </Modal>
     <div id="top_wrapper">
-      <Button icon="md-menu" class="item" @click="toggleMenu"></Button>
+      <Button
+        icon="md-menu"
+        class="item"
+        @click="toggleMenu"
+      ></Button>
       <div class="personal-word">
         {{personalWord}}
       </div>

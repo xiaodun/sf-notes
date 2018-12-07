@@ -1,64 +1,63 @@
 <style lang="less">
-.loading-bro {
-  font-size: 16px;
+.first {
+  line-height: 40px;
 
-  margin: 50px;
+  position: fixed;
 
-  .circle {
-    display: inline-block;
+  width: 100%;
+  height: 40px;
 
-    width: 24px;
-    height: 24px;
-    margin-left: 4px;
+  transition: all .35s;
 
-    animation: animate 1s infinite;
+  background-color: red;
+}
 
-    border-radius: 50%;
+#box {
+  width: 200px;
+  height: 200px;
+  margin: 100px auto;
 
-    @keyframes animate {
-      0% {
-        transform: scale(1);
-      }
-
-      50% {
-        transform: scale(2);
-
-        opacity: 0.3;
-      }
-
-      100% {
-        transform: scale(1);
-      }
-    }
-  }
-
-  .generate-circel(@count) when (@count >= 0) {
-    .circle-@{count} {
-      // background-color: hsl(360, 100% 50%);
-      background-color: hsl(10 + @count * 70, 80%, 70%);
-    }
-    .generate-circel(@count - 1);
-  }
-  .generate-circel(5);
+  background: #ccc;
 }
 
 </style>
 <template>
-  <div class="loading-bro">
-    <div class="circle" :style="{'animation-delay':0.1 * (index+1) +'s'}" :class="'circle-'+index" :key="index" v-for="(item,index ) in 5"></div>
+  <div>
+
+    <div
+      data-role="page"
+      id="pageone"
+    >
+      <div data-role="header">
+        <h1>在此处插入标题</h1>
+      </div>
+
+      <div data-role="content">
+        <p>在此处插入正文</p>
+      </div>
+
+      <div data-role="footer">
+        <h1>在此处插入页脚文本</h1>
+      </div>
+    </div>
   </div>
 </template>
 <script>
-import VConsole from 'vconsole';
-// var vConsole = new VConsole();
+import VConsole from "vconsole";
+var vConsole = new VConsole();
+
 export default {
-  name: 'test_vue',
+  name: "test_vue",
   data() {
-    return {};
+    return {
+      threshold: 30,
+      startPos: {},
+      endPos: {}
+    };
   },
   computed: {},
   methods: {},
-  mounted() {},
+  mounted() {}
 };
 </script>
 
