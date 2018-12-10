@@ -32,7 +32,9 @@
     border-radius: 0;
   }
 }
-
+#__vconsole {
+  display: none;
+}
 #top_wrapper {
   margin: 0 0 20px 0;
   padding: 10px 0;
@@ -83,7 +85,10 @@
           <MenuItem name="1">
           手机访问
           </MenuItem>
+          <MenuItem name="debug">
+          {{!isDebug?'启用调试':'关闭调试'}}
 
+          </MenuItem>
           <Submenu
             :key="key"
             :name="key"
@@ -137,8 +142,11 @@
 import AxiosHelper from "@/assets/lib/AxiosHelper";
 import QRCode from "qrcodejs2";
 const logo = require("@/assets/logo.png");
+import VConsole from "vconsole";
+var vConsole = new VConsole();
 export default {
   name: "App",
+
   components: {
     QRCode
   },
@@ -155,6 +163,14 @@ export default {
       if (name == 1) {
         this.createQecode();
         this.isShowQart = true;
+      } else if (name === "debug") {
+        let vconsoleDom = document.getElementById("__vconsole");
+        if (!this.isDebug) {
+          vconsoleDom.style.display = "block";
+        } else {
+          vconsoleDom.style.display = "none";
+        }
+        this.isDebug = !this.isDebug;
       }
       this.$refs.slideMenu.classList.remove("spread");
     },
@@ -179,6 +195,7 @@ export default {
   },
   data() {
     return {
+      isDebug: false,
       personalWord: "",
       is_home: true,
       isShowQart: false,
