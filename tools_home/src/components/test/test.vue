@@ -7,7 +7,7 @@
   width: 100%;
   height: 40px;
 
-  transition: all .35s;
+  transition: all 0.35s;
 
   background-color: red;
 }
@@ -19,44 +19,39 @@
 
   background: #ccc;
 }
-
 </style>
 <template>
   <div>
-
-    <div
-      data-role="page"
-      id="pageone"
-    >
-      <div data-role="header">
-        <h1>在此处插入标题</h1>
-      </div>
-
-      <div data-role="content">
-        <p>在此处插入正文</p>
-      </div>
-
-      <div data-role="footer">
-        <h1>在此处插入页脚文本</h1>
-      </div>
-    </div>
+    <button @click="dnf">添加</button>
   </div>
 </template>
 <script>
-import VConsole from "vconsole";
-var vConsole = new VConsole();
-
 export default {
   name: "test_vue",
   data() {
     return {
-      threshold: 30,
-      startPos: {},
-      endPos: {}
+      threshold: [{ value: 0 }]
     };
   },
   computed: {},
-  methods: {},
+  methods: {
+    dnf() {
+      // this.threshold[0]++;
+      this.threshold[0].value = 12;
+      console.log(this.threshold);
+    },
+    someThod: function(newValue, oldValue) {
+      console.log(newValue, oldValue);
+    }
+  },
+  watch: {
+    threshold: {
+      deep: true,
+      handler: function(newValue, oldValue) {
+        console.log(newValue, oldValue);
+      }
+    }
+  },
   mounted() {}
 };
 </script>
