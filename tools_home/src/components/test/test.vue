@@ -7,7 +7,7 @@
   width: 100%;
   height: 40px;
 
-  transition: all 0.35s;
+  transition: all .35s;
 
   background-color: red;
 }
@@ -17,41 +17,60 @@
   height: 200px;
   margin: 100px auto;
 
+  transition: all .5s linear;
+
   background: #ccc;
 }
+
 </style>
 <template>
-  <div>
-    <button @click="dnf">添加</button>
+  <div id="box">
+
   </div>
 </template>
 <script>
+let num = 0;
 export default {
   name: "test_vue",
   data() {
     return {
+      checked: true,
+      message: {
+        // name: "wx"
+      },
       threshold: [{ value: 0 }]
     };
   },
-  computed: {},
-  methods: {
-    dnf() {
-      // this.threshold[0]++;
-      this.threshold[0].value = 12;
-      console.log(this.threshold);
-    },
-    someThod: function(newValue, oldValue) {
-      console.log(newValue, oldValue);
-    }
-  },
-  watch: {
-    threshold: {
-      deep: true,
-      handler: function(newValue, oldValue) {
-        console.log(newValue, oldValue);
+  mixins: [
+    {
+      data: function() {
+        return {
+          message: {
+            name: "wx1"
+          }
+        };
+      },
+      methods: {
+        dnf() {
+          alert(1);
+        }
       }
     }
+  ],
+  computed: {},
+  methods: {
+    add() {
+      num += 30;
+    },
+    show() {
+      alert(num);
+    },
+    dnf() {
+      this.$parent.isDebug = true;
+    },
+    someThod: function(newValue, oldValue) {}
   },
+  watch: {},
   mounted() {}
 };
 </script>
