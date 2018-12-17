@@ -1,5 +1,5 @@
 <style lang="less">
-@import "~@/assets/style/base.less";
+@import '~@/assets/style/base.less';
 
 .qrcode-model-wrapper {
   text-align: center;
@@ -11,11 +11,14 @@
   top: 0;
   bottom: 0;
   left: -100%;
+
   overflow-y: auto;
-  transition: left 0.35s ease-out;
+
+  transition: left .35s ease-out;
+
   background-color: #fff;
 
-  .sf-shadow-5;
+.sf-shadow-5;
 
   .ivu-menu {
     &:after {
@@ -29,34 +32,46 @@
 
   .arrow-back-btn {
     font-size: 20px;
+
     border-radius: 0;
   }
 }
+
 #__vconsole {
   display: none;
 }
+
 #top_wrapper {
+  font-size: 0;
+
+  overflow: hidden;
+
   margin: 0 0 20px 0;
   padding: 10px 0;
-  font-size: 0;
-  border-bottom: 1px solid #ddd;
-  overflow: hidden;
-  text-overflow: ellipsis;
+
   white-space: nowrap;
+  text-overflow: ellipsis;
+
+  border-bottom: 1px solid #ddd;
 
   .item {
     margin-left: 5px;
   }
+
   .personal-word {
-    margin-left: 30px;
-    display: inline-block;
-    vertical-align: middle;
+    font-family: '华文细黑';
     font-size: 16px;
-    letter-spacing: 1px;
     font-weight: 500;
-    font-family: "华文细黑";
+
+    display: inline-block;
+
+    margin-left: 30px;
+
+    vertical-align: middle;
+    letter-spacing: 1px;
   }
 }
+
 </style>
 <template>
   <div id="app">
@@ -144,6 +159,7 @@ import QRCode from "qrcodejs2";
 const logo = require("@/assets/logo.png");
 import VConsole from "vconsole";
 var vConsole = new VConsole();
+
 export default {
   name: "App",
 
