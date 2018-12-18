@@ -24,6 +24,10 @@
     &:after {
       display: none;
     }
+
+    .disabled {
+      cursor: pre;
+    }
   }
 
   &.spread {
@@ -69,6 +73,41 @@
 
     vertical-align: middle;
     letter-spacing: 1px;
+
+    &:hover {
+      .pagination {
+        visibility: visible;
+      }
+    }
+
+    .pagination {
+      display: inline-block;
+      visibility: hidden;
+
+      width: 40px;
+
+      user-select: none;
+      text-align: center;
+      vertical-align: middle;
+
+      .ivu-icon {
+        cursor: pointer;
+
+        &.disabled {
+          cursor: not-allowed;
+        }
+      }
+
+      .page {
+        font-size: 12px;
+      }
+
+       > :nth-child(n) {
+        line-height: 1;
+
+        display: block;
+      }
+    }
   }
 }
 
@@ -144,6 +183,28 @@
         @click="toggleMenu"
       ></Button>
       <div class="personal-word">
+        <div class="pagination">
+
+          <Icon
+            :class="wordPagination.current === 1 && 'disabled'"
+            class="icon"
+            type="md-arrow-dropup"
+            @click="change_word(wordPagination.current-1)"
+          ></Icon>
+          <span class="page"><span
+              v-text='wordPagination.current'
+              class="current"
+            ></span>/<span
+              v-text='wordPagination.total'
+              class="total"
+            ></span></span>
+          <Icon
+            @click="change_word(wordPagination.current+1)"
+            class="icon"
+            :class="wordPagination.current === wordPagination.total && 'disabled'"
+            type="md-arrow-dropdown"
+          ></Icon>
+        </div>
         {{personalWord}}
       </div>
     </div>
@@ -167,12 +228,27 @@ export default {
     QRCode
   },
   methods: {
-    request_personal_word() {
+    change_word(argPage) {
+      if (argPage < 1 || argPage > this.wordPagination.total) {
+        //
+      } else {
+        this.wordPagination.page = argPage;
+        this.request_personal_word(argPage);
+      }
+    },
+    request_personal_word(argIndex) {
+      console.log(argIndex);
       AxiosHelper.request({
-        method: "get",
-        url: "/personal/word/get"
+        method: "post",
+        url: "/personal/word/get",
+        data: {
+          index: argIndex - 1
+        }
       }).then(response => {
-        this.personalWord = response.data.data.content;
+        let data = response.data;
+        this.personalWord = data.data.content;
+        this.wordPagination.current = data.current + 1;
+        this.wordPagination.total = data.total;
       });
     },
     menu_onselect(name) {
@@ -215,6 +291,10 @@ export default {
       personalWord: "",
       is_home: true,
       isShowQart: false,
+      wordPagination: {
+        page: 1,
+        total: 1
+      },
       config: {
         value: location.href,
         imagePath: logo,
