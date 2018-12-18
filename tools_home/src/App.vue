@@ -237,7 +237,6 @@ export default {
       }
     },
     request_personal_word(argIndex) {
-      console.log(argIndex);
       AxiosHelper.request({
         method: "post",
         url: "/personal/word/get",
