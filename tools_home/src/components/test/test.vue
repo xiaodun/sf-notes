@@ -24,8 +24,23 @@
 
 </style>
 <template>
-  <div id="box">
+  <div
+    ref="oop"
+    id="box"
+  >
+    <button @click="test">测试</button>
+    <todo-list
+      ref="time"
+      v-bind:todos="todos"
+    >
+      <!-- 将 `slotProps` 定义为插槽作用域的名字 -->
+      <template slot-scope="slotProps">
 
+        <span v-if="slotProps.todo.isComplete">✓</span>
+        {{ slotProps.todo.text }}
+      </template>
+
+    </todo-list>
   </div>
 </template>
 <script>
@@ -34,44 +49,55 @@ export default {
   name: "test_vue",
   data() {
     return {
-      checked: true,
-      message: {
-        // name: "wx"
-      },
-      threshold: [{ value: 0 }]
+      todos: [
+        {
+          text: "12321",
+          isComplete: true
+        }
+      ]
     };
   },
-  mixins: [
-    {
-      data: function() {
-        return {
-          message: {
-            name: "wx1"
-          }
-        };
-      },
-      methods: {
-        dnf() {
-          alert(1);
-        }
-      }
-    }
-  ],
+
   computed: {},
   methods: {
-    add() {
-      num += 30;
-    },
-    show() {
-      alert(num);
-    },
-    dnf() {
-      this.$parent.isDebug = true;
-    },
-    someThod: function(newValue, oldValue) {}
+    test() {
+      console.dir(this.$refs.time);
+      console.log(12);
+    }
   },
-  watch: {},
-  mounted() {}
+  components: {
+    "todo-list": {
+      name: "todo-list",
+      comments: true,
+      inheritAttrs: true,
+      template: `
+        <ul>
+          <li
+            v-for="todo in todos"
+            v-bind:key="todo.id"
+          >
+            <!-- 我们为每个 todo 准备了一个插槽，-->
+            <slot v-bind:todo="todo">
+              <!-- 回退的内容 -->
+              王旭
+            </slot>
+          </li>
+        </ul>
+      `,
+      props: {
+        todos: Array
+      },
+      mounted() {
+        console.dir("wx");
+        console.log(this.$refs.time);
+      }
+    }
+  },
+
+  mounted() {
+    // console.log("wx", this);
+    console.dir(this.$refs.oop);
+  }
 };
 </script>
 
