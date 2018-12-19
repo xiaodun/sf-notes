@@ -1,34 +1,24 @@
 <style lang="less">
-.first {
-  line-height: 40px;
+@import '~@/assets/style/base.less';
 
-  position: fixed;
+#login-id {
+  line-height: 200px;
 
-  width: 100%;
-  height: 40px;
-
-  transition: all .35s;
-
-  background-color: red;
-}
-
-#box {
   width: 200px;
   height: 200px;
   margin: 100px auto;
 
   transition: all .5s linear;
+  text-align: center;
 
   background: #ccc;
 }
 
 </style>
 <template>
-  <div
-    ref="oop"
-    id="box"
-  >
+  <div>
 
+    <div id="login-id"></div>
   </div>
 </template>
 <script>
@@ -36,17 +26,33 @@ let num = 0;
 export default {
   name: "test_vue",
   data() {
-    return {};
+    return {
+      isNumber: 2
+    };
   },
 
   computed: {},
-  methods: {},
-  components: {},
+  methods: {
+    changeNumber() {
+      let num = [1, 2, 3];
+      let random = Math.random() * 3;
+      this.isNumber = num[random | 0];
+    }
+  },
+  components: {
+    "my-btn": {
+      template: `<div><slot name="lol"></slot>1221</div>`,
+      props: {
+        isShow: {
+          type: Boolean,
+          default: false
+        }
+      },
+      mounted() {}
+    }
+  },
 
-  mounted() {
-    const { length } = "hello";
-    console.log(length);
-  }
+  mounted() {}
 };
 </script>
 
