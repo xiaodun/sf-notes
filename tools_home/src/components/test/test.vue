@@ -1,5 +1,5 @@
 <style lang="less">
-@import '~@/assets/style/base.less';
+@import "~@/assets/style/base.less";
 
 #login-id {
   line-height: 200px;
@@ -8,12 +8,11 @@
   height: 200px;
   margin: 100px auto;
 
-  transition: all .5s linear;
+  transition: all 0.5s linear;
   text-align: center;
 
   background: #ccc;
 }
-
 </style>
 <template>
   <div>
@@ -52,7 +51,17 @@ export default {
     }
   },
 
-  mounted() {}
+  mounted() {
+    var a = 2;
+    window.say = function(a) {
+      console.log(a);
+    };
+    function test() {
+      let a = 1;
+      setTimeout("say(a)", 0);
+    }
+    test(); //2
+  }
 };
 </script>
 
