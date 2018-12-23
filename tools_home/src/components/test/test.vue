@@ -1,64 +1,58 @@
 <style lang="less">
-.loading-bro {
-  font-size: 16px;
+@import '~@/assets/style/base.less';
 
-  margin: 50px;
+#login-id {
+  line-height: 200px;
 
-  .circle {
-    display: inline-block;
+  width: 200px;
+  height: 200px;
+  margin: 100px auto;
 
-    width: 24px;
-    height: 24px;
-    margin-left: 4px;
+  transition: all .5s linear;
+  text-align: center;
 
-    animation: animate 1s infinite;
-
-    border-radius: 50%;
-
-    @keyframes animate {
-      0% {
-        transform: scale(1);
-      }
-
-      50% {
-        transform: scale(2);
-
-        opacity: 0.3;
-      }
-
-      100% {
-        transform: scale(1);
-      }
-    }
-  }
-
-  .generate-circel(@count) when (@count >= 0) {
-    .circle-@{count} {
-      // background-color: hsl(360, 100% 50%);
-      background-color: hsl(10 + @count * 70, 80%, 70%);
-    }
-    .generate-circel(@count - 1);
-  }
-  .generate-circel(5);
+  background: #ccc;
 }
 
 </style>
 <template>
-  <div class="loading-bro">
-    <div class="circle" :style="{'animation-delay':0.1 * (index+1) +'s'}" :class="'circle-'+index" :key="index" v-for="(item,index ) in 5"></div>
+  <div>
+
+    <div id="login-id"></div>
   </div>
 </template>
 <script>
-import VConsole from 'vconsole';
-// var vConsole = new VConsole();
+let num = 0;
 export default {
-  name: 'test_vue',
+  name: "test_vue",
   data() {
-    return {};
+    return {
+      isNumber: 2
+    };
   },
+
   computed: {},
-  methods: {},
-  mounted() {},
+  methods: {
+    changeNumber() {
+      let num = [1, 2, 3];
+      let random = Math.random() * 3;
+      this.isNumber = num[random | 0];
+    }
+  },
+  components: {
+    "my-btn": {
+      template: `<div><slot name="lol"></slot>1221</div>`,
+      props: {
+        isShow: {
+          type: Boolean,
+          default: false
+        }
+      },
+      mounted() {}
+    }
+  },
+
+  mounted() {}
 };
 </script>
 

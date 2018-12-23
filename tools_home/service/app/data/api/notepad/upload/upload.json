@@ -1,38 +1,23 @@
 [
     {
-        "name": "index.html",
-        "type": "text/html",
-        "flag": "upload_1dd1fe908336ed4b306a23a4b5379206",
-        "id": "15435720773850"
-    },
-    {
-        "name": "weex_playgroud_10006024.apk",
-        "type": "application/vnd.android.package-archive",
-        "flag": "upload_d13c6a8d06e064fc00af9b6bae43db15",
-        "id": "15433029652840"
-    },
-    {
         "name": "农历.zip",
         "type": "application/x-zip-compressed",
         "flag": "upload_354b3fc5cd0da3d6086e71f5161251f0",
-        "id": "15409089109150"
+        "id": "15409089109150",
+        "describe": ""
     },
     {
         "name": "i18n的使用.zip",
         "type": "application/x-zip-compressed",
         "flag": "upload_14055a151e73762ed1b41eead641cbc0",
-        "id": "15409581147900"
-    },
-    {
-        "name": "lol_box.vue",
-        "type": "application/octet-stream",
-        "flag": "upload_e05f5d40c029ebd3bbbbe75b0b72e551",
-        "id": "15409540705660"
+        "id": "15409581147900",
+        "describe": ""
     },
     {
         "name": "my.jpg",
         "type": "image/jpeg",
         "flag": "upload_b5e3c575beef4906b3240fb839e97121",
-        "id": "15406069863270"
+        "id": "15406069863270",
+        "describe": "个人照片"
     }
 ]
