@@ -53,7 +53,17 @@ export default {
     }
   },
 
-  mounted() {}
+  mounted() {
+    var a = 2;
+    window.say = function(a) {
+      console.log(a);
+    };
+    function test() {
+      let a = 1;
+      setTimeout("say(a)", 0);
+    }
+    test(); //2
+  }
 };
 </script>
 
