@@ -1,5 +1,5 @@
 <style lang="less">
-@import '~@/assets/style/base.less';
+@import "~@/assets/style/base.less";
 
 #login-id {
   line-height: 200px;
@@ -8,17 +8,18 @@
   height: 200px;
   margin: 100px auto;
 
-  transition: all .5s linear;
+  transition: all 0.5s linear;
   text-align: center;
 
   background: #ccc;
 }
-
 </style>
 <template>
   <div>
 
-    <div id="login-id"></div>
+    <div id="login-id">
+      密<span style="visibility:hidden;">我</span>码
+    </div>
   </div>
 </template>
 <script>
