@@ -20,6 +20,7 @@
     <div id="login-id">
       密<span style="visibility:hidden;">我</span>码
     </div>
+    <button @click="test">测试</button>
   </div>
 </template>
 <script>
@@ -28,12 +29,16 @@ export default {
   name: "test_vue",
   data() {
     return {
-      isNumber: 2
+      isNumber: 2,
+      _number: 0
     };
   },
 
   computed: {},
   methods: {
+    test() {
+      console.log(this.$data._number);
+    },
     changeNumber() {
       let num = [1, 2, 3];
       let random = Math.random() * 3;
