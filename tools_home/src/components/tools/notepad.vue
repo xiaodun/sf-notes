@@ -50,12 +50,9 @@
     margin-top: 10px;
   }
 
-  .show-area .ivu-input {
-    height: auto;
-
-    resize: none;
-
-    border: none;
+  .show-area {
+    white-space: pre-wrap;
+    word-break: break-all;
   }
   .file-wrapper {
     .fileinfo {
@@ -197,15 +194,21 @@
               <div>
 
               </div>
-              <Input
+              <!-- <Input
                 autosize
                 class="show-area"
                 type="textarea"
                 readonly
                 style="border: none; margin-top: 5px;color: rgb(49,49,49)"
                 v-model="item.content"
-              />
+              /> -->
+              <div
+                class="show-area"
+                v-html="convetHtml(item.content)"
+              >
 
+              </div>
+              <!-- <div>{{item.content | convetHtml}}</div> -->
             </div>
           </Card>
           <Page
@@ -404,6 +407,7 @@
           v-model="notepad.content"
           type="textarea"
         />
+
         <br>
         <br>
         <Select
@@ -507,8 +511,21 @@ export default {
       }
     };
   },
+  filters: {},
   computed: {},
   methods: {
+    convetHtml(argContent = "") {
+      // 将内容中的连接 替换成标签
+
+      let pattern = /(http|https):\/\/[\S]+/g;
+      let result = argContent;
+
+      result = result.replace(pattern, (all, group, index) => {
+        return `<a target="_black" href="${all}">${all}</a>`;
+      });
+
+      return result;
+    },
     update_tag_info(argItem) {
       this.active.fileinfo = argItem;
       this.fileModel.describe = argItem.describe;
@@ -796,7 +813,7 @@ export default {
     change_visible() {
       //编辑、修改记事的时候  自动获得焦点
       this.$nextTick(() => {
-        this.$refs.autoFocusInput.focus();
+        // this.$refs.autoFocusInput.focus();
       });
     },
     edit(argNotepad = { title: "", content: "", tagIdList: [] }, argIndex) {
