@@ -176,6 +176,10 @@
               <Icon type="md-book"></Icon> {{item.title}}
             </p>
             <div slot="extra">
+              <Button
+                type="text"
+                @click="top_note(item)"
+              >置顶</Button>
               <Icon
                 type="ios-open-outline"
                 @click.stop="edit(item,index)"
@@ -194,21 +198,14 @@
               <div>
 
               </div>
-              <!-- <Input
-                autosize
-                class="show-area"
-                type="textarea"
-                readonly
-                style="border: none; margin-top: 5px;color: rgb(49,49,49)"
-                v-model="item.content"
-              /> -->
+
               <div
                 class="show-area"
-                v-html="convetHtml(item.content)"
+                v-html="convert_html(item.content)"
               >
 
               </div>
-              <!-- <div>{{item.content | convetHtml}}</div> -->
+
             </div>
           </Card>
           <Page
@@ -514,7 +511,10 @@ export default {
   filters: {},
   computed: {},
   methods: {
-    convetHtml(argContent = "") {
+    top_note(argItem) {
+      this.request_top_note(argItem);
+    },
+    convert_html(argContent = "") {
       // 将内容中的连接 替换成标签
 
       let pattern = /(http|https):\/\/[\S]+/g;
@@ -530,6 +530,18 @@ export default {
       this.active.fileinfo = argItem;
       this.fileModel.describe = argItem.describe;
       this.fileModel.isShow = true;
+    },
+    request_top_note(argItem) {
+      AxiosHelper.request({
+        method: "post",
+        url: this.requestPrefix + "/top",
+        data: {
+          id: argItem.id
+        }
+      }).then(response => {
+        this.request_get(this.pagination, { tagIdList: this.filterTagIdList });
+        this.$Message.success("置顶成功");
+      });
     },
     request_update_fileinfo(argItem) {
       AxiosHelper.request({
