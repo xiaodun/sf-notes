@@ -1,19 +1,22 @@
 <style lang="less">
-@import "~@/assets/style/base.less";
+@import '~@/assets/style/base.less';
 
 #notepad-id {
-  .uploading-enter-active,
-  .uploading-leave-active {
-    transition: all 0.5s;
-  }
-  .uploading-enter,
-  .uploading-leave-to {
-    opacity: 0;
-    transform: translateY(30px);
-  }
   font-size: 14px;
 
-  > .app-name {
+  .uploading-enter-active,
+  .uploading-leave-active {
+    transition: all .5s;
+  }
+
+  .uploading-enter,
+  .uploading-leave-to {
+    transform: translateY(30px);
+
+    opacity: 0;
+  }
+
+   > .app-name {
     margin: 1em auto;
 
     text-align: center;
@@ -34,7 +37,7 @@
     margin: 10px auto;
   }
 
-  > .wrapper {
+   > .wrapper {
     width: 85%;
     max-width: 650px;
     margin: 0 auto;
@@ -48,18 +51,25 @@
 
   .card {
     margin-top: 10px;
+
+    .inner-shadow {
+      display: none;
+    }
   }
 
   .show-area {
     white-space: pre-wrap;
     word-break: break-all;
   }
+
   .file-wrapper {
     .fileinfo {
       margin: 20px;
+
       color: #808080;
     }
   }
+
   .tag-wrapper {
     .tag {
       margin: 10px 0 5px 0;
@@ -80,10 +90,13 @@
 
       .content {
         line-height: 32px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+
         overflow: hidden;
+
         height: 32px;
+
+        white-space: nowrap;
+        text-overflow: ellipsis;
 
         border-bottom: 1px solid #ccc;
       }
@@ -108,12 +121,14 @@
     }
 
     .name {
-      text-overflow: ellipsis;
-      white-space: nowrap;
       overflow: hidden;
+
+      white-space: nowrap;
+      text-overflow: ellipsis;
+
       border-bottom: 1px solid #ccc;
 
-      .vertical_lineheight(32px);
+.vertical_lineheight(32px);
     }
 
     .option {
@@ -121,6 +136,7 @@
     }
   }
 }
+
 </style>
 <template>
   <div id="notepad-id">
@@ -166,48 +182,57 @@
         </Select>
         <!-- 记事的展示 -->
         <div v-if="list.length > 0">
-          <Card
-            class="card"
-            :bordered="false"
+          <div
             v-for="(item,index) in list"
             :key="item.id"
+            @mouseover="item.isMouseOver=true"
+            @mouseout="item.isMouseOver=false"
           >
-            <p slot="title">
-              <Icon type="md-book"></Icon> {{item.title}}
-            </p>
-            <div slot="extra">
-              <Button
-                type="text"
-                @click="top_note(item)"
-              >置顶</Button>
-              <Icon
-                type="ios-open-outline"
-                @click.stop="edit(item,index)"
-                style="margin-right:10px;cursor:pointer;"
-              ></Icon>
-              <Button
-                @click.stop="confirm_delete(item,index)"
-                style="color: red;"
-              >删除</Button>
-            </div>
-            <div>
-              <div style="color: #bab9b9;">
 
-                <span>创建日期</span>:{{item.createTime}} <span style="margin-left: 30px;">修改日期</span>:{{item.updateTime}}
+            <Card
+              class="card"
+              :bordered="false"
+              :style="item.isMouseOver && {boxShadow:`0 1px ${item.shadowBlur}px ${item.shadowSpread}px rgba(0,0,0,${item.shadowAlpha})`}"
+            >
+
+              <p slot="title">
+
+                <Icon type="md-book"></Icon> {{item.title}}
+              </p>
+              <div slot="extra">
+                <Button
+                  type="text"
+                  @click="top_note(item)"
+                >置顶</Button>
+                <Icon
+                  type="ios-open-outline"
+                  @click.stop="edit(item,index)"
+                  style="margin-right:10px;cursor:pointer;"
+                ></Icon>
+                <Button
+                  @click.stop="confirm_delete(item,index)"
+                  style="color: red;"
+                >删除</Button>
               </div>
               <div>
+                <div style="color: #bab9b9;">
+
+                  <span>创建日期</span>:{{item.createTime}} <span style="margin-left: 30px;">修改日期</span>:{{item.updateTime}}
+                </div>
+                <div>
+
+                </div>
+
+                <div
+                  class="show-area"
+                  v-html="convert_html(item.content)"
+                >
+
+                </div>
 
               </div>
-
-              <div
-                class="show-area"
-                v-html="convert_html(item.content)"
-              >
-
-              </div>
-
-            </div>
-          </Card>
+            </Card>
+          </div>
           <Page
             :current="pagination.page"
             @on-change="change_page"
@@ -777,6 +802,7 @@ export default {
             this.list.push(notepad);
           });
         }
+
         this.pagination.total = response.data.total;
       });
     },
@@ -791,11 +817,28 @@ export default {
       if (notepad.title === "") {
         notepad.title = createTime;
       }
-
+      //属性提前声明
+      notepad.isMouseOver = false;
       if (notepad.updateTime !== "") {
         notepad.updateTime = DateHelper.get_instance_timestamp(
           notepad.updateTime
         ).get_format_date();
+      }
+      //根据创建时间域当前时间所差的天数   动态的改变鼠标悬浮的阴影
+      Object.assign(notepad, {
+        shadowBlur: 6,
+        shadowAlpha: 0.2,
+        shadowSpread: 0
+      });
+      let currentTimestamp = Date.now();
+      let day =
+        ((currentTimestamp - (argNotepad.updateTime || argNotepad.createTime)) /
+          (24 * 60 * 60 * 1000)) |
+        0;
+      if (day > 0) {
+        notepad.shadowBlur += 10 * day;
+        notepad.shadowAlpha += 0.05 * day;
+        notepad.shadowSpread += 5 * day;
       }
       return notepad;
     },
@@ -825,7 +868,7 @@ export default {
     change_visible() {
       //编辑、修改记事的时候  自动获得焦点
       this.$nextTick(() => {
-        // this.$refs.autoFocusInput.focus();
+        this.$refs.autoFocusInput.focus();
       });
     },
     edit(argNotepad = { title: "", content: "", tagIdList: [] }, argIndex) {

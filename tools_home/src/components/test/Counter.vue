@@ -1,14 +1,20 @@
 <style lang='less'>
 </style>
 <template >
-  <div>
+  <div color='red'>
     {{ count }}
-    <button @click="increment">自增</button>
+    <button
+      name="123"
+      @click="increment"
+    >自增</button>
   </div>
 </template>
 
 <script>
 export default {
+  props: {
+    bar: ""
+  },
   data() {
     return {
       count: 0
