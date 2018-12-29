@@ -1,10 +1,17 @@
-import {shallowMount} from '@vue/test-utils';
+import {shallowMount, mount} from '@vue/test-utils';
 import Counter from '../src/components/test/Counter.vue';
 
-describe ('Counter.vue', () => {
-  it ('计数器在点击按钮时自增', () => {
-    const wrapper = shallowMount (Counter);
-    wrapper.find ('button').trigger ('click');
-    expect (wrapper.find ('div').text ()).toMatch ('1');
+describe('Counter.vue-计数器', () => {
+  describe('Foo', () => {
+    it('renders a div', () => {
+      const wrapper = mount(Counter, {
+        propsData: {
+          bar: 'baz',
+        },
+      });
+      // expect(wrapper.props().bar).toBe('baz');
+      wrapper.vm.increment();
+      expect(wrapper.text()).toMatch('1');
+    });
   });
 });
