@@ -1,66 +1,44 @@
 [
     {
-        "title": "",
-        "content": "https://www.cnblogs.com/pomelott/p/7811800.html\n移动端",
+        "title": "2018-12-03",
+        "content": "pagecontaine的使用方式\n\n使用iview的方式定义组件\n\n视频播放器删除正在播放的视频导致的bug  \n\n本地视频自动全屏播放  \n\n弹出选择列表  长时间不选择自动播放下一集",
+        "tagIdList": [
+            1540734005794
+        ],
+        "createTime": 1543840091735,
+        "id": 1543840091735,
+        "updateTime": 1545804209255
+    },
+    {
+        "title": "需要添加的单元测试",
+        "content": "1.点击编辑弹窗弹出后输入框自动获得焦点\n2.笔记中有链接时保存后生成a标签  带有_target属性\n3.接口不穿多余的数据\n二维码能够正常的生成\n词组组件  能够正常的切换页码  且在第一页时不能向上  最后一页不能向下\n如何测试渲染是否正常",
         "tagIdList": [],
-        "createTime": 1545574971076,
-        "id": 1545574971076,
-        "updateTime": ""
+        "createTime": 1546073842460,
+        "id": 1546073842460,
+        "updateTime": 1546076186522
     },
     {
         "title": "",
-        "content": "记事本解决问题的历程",
+        "content": "https://jestjs.io/docs/en/expect.html#content",
         "tagIdList": [],
-        "createTime": 1545562040061,
-        "id": 1545562040061,
+        "createTime": 1546073520772,
+        "id": 1546073520772,
         "updateTime": ""
     },
     {
-        "title": "",
-        "content": "完善github应用介绍",
+        "title": "2018-12-29",
+        "content": "北征\n自京赴奉先县永兴五百字\n强村三首",
         "tagIdList": [],
-        "createTime": 1545562006233,
-        "id": 1545562006233,
-        "updateTime": ""
+        "createTime": 1546056549901,
+        "id": 1546056549901,
+        "updateTime": 1546056645282
     },
     {
         "title": "",
-        "content": "vue、iview render函数的使用",
+        "content": "如何在vccode中方便的执行单元测试",
         "tagIdList": [],
-        "createTime": 1545561793399,
-        "id": 1545561793399,
-        "updateTime": ""
-    },
-    {
-        "title": "",
-        "content": "切面切换动画的添加",
-        "tagIdList": [],
-        "createTime": 1545561632895,
-        "id": 1545561632895,
-        "updateTime": ""
-    },
-    {
-        "title": "",
-        "content": "移动端心愿摇一摇",
-        "tagIdList": [],
-        "createTime": 1545561515750,
-        "id": 1545561515750,
-        "updateTime": ""
-    },
-    {
-        "title": "",
-        "content": "解决移动端向下滑动切换页面的问题",
-        "tagIdList": [],
-        "createTime": 1545561465607,
-        "id": 1545561465607,
-        "updateTime": ""
-    },
-    {
-        "title": "",
-        "content": "产品发布平台 为什么不能通过data方式存取数据",
-        "tagIdList": [],
-        "createTime": 1545561387805,
-        "id": 1545561387805,
+        "createTime": 1546052463261,
+        "id": 1546052463261,
         "updateTime": ""
     },
     {
@@ -72,13 +50,29 @@
         "updateTime": ""
     },
     {
-        "title": "2018-12-03",
-        "content": "使用iview的方式定义组件\n\n视频播放器删除正在播放的视频导致的bug  \n\n本地视频自动全屏播放  \n\n弹出选择列表  长时间不选择自动播放下一集",
+        "title": "2018-12-23",
+        "content": "添加置顶功能 必要的话 也加个到点提示\n添加随着解决时间的增长 区分显示的功能能\n记事本解决问题的历程",
+        "tagIdList": [],
+        "createTime": 1545562040061,
+        "id": 1545562040061,
+        "updateTime": 1545822025082
+    },
+    {
+        "title": "2018-12-23",
+        "content": "完善github应用介绍",
         "tagIdList": [
-            1540734005794
+            1540439058555
         ],
-        "createTime": 1543840091735,
-        "id": 1543840091735,
-        "updateTime": 1544614778859
+        "createTime": 1545562006233,
+        "id": 1545562006233,
+        "updateTime": 1545639927136
+    },
+    {
+        "title": "",
+        "content": "移动端心愿摇一摇",
+        "tagIdList": [],
+        "createTime": 1545561515750,
+        "id": 1545561515750,
+        "updateTime": ""
     }
 ]

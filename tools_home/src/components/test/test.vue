@@ -1,23 +1,12 @@
 <style lang="less">
-@import "~@/assets/style/base.less";
+@import '~@/assets/style/base.less';
 
-#login-id {
-  line-height: 200px;
-
-  width: 200px;
-  height: 200px;
-  margin: 100px auto;
-
-  transition: all 0.5s linear;
-  text-align: center;
-
-  background: #ccc;
-}
 </style>
 <template>
   <div>
-
-    <div id="login-id"></div>
+    <achored-heading :level="2">
+      测试
+    </achored-heading>
   </div>
 </template>
 <script>
@@ -25,43 +14,46 @@ let num = 0;
 export default {
   name: "test_vue",
   data() {
-    return {
-      isNumber: 2
-    };
+    return {};
   },
 
   computed: {},
-  methods: {
-    changeNumber() {
-      let num = [1, 2, 3];
-      let random = Math.random() * 3;
-      this.isNumber = num[random | 0];
-    }
-  },
+  methods: {},
   components: {
-    "my-btn": {
-      template: `<div><slot name="lol"></slot>1221</div>`,
-      props: {
-        isShow: {
-          type: Boolean,
-          default: false
-        }
+    "achored-heading": {
+      render(crateElement) {
+        return crateElement("h" + this.level, [
+          this.$slots.default,
+          crateElement("span", [
+            12,
+            crateElement(
+              "a",
+              {
+                style: {
+                  color: "red"
+                },
+                class: [
+                  {
+                    foo: true
+                  },
+                  "age"
+                ],
+                attrs: {
+                  href: "http://baidu.com"
+                }
+              },
+              "456"
+            )
+          ])
+        ]);
       },
-      mounted() {}
+      props: {
+        level: Number
+      }
     }
   },
 
-  mounted() {
-    var a = 2;
-    window.say = function(a) {
-      console.log(a);
-    };
-    function test() {
-      let a = 1;
-      setTimeout("say(a)", 0);
-    }
-    test(); //2
-  }
+  mounted() {}
 };
 </script>
 
