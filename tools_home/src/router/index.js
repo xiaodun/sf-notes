@@ -6,6 +6,10 @@ Vue.use(Router);
 const router = new Router({
   routes: [
     {
+      path: '*',
+      component: () => import('@/components/index'),
+    },
+    {
       path: '/test',
       component: () => import('@/components/test/test'),
     },
@@ -25,10 +29,6 @@ const router = new Router({
     {
       path: '/math_postures',
       component: () => import('@/components/tools/math_postures'),
-    },
-    {
-      path: '/',
-      component: () => import('@/components/index'),
     },
   ],
 });
