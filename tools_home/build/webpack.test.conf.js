@@ -1,17 +1,20 @@
-var path = require ('path');
-var webpack = require ('webpack');
+var path = require('path');
+var webpack = require('webpack');
+const config = require('../config');
+const vueLoaderConfig = require('./vue-loader.conf');
 process.env.NODE_ENV = 'test';
 module.exports = {
   entry: './src/main.js',
   output: {
-    path: path.resolve (__dirname, './dist'),
+    path: path.resolve(__dirname, './dist'),
     publicPath: '/dist/',
     filename: 'build.js',
   },
   resolve: {
     alias: {
       vue$: 'vue/dist/vue.esm.js',
-      '@': path.resolve (__dirname, '...', 'src'),
+      '@': path.resolve(__dirname, '..', 'src'),
+      '@root': path.resolve(__dirname, '../'),
     },
   },
   module: {
@@ -19,6 +22,7 @@ module.exports = {
       {
         test: /\.vue$/,
         loader: 'vue-loader',
+        options: vueLoaderConfig,
       },
       {
         test: /\.js$/,
@@ -37,12 +41,15 @@ module.exports = {
   devServer: {
     historyApiFallback: true,
     noInfo: true,
+    proxyTable: {
+      ['/' + 'api']: {
+        target: `http:192.168.8.155:8888/`,
+      },
+    },
   },
   performance: {
     hints: false,
   },
-  devtool: '#eval-source-map',
+  devtool: 'eval',
+  externals: [require('webpack-node-externals')()],
 };
-
-module.exports.externals = [require ('webpack-node-externals') ()];
-module.exports.devtool = 'eval';

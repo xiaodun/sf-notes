@@ -2,29 +2,35 @@
 </style>
 <template >
   <div color='red'>
-    {{ count }}
     <button
-      name="123"
-      @click="increment"
-    >自增</button>
+      id="opp"
+      @click="request"
+    >
+      {{value}}
+    </button>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+import AxiosHelper from "@/assets/lib/AxiosHelper";
 export default {
-  props: {
-    bar: ""
-  },
   data() {
     return {
-      count: 0
+      count: 0,
+      value: ""
     };
   },
 
   methods: {
-    increment() {
-      this.count++;
+    request() {
+      axios.get("/say/hello").then(res => {
+        this.value = res.data + "";
+      });
     }
+  },
+  created() {
+    // this.request();
   }
 };
 </script>
