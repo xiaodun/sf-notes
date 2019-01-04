@@ -8,8 +8,7 @@ var file_os = require('fs');
 var url_os = require('url');
 var formidable_os = require('formidable');
 let config = JSON.parse(file_os.readFileSync('config.json', 'utf-8'));
-var server = http_os.createServer(function (request, response) {
-  //解析url
+var server = http_os.createServer(function(request, response) {
   try {
     var urlElementsArr = request.url.slice(1, request.url.length).split('/');
     console.log(request.url);
@@ -27,9 +26,11 @@ var server = http_os.createServer(function (request, response) {
     //创建结构
     let floderPathArr = (config.abspath
       ? config.abspath.split('/')
-      : []).concat([config.dataFloderName, prefix, appName, dataName]);
+      : []
+    ).concat([config.dataFloderName, prefix, appName, dataName]);
     var rootFloder = {
-      path: (config.abspath ? config.abspath + '/' : '') +
+      path:
+        (config.abspath ? config.abspath + '/' : '') +
         [config.dataFloderName, prefix, appName, dataName].join('/'),
     };
 
@@ -71,8 +72,8 @@ var server = http_os.createServer(function (request, response) {
 
     if (request.method.toUpperCase() == 'POST') {
       /**
-         * 文件上传
-         */
+       * 文件上传
+       */
 
       if (
         ~(request.headers['content-type'] || '').indexOf('multipart/form-data')
@@ -83,12 +84,12 @@ var server = http_os.createServer(function (request, response) {
         var form = new formidable_os.IncomingForm();
         form.maxFileSize = 5 * 1024 * 1024 * 1024;
         form.uploadDir = __dirname + '/' + rootFloder.path;
-        form.parse(request, function (error, fileds, files) {
+        form.parse(request, function(error, fileds, files) {
           if (error) {
             // 超过指定大小时的报错
           }
         });
-        form.on('file', function (name, file) {
+        form.on('file', function(name, file) {
           //写入文件名和路径
           postData.files.push({
             name: file.name,
@@ -96,19 +97,19 @@ var server = http_os.createServer(function (request, response) {
             flag: file.path.substr(file.path.lastIndexOf('\\') + 1),
           });
         });
-        form.on('end', function () {
+        form.on('end', function() {
           executeCommand(postData);
         });
       } else {
         /**
-             * 这个是如果数据读取完毕就会执行的监听方法
-             */
+         * 这个是如果数据读取完毕就会执行的监听方法
+         */
         var postData = '';
 
-        request.addListener('data', function (data) {
+        request.addListener('data', function(data) {
           postData += data;
         });
-        request.addListener('end', function () {
+        request.addListener('end', function() {
           executeCommand(JSON.parse(postData || null));
         });
       }
@@ -158,7 +159,11 @@ var server = http_os.createServer(function (request, response) {
             response.writeHead(500, {
               'Content-Type': 'application/json',
             });
-            response.end(JSON.stringify({ message: '重写数据时发生错误,没有得到有效的返回数据' }));
+            response.end(
+              JSON.stringify({
+                message: '重写数据时发生错误,没有得到有效的返回数据',
+              })
+            );
             return;
           }
         }
@@ -169,14 +174,17 @@ var server = http_os.createServer(function (request, response) {
           let file = file_os.createReadStream(path);
           response.writeHead(200, {
             'Content-Type': 'application/octet-stream',
-            'Content-Disposition': `attachment; filename=` +
-              encodeURIComponent(result.file.name),
+            'Content-Disposition':
+              `attachment; filename=` + encodeURIComponent(result.file.name),
           });
           file.pipe(response);
         } else {
           //返回结果
           response.writeHead(result.response.code, {
             'Content-Type': 'application/json',
+            'Access-Control-Allow-Methods': 'DELETE,PUT,POST,GET,OPTIONS',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': 'content-type',
           });
           response.end(JSON.stringify(result.response.data));
         }
