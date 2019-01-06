@@ -1,9 +1,24 @@
-<style lang="less">
+<style lang="less" scoped>
 @import "~@/assets/style/base.less";
+#test-vue-id {
+  display: flex;
+  .pillar {
+    width: 50px;
+    height: 20px;
+    margin-left: 10px;
+    background-color: red;
+  }
+}
 </style>
 <template>
-  <div>
-    <button @click="on_test">点击</button>
+  <div id="test-vue-id">
+    <div
+      class="pillar"
+      v-for="i in 10"
+      :key="i"
+      :style="{height:i*10+'px'}"
+    ></div>
+
   </div>
 </template>
 <script>
@@ -14,7 +29,9 @@ export default {
   data() {
     return {};
   },
-
+  props: {
+    number: Number | String
+  },
   computed: {},
   methods: {
     async on_test() {
