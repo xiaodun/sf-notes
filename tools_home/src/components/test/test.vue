@@ -1,51 +1,44 @@
-<style lang="less">
+
+
+<style lang="less" scoped>
 @import "~@/assets/style/base.less";
+#test-vue-id {
+  display: flex;
+  .pillar {
+    width: 50px;
+    height: 20px;
+    margin-left: 10px;
+    background-color: red;
+  }
+}
 </style>
 <template>
-  <div>
+  <div id="test-vue-id">
+    <div
+      class="pillar"
+      v-for="i in 10"
+      :key="i"
+      :style="{height:i*10+'px'}"
+    ></div>
 
   </div>
 </template>
 <script>
+import AxiosHelper from "@/assets/lib/AxiosHelper";
 let num = 0;
 export default {
   name: "test_vue",
   data() {
     return {};
   },
-
+  props: {
+    number: Number | String
+  },
   computed: {},
   methods: {},
   components: {},
 
-  mounted() {
-    function hello() {
-      try {
-        console.log(1);
-        return new Promise((resolve, reject) => {
-          setTimeout();
-        });
-      } catch (e) {
-        console.log(4);
-        console.log("message", e.message);
-        throw e;
-      } finally {
-        console.log(5);
-      }
-    }
-    function world() {
-      try {
-        hello();
-        console.log(6);
-      } catch (e) {
-        console.log(7);
-        console.log("message", e.message);
-      } finally {
-        console.log(8);
-      }
-    }
-    world();
-  }
+  mounted() {}
 };
 </script>
 
