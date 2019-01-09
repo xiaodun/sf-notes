@@ -3,40 +3,41 @@
 <style lang="less" scoped>
 @import "~@/assets/style/base.less";
 #test-vue-id {
-  display: flex;
-  .pillar {
-    width: 50px;
-    height: 20px;
-    margin-left: 10px;
-    background-color: red;
+  .oop {
+    width: 200px;
+    height: 200px;
+    border: 10px solid red;
+
+    // box-shadow: 1px 2px 5px 5px black;
+    filter: drop-shadow(1px 2px black);
   }
 }
 </style>
 <template>
   <div id="test-vue-id">
-    <div
-      class="pillar"
-      v-for="i in 10"
-      :key="i"
-      :style="{height:i*10+'px'}"
-    ></div>
-
+    <button @click="value++">添加</button>
+    <test></test>
   </div>
 </template>
 <script>
 import AxiosHelper from "@/assets/lib/AxiosHelper";
-let num = 0;
 export default {
   name: "test_vue",
   data() {
-    return {};
+    return {
+      value: 12
+    };
   },
-  props: {
-    number: Number | String
-  },
+  props: {},
   computed: {},
   methods: {},
-  components: {},
+  components: {
+    test: {
+      template: `
+        <div>{{$parent.value}}</div>
+      `
+    }
+  },
 
   mounted() {}
 };
