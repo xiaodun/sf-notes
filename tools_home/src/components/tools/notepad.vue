@@ -752,16 +752,18 @@ export default {
     },
     request_get_tag() {
       //提交获取标签
-      AxiosHelper.request({
-        method: "post",
-        url: this.requestPrefixTag + "/get"
-      }).then(response => {
-        this.tagModel.list = response.data.map((el, index, arr) => {
-          el.originContent = el.content;
-          el.isEdit = false;
-          return el;
+      this.$axios
+        .request({
+          method: "post",
+          url: this.requestPrefixTag + "/get"
+        })
+        .then(response => {
+          this.tagModel.list = response.data.map((el, index, arr) => {
+            el.originContent = el.content;
+            el.isEdit = false;
+            return el;
+          });
         });
-      });
     },
     request_get_file() {
       //提交获取文件

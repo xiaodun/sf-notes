@@ -2,6 +2,7 @@ import axios from "axios";
 import builtService from "@root/service/app/config.json";
 import { Message } from "iView";
 import store from "@/vuex/store.js";
+import Vue from "vue";
 let isTip504 = false;
 axios.defaults.baseURL = "/" + builtService.prefix;
 axios.interceptors.response.use(
@@ -27,4 +28,5 @@ class Helper {
 }
 var helper = new Helper();
 
+Vue.prototype.$axios = helper;
 export default helper;
