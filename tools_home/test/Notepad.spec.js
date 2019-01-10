@@ -3,6 +3,7 @@ import Notepad from "../src/components/tools/notepad.vue";
 import iView from "iView";
 import BuiltService from "@root/service/app/config.json";
 import moxios from "moxios";
+import AxiosHelper from "@/assets/lib/AxiosHelper";
 const localVue = createLocalVue();
 
 localVue.use(iView);
