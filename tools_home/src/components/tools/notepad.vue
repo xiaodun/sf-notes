@@ -483,7 +483,7 @@
 //内置服务器配置
 import BuiltServiceConfig from "@root/service/app/config.json";
 import DateHelper from "@/assets/lib/DateHelper";
-import AxiosHelper from "@/assets/lib/AxiosHelper";
+
 export default {
   name: "",
   data() {
@@ -556,29 +556,35 @@ export default {
       this.fileModel.isShow = true;
     },
     request_top_note(argItem) {
-      AxiosHelper.request({
-        method: "post",
-        url: this.requestPrefix + "/top",
-        data: {
-          id: argItem.id
-        }
-      }).then(response => {
-        this.request_get(this.pagination, { tagIdList: this.filterTagIdList });
-        this.$Message.success("置顶成功");
-      });
+      this.$axios
+        .request({
+          method: "post",
+          url: this.requestPrefix + "/top",
+          data: {
+            id: argItem.id
+          }
+        })
+        .then(response => {
+          this.request_get(this.pagination, {
+            tagIdList: this.filterTagIdList
+          });
+          this.$Message.success("置顶成功");
+        });
     },
     request_update_fileinfo(argItem) {
-      AxiosHelper.request({
-        method: "post",
-        url: this.requestPrefixFile + "/update",
-        data: {
-          id: this.active.fileinfo.id,
-          describe: argItem.describe
-        }
-      }).then(response => {
-        this.fileModel.isShow = false;
-        this.active.fileinfo.describe = argItem.describe;
-      });
+      this.$axios
+        .request({
+          method: "post",
+          url: this.requestPrefixFile + "/update",
+          data: {
+            id: this.active.fileinfo.id,
+            describe: argItem.describe
+          }
+        })
+        .then(response => {
+          this.fileModel.isShow = false;
+          this.active.fileinfo.describe = argItem.describe;
+        });
     },
     upload_progress(event, file) {
       let index = this.fileModel.uploadingList.findIndex(
@@ -607,20 +613,22 @@ export default {
     },
     request_download_file(item) {
       //提交下载文件
-      AxiosHelper.request({
-        method: "get",
-        url: this.requestPrefixFile + "/download" + `?id=${item.id}`,
-        responseType: "blob"
-      }).then(response => {
-        var blob = response.data;
-        var a = document.createElement("a");
-        a.download = item.name;
-        a.href = URL.createObjectURL(blob);
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(a.href);
-      });
+      this.$axios
+        .request({
+          method: "get",
+          url: this.requestPrefixFile + "/download" + `?id=${item.id}`,
+          responseType: "blob"
+        })
+        .then(response => {
+          var blob = response.data;
+          var a = document.createElement("a");
+          a.download = item.name;
+          a.href = URL.createObjectURL(blob);
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(a.href);
+        });
     },
     change_filter_tag() {
       //过滤内容发生变化
@@ -642,25 +650,31 @@ export default {
     },
     rquest_delete_tag(item) {
       //提交删除标签
-      AxiosHelper.request({
-        method: "post",
-        url: this.requestPrefixTag + "/delete",
-        data: {
-          id: item.id
-        }
-      }).then(response => {
-        this.request_get_tag();
-      });
+      this.$axios
+        .request({
+          method: "post",
+          url: this.requestPrefixTag + "/delete",
+          data: {
+            id: item.id
+          }
+        })
+        .then(response => {
+          this.request_get_tag();
+        });
       //同步数据  将记事里面的标签数据删除
-      AxiosHelper.request({
-        method: "post",
-        url: this.requestPrefix + "/removeTag",
-        data: {
-          id: item.id
-        }
-      }).then(response => {
-        this.request_get(this.pagination, { tagIdList: this.filterTagIdList });
-      });
+      this.$axios
+        .request({
+          method: "post",
+          url: this.requestPrefix + "/removeTag",
+          data: {
+            id: item.id
+          }
+        })
+        .then(response => {
+          this.request_get(this.pagination, {
+            tagIdList: this.filterTagIdList
+          });
+        });
     },
     in_tag_model() {
       //进入标签管理
@@ -694,40 +708,44 @@ export default {
       //提交标签的修改
       item.content &&
         item.content.trim() !== item.originContent.trim() &&
-        AxiosHelper.request({
-          method: "post",
-          url: this.requestPrefixTag + "/update",
-          data: {
-            content: item.content,
-            id: item.id
-          }
-        }).then(response => {
-          if (response.data.isFailed) {
-            //当新命名的标签与已有标签重名时
-            this.$Message.warning(response.data.message);
-          } else {
-            item.isEdit = false;
-          }
-        });
+        this.$axios
+          .request({
+            method: "post",
+            url: this.requestPrefixTag + "/update",
+            data: {
+              content: item.content,
+              id: item.id
+            }
+          })
+          .then(response => {
+            if (response.data.isFailed) {
+              //当新命名的标签与已有标签重名时
+              this.$Message.warning(response.data.message);
+            } else {
+              item.isEdit = false;
+            }
+          });
     },
     request_add_tag(argContent) {
       //提交新增标签
       argContent &&
-        AxiosHelper.request({
-          method: "post",
-          url: this.requestPrefixTag + "/add",
-          data: {
-            content: argContent
-          }
-        }).then(response => {
-          if (response.data.isFailed) {
-            // 当新增标签与已有标签重名时
-            this.$Message.warning(response.data.message);
-          } else {
-            this.tagModel.content = "";
-            this.request_get_tag();
-          }
-        });
+        this.$axios
+          .request({
+            method: "post",
+            url: this.requestPrefixTag + "/add",
+            data: {
+              content: argContent
+            }
+          })
+          .then(response => {
+            if (response.data.isFailed) {
+              // 当新增标签与已有标签重名时
+              this.$Message.warning(response.data.message);
+            } else {
+              this.tagModel.content = "";
+              this.request_get_tag();
+            }
+          });
     },
     confirm_delete_file(argItem) {
       this.$Modal.confirm({
@@ -738,17 +756,19 @@ export default {
     },
     request_delete_file(item) {
       //提交删除文件
-      AxiosHelper.request({
-        method: "post",
-        url: this.requestPrefixFile + "/delete",
-        data: {
-          id: item.id
-        }
-      }).then(response => {
-        this.$Message.success("已删除!");
+      this.$axios
+        .request({
+          method: "post",
+          url: this.requestPrefixFile + "/delete",
+          data: {
+            id: item.id
+          }
+        })
+        .then(response => {
+          this.$Message.success("已删除!");
 
-        this.request_get_file();
-      });
+          this.request_get_file();
+        });
     },
     request_get_tag() {
       //提交获取标签
@@ -767,45 +787,50 @@ export default {
     },
     request_get_file() {
       //提交获取文件
-      AxiosHelper.request({
-        method: "get",
-        url: this.requestPrefixFile + "/get"
-      }).then(response => {
-        response.data.forEach((el, index, arr) => {
-          el.describe = el.describe || "";
+      this.$axios
+        .request({
+          method: "get",
+          url: this.requestPrefixFile + "/get"
+        })
+        .then(response => {
+          response.data.forEach((el, index, arr) => {
+            el.describe = el.describe || "";
+          });
+          this.fileModel.uploadList = response.data;
         });
-        this.fileModel.uploadList = response.data;
-      });
     },
     request_get(argPagination, argFilter = {}) {
       //得到日记信息
-      AxiosHelper.request({
-        method: "post",
-        url: this.requestPrefix + "/get",
-        data: {
-          page: argPagination.page,
-          size: argPagination.size,
-          filter: argFilter
-        }
-      }).then(response => {
-        if (response.data.data.length === 0 && this.pagination.page > 1) {
-          //获取的数据条数为0 且不是第一页  会根据后台返回的数据计算最大的一页进行请求
-          let maxPage =
-            ((response.data.total - 1) / this.pagination.size + 1) | 0;
-          this.pagination.page = maxPage;
-          this.request_get(this.pagination, {
-            tagIdList: this.filterTagIdList
-          });
-        } else {
-          this.list = [];
-          response.data.data.forEach(el => {
-            let notepad = this.convert(el);
-            this.list.push(notepad);
-          });
-        }
 
-        this.pagination.total = response.data.total;
-      });
+      this.$axios
+        .request({
+          method: "post",
+          url: this.requestPrefix + "/get",
+          data: {
+            page: argPagination.page,
+            size: argPagination.size,
+            filter: argFilter
+          }
+        })
+        .then(response => {
+          if (response.data.data.length === 0 && this.pagination.page > 1) {
+            //获取的数据条数为0 且不是第一页  会根据后台返回的数据计算最大的一页进行请求
+            let maxPage =
+              ((response.data.total - 1) / this.pagination.size + 1) | 0;
+            this.pagination.page = maxPage;
+            this.request_get(this.pagination, {
+              tagIdList: this.filterTagIdList
+            });
+          } else {
+            this.list = [];
+            response.data.data.forEach(el => {
+              let notepad = this.convert(el);
+              this.list.push(notepad);
+            });
+          }
+
+          this.pagination.total = response.data.total;
+        });
     },
     convert(argNotepad) {
       //转换请求过来的日记数据
@@ -846,25 +871,29 @@ export default {
     request_add(argNotepad) {
       //提交添加记事
       this.filterTagIdList = [];
-      AxiosHelper.request({
-        method: "post",
-        url: this.requestPrefix + "/add",
-        data: argNotepad
-      }).then(response => {
-        this.pagination.page = 1;
-        this.request_get(this.pagination);
-      });
+      this.$axios
+        .request({
+          method: "post",
+          url: this.requestPrefix + "/add",
+          data: argNotepad
+        })
+        .then(response => {
+          this.pagination.page = 1;
+          this.request_get(this.pagination);
+        });
     },
     request_update(argNotepad) {
       //提交更改记事
-      AxiosHelper.request({
-        method: "post",
-        url: this.requestPrefix + "/update",
-        data: argNotepad
-      }).then(response => {
-        let notepad = this.convert(response.data.data);
-        this.list.splice(this.active.index, 1, notepad);
-      });
+      this.$axios
+        .request({
+          method: "post",
+          url: this.requestPrefix + "/update",
+          data: argNotepad
+        })
+        .then(response => {
+          let notepad = this.convert(response.data.data);
+          this.list.splice(this.active.index, 1, notepad);
+        });
     },
     change_visible() {
       //编辑、修改记事的时候  自动获得焦点
@@ -880,17 +909,21 @@ export default {
     },
     request_del() {
       //请求删除记事
-      AxiosHelper.request({
-        method: "post",
-        url: this.requestPrefix + "/del",
-        data: {
-          id: this.active.notepad.id
-        }
-      }).then(response => {
-        //从前端这里虽然在当前页没有数据时候会多请求一次,但是,一切因该以后台数据为准
-        //也是为了将逻辑内聚在request_get
-        this.request_get(this.pagination, { tagIdList: this.filterTagIdList });
-      });
+      this.$axios
+        .request({
+          method: "post",
+          url: this.requestPrefix + "/del",
+          data: {
+            id: this.active.notepad.id
+          }
+        })
+        .then(response => {
+          //从前端这里虽然在当前页没有数据时候会多请求一次,但是,一切因该以后台数据为准
+          //也是为了将逻辑内聚在request_get
+          this.request_get(this.pagination, {
+            tagIdList: this.filterTagIdList
+          });
+        });
     },
 
     close_edit_model(argNotepad) {
@@ -905,8 +938,9 @@ export default {
     }
   },
   created() {
-    this.request_get(this.pagination);
+    // 两者位置互换在单元测试的时候会报错 暂时不知道原因
     this.request_get_tag();
+    this.request_get(this.pagination);
   }
 };
 </script>
