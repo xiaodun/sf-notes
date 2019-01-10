@@ -17,6 +17,9 @@
   <div id="test-vue-id">
     <button @click="value++">添加</button>
     <test></test>
+    <div style="width:200px;">
+      <div style="display:inline-block;background:red;height:40px;width:100%;"></div>
+    </div>
   </div>
 </template>
 <script>
