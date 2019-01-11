@@ -1,51 +1,35 @@
 <style lang='less'>
 </style>
 <template >
-  <div color='red'>
-    <button
-      id="opp"
-      @click="request"
-    >
-      {{value}}
-    </button>
-    <button
-      id="opp1"
-      @click="request1"
-    >
-      {{value1}}
-    </button>
-  </div>
+  <button
+    id="button-id"
+    @click="request"
+  >
+    {{quantity}}
+  </button>
 </template>
 
 <script>
-import axios from "axios";
 export default {
   data() {
     return {
-      count: 0,
-      value: "",
-      value1: ""
+      quantity: ""
     };
   },
 
+  components: {},
   methods: {
-    request() {
-      //这里不用加api前缀,因为通过全局设置了
-      axios.get("/say/hello").then(res => {
-        console.log(res.data);
-        this.value = res.data + "";
+    async request() {
+      const response = await new Promise(resolve => {
+        resolve("wx");
       });
-    },
-    request1() {
-      axios.get("/say/hello1").then(res => {
-        console.log(res.data);
-        this.value1 = res.data + "";
-      });
+
+      this.quantity = response;
     }
   },
+  watch: {},
   created() {
-    this.request();
-    this.request1();
+    // this.request();
   }
 };
 </script>
