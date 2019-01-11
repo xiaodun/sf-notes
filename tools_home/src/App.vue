@@ -1,5 +1,5 @@
 <style lang="less">
-@import '~@/assets/style/base.less';
+@import "~@/assets/style/base.less";
 
 .qrcode-model-wrapper {
   text-align: center;
@@ -14,11 +14,11 @@
 
   overflow-y: auto;
 
-  transition: left .35s ease-out;
+  transition: left 0.35s ease-out;
 
   background-color: #fff;
 
-.sf-shadow-5;
+  .sf-shadow-5;
 
   .ivu-menu {
     &:after {
@@ -63,7 +63,7 @@
   }
 
   .personal-word {
-    font-family: '华文细黑';
+    font-family: "华文细黑";
     font-size: 16px;
     font-weight: 500;
 
@@ -102,7 +102,7 @@
         font-size: 12px;
       }
 
-       > :nth-child(n) {
+      > :nth-child(n) {
         line-height: 1;
 
         display: block;
@@ -110,7 +110,6 @@
     }
   }
 }
-
 </style>
 <template>
   <div id="app">
@@ -332,6 +331,18 @@ export default {
               content: "版本1",
               to: {
                 path: "/notepad_vue"
+              }
+            }
+          ]
+        },
+        img_conventer: {
+          title: "图片转换器",
+          icon: "md-swap",
+          childs: [
+            {
+              content: "版本1",
+              to: {
+                path: "/img_conventer"
               }
             }
           ]
