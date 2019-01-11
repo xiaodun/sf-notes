@@ -15,11 +15,11 @@
 </style>
 <template>
   <div id="test-vue-id">
-    <button @click="value++">添加</button>
-    <test></test>
-    <div style="width:200px;">
-      <div style="display:inline-block;background:red;height:40px;width:100%;"></div>
-    </div>
+    <div>{{value}}</div>
+    <input
+      type="text"
+      @keypress="keydown"
+    >
   </div>
 </template>
 <script>
@@ -33,7 +33,11 @@ export default {
   },
   props: {},
   computed: {},
-  methods: {},
+  methods: {
+    keydown(e) {
+      console.log(e);
+    }
+  },
   components: {
     test: {
       template: `
@@ -42,7 +46,21 @@ export default {
     }
   },
 
-  mounted() {}
+  mounted() {
+    console.log("script start");
+
+    setTimeout(function() {
+      console.log("setTimeout");
+    }, 0);
+
+    Promise.resolve()
+      .then(function() {
+        console.log("promise1");
+      })
+      .then(function() {
+        console.log("promise2");
+      });
+  }
 };
 </script>
 
