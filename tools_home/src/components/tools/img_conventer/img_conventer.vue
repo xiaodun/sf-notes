@@ -13,14 +13,21 @@
   }
   .img-preview-wrapper {
     margin-top: 10px;
-  }
-  .img-preview {
-    display: flex;
+
     .heade-wrapper {
       clear: both;
     }
-    .img-wrapper {
-      margin: 5px;
+    .img-preview {
+      margin: 10px auto;
+      display: flex;
+      flex-wrap: wrap;
+
+      img {
+        flex-shrink: 1;
+        max-width: 100%;
+        margin: 2.5px;
+        border: 3px solid#a5a5a5;
+      }
     }
   }
 }
@@ -43,7 +50,7 @@
         <Row>
           <div style="float:left;">
             <ButtonGroup>
-              <Button>下载base64码</Button>
+              <Button @click="on_download_base64">下载base64码</Button>
               <Button>下载图片</Button>
 
             </ButtonGroup>
@@ -54,14 +61,13 @@
         </Row>
       </div>
       <div class="img-preview">
-        <div
-          v-for="(item ,index) in imgBase64list"
-          :key="index"
-          class="img-wrapper"
-        >
 
-          <img :src="item">
-        </div>
+        <img
+          ref="imgDomList"
+          v-for="(item ,index) in imgFile"
+          :key="index"
+          :src="item.base64"
+        >
       </div>
     </div>
     <!-- 修改配置Modal -->
@@ -88,6 +94,11 @@
         </FormItem>
       </Form>
     </Modal>
+    <!-- 用于绘制图片的canvas -->
+    <canvas
+      style="display:none;"
+      ref="canvasDom"
+    ></canvas>
   </div>
 </template>
 <script>
@@ -97,8 +108,12 @@ export default {
     return {
       _config: {}, //存储ajax获取的下载相关配置
       _requestConfigPrefix: "/img_conventer/config",
-      imgBase64list: [],
+      imgFile: [],
       imgType: [
+        {
+          name: "",
+          value: ""
+        },
         {
           name: "jpg、jpeg",
           value: "image/jpeg"
@@ -130,7 +145,10 @@ export default {
       let reader = new FileReader();
       reader.readAsDataURL(argFile);
       reader.onload = () => {
-        this.imgBase64list.push(reader.result);
+        this.imgFile.push({
+          base64: reader.result,
+          name: argFile.name
+        });
       };
       return false;
     },
@@ -140,6 +158,65 @@ export default {
         ...this.$data._config
       };
     },
+    on_download_base64() {
+      // this.isShowProcess = true;
+      let imgDomList = this.$refs.imgDomList;
+      let { isIncludePrefix, imgType } = this.$data._config;
+      let base64List = this.imgFile.map(el => {
+        return el.base64;
+      });
+      if (imgType !== "") {
+        //进行转换
+        base64List.forEach((base64, index, arr) => {
+          //格式相同的不处理
+          let isNotSame = base64.indexOf("imgType") == -1;
+          if (isNotSame) {
+            let imgDom = imgDomList[index];
+            arr[index] = this.get_base64(imgDom, imgType);
+          }
+        });
+      }
+      if (isIncludePrefix) {
+        //去掉前缀
+        base64List.forEach((base64, index, arr) => {
+          let prefixPos = base64.indexOf(",") + 1;
+          arr[index] = base64.substring(prefixPos);
+        });
+      }
+      //下载
+      base64List.forEach((base64, index, arr) => {
+        let blob = new Blob([base64]);
+        let href = URL.createObjectURL(blob);
+        let filename = this.imgFile[index].name;
+        let stuffixIndex = filename.lastIndexOf(".");
+        this.download(href, filename.substring(0, stuffixIndex) + ".txt");
+      });
+    },
+    download(argHref, argFileName) {
+      let aDom = document.createElement("a");
+      aDom.download = argFileName;
+      aDom.style.display = "none";
+      aDom.href = argHref;
+      document.body.appendChild(aDom);
+      aDom.click();
+      document.body.removeChild(aDom);
+      URL.revokeObjectURL(argHref);
+    },
+    get_base64(argImgDom, argImgType) {
+      //通过将图片绘制在canvas上,进行图片格式的转换
+      let canvasDom = this.$refs.canvasDom;
+      canvasDom.width = argImgDom.naturalWidth;
+      canvasDom.height = argImgDom.naturalHeight;
+      let context = canvasDom.getContext("2d");
+      context.drawImage(
+        argImgDom,
+        argImgDom.naturalWidth,
+        argImgDom.naturalHeight
+      );
+      let base64 = canvasDom.toDataURL(argImgType);
+      return base64;
+    },
+    delete_base64_prefix(argBase64) {},
     async request_get_config() {
       let response = await this.$axios.request({
         method: "get",
