@@ -1,12 +1,12 @@
 <style lang="less">
-@import '~@/assets/style/base.less';
+@import "~@/assets/style/base.less";
 
 #notepad-id {
   font-size: 14px;
 
   .uploading-enter-active,
   .uploading-leave-active {
-    transition: all .5s;
+    transition: all 0.5s;
   }
 
   .uploading-enter,
@@ -16,7 +16,7 @@
     opacity: 0;
   }
 
-   > .app-name {
+  > .app-name {
     margin: 1em auto;
 
     text-align: center;
@@ -37,7 +37,7 @@
     margin: 10px auto;
   }
 
-   > .wrapper {
+  > .wrapper {
     width: 85%;
     max-width: 650px;
     margin: 0 auto;
@@ -128,7 +128,7 @@
 
       border-bottom: 1px solid #ccc;
 
-.vertical_lineheight(32px);
+      .vertical_lineheight(32px);
     }
 
     .option {
@@ -136,7 +136,6 @@
     }
   }
 }
-
 </style>
 <template>
   <div id="notepad-id">
