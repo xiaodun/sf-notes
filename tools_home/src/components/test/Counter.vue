@@ -1,12 +1,21 @@
 <style lang='less'>
 </style>
 <template >
-  <button
-    id="button-id"
-    @click="request"
-  >
-    {{quantity}}
-  </button>
+  <div>
+
+    <button
+      id="button-id"
+      @click="request"
+    >
+      {{quantity}}
+    </button>
+    <textarea
+      name=""
+      id="test-id"
+      cols="30"
+      rows="10"
+    >212121</textarea>
+  </div>
 </template>
 
 <script>
