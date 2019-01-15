@@ -6,8 +6,8 @@
       <Panel name="0">
         使用内置后台服务器
         <p slot="content">
-          必须手动打开服务器！<br>
-          服务器用nodejs编写，位于/service/app/service.js 在tools_home文件夹下 start-service.bat用来启动内置服务 <br>
+          npm start 可以同步开启内置后台服务器和vue-cli<br>
+          服务器用nodejs编写，位于/service/app/service.js 在tools_home文件夹下 start-service.bat用来单独启动内置服务 <br>
           如对同级目录config.json中配置有改动 重启项目和内置服务器即可！
           <Collapse accordion>
             <Panel name="0-1">
@@ -18,9 +18,10 @@
               </p>
             </Panel>
             <Panel name="0-2">
-              为什么必须手动启动
+              关于内置服务器的使用
               <p slot="content">
-                能力有限,如果随着项目运行启动,涉及很多细节,与主要任务脱离严重。
+                已经运行一次npm start,在未关闭上一个内置服务器的前提下，再次运行npm start因端口被占用,cmd仍然会弹出,但没有在其他端口运行内置服务器。 <br>
+                至于如何判断是当前实例占用,还是其他程序占用,以便进一步的优化,计划后续执行。
 
               </p>
             </Panel>
