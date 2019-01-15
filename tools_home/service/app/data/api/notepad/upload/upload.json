@@ -1,27 +1,9 @@
 [
     {
-        "name": "2018年度年终总结-软件部-王旭.doc",
-        "type": "application/msword",
-        "flag": "upload_9c60ddb8adf6b756a9aaef6b36f9829b",
-        "id": "15465919576060"
-    },
-    {
-        "name": "501089212.mp4",
-        "type": "video/mp4",
-        "flag": "upload_fb0a2e7405ada76b5abcbeba6e5cfae0",
-        "id": "15464299266190"
-    },
-    {
-        "name": "吉田潔-遥远的旅途(伴奏版).mp3",
-        "type": "audio/mp3",
-        "flag": "upload_e809d6d904aed5efd40b3da49855cc03",
-        "id": "15460122865550"
-    },
-    {
-        "name": "479342241.mp4",
-        "type": "video/mp4",
-        "flag": "upload_562af9dea70fc7344172ef7f28881e2c",
-        "id": "15460111433310"
+        "name": "javascript小案例.zip",
+        "type": "application/x-zip-compressed",
+        "flag": "upload_a01b9d0327e06283f34de129ba2c40b3",
+        "id": "15475655629330"
     },
     {
         "name": "vue-templete.code-snippets",
