@@ -34,6 +34,7 @@
 </style>
 <template>
   <div id='img_conventer-vue-id'>
+
     <Upload
       type="drag"
       :before-upload="before_upload"
@@ -50,8 +51,8 @@
         <Row>
           <div style="float:left;">
             <ButtonGroup>
-              <Button @click="on_download_base64">下载base64码</Button>
-              <Button>下载图片</Button>
+              <Button @click="on_download('BASE64')">下载base64码</Button>
+              <Button @click="on_download('IMG')">下载图片</Button>
 
             </ButtonGroup>
           </div>
@@ -102,6 +103,8 @@
   </div>
 </template>
 <script>
+const IMG_FLAG = "IMG";
+const BASE64_FLAG = "BASE64";
 export default {
   name: "img_conventer_vue",
   data() {
@@ -116,19 +119,23 @@ export default {
         },
         {
           name: "jpg、jpeg",
-          value: "image/jpeg"
+          value: "image/jpeg",
+          stuffix: "jpg"
         },
         {
           name: "png",
-          value: "image/png"
+          value: "image/png",
+          stuffix: "png"
         },
         {
           name: "gif",
+          stuffix: "gif",
           value: "image/gif"
         },
         {
           name: "ief",
-          value: "image/ief"
+          value: "image/ief",
+          stuffix: "image/ief"
         }
       ],
       updateConfigModal: {
@@ -152,16 +159,9 @@ export default {
       };
       return false;
     },
-    on_update_config() {
-      this.updateConfigModal.isShow = true;
-      this.updateConfigModal.form = {
-        ...this.$data._config
-      };
-    },
-    on_download_base64() {
-      // this.isShowProcess = true;
+    on_download(argFlag) {
       let imgDomList = this.$refs.imgDomList;
-      let { isIncludePrefix, imgType } = this.$data._config;
+      let { imgType, isIncludePrefix } = this.$data._config;
       let base64List = this.imgFile.map(el => {
         return el.base64;
       });
@@ -169,28 +169,45 @@ export default {
         //进行转换
         base64List.forEach((base64, index, arr) => {
           //格式相同的不处理
-          let isNotSame = base64.indexOf("imgType") == -1;
+          let isNotSame = base64.indexOf(imgType) == -1;
           if (isNotSame) {
             let imgDom = imgDomList[index];
             arr[index] = this.get_base64(imgDom, imgType);
           }
         });
       }
-      if (isIncludePrefix) {
-        //去掉前缀
-        base64List.forEach((base64, index, arr) => {
-          let prefixPos = base64.indexOf(",") + 1;
-          arr[index] = base64.substring(prefixPos);
-        });
+      if (argFlag === BASE64_FLAG) {
+        if (isIncludePrefix) {
+          //去掉前缀
+          base64List.forEach((base64, index, arr) => {
+            let prefixPos = base64.indexOf(",") + 1;
+            arr[index] = base64.substring(prefixPos);
+          });
+        }
       }
-      //下载
+
       base64List.forEach((base64, index, arr) => {
-        let blob = new Blob([base64]);
-        let href = URL.createObjectURL(blob);
-        let filename = this.imgFile[index].name;
-        let stuffixIndex = filename.lastIndexOf(".");
-        this.download(href, filename.substring(0, stuffixIndex) + ".txt");
+        let filename = this.imgFile[index].name.substring(
+          0,
+          this.imgFile[index].name.lastIndexOf(".")
+        );
+        let href;
+        if (argFlag === IMG_FLAG) {
+          href = base64;
+        } else if (argFlag === BASE64_FLAG) {
+          let blob = new Blob([base64]);
+          href = URL.createObjectURL(blob);
+          filename += ".txt";
+        }
+        this.download(href, filename);
+        URL.revokeObjectURL(href);
       });
+    },
+    on_update_config() {
+      this.updateConfigModal.isShow = true;
+      this.updateConfigModal.form = {
+        ...this.$data._config
+      };
     },
     download(argHref, argFileName) {
       let aDom = document.createElement("a");
@@ -200,7 +217,6 @@ export default {
       document.body.appendChild(aDom);
       aDom.click();
       document.body.removeChild(aDom);
-      URL.revokeObjectURL(argHref);
     },
     get_base64(argImgDom, argImgType) {
       //通过将图片绘制在canvas上,进行图片格式的转换
@@ -208,11 +224,7 @@ export default {
       canvasDom.width = argImgDom.naturalWidth;
       canvasDom.height = argImgDom.naturalHeight;
       let context = canvasDom.getContext("2d");
-      context.drawImage(
-        argImgDom,
-        argImgDom.naturalWidth,
-        argImgDom.naturalHeight
-      );
+      context.drawImage(argImgDom, 0, 0);
       let base64 = canvasDom.toDataURL(argImgType);
       return base64;
     },
