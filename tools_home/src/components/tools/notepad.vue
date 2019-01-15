@@ -937,6 +937,7 @@ export default {
       }
     }
   },
+
   created() {
     // 两者位置互换在单元测试的时候会报错 暂时不知道原因
     this.request_get_tag();
