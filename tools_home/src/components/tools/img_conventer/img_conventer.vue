@@ -2,12 +2,22 @@
 @import "~@/assets/style/base.less";
 
 #img_conventer-vue-id {
+  position: relative;
   width: 85%;
   max-width: 800px;
   margin: 0 auto;
+  .load-img-group {
+    position: absolute;
+    transform: translateX(-120%);
+  }
+  #netwok-id textarea,
   #upload-id {
     height: 200px;
-
+  }
+  #netwok-id textarea {
+    resize: none;
+  }
+  #upload-id {
     text-align: center;
     line-height: 200px;
   }
@@ -34,17 +44,35 @@
 </style>
 <template>
   <div id='img_conventer-vue-id'>
-
-    <Upload
-      type="drag"
-      :before-upload="before_upload"
-      action=""
-      accept="image/*"
-      id="upload-id"
-      multiple
+    <RadioGroup
+      class="load-img-group"
+      v-model="loadImgWay"
+      vertical
     >
-      <div>点击或拖拽上传</div>
-    </Upload>
+      <Radio label="locale">本地</Radio>
+      <Radio label="network">网络</Radio>
+    </RadioGroup>
+    <template v-if="loadImgWay === 'locale'">
+
+      <Upload
+        type="drag"
+        :before-upload="before_upload"
+        action=""
+        accept="image/*"
+        id="upload-id"
+        multiple
+      >
+        <div>点击或拖拽上传</div>
+      </Upload>
+    </template>
+    <template v-else-if="loadImgWay === 'network'">
+      <Input
+        @on-change="on_get_imgUrl"
+        placeholder="在这里输入图片的网络地址"
+        type="textarea"
+        id="netwok-id"
+      ></Input>
+    </template>
     <!-- 图片预览区域 -->
     <div class="img-preview-wrapper">
       <div class="heade-wrapper">
@@ -109,6 +137,7 @@ export default {
   name: "img_conventer_vue",
   data() {
     return {
+      loadImgWay: "network",
       _config: {}, //存储ajax获取的下载相关配置
       _requestConfigPrefix: "/img_conventer/config",
       imgFile: [],
@@ -148,6 +177,9 @@ export default {
     };
   },
   methods: {
+    on_get_imgUrl(argEvent) {
+      let value = argEvent.target.value;
+    },
     before_upload(argFile) {
       let reader = new FileReader();
       reader.readAsDataURL(argFile);
