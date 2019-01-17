@@ -13,6 +13,8 @@
       cols="30"
       rows="10"
     >212121</textarea>
+    <test-com ref="dom"></test-com>
+    <button  @click="test">调用</button>
   </div>
 </template>
 <script>
@@ -23,10 +25,35 @@ export default {
   },
   props: {},
   computed: {},
-  methods: {},
-  components: {},
+  methods: {
+    test(){
+      this.$emit('wait',12)
+    }
+  },
+  components: {
+    'test-com':{
+      template:`<div><button>broadcast调用</button><br/><button @click="on_dispatch">dispatch调用</button></div>`,
+      data(){
+        return{
 
-  mounted() {}
+        }
+      },
+      methods:{
+        ref_say(){
+          alert('我被调用了')
+        },
+        on_dispatch(value){
+          this.$parent.$emit('wait')
+        }
+      }
+    }
+  },
+  
+  mounted() {
+    this.$on("wait",function(value){
+      alert(value)
+    })
+  }
 };
 </script>
 
