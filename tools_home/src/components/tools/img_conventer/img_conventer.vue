@@ -3,40 +3,53 @@
 
 #img_conventer-vue-id {
   position: relative;
+
   width: 85%;
   max-width: 800px;
   margin: 0 auto;
+
   .load-img-group {
     position: absolute;
+
     transform: translateX(-120%);
   }
+
   #netwok-id textarea,
   #upload-id {
     height: 200px;
   }
+
   #netwok-id textarea {
     resize: none;
   }
+
   #upload-id {
-    text-align: center;
     line-height: 200px;
+
+    text-align: center;
   }
+
   .img-preview-wrapper {
     margin-top: 10px;
 
     .heade-wrapper {
       clear: both;
     }
+
     .img-preview {
-      margin: 10px auto;
       display: flex;
+
+      margin: 10px auto;
+
       flex-wrap: wrap;
 
       img {
-        flex-shrink: 1;
         max-width: 100%;
         margin: 2.5px;
+
         border: 3px solid#a5a5a5;
+
+        flex-shrink: 1;
       }
     }
   }
@@ -79,24 +92,57 @@
         <Row>
           <div style="float:left;">
             <ButtonGroup>
-              <Button @click="on_download('BASE64')">下载base64码</Button>
-              <Button @click="on_download('IMG')">下载图片</Button>
+              <Button
+                :disabled="loadImgWay === 'network'"
+                @click="on_download('BASE64',loadImgWay)"
+              >下载base64码</Button>
+              <Button
+                :disabled="loadImgWay === 'network'"
+                @click="on_download('IMG',loadImgWay)"
+              >下载图片</Button>
 
             </ButtonGroup>
+            <Button
+              v-show="loadImgWay === 'locale'"
+              @click="on_clear_imgs"
+            >清空</Button>
           </div>
           <div style="float:right;">
             <Button @click="on_update_config">修改配置</Button>
           </div>
+
+        </Row>
+        <Row>
+          <Alert
+            style="margin-top:10px"
+            type="warning"
+            :closable="true"
+            v-show="loadImgWay === 'network'"
+          >
+            直接通过浏览器转换会有跨域问题!后续需要可以计划通过nodejs服务器来实现
+          </Alert>
         </Row>
       </div>
       <div class="img-preview">
 
-        <img
-          ref="imgDomList"
-          v-for="(item ,index) in imgFile"
-          :key="index"
-          :src="item.base64"
-        >
+        <template v-if="loadImgWay === 'locale'">
+
+          <img
+            ref="imgDomList"
+            v-for="(item ,index) in imgFile"
+            :key="index"
+            :src="item.base64"
+          >
+        </template>
+        <template v-else-if="loadImgWay === 'network'">
+
+          <img
+            ref="imgDomList"
+            v-for="(item ,index) in networkImgInfo"
+            :key="index"
+            :src="item.url"
+          >
+        </template>
       </div>
     </div>
     <!-- 修改配置Modal -->
@@ -128,6 +174,7 @@
       style="display:none;"
       ref="canvasDom"
     ></canvas>
+
   </div>
 </template>
 <script>
@@ -137,10 +184,23 @@ export default {
   name: "img_conventer_vue",
   data() {
     return {
-      loadImgWay: "network",
+      loadImgWay: "locale",
       _config: {}, //存储ajax获取的下载相关配置
       _requestConfigPrefix: "/img_conventer/config",
+      /**
+       * 承载上传图片的信息
+       *  base64 base64码
+       * name 图片名字
+       */
       imgFile: [],
+      /*
+        承载网络图片信息
+        url地址
+        name 图片名字
+        stuffix
+  
+      */
+      networkImgInfo: [],
       imgType: [
         {
           name: "",
@@ -148,23 +208,19 @@ export default {
         },
         {
           name: "jpg、jpeg",
-          value: "image/jpeg",
-          stuffix: "jpg"
+          value: "image/jpeg"
         },
         {
           name: "png",
-          value: "image/png",
-          stuffix: "png"
+          value: "image/png"
         },
         {
           name: "gif",
-          stuffix: "gif",
-          value: "image/gif"
+          value: "gif"
         },
         {
           name: "ief",
-          value: "image/ief",
-          stuffix: "image/ief"
+          value: "image/ief"
         }
       ],
       updateConfigModal: {
@@ -177,8 +233,21 @@ export default {
     };
   },
   methods: {
+    on_clear_imgs() {
+      this.imgFile = [];
+    },
     on_get_imgUrl(argEvent) {
+      this.networkImgInfo = [];
+      let pattern = /(http|https):\/\/[\S]+/g;
       let value = argEvent.target.value;
+      let match;
+      while ((match = pattern.exec(value)) !== null) {
+        let url = match[0];
+        let index = url.lastIndexOf("/");
+        let name = url.substring(index + 1);
+        let stuffix = name.substring(name.lastIndexOf(".") + 1);
+        this.networkImgInfo.push({ url, name, stuffix });
+      }
     },
     before_upload(argFile) {
       let reader = new FileReader();
@@ -191,23 +260,44 @@ export default {
       };
       return false;
     },
-    on_download(argFlag) {
+    on_download(argFlag, argLoadWay) {
       let imgDomList = this.$refs.imgDomList;
       let { imgType, isIncludePrefix } = this.$data._config;
-      let base64List = this.imgFile.map(el => {
-        return el.base64;
-      });
-      if (imgType !== "") {
-        //进行转换
-        base64List.forEach((base64, index, arr) => {
-          //格式相同的不处理
-          let isNotSame = base64.indexOf(imgType) == -1;
-          if (isNotSame) {
-            let imgDom = imgDomList[index];
-            arr[index] = this.get_base64(imgDom, imgType);
+      let base64List = [];
+      if (argLoadWay === "locale") {
+        base64List = this.imgFile.map(el => {
+          return el.base64;
+        });
+        if (imgType !== "") {
+          //进行转换
+
+          base64List.forEach((base64, index, arr) => {
+            //格式相同的不处理
+            let isNotSame = base64.indexOf(imgType) == -1;
+            if (isNotSame) {
+              let imgDom = imgDomList[index];
+              arr[index] = this.get_base64(imgDom, imgType);
+            }
+          });
+        }
+      } else if (argLoadWay === "network") {
+        imgDomList.forEach((imgDom, index, arr) => {
+          let type;
+          if (imgType !== "") {
+            type = imgType;
+          } else {
+            type = this.imgType.find((el, index, arr) => {
+              if (
+                el.name.lastIndexOf(this.networkImgInfo[index].stuffix) !== -1
+              ) {
+                return el;
+              }
+            }).imgType;
           }
+          base64List[index] = this.get_base64(imgDom, type);
         });
       }
+
       if (argFlag === BASE64_FLAG) {
         if (isIncludePrefix) {
           //去掉前缀
@@ -258,9 +348,10 @@ export default {
       let context = canvasDom.getContext("2d");
       context.drawImage(argImgDom, 0, 0);
       let base64 = canvasDom.toDataURL(argImgType);
+
       return base64;
     },
-    delete_base64_prefix(argBase64) {},
+
     async request_get_config() {
       let response = await this.$axios.request({
         method: "get",
