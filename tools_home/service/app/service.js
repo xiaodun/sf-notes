@@ -20,7 +20,7 @@ for (let key in network) {
     }
   }
 }
-var server = http_os.createServer(function (request, response) {
+var server = http_os.createServer(function(request, response) {
   try {
     var urlElementsArr = request.url.slice(1, request.url.length).split("/");
     console.log(`${IPv4}:${config.port}${request.url}`);
@@ -96,12 +96,12 @@ var server = http_os.createServer(function (request, response) {
         var form = new formidable_os.IncomingForm();
         form.maxFileSize = 5 * 1024 * 1024 * 1024;
         form.uploadDir = __dirname + "/" + rootFloder.path;
-        form.parse(request, function (error, fileds, files) {
+        form.parse(request, function(error, fileds, files) {
           if (error) {
             // 超过指定大小时的报错
           }
         });
-        form.on("file", function (name, file) {
+        form.on("file", function(name, file) {
           //写入文件名和路径
           postData.files.push({
             name: file.name,
@@ -109,7 +109,7 @@ var server = http_os.createServer(function (request, response) {
             flag: file.path.substr(file.path.lastIndexOf("\\") + 1)
           });
         });
-        form.on("end", function () {
+        form.on("end", function() {
           executeCommand(postData);
         });
       } else {
@@ -118,10 +118,10 @@ var server = http_os.createServer(function (request, response) {
          */
         var postData = "";
 
-        request.addListener("data", function (data) {
+        request.addListener("data", function(data) {
           postData += data;
         });
-        request.addListener("end", function () {
+        request.addListener("end", function() {
           executeCommand(JSON.parse(postData || null));
         });
       }
@@ -211,12 +211,12 @@ var server = http_os.createServer(function (request, response) {
   }
 });
 server.setTimeout(0);
-server.listen(config.port, function () {
+server.listen(config.port, function() {
   console.log("service is running");
 });
-server.on("error", function (error) {
-  console.log(error)
-  if (error.toString().indexOf(`listen EADDRINUSE :::${config.port}`) !== -1) {
+server.on("error", function(error) {
+  console.log(error);
+  if (error.toString().indexOf(`listen EADDRINUSE`) !== -1) {
     console.log(`${config.port}端口被占用,可能是当前应用,也可能是其他应用`);
   }
 });
