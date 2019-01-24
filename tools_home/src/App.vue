@@ -8,7 +8,7 @@
 #slide-menu {
   position: fixed;
   z-index: 12;
-  top: 0;
+  top: 65px;
   bottom: 0;
   left: -100%;
 
@@ -133,14 +133,6 @@
 <template>
   <div id="app">
     <div id="slide-menu" ref="slideMenu">
-      <Button
-        class="arrow-back-btn"
-        @click="toggleMenu"
-        icon="ios-arrow-back"
-        type="primary"
-        long
-        size="large"
-      ></Button>
       <Row>
         <Col>
           <Menu @on-select="menu_onselect">
