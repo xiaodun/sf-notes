@@ -44,8 +44,16 @@
 #__vconsole {
   display: none;
 }
-
+#main-wrapper {
+  margin-top: 85px;
+}
 #top_wrapper {
+  &.box-shadow {
+    .sf-shadow-1;
+  }
+
+  background-color: rgba(255, 255, 255);
+  width: 100%;
   font-size: 0;
 
   overflow: hidden;
@@ -57,7 +65,8 @@
   text-overflow: ellipsis;
 
   border-bottom: 1px solid #ddd;
-
+  position: fixed;
+  top: 0;
   .item {
     margin-left: 5px;
   }
@@ -113,11 +122,7 @@
 </style>
 <template>
   <div id="app">
-    <div
-      id="slide-menu"
-      ref="slideMenu"
-    >
-
+    <div id="slide-menu" ref="slideMenu">
       <Button
         class="arrow-back-btn"
         @click="toggleMenu"
@@ -128,38 +133,23 @@
       ></Button>
       <Row>
         <Col>
-        <Menu @on-select="menu_onselect">
-          <MenuItem
-            name="0"
-            to="/"
-          >
-          首页
-          </MenuItem>
-          <MenuItem name="1">
-          手机访问
-          </MenuItem>
-          <MenuItem name="debug">
-          {{!isDebug?'启用调试':'关闭调试'}}
-
-          </MenuItem>
-          <Submenu
-            :key="key"
-            :name="key"
-            v-for="(value,key) in menuData"
-          >
-            <template slot="title">
-              <Icon :type="value.icon" />
-              {{value.title}}
-            </template>
-            <MenuItem
-              :to="item.to"
-              v-for="(item,index) in value.childs"
-              :name="key+'-'+index"
-              :key="key+'-'+index"
-            >{{item.content}}</MenuItem>
-          </Submenu>
-
-        </Menu>
+          <Menu @on-select="menu_onselect">
+            <MenuItem name="0" to="/">首页</MenuItem>
+            <MenuItem name="1">手机访问</MenuItem>
+            <MenuItem name="debug">{{!isDebug?'启用调试':'关闭调试'}}</MenuItem>
+            <Submenu :key="key" :name="key" v-for="(value,key) in menuData">
+              <template slot="title">
+                <Icon :type="value.icon"/>
+                {{value.title}}
+              </template>
+              <MenuItem
+                :to="item.to"
+                v-for="(item,index) in value.childs"
+                :name="key+'-'+index"
+                :key="key+'-'+index"
+              >{{item.content}}</MenuItem>
+            </Submenu>
+          </Menu>
         </Col>
       </Row>
     </div>
@@ -170,33 +160,22 @@
       :footer-hide="true"
       v-model="isShowQart"
     >
-      <div
-        id="qrcode"
-        ref="qrcode"
-      ></div>
+      <div id="qrcode" ref="qrcode"></div>
     </Modal>
-    <div id="top_wrapper">
-      <Button
-        icon="md-menu"
-        class="item"
-        @click="toggleMenu"
-      ></Button>
+    <div id="top_wrapper" :class="{'box-shadow':isOverScroll}">
+      <Button icon="md-menu" class="item" @click="toggleMenu"></Button>
       <div class="personal-word">
         <div class="pagination">
-
           <Icon
             :class="wordPagination.current === 1 && 'disabled'"
             class="icon"
             type="md-arrow-dropup"
             @click="change_word(wordPagination.current-1)"
           ></Icon>
-          <span class="page"><span
-              v-text='wordPagination.current'
-              class="current"
-            ></span>/<span
-              v-text='wordPagination.total'
-              class="total"
-            ></span></span>
+          <span class="page">
+            <span v-text="wordPagination.current" class="current"></span>/
+            <span v-text="wordPagination.total" class="total"></span>
+          </span>
           <Icon
             @click="change_word(wordPagination.current+1)"
             class="icon"
@@ -208,7 +187,6 @@
       </div>
     </div>
     <div id="main-wrapper">
-
       <router-view></router-view>
     </div>
   </div>
@@ -227,6 +205,16 @@ export default {
     QRCode
   },
   methods: {
+    on_top_scroll() {
+      let threshold = 50;
+      let scrollTop =
+        document.documentElement.scrollTop || document.body.scrollTop;
+      if (scrollTop > threshold) {
+        this.isOverScroll = true;
+      } else {
+        this.isOverScroll = false;
+      }
+    },
     change_word(argPage) {
       if (argPage < 1 || argPage > this.wordPagination.total) {
         //
@@ -285,6 +273,7 @@ export default {
   },
   data() {
     return {
+      isOverScroll: false,
       isDebug: false,
       personalWord: "",
       is_home: true,
@@ -368,6 +357,14 @@ export default {
     };
   },
   computed: {},
+  watch: {
+    $route(to, form) {
+      this.is_home = to.path == "/" ? true : false;
+    }
+  },
+  created() {
+    window.addEventListener("scroll", this.on_top_scroll);
+  },
 
   mounted() {
     this.request_personal_word();
@@ -375,10 +372,8 @@ export default {
       this.is_home = false;
     }
   },
-  watch: {
-    $route(to, form) {
-      this.is_home = to.path == "/" ? true : false;
-    }
+  beforeDestroy() {
+    window.removeEventListener("scroll", this.on_top_scroll);
   }
 };
 </script>
