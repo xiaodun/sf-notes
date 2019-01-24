@@ -2,9 +2,16 @@
 
 
 <template>
-  <div id="test-vue-id" style="height:1000px;">
+  <div
+    id="test-vue-id"
+    style="height:1000px;"
+  >
     <!-- <div class="child" v-for="(item,index) in colorList" :key="index" v-color="item"></div> -->
-    <canvas ref="canvasDom" width="400" height="400"></canvas>
+    <canvas
+      ref="canvasDom"
+      width="400"
+      height="400"
+    ></canvas>
   </div>
 </template>
 <script>
@@ -42,6 +49,19 @@ export default {
   },
   watch: {},
   mounted() {
+    this.axios
+      .request(
+        {
+          method: "",
+          url: ""
+        },
+        {}
+      )
+      .then(response => {
+        if (response.success) {
+          let data = response.data.data;
+        }
+      });
     let canvasDom = this.$refs.canvasDom;
     let context = canvasDom.getContext("2d");
     context.beginPath();
