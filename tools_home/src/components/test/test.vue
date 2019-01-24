@@ -3,7 +3,8 @@
 
 <template>
   <div id="test-vue-id" style="height:1000px;">
-    <div class="child" v-for="(item,index) in colorList" :key="index" v-color="item"></div>
+    <!-- <div class="child" v-for="(item,index) in colorList" :key="index" v-color="item"></div> -->
+    <canvas ref="canvasDom" width="400" height="400"></canvas>
   </div>
 </template>
 <script>
@@ -40,7 +41,25 @@ export default {
     }
   },
   watch: {},
-  mounted() {}
+  mounted() {
+    let canvasDom = this.$refs.canvasDom;
+    let context = canvasDom.getContext("2d");
+    context.beginPath();
+    context.lineCap = "butt";
+    context.moveTo(20, 20);
+    context.lineTo(100, 20);
+    context.lineTo(100, 100);
+    context.lineWidth = 10;
+    context.stroke();
+    context.beginPath();
+    context.lineJoin = "miter";
+    context.lineCap = "round";
+    context.moveTo(20, 180);
+    context.lineTo(100, 180);
+    context.lineTo(100, 280);
+    context.lineWidth = 10;
+    context.stroke();
+  }
 };
 </script>
 
