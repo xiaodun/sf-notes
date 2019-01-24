@@ -45,13 +45,23 @@
   display: none;
 }
 #main-wrapper {
+  will-change: margin-top;
   margin-top: 85px;
+  animation: zeto-top 0.45s ease-in-out;
+  @keyframes zeto-top {
+    0% {
+      margin-top: 0;
+    }
+    100% {
+      margin-top: 85px;
+    }
+  }
 }
 #top_wrapper {
   &.box-shadow {
     .sf-shadow-1;
   }
-
+  z-index: 9999;
   background-color: rgba(255, 255, 255);
   width: 100%;
   font-size: 0;
