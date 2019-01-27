@@ -12,6 +12,10 @@
       width="400"
       height="400"
     ></canvas>
+    <label for="checkoc-id"><input
+        id="checkoc-id"
+        type="checkbox"
+      >12</label>
   </div>
 </template>
 <script>
@@ -75,13 +79,12 @@ export default {
 </script>
 
 <style lang="less" >
-@import "~@/assets/style/base.less";
+@import '~@/assets/style/base.less';
+
 #test-vue-id {
   .child {
-    width: 200px;
-    height: 0px;
-    margin: 10px auto;
-    transition: height ease-in-out 0.25s;
+    width: 200px;height: 0;margin: 10px auto;transition: height ease-in-out .25s;
   }
 }
+
 </style>
