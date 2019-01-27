@@ -49,23 +49,13 @@ export default {
   },
   watch: {},
   mounted() {
-    this.axios
-      .request(
-        {
-          method: "",
-          url: ""
-        },
-        {}
-      )
-      .then(response => {
-        if (response.success) {
-          let data = response.data.data;
-        }
-      });
     let canvasDom = this.$refs.canvasDom;
     let context = canvasDom.getContext("2d");
     context.beginPath();
+    context.save();
+    context.translate(100, 100);
     context.lineCap = "butt";
+    context.scale(3, 3);
     context.moveTo(20, 20);
     context.lineTo(100, 20);
     context.lineTo(100, 100);
@@ -73,10 +63,11 @@ export default {
     context.stroke();
     context.beginPath();
     context.lineJoin = "miter";
-    context.lineCap = "round";
-    context.moveTo(20, 180);
-    context.lineTo(100, 180);
-    context.lineTo(100, 280);
+    context.translate(100, 100);
+    context.moveTo(20, 20);
+    context.lineTo(100, 20);
+    context.lineTo(100, 100);
+    context.lineWidth = 10;
     context.lineWidth = 10;
     context.stroke();
   }
