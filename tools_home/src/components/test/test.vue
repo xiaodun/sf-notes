@@ -3,6 +3,7 @@
 
 <template>
   <div
+    ref="dnfId"
     id="test-vue-id"
     style="height:1000px;"
   >
@@ -12,10 +13,14 @@
       width="400"
       height="400"
     ></canvas>
-    <label for="checkoc-id"><input
-        id="checkoc-id"
-        type="checkbox"
-      >12</label>
+    <input
+      type="checkbox"
+      :value="12"
+      v-model="model"
+    >
+    <span>{{model}}</span>
+    😘🎏
+
   </div>
 </template>
 <script>
@@ -39,6 +44,7 @@ export default {
   props: {},
   data() {
     return {
+      model: ["苹果"],
       number: 1,
       colorList: ["red", "green", "yellow", "black", "pink", "purple"]
     };
@@ -48,7 +54,7 @@ export default {
 
   methods: {
     set() {
-      console.log(12);
+      console.log(1);
     }
   },
   watch: {},
@@ -74,16 +80,33 @@ export default {
     context.lineWidth = 10;
     context.lineWidth = 10;
     context.stroke();
+
+    console.log(String.fromCharCode("🎏"));
   }
 };
 </script>
 
 <style lang="less" >
-@import '~@/assets/style/base.less';
+@import "~@/assets/style/base.less";
 
 #test-vue-id {
   .child {
-    width: 200px;height: 0;margin: 10px auto;transition: height ease-in-out .25s;
+    width: 200px;
+    height: 0;
+    margin: 10px auto;
+
+    transition: height ease-in-out .25s;
+  }
+
+  .klo {
+    width: 100px;
+    height: 10px;
+
+    background-color: red;
+
+    &:focus {
+      border: 1px solid #000;
+    }
   }
 }
 
