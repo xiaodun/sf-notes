@@ -81,6 +81,7 @@
 
   border-bottom: 1px solid #ddd;
   background-color: rgba(255, 255, 255);
+
   &.box-shadow {
     .sf-shadow-1;
   }
@@ -369,6 +370,18 @@ export default {
               content: "版本1",
               to: {
                 path: "/img_conventer"
+              }
+            }
+          ]
+        },
+        gonna_something: {
+          title: "let's go",
+          icon: "md-walk",
+          childs: [
+            {
+              content: "版本1",
+              to: {
+                path: "/gonna_something"
               }
             }
           ]
