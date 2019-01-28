@@ -14,11 +14,11 @@
 
   overflow-y: auto;
 
-  transition: left 0.35s ease-out;
+  transition: left .35s ease-out;
 
   background-color: #fff;
 
-  .sf-shadow-5;
+.sf-shadow-5;
 
   .ivu-menu {
     &:after {
@@ -44,30 +44,35 @@
 #__vconsole {
   display: none;
 }
+
 #main-wrapper {
-  will-change: margin-top;
   margin-top: 85px;
-  animation: zeto-top 0.45s ease-in-out;
+
+  animation: zeto-top .45s ease-in-out;
+
+  will-change: margin-top;
+
   @keyframes zeto-top {
     0% {
       margin-top: 0;
     }
+
     100% {
       margin-top: 85px;
     }
   }
 }
+
 #top_wrapper {
-  &.box-shadow {
-    .sf-shadow-1;
-  }
-  z-index: 1000;
-  background-color: rgba(255, 255, 255);
-  width: 100%;
   font-size: 0;
+
+  position: fixed;
+  z-index: 1000;
+  top: 0;
 
   overflow: hidden;
 
+  width: 100%;
   margin: 0 0 20px 0;
   padding: 10px 0;
 
@@ -75,8 +80,11 @@
   text-overflow: ellipsis;
 
   border-bottom: 1px solid #ddd;
-  position: fixed;
-  top: 0;
+  background-color: rgba(255, 255, 255);
+  &.box-shadow {
+    .sf-shadow-1;
+  }
+
   .item {
     margin-left: 5px;
   }
@@ -121,7 +129,7 @@
         font-size: 12px;
       }
 
-      > :nth-child(n) {
+       > :nth-child(n) {
         line-height: 1;
 
         display: block;
@@ -129,6 +137,7 @@
     }
   }
 }
+
 </style>
 <template>
   <div id="app">
