@@ -33,6 +33,11 @@ const router = new Router({
     {
       path: "/img_conventer",
       component: () => import("@/components/tools/img_conventer/img_conventer")
+    },
+    {
+      path: "/gonna_something",
+      component: () =>
+        import("@/components/tools/gonna_something/gonna_something")
     }
   ]
 });
