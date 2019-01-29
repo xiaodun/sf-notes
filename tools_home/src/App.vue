@@ -14,11 +14,11 @@
 
   overflow-y: auto;
 
-  transition: left 0.35s ease-out;
+  transition: left .35s ease-out;
 
   background-color: #fff;
 
-  .sf-shadow-5;
+.sf-shadow-5;
 
   .ivu-menu {
     &:after {
@@ -44,30 +44,35 @@
 #__vconsole {
   display: none;
 }
+
 #main-wrapper {
-  will-change: margin-top;
   margin-top: 85px;
-  animation: zeto-top 0.45s ease-in-out;
+
+  animation: zeto-top .45s ease-in-out;
+
+  will-change: margin-top;
+
   @keyframes zeto-top {
     0% {
       margin-top: 0;
     }
+
     100% {
       margin-top: 85px;
     }
   }
 }
+
 #top_wrapper {
-  &.box-shadow {
-    .sf-shadow-1;
-  }
-  z-index: 9999;
-  background-color: rgba(255, 255, 255);
-  width: 100%;
   font-size: 0;
+
+  position: fixed;
+  z-index: 1000;
+  top: 0;
 
   overflow: hidden;
 
+  width: 100%;
   margin: 0 0 20px 0;
   padding: 10px 0;
 
@@ -75,8 +80,12 @@
   text-overflow: ellipsis;
 
   border-bottom: 1px solid #ddd;
-  position: fixed;
-  top: 0;
+  background-color: rgba(255, 255, 255);
+
+  &.box-shadow {
+    .sf-shadow-1;
+  }
+
   .item {
     margin-left: 5px;
   }
@@ -121,7 +130,7 @@
         font-size: 12px;
       }
 
-      > :nth-child(n) {
+       > :nth-child(n) {
         line-height: 1;
 
         display: block;
@@ -129,29 +138,40 @@
     }
   }
 }
+
 </style>
 <template>
   <div id="app">
-    <div id="slide-menu" ref="slideMenu">
+    <div
+      id="slide-menu"
+      ref="slideMenu"
+    >
       <Row>
         <Col>
-          <Menu @on-select="menu_onselect">
-            <MenuItem name="0" to="/">首页</MenuItem>
-            <MenuItem name="1">手机访问</MenuItem>
-            <MenuItem name="debug">{{!isDebug?'启用调试':'关闭调试'}}</MenuItem>
-            <Submenu :key="key" :name="key" v-for="(value,key) in menuData">
-              <template slot="title">
-                <Icon :type="value.icon"/>
-                {{value.title}}
-              </template>
-              <MenuItem
-                :to="item.to"
-                v-for="(item,index) in value.childs"
-                :name="key+'-'+index"
-                :key="key+'-'+index"
-              >{{item.content}}</MenuItem>
-            </Submenu>
-          </Menu>
+        <Menu @on-select="menu_onselect">
+          <MenuItem
+            name="0"
+            to="/"
+          >首页</MenuItem>
+          <MenuItem name="1">手机访问</MenuItem>
+          <MenuItem name="debug">{{!isDebug?'启用调试':'关闭调试'}}</MenuItem>
+          <Submenu
+            :key="key"
+            :name="key"
+            v-for="(value,key) in menuData"
+          >
+            <template slot="title">
+              <Icon :type="value.icon" />
+              {{value.title}}
+            </template>
+            <MenuItem
+              :to="item.to"
+              v-for="(item,index) in value.childs"
+              :name="key+'-'+index"
+              :key="key+'-'+index"
+            >{{item.content}}</MenuItem>
+          </Submenu>
+        </Menu>
         </Col>
       </Row>
     </div>
@@ -162,10 +182,20 @@
       :footer-hide="true"
       v-model="isShowQart"
     >
-      <div id="qrcode" ref="qrcode"></div>
+      <div
+        id="qrcode"
+        ref="qrcode"
+      ></div>
     </Modal>
-    <div id="top_wrapper" :class="{'box-shadow':isOverScroll}">
-      <Button icon="md-menu" class="item" @click="toggleMenu"></Button>
+    <div
+      id="top_wrapper"
+      :class="{'box-shadow':isOverScroll}"
+    >
+      <Button
+        icon="md-menu"
+        class="item"
+        @click="toggleMenu"
+      ></Button>
       <div class="personal-word">
         <div class="pagination">
           <Icon
@@ -175,8 +205,14 @@
             @click="change_word(wordPagination.current-1)"
           ></Icon>
           <span class="page">
-            <span v-text="wordPagination.current" class="current"></span>/
-            <span v-text="wordPagination.total" class="total"></span>
+            <span
+              v-text="wordPagination.current"
+              class="current"
+            ></span>/
+            <span
+              v-text="wordPagination.total"
+              class="total"
+            ></span>
           </span>
           <Icon
             @click="change_word(wordPagination.current+1)"
@@ -338,6 +374,18 @@ export default {
             }
           ]
         },
+        gonna_something: {
+          title: "let's go",
+          icon: "md-walk",
+          childs: [
+            {
+              content: "版本1",
+              to: {
+                path: "/gonna_something"
+              }
+            }
+          ]
+        },
         test_vue: {
           title: "测试",
           childs: [
@@ -362,6 +410,7 @@ export default {
   watch: {
     $route(to, form) {
       this.is_home = to.path == "/" ? true : false;
+      window.scrollTo(0, 0);
     }
   },
   created() {
