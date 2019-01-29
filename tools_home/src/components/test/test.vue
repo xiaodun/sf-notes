@@ -2,16 +2,16 @@
 
 
 <template>
-  <div
-    id="test-vue-id"
-    style="height:1000px;"
-  >
-    <!-- <div class="child" v-for="(item,index) in colorList" :key="index" v-color="item"></div> -->
-    <canvas
-      ref="canvasDom"
-      width="400"
-      height="400"
-    ></canvas>
+  <div id="test-vue-id">
+    <h1>测试用例</h1>
+    <div
+      class="child"
+      v-for="(item,index) in squareConfigList"
+      :key="index"
+      v-scroll="item"
+      v-color="item"
+    ></div>
+    <canvas v-show="false" ref="canvasDom" width="400" height="400"></canvas>
   </div>
 </template>
 <script>
@@ -21,14 +21,28 @@ export default {
   directives: {
     color: {
       bind(el, bind) {
-        let value = bind.value;
-        el.style.background = value;
+        let config = bind.value;
+        el.style.background = config.color;
       }
     },
     scroll: {
       bind(el, bind) {
-        let key = bind.value + "scroll";
-        let f = function() {};
+        let threshold = 10;
+        let item = bind.value;
+        let f = function() {
+          let top =
+            document.documentElement.scrollTop || document.body.scrollTop;
+
+          if (el.offsetTop - top < window.innerHeight - 10) {
+            console.log(el.offsetTop);
+            el.style.width = "400px";
+            window.removeEventListener("scroll", f);
+          }
+        };
+        setTimeout(() => {
+          f();
+        }, 20);
+        window.addEventListener("scroll", f);
       }
     }
   },
@@ -36,32 +50,34 @@ export default {
   data() {
     return {
       number: 1,
-      colorList: ["red", "green", "yellow", "black", "pink", "purple"]
+      squareConfigList: [
+        {
+          color: "red"
+        },
+        {
+          color: "green"
+        },
+        {
+          color: "yellow"
+        },
+        {
+          color: "black"
+        },
+        {
+          color: "pink"
+        },
+        {
+          color: "purple"
+        }
+      ]
     };
   },
 
   computed: {},
 
-  methods: {
-    set() {
-      console.log(12);
-    }
-  },
+  methods: {},
   watch: {},
   mounted() {
-    this.axios
-      .request(
-        {
-          method: "",
-          url: ""
-        },
-        {}
-      )
-      .then(response => {
-        if (response.success) {
-          let data = response.data.data;
-        }
-      });
     let canvasDom = this.$refs.canvasDom;
     let context = canvasDom.getContext("2d");
     context.beginPath();
@@ -88,9 +104,9 @@ export default {
 #test-vue-id {
   .child {
     width: 200px;
-    height: 0px;
+    height: 200px;
     margin: 10px auto;
-    transition: height ease-in-out 0.25s;
+    transition: width ease-in-out 1.25s;
   }
 }
 </style>
