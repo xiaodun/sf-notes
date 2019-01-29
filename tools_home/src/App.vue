@@ -1,5 +1,6 @@
+
 <style lang="less">
-@import "~@/assets/style/base.less";
+@import '~@/assets/style/base.less';
 
 .qrcode-model-wrapper {
   text-align: center;
@@ -14,9 +15,11 @@
 
   overflow-y: auto;
 
-  transition: left .35s ease-out;
+  transition: left .15s ease-in-out;
 
   background-color: #fff;
+
+  will-change: left;
 
 .sf-shadow-5;
 
@@ -91,7 +94,7 @@
   }
 
   .personal-word {
-    font-family: "华文细黑";
+    font-family: '华文细黑';
     font-size: 16px;
     font-weight: 500;
 
@@ -142,36 +145,26 @@
 </style>
 <template>
   <div id="app">
-    <div
-      id="slide-menu"
-      ref="slideMenu"
-    >
+    <div id="slide-menu" ref="slideMenu">
       <Row>
         <Col>
-        <Menu @on-select="menu_onselect">
-          <MenuItem
-            name="0"
-            to="/"
-          >首页</MenuItem>
-          <MenuItem name="1">手机访问</MenuItem>
-          <MenuItem name="debug">{{!isDebug?'启用调试':'关闭调试'}}</MenuItem>
-          <Submenu
-            :key="key"
-            :name="key"
-            v-for="(value,key) in menuData"
-          >
-            <template slot="title">
-              <Icon :type="value.icon" />
-              {{value.title}}
-            </template>
-            <MenuItem
-              :to="item.to"
-              v-for="(item,index) in value.childs"
-              :name="key+'-'+index"
-              :key="key+'-'+index"
-            >{{item.content}}</MenuItem>
-          </Submenu>
-        </Menu>
+          <Menu @on-select="menu_onselect">
+            <MenuItem name="0" to="/">首页</MenuItem>
+            <MenuItem name="1">手机访问</MenuItem>
+            <MenuItem name="debug">{{!isDebug?'启用调试':'关闭调试'}}</MenuItem>
+            <Submenu :key="key" :name="key" v-for="(value,key) in menuData">
+              <template slot="title">
+                <Icon :type="value.icon"/>
+                {{value.title}}
+              </template>
+              <MenuItem
+                :to="item.to"
+                v-for="(item,index) in value.childs"
+                :name="key+'-'+index"
+                :key="key+'-'+index"
+              >{{item.content}}</MenuItem>
+            </Submenu>
+          </Menu>
         </Col>
       </Row>
     </div>
@@ -182,20 +175,10 @@
       :footer-hide="true"
       v-model="isShowQart"
     >
-      <div
-        id="qrcode"
-        ref="qrcode"
-      ></div>
+      <div id="qrcode" ref="qrcode"></div>
     </Modal>
-    <div
-      id="top_wrapper"
-      :class="{'box-shadow':isOverScroll}"
-    >
-      <Button
-        icon="md-menu"
-        class="item"
-        @click="toggleMenu"
-      ></Button>
+    <div id="top_wrapper" :class="{'box-shadow':isOverScroll}">
+      <Button icon="md-menu" class="item" @click="toggleMenu"></Button>
       <div class="personal-word">
         <div class="pagination">
           <Icon
@@ -205,14 +188,8 @@
             @click="change_word(wordPagination.current-1)"
           ></Icon>
           <span class="page">
-            <span
-              v-text="wordPagination.current"
-              class="current"
-            ></span>/
-            <span
-              v-text="wordPagination.total"
-              class="total"
-            ></span>
+            <span v-text="wordPagination.current" class="current"></span>/
+            <span v-text="wordPagination.total" class="total"></span>
           </span>
           <Icon
             @click="change_word(wordPagination.current+1)"

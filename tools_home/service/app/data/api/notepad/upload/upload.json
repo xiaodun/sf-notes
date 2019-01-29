@@ -1,5 +1,12 @@
 [
     {
+        "name": "vue-axios-request.code-snippets",
+        "type": "application/octet-stream",
+        "flag": "upload_410a9b23b32e79e2b7fac8448abe713b",
+        "id": "15487330397840",
+        "describe": "新的vue-axios模板"
+    },
+    {
         "name": "167825af281722a4.jpg",
         "type": "image/jpeg",
         "flag": "upload_285166017ac0ca580f9e14c2ffead73a",
@@ -10,12 +17,6 @@
         "type": "image/jpeg",
         "flag": "upload_b1d7d94a0e71a2b8885257995a5585b1",
         "id": "15486803746040"
-    },
-    {
-        "name": "snippets.zip",
-        "type": "application/x-zip-compressed",
-        "flag": "upload_e3de92637546d02b58a905ba885bf771",
-        "id": "15486777196350"
     },
     {
         "name": "167b6565b41864b6.jpg",

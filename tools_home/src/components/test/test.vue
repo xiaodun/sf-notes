@@ -105,7 +105,13 @@ export default {
     context.lineWidth = 10;
     context.stroke();
 
-    console.log(String.fromCharCode("🎏"));
+    this.$axios
+      .request({
+        method: "",
+        url: "",
+        data: {}
+      })
+      .then(response => {});
   }
 };
 </script>
@@ -120,8 +126,6 @@ export default {
     height: 200px;
     margin: 10px auto;
     transition: width ease-in-out 1.25s;
-
-    transition: height ease-in-out 0.25s;
   }
 
   .klo {
