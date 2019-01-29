@@ -49,6 +49,7 @@ export default {
   props: {},
   data() {
     return {
+      model: ["苹果"],
       number: 1,
       squareConfigList: [
         {
@@ -75,13 +76,20 @@ export default {
 
   computed: {},
 
-  methods: {},
+  methods: {
+    set() {
+      console.log(1);
+    }
+  },
   watch: {},
   mounted() {
     let canvasDom = this.$refs.canvasDom;
     let context = canvasDom.getContext("2d");
     context.beginPath();
+    context.save();
+    context.translate(100, 100);
     context.lineCap = "butt";
+    context.scale(3, 3);
     context.moveTo(20, 20);
     context.lineTo(100, 20);
     context.lineTo(100, 100);
@@ -89,24 +97,42 @@ export default {
     context.stroke();
     context.beginPath();
     context.lineJoin = "miter";
-    context.lineCap = "round";
-    context.moveTo(20, 180);
-    context.lineTo(100, 180);
-    context.lineTo(100, 280);
+    context.translate(100, 100);
+    context.moveTo(20, 20);
+    context.lineTo(100, 20);
+    context.lineTo(100, 100);
+    context.lineWidth = 10;
     context.lineWidth = 10;
     context.stroke();
+
+    console.log(String.fromCharCode("🎏"));
   }
 };
 </script>
 
 <style lang="less" >
 @import "~@/assets/style/base.less";
+
 #test-vue-id {
   .child {
     width: 200px;
+
     height: 200px;
     margin: 10px auto;
     transition: width ease-in-out 1.25s;
+
+    transition: height ease-in-out 0.25s;
+  }
+
+  .klo {
+    width: 100px;
+    height: 10px;
+
+    background-color: red;
+
+    &:focus {
+      border: 1px solid #000;
+    }
   }
 }
 </style>
