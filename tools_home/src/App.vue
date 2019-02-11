@@ -9,7 +9,6 @@
 #slide-menu {
   position: fixed;
   z-index: 12;
-  top: 65px;
   bottom: 0;
   left: -100%;
 
@@ -49,23 +48,8 @@
 }
 
 #main-wrapper {
-  margin-top: 85px;
-
   animation: zeto-top 0.45s ease-in-out;
-
-  will-change: margin-top;
-
-  @keyframes zeto-top {
-    0% {
-      margin-top: 0;
-    }
-
-    100% {
-      margin-top: 85px;
-    }
-  }
 }
-
 #top_wrapper {
   font-size: 0;
 
@@ -144,7 +128,7 @@
 </style>
 <template>
   <div id="app">
-    <div id="slide-menu" ref="slideMenu">
+    <div id="slide-menu" :style="[{top:topAreaHeight+'px'}]" ref="slideMenu">
       <Row>
         <Col>
           <Menu @on-select="menu_onselect">
@@ -182,7 +166,7 @@
       v-model="isShowQart"
     >
       <div id="qrcode" ref="qrcode"></div>
-    </Modal>
+    </Modal>1
     <div id="top_wrapper" :class="{'box-shadow':isOverScroll}">
       <Button icon="md-menu" class="item" @click="toggleMenu"></Button>
       <div class="personal-word">
@@ -207,9 +191,17 @@
         {{personalWord}}
       </div>
     </div>
-    <div id="main-wrapper">
-      <router-view></router-view>
-    </div>
+    <transition
+      :css="false"
+      appear
+      @before-enter="routerBeforeEnter"
+      @enter="routerEnter"
+      @after-enter="routerAfterEnter"
+    >
+      <div id="main-wrapper">
+        <router-view></router-view>
+      </div>
+    </transition>
   </div>
 </template>
 <script>
@@ -218,7 +210,7 @@ import QRCode from "qrcodejs2";
 const logo = require("@/assets/logo.png");
 import VConsole from "vconsole";
 var vConsole = new VConsole();
-
+const _topAreaHight = 65;
 export default {
   name: "App",
 
@@ -226,8 +218,20 @@ export default {
     QRCode
   },
   methods: {
+    routerBeforeEnter(el) {
+      el.style.marginTop = 0;
+    },
+    routerEnter(el, done) {
+      el.style.transition = "0.45s ease-in-out";
+      setTimeout(() => {
+        done();
+      });
+    },
+    routerAfterEnter(el) {
+      el.style.marginTop = this.mainWrapperMarginTop + "px";
+    },
     on_top_scroll() {
-      let threshold = 50;
+      let threshold = this.topAreaHeight - 15;
       let scrollTop =
         document.documentElement.scrollTop || document.body.scrollTop;
       if (scrollTop > threshold) {
@@ -294,6 +298,8 @@ export default {
   },
   data() {
     return {
+      topAreaHeight: _topAreaHight,
+      mainWrapperMarginTop: _topAreaHight + 20,
       isOverScroll: false,
       isDebug: false,
       personalWord: "",
