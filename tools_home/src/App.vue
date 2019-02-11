@@ -1,6 +1,6 @@
 
 <style lang="less">
-@import '~@/assets/style/base.less';
+@import "~@/assets/style/base.less";
 
 .qrcode-model-wrapper {
   text-align: center;
@@ -15,13 +15,13 @@
 
   overflow-y: auto;
 
-  transition: left .15s ease-in-out;
+  transition: left 0.15s ease-in-out;
 
   background-color: #fff;
 
   will-change: left;
 
-.sf-shadow-5;
+  .sf-shadow-5;
 
   .ivu-menu {
     &:after {
@@ -51,7 +51,7 @@
 #main-wrapper {
   margin-top: 85px;
 
-  animation: zeto-top .45s ease-in-out;
+  animation: zeto-top 0.45s ease-in-out;
 
   will-change: margin-top;
 
@@ -94,7 +94,7 @@
   }
 
   .personal-word {
-    font-family: '华文细黑';
+    font-family: "华文细黑";
     font-size: 16px;
     font-weight: 500;
 
@@ -133,7 +133,7 @@
         font-size: 12px;
       }
 
-       > :nth-child(n) {
+      > :nth-child(n) {
         line-height: 1;
 
         display: block;
@@ -141,7 +141,6 @@
     }
   }
 }
-
 </style>
 <template>
   <div id="app">
@@ -152,18 +151,25 @@
             <MenuItem name="0" to="/">首页</MenuItem>
             <MenuItem name="1">手机访问</MenuItem>
             <MenuItem name="debug">{{!isDebug?'启用调试':'关闭调试'}}</MenuItem>
-            <Submenu :key="key" :name="key" v-for="(value,key) in menuData">
-              <template slot="title">
+
+            <template v-for="(value,key) in menuData">
+              <Submenu :key="key" :name="key" v-if="value.childs && value.childs.length > 0">
+                <template slot="title">
+                  <Icon :type="value.icon"/>
+                  {{value.title}}
+                </template>
+                <MenuItem
+                  :to="item.to"
+                  v-for="(item,index) in value.childs"
+                  :name="key+'-'+index"
+                  :key="key+'-'+index"
+                >{{item.content}}</MenuItem>
+              </Submenu>
+              <MenuItem :key="key" :name="key" v-else :to="value.to">
                 <Icon :type="value.icon"/>
                 {{value.title}}
-              </template>
-              <MenuItem
-                :to="item.to"
-                v-for="(item,index) in value.childs"
-                :name="key+'-'+index"
-                :key="key+'-'+index"
-              >{{item.content}}</MenuItem>
-            </Submenu>
+              </MenuItem>
+            </template>
           </Menu>
         </Col>
       </Row>
@@ -306,65 +312,51 @@ export default {
         math_postures_vue: {
           title: "四则运算",
           icon: "ios-calculator",
-          childs: [
-            {
-              content: "版本1",
-              to: {
-                path: "/math_postures"
-              }
-            }
-          ]
+
+          content: "版本1",
+          to: {
+            path: "/math_postures"
+          }
         },
         clock_vue: {
           title: "闹钟",
           icon: "ios-clock-outline",
-          childs: [
-            {
-              content: "pc端版本",
-              to: {
-                path: "/clock_vue"
-              }
-            }
-          ]
+
+          content: "pc端版本",
+          to: {
+            path: "/clock_vue"
+          }
         },
         notepad: {
           title: "日记本",
           icon: "md-book",
-          childs: [
-            {
-              content: "版本1",
-              to: {
-                path: "/notepad_vue"
-              }
-            }
-          ]
+
+          content: "版本1",
+          to: {
+            path: "/notepad_vue"
+          }
         },
         img_conventer: {
           title: "图片转换器",
           icon: "md-swap",
-          childs: [
-            {
-              content: "版本1",
-              to: {
-                path: "/img_conventer"
-              }
-            }
-          ]
+
+          content: "版本1",
+          to: {
+            path: "/img_conventer"
+          }
         },
         gonna_something: {
           title: "let's go",
           icon: "md-walk",
-          childs: [
-            {
-              content: "版本1",
-              to: {
-                path: "/gonna_something"
-              }
-            }
-          ]
+
+          content: "版本1",
+          to: {
+            path: "/gonna_something"
+          }
         },
         test_vue: {
           title: "测试",
+          icon: "ios-game-controller-b",
           childs: [
             {
               content: "测试用例",
