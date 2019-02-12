@@ -48,10 +48,10 @@
 }
 
 #main-wrapper {
-  transform: translateY(0);
+  transform: translateZ(0);
   margin-top: 0;
   will-change: margin-top;
-  transition: margin-top 0.35s linear;
+  transition: margin-top 0.75s ease-in;
 }
 #top_wrapper {
   font-size: 0;
