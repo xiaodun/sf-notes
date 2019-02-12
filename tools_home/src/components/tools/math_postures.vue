@@ -30,7 +30,7 @@
   }
 
   .title {
-    margin: 40px 0 60px 0;
+    text-align: right;
 
     color: #fb0;
   }
@@ -41,18 +41,6 @@
 
   .submit {
     width: 100px;
-  }
-
-  .start {
-    font-size: 40px;
-
-    width: 100px;
-    height: 100px;
-    margin-right: 30px;
-    margin-left: auto;
-
-    box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14),
-      0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.3);
   }
 
   .list-leave-active {
@@ -72,65 +60,53 @@
 <template>
   <div id="math-postures-id">
     <h1 class="title">
-      <Button class="start" :icon="isAnswerModel === false ?'md-play':'md-power'" :type="isAnswerModel === false ?'success':'error'" shape="circle" @click="toggle_model()"></Button>
-      四则运算题
+      <Button
+        long
+        size="large"
+        :icon="isAnswerModel === false ?'md-play':'md-power'"
+        :type="isAnswerModel === false ?'success':'error'"
+        @click="toggle_model()"
+      ></Button>
     </h1>
 
     <div v-show="isAnswerModel === false">
       <Divider orientation="left" class="divider">
-        <span class="divider">说明 </span>
+        <span class="divider">说明</span>
       </Divider>
-      <p class="info">
-        在计算过程和结果中,会出现小数,但被控制在有限、2位之内
-      </p>
-      <p class="info">
-
-        参于计算的数、结果、计算过程都不会出现负数
-
-      </p>
-      <p class="info">
-        在单个输入框按下Enter可提交
-      </p>
+      <p class="info">在计算过程和结果中,会出现小数,但被控制在有限、2位之内</p>
+      <p class="info">参于计算的数、结果、计算过程都不会出现负数</p>
+      <p class="info">在单个输入框按下Enter可提交</p>
       <Divider orientation="left" class="divider">
-        <span class="divider">
-          当前配置
-        </span>
+        <span class="divider">当前配置</span>
       </Divider>
 
       <Card style="clear: both;margin-top: 10px">
         <CellGroup>
           <Cell>
-
-            <Button size="small" slot="extra" type="info" @click="edit_config_modal" shape="circle" icon="ios-hammer-outline" class="update_config"></Button>
+            <Button
+              size="small"
+              slot="extra"
+              type="info"
+              @click="edit_config_modal"
+              shape="circle"
+              icon="ios-hammer-outline"
+              class="update_config"
+            ></Button>
           </Cell>
           <Cell title="包含的运算">
-            <p slot="extra">
-              {{include_sign_info}}
-            </p>
+            <p slot="extra">{{include_sign_info}}</p>
           </Cell>
           <Cell title="允许出现括号">
-            <p slot="extra">
-
-              {{isIncludeBrackets ? '是' : '否'}}
-            </p>
+            <p slot="extra">{{isIncludeBrackets ? '是' : '否'}}</p>
           </Cell>
           <Cell title="题目个数">
-            <p slot="extra">
-
-              {{count }}
-            </p>
+            <p slot="extra">{{count }}</p>
           </Cell>
           <Cell title="单个数字最大值">
-            <p slot="extra">
-
-              {{numberModel.max }}
-            </p>
+            <p slot="extra">{{numberModel.max }}</p>
           </Cell>
           <Cell title="数字的个数">
-            <p slot="extra">
-
-              {{numberModel.count }}
-            </p>
+            <p slot="extra">{{numberModel.count }}</p>
           </Cell>
         </CellGroup>
       </Card>
@@ -141,26 +117,37 @@
       </Divider>
       <Form ref="formInline">
         <transition-group name="list">
-
           <FormItem :key="index" v-show="item.isShow" v-for="(item,index ) in answer">
             <span class="expression">{{item.expression}}</span>
-            <Input @focus="'focus'+index" :ref="'input'+index" type="text" @on-keydown.enter="submit" v-model="item.userResult" />
+            <Input
+              @focus="'focus'+index"
+              :ref="'input'+index"
+              type="text"
+              @on-keydown.enter="submit"
+              v-model="item.userResult"
+            />
           </FormItem>
         </transition-group>
         <FormItem>
           <Button @click="submit" class="submit" size="large" type="primary">提交</Button>
         </FormItem>
       </Form>
-      <div>
-
-      </div>
+      <div></div>
     </div>
-    <Modal @on-ok="close_config_modal" v-model="configModal.isShow" title="修改配置" :mask-closable="false">
+    <Modal
+      @on-ok="close_config_modal"
+      v-model="configModal.isShow"
+      title="修改配置"
+      :mask-closable="false"
+    >
       <Form :label-width="120" label-position="left">
         <FormItem label="包含的运算">
-
-          <Checkbox :key="key" v-for="(value,key) in configModal.signModel" @on-change="change_include_sign(key)" v-model="value.isInclude">{{value.content}}</Checkbox>
-
+          <Checkbox
+            :key="key"
+            v-for="(value,key) in configModal.signModel"
+            @on-change="change_include_sign(key)"
+            v-model="value.isInclude"
+          >{{value.content}}</Checkbox>
         </FormItem>
         <FormItem label="允许出现括号">
           <i-switch v-model="configModal.isIncludeBrackets"></i-switch>
@@ -173,10 +160,22 @@
           </Select>
         </FormItem>
         <FormItem label="数字的个数">
-          <Slider show-tip="always" style="width: 100px;" v-model="configModal.numberModel.count" :min="2" :max="5"></Slider>
+          <Slider
+            show-tip="always"
+            style="width: 100px;"
+            v-model="configModal.numberModel.count"
+            :min="2"
+            :max="5"
+          ></Slider>
         </FormItem>
         <FormItem label="单个数字最大值">
-          <Slider show-tip="always" style="width: 100px;" v-model="configModal.numberModel.max" :min="10" :max="30"></Slider>
+          <Slider
+            show-tip="always"
+            style="width: 100px;"
+            v-model="configModal.numberModel.max"
+            :min="10"
+            :max="30"
+          ></Slider>
         </FormItem>
       </Form>
     </Modal>
@@ -487,8 +486,8 @@ export default {
     },
     is_allow_float_number(result) {
       /*
-         *  如果结果是不规则的小数或者小数点个数超过2位  则放弃这个式子 0.1 + 0.2 不等于 0.3 这种  
-         */
+       *  如果结果是不规则的小数或者小数点个数超过2位  则放弃这个式子 0.1 + 0.2 不等于 0.3 这种
+       */
       let flag = true;
       if ((result + "").includes(".") && !/^\d+\.\d{0,2}$/.test(result)) {
         flag = false;

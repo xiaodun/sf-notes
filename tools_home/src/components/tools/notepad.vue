@@ -139,31 +139,13 @@
 </style>
 <template>
   <div id="notepad-id">
-
-    <h1 class="app-name">记事本</h1>
-
     <div class="wrapper">
-
-      <div
-        class="card-wrapper"
-        v-show="showModelFlag === 'notepad'"
-      >
-
-        <Button
-          icon="ios-pricetag"
-          class="first-btn"
-          @click="in_tag_model()"
-        >标签管理</Button>
-        <Button
-          icon="ios-folder"
-          class="first-btn"
-          @click="in_file_model()"
-        >文件管理</Button>
-        <Button
-          @click="edit()"
-          type="primary"
-          long
-        ><span>添加</span></Button>
+      <div class="card-wrapper" v-show="showModelFlag === 'notepad'">
+        <Button icon="ios-pricetag" class="first-btn" @click="in_tag_model()">标签管理</Button>
+        <Button icon="ios-folder" class="first-btn" @click="in_file_model()">文件管理</Button>
+        <Button @click="edit()" type="primary" long>
+          <span>添加</span>
+        </Button>
         <Select
           :transfer="true"
           placement="top"
@@ -173,62 +155,44 @@
           multiple
           placeholder="标签过滤"
         >
-          <Option
-            :key="item.id"
-            v-for="item in tagModel.list"
-            :value="item.id"
-          >{{item.content}}</Option>
+          <Option :key="item.id" v-for="item in tagModel.list" :value="item.id">{{item.content}}</Option>
         </Select>
         <!-- 记事的展示 -->
-        <div v-if="list.length > 0">
+        <div v-if="list && list.length > 0">
           <div
             v-for="(item,index) in list"
             :key="item.id"
             @mouseover="item.isMouseOver=true"
             @mouseout="item.isMouseOver=false"
           >
-
             <Card
               class="card"
               :bordered="false"
               :style="item.isMouseOver && {boxShadow:`0 1px ${item.shadowBlur}px ${item.shadowSpread}px rgba(0,0,0,${item.shadowAlpha})`}"
             >
-
               <p slot="title">
-
-                <Icon type="md-book"></Icon> {{item.title}}
+                <Icon type="md-book"></Icon>
+                {{item.title}}
               </p>
               <div slot="extra">
-                <Button
-                  type="text"
-                  @click="top_note(item)"
-                >置顶</Button>
+                <Button type="text" @click="top_note(item)">置顶</Button>
                 <Icon
                   type="ios-open-outline"
                   @click.stop="edit(item,index)"
                   style="margin-right:10px;cursor:pointer;"
                 ></Icon>
-                <Button
-                  @click.stop="confirm_delete(item,index)"
-                  style="color: red;"
-                >删除</Button>
+                <Button @click.stop="confirm_delete(item,index)" style="color: red;">删除</Button>
               </div>
               <div>
                 <div style="color: #bab9b9;">
-
-                  <span>创建日期</span>:{{item.createTime}} <span style="margin-left: 30px;">修改日期</span>:{{item.updateTime}}
+                  <span>创建日期</span>
+                  :{{item.createTime}}
+                  <span style="margin-left: 30px;">修改日期</span>
+                  :{{item.updateTime}}
                 </div>
-                <div>
+                <div></div>
 
-                </div>
-
-                <div
-                  class="show-area"
-                  v-html="convert_html(item.content)"
-                >
-
-                </div>
-
+                <div class="show-area" v-html="convert_html(item.content)"></div>
               </div>
             </Card>
           </div>
@@ -242,38 +206,21 @@
             simple
           />
         </div>
-        <div
-          class="no-data"
-          v-else
-        >
-          暂无数据
-        </div>
+        <div class="no-data" v-if="list && list.length === 0">暂无数据</div>
       </div>
       <!-- 标签管理 -->
-      <div
-        class="tag-wrapper"
-        v-show="showModelFlag === 'tag'"
-      >
-        <Button
-          class="first-btn"
-          @click="showModelFlag = 'notepad'"
-        >返回</Button>
+      <div class="tag-wrapper" v-if="showModelFlag === 'tag'">
+        <Button class="first-btn" @click="showModelFlag = 'notepad'">返回</Button>
         <div class="first">
           <Row>
             <Col span="18">
-            <Input
-              v-model="tagModel.content"
-              @on-keyup.enter="request_add_tag(tagModel.content)"
-            />
+              <Input
+                v-model="tagModel.content"
+                @on-keyup.enter="request_add_tag(tagModel.content)"
+              />
             </Col>
-            <Col
-              span="1"
-              offset="1"
-            >
-            <Button
-              @click="request_add_tag(tagModel.content)"
-              type="primary"
-            >添加</Button>
+            <Col span="1" offset="1">
+              <Button @click="request_add_tag(tagModel.content)" type="primary">添加</Button>
             </Col>
           </Row>
           <div
@@ -284,57 +231,39 @@
           >
             <Row>
               <Col span="14">
-              <div
-                class="content"
-                v-show="!item.isEdit"
-              >{{item.content}}</div>
-              <Input
-                v-show="item.isEdit"
-                v-model="item.content"
-              />
+                <div class="content" v-show="!item.isEdit">{{item.content}}</div>
+                <Input v-show="item.isEdit" v-model="item.content"/>
               </Col>
-              <Col
-                class="option"
-                span="8"
-                offset="1"
-              >
-              <Button
-                style="margin-right:10px;"
-                v-show="!item.isEdit"
-                @click="in_update_tag(item)"
-                shape="circle"
-                icon="md-create"
-              ></Button>
-              <Button
-                v-show="!item.isEdit"
-                @click="confirm_delete_tag(item)"
-                style="margin-right:10px;"
-                shape="circle"
-                icon="md-remove"
-              ></Button>
-              <Button
-                style="margin-right:10px;"
-                v-show="item.isEdit"
-                shape="circle"
-                @click="reques_update_tag(item)"
-                icon="md-checkmark"
-              ></Button>
-
+              <Col class="option" span="8" offset="1">
+                <Button
+                  style="margin-right:10px;"
+                  v-show="!item.isEdit"
+                  @click="in_update_tag(item)"
+                  shape="circle"
+                  icon="md-create"
+                ></Button>
+                <Button
+                  v-show="!item.isEdit"
+                  @click="confirm_delete_tag(item)"
+                  style="margin-right:10px;"
+                  shape="circle"
+                  icon="md-remove"
+                ></Button>
+                <Button
+                  style="margin-right:10px;"
+                  v-show="item.isEdit"
+                  shape="circle"
+                  @click="reques_update_tag(item)"
+                  icon="md-checkmark"
+                ></Button>
               </Col>
-
             </Row>
           </div>
         </div>
       </div>
       <!-- 文件管理 -->
-      <div
-        v-show="showModelFlag === 'file'"
-        class="file-wrapper"
-      >
-        <Button
-          class="first-btn"
-          @click="out_file_model()"
-        >返回</Button>
+      <div v-if="showModelFlag === 'file'" class="file-wrapper">
+        <Button class="first-btn" @click="out_file_model()">返回</Button>
         <Upload
           :on-progress="upload_progress"
           :on-error="upload_error"
@@ -351,72 +280,43 @@
         <!-- 上传 -->
         <div class="upload-wrapper">
           <!-- 正在上传的文件 -->
-          <transition-group
-            tag="div"
-            name="uploading"
-          >
-
-            <div
-              class="uploading"
-              :key="index"
-              v-for="(item,index) in fileModel.uploadingList"
-            >
+          <transition-group tag="div" name="uploading">
+            <div class="uploading" :key="index" v-for="(item,index) in fileModel.uploadingList">
               <div>{{item.name}}</div>
-              <Progress :percent="item.percent" />
+              <Progress :percent="item.percent"/>
             </div>
           </transition-group>
           <!-- 已经上传完毕 -->
-          <div
-            class="file"
-            :key="index"
-            v-for="(item,index) in fileModel.uploadList"
-          >
+          <div class="file" :key="index" v-for="(item,index) in fileModel.uploadList">
             <Row>
               <Col span="12">
-              <div class="name">{{item.name}}</div>
+                <div class="name">{{item.name}}</div>
               </Col>
-              <Col
-                class="option"
-                span="10"
-                offset="1"
-              >
-              <Button
-                style="margin-right:10px"
-                shape="circle"
-                icon="md-download"
-                @click="request_download_file(item)"
-              ></Button>
-              <Button
-                shape="circle"
-                icon="md-remove"
-                style="margin-right:10px"
-                @click="confirm_delete_file(item)"
-              ></Button>
-              <Button
-                shape="circle"
-                icon="md-information"
-                @click="update_tag_info(item)"
-              ></Button>
+              <Col class="option" span="10" offset="1">
+                <Button
+                  style="margin-right:10px"
+                  shape="circle"
+                  icon="md-download"
+                  @click="request_download_file(item)"
+                ></Button>
+                <Button
+                  shape="circle"
+                  icon="md-remove"
+                  style="margin-right:10px"
+                  @click="confirm_delete_file(item)"
+                ></Button>
+                <Button shape="circle" icon="md-information" @click="update_tag_info(item)"></Button>
               </Col>
-              <Col
-                span="14"
-                v-if="item.describe"
-              >
-              <div class="fileinfo">{{item.describe}}</div>
+              <Col span="14" v-if="item.describe">
+                <div class="fileinfo">{{item.describe}}</div>
               </Col>
             </Row>
           </div>
-
         </div>
-
       </div>
     </div>
     <!-- 修改记事 -->
-    <Modal
-      v-model="editModel.isShow"
-      :mask-closable='false'
-      @on-visible-change="change_visible"
-    >
+    <Modal v-model="editModel.isShow" :mask-closable="false" @on-visible-change="change_visible">
       <p slot="header"></p>
       <div>
         <Input
@@ -431,42 +331,21 @@
 
         <br>
         <br>
-        <Select
-          v-model="notepad.tagIdList"
-          multiple
-        >
-          <Option
-            :key="item.id"
-            v-for="item in tagModel.list"
-            :value="item.id"
-          >{{item.content}}</Option>
+        <Select v-model="notepad.tagIdList" multiple>
+          <Option :key="item.id" v-for="item in tagModel.list" :value="item.id">{{item.content}}</Option>
         </Select>
         <br>
         <br>
-        <Input
-          :clearable="true"
-          placeholder="输入标题"
-          v-model="notepad.title"
-        />
+        <Input :clearable="true" placeholder="输入标题" v-model="notepad.title"/>
       </div>
       <div slot="footer">
-        <Button
-          @click="close_edit_model(notepad)"
-          type="primary"
-        >确定</Button>
+        <Button @click="close_edit_model(notepad)" type="primary">确定</Button>
       </div>
     </Modal>
-    <Modal
-      v-model="deleteModel.isShow"
-      @on-ok="request_del()"
-    >
+    <Modal v-model="deleteModel.isShow" @on-ok="request_del()">
       <div>确定删除?</div>
     </Modal>
-    <Modal
-      title="修改描述"
-      v-model="fileModel.isShow"
-      @on-ok="request_update_fileinfo(fileModel)"
-    >
+    <Modal title="修改描述" v-model="fileModel.isShow" @on-ok="request_update_fileinfo(fileModel)">
       <div>
         <Input
           autofocus
@@ -476,7 +355,6 @@
         />
       </div>
     </Modal>
-
   </div>
 </template>
 <script>
@@ -521,9 +399,7 @@ export default {
         page: 1,
         size: 3
       },
-      list: [
-        //存储所有的日记
-      ],
+      list: null,
       filterTagIdList: [], //用于过滤的标签id
       notepad: {
         //日记的基本结构 用于日记的添加和修改
@@ -938,7 +814,7 @@ export default {
     }
   },
 
-  created() {
+  mounted() {
     // 两者位置互换在单元测试的时候会报错 暂时不知道原因
     this.request_get_tag();
     this.request_get(this.pagination);
