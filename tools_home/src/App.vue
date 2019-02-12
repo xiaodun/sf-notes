@@ -194,11 +194,6 @@
         {{personalWord}}
       </div>
     </div>
-    <!-- <transition :css="false" appear @enter="routerTransitionEnter">
-      <div id="main-wrapper">
-        <router-view></router-view>
-      </div>
-    </transition>-->
     <div v-initial-ani id="main-wrapper">
       <router-view></router-view>
     </div>
@@ -374,6 +369,12 @@ export default {
               content: "内置后台node服务",
               to: {
                 path: "/test_service"
+              }
+            },
+            {
+              content: "canvas",
+              to: {
+                path: "/test_canvas"
               }
             }
           ]
