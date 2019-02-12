@@ -18,6 +18,10 @@ const router = new Router({
       component: () => import("@/components/test/service/service")
     },
     {
+      path: "/test_canvas",
+      component: () => import("@/components/test/canvas")
+    },
+    {
       path: "/notepad_vue",
       component: () => import("@/components/tools/notepad")
     },
