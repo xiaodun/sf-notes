@@ -48,7 +48,10 @@
 }
 
 #main-wrapper {
-  animation: zeto-top 0.45s ease-in-out;
+  transform: translateY(0);
+  margin-top: 0;
+  will-change: margin-top;
+  transition: margin-top 0.35s linear;
 }
 #top_wrapper {
   font-size: 0;
@@ -191,17 +194,14 @@
         {{personalWord}}
       </div>
     </div>
-    <transition
-      :css="false"
-      appear
-      @before-enter="routerBeforeEnter"
-      @enter="routerEnter"
-      @after-enter="routerAfterEnter"
-    >
+    <!-- <transition :css="false" appear @enter="routerTransitionEnter">
       <div id="main-wrapper">
         <router-view></router-view>
       </div>
-    </transition>
+    </transition>-->
+    <div v-initial-ani id="main-wrapper">
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 <script>
@@ -217,19 +217,19 @@ export default {
   components: {
     QRCode
   },
+  directives: {
+    "initial-ani"(el) {
+      requestAnimationFrame(params => (el.style.marginTop = 100 + "px"));
+    }
+  },
   methods: {
-    routerBeforeEnter(el) {
-      el.style.marginTop = 0;
-    },
-    routerEnter(el, done) {
-      el.style.transition = "0.45s ease-in-out";
+    routerTransitionEnter(el, done) {
+      el.style.marginTop = this.mainWrapperMarginTop + 100 + "px";
       setTimeout(() => {
         done();
-      });
+      }, 100);
     },
-    routerAfterEnter(el) {
-      el.style.marginTop = this.mainWrapperMarginTop + "px";
-    },
+
     on_top_scroll() {
       let threshold = this.topAreaHeight - 15;
       let scrollTop =
