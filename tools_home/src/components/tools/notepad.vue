@@ -2,6 +2,8 @@
 @import "~@/assets/style/base.less";
 
 #notepad-id {
+  //增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
+  padding-top: 45px;
   font-size: 14px;
 
   .uploading-enter-active,
@@ -48,7 +50,14 @@
 
     text-align: center;
   }
-
+  .filter-select {
+    //解决出现、消失滚动条时  下拉选框错位的问题
+    position: relative;
+    .ivu-select-dropdown {
+      //如果想让下拉选框弹出的位置在上面，则上面的空间-头部的空间需要大于165
+      max-height: 165px;
+    }
+  }
   .card {
     margin-top: 10px;
 
@@ -139,6 +148,7 @@
 </style>
 <template>
   <div id="notepad-id">
+    <!-- <h1 style="height:10px">h1</h1> -->
     <div class="wrapper">
       <div class="card-wrapper" v-show="showModelFlag === 'notepad'">
         <Button icon="ios-pricetag" class="first-btn" @click="in_tag_model()">标签管理</Button>
@@ -147,7 +157,7 @@
           <span>添加</span>
         </Button>
         <Select
-          :transfer="true"
+          class="filter-select"
           placement="top"
           @on-change="change_filter_tag()"
           style="margin-top:10px;"

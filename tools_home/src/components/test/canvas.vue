@@ -2,13 +2,13 @@
 
 
 <template>
-  <div id="test-vue-id">
+  <div id="canvas-vue-id">
     <canvas ref="canvasDom" width="400" height="400"></canvas>
   </div>
 </template>
 <script>
 export default {
-  name: "test_vue",
+  name: "canvas_vue",
   components: {},
 
   props: {},
@@ -49,6 +49,6 @@ export default {
 <style lang="less" >
 @import "~@/assets/style/base.less";
 
-#test-vue-id {
+#canvas-vue-id {
 }
 </style>
