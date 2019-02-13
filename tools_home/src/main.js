@@ -6,7 +6,7 @@ import router from "./router";
 import iView from "iView";
 import "iview/dist/styles/iview.css";
 import store from "./vuex/store.js";
-import AxiosHelper from "@/assets/lib/AxiosHelper";
+import "@/assets/lib/AxiosHelper";
 Vue.use(iView);
 new Vue({
   router,
