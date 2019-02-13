@@ -169,7 +169,7 @@
       v-model="isShowQart"
     >
       <div id="qrcode" ref="qrcode"></div>
-    </Modal>1
+    </Modal>
     <div id="top_wrapper" :class="{'box-shadow':isOverScroll}">
       <Button icon="md-menu" class="item" @click="toggleMenu"></Button>
       <div class="personal-word">
