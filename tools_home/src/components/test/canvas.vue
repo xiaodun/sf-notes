@@ -24,6 +24,9 @@ export default {
     let canvasDom = this.$refs.canvasDom;
     let context = canvasDom.getContext("2d");
     context.beginPath();
+    context.transform(1, 0, 0, 1, 70, 0);
+    context.transform(1, 0, 0, 1, 140, 0);
+    context.setTransform(1, 0, 0, 1, 0, 0);
     context.save();
     context.translate(100, 100);
     context.lineCap = "butt";
@@ -41,6 +44,7 @@ export default {
     context.lineTo(100, 100);
     context.lineWidth = 10;
     context.lineWidth = 10;
+
     context.stroke();
   }
 };
