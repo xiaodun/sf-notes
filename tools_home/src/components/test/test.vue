@@ -3,9 +3,16 @@
 
 <template>
   <div id="test-vue-id">
-    <Select placement="top" v-model="model6" style="width:200px">
+    <Select
+      placement="top"
+      v-model="model6"
+      style="width:200px"
+    >
       <Option value="beijing">New York</Option>
-      <Option value="shanghai" disabled>London</Option>
+      <Option
+        value="shanghai"
+        disabled
+      >London</Option>
       <Option value="shenzhen">Sydney</Option>
     </Select>
   </div>
@@ -42,8 +49,7 @@ export default {
 </script>
 
 <style lang="less" >
-@import "~@/assets/style/base.less";
+@import '~@/assets/style/base.less';
 
-#test-vue-id {
-}
+
 </style>
