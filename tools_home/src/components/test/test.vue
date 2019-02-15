@@ -1,55 +1,31 @@
 
 
 
-<template>
+    <template>
   <div id="test-vue-id">
-    <Select
-      placement="top"
-      v-model="model6"
-      style="width:200px"
-    >
-      <Option value="beijing">New York</Option>
-      <Option
-        value="shanghai"
-        disabled
-      >London</Option>
-      <Option value="shenzhen">Sydney</Option>
-    </Select>
+    <template v-if="list &&list.length > 0">
+      <div v-for="(item,index) in list" :key="index">{{index}}</div>
+    </template>
+    <div v-if="list && list.length === 0">暂无数据</div>
   </div>
 </template>
-<script>
+    <script>
 export default {
   name: "test_vue",
-  components: {},
-  directives: {},
-  props: {},
+
   data() {
     return {
-      model6: null
+      list: null
     };
   },
-
-  computed: {},
-
-  methods: {},
-  watch: {},
-  computed: {
-    childsStr() {
-      console.log(this.childs);
-      return JSON.stringify(this.childs);
-    }
-  },
   mounted() {
-    let list = [1, null, undefined];
-    for (let i in list) {
-      console.log("wx", list[i]);
-    }
+    console.log(
+      ("00000" + ((Math.random() * 0x1000000) << 0).toString(16)).substr(-6)
+    );
   }
 };
 </script>
 
 <style lang="less" >
-@import '~@/assets/style/base.less';
-
-
+@import "~@/assets/style/base.less";
 </style>
