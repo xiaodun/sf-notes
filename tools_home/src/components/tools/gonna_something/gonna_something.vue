@@ -1,51 +1,275 @@
 <style lang="less">
-@import "~@/assets/style/base.less";
+@import '~@/assets/style/base.less';
 
 #gonna_something-vue-id {
   width: 85%;
+  max-width: 1200px;
   margin: 0 auto;
-  .task-config-wrapper {
+
+  .next-setp {
+    margin-top: 10px;
+  }
+
+  .content {
+    margin: 10px 0;
+  }
+
+  .task-wrapper,
+  .extract-wrapper {
     padding: 20px 10px;
   }
+
+  .big-room {
+    position: relative;
+
+    overflow-x: hidden;
+    overflow-y: visible;
+
+    height: 220px;
+    margin: 0 auto;
+
+    .small-wraper {
+      width: 1680px;
+      margin-top: 10px;
+    }
+
+    .small-room {
+      line-height: 200px;
+
+      float: left;
+
+      box-sizing: border-box;
+      height: 200px;
+      margin-top: 10px;
+      padding: 0 5px;
+
+      text-align: center;
+
+      border: 10px solid #ddd;
+      background: #eee;
+
+      &:first-child {
+        padding-left: 0;
+      }
+
+      &:last-child {
+        padding-right: 0;
+      }
+    }
+
+    .flag-line {
+      position: absolute;
+
+      width: 20px;
+      height: 100%;
+
+      border-radius: 10px;
+      background-color: #fd3232;
+
+.sf-shadow-1;
+    }
+  }
 }
+
 </style>
 <template>
-  <div id='gonna_something-vue-id'>
+  <div id="gonna_something-vue-id">
     <Steps :current="current">
-      <Step
-        v-for="(item,index) in stepList"
-        :title="item.title"
-        :key="index"
-        size="small"
-      ></Step>
+      <Step v-for="(item,index) in stepList" :title="item.title" :key="index" size="small"></Step>
     </Steps>
-    <div class="task-config-wrapper">
-      <div v-show="current === 0">0</div>
-      <div v-show="current === 1">1</div>
-      <div v-show="current === 2">2</div>
+
+    <div class="task-wrapper">
+      <div v-show="current === 0">
+        <Checkbox style="margin-bottom:10px;" v-model="isAverage" @on-change="averageThreshold">均分阈值</Checkbox>
+        <Button @click="addTask" long>添加</Button>
+        <div :key="index" v-for="(item,index) in taskList">
+          <table>
+            <tr>
+              <td>
+                <Input
+                  ref="contentDomList"
+                  style="width:276px"
+                  :rows="4"
+                  class="content"
+                  v-model="item.content"
+                  type="textarea"
+                />
+              </td>
+
+              <td>
+                <Slider
+                  :disabled="isAverage"
+                  style="width:100px;margin:0 10px;"
+                  v-model="item.threshold"
+                  :min="0"
+                  :max="100"
+                ></Slider>
+              </td>
+              <td>
+                <Input :readonly="isAverage" style="width:55px" v-model="item.threshold"></Input>
+              </td>
+              <td>
+                <Button
+                  shape="circle"
+                  icon="md-close"
+                  @click="deleteTask"
+                  style="margin-left:10px;"
+                ></Button>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <Button type="primary" class="next-setp" @click="goNextStep(0)">下一步</Button>
+      </div>
+      <div v-show="current === 1">
+        <div class="extract-wrapper">
+          <div class="big-room" ref="bigRoomDom">
+            <div
+              ref="smallRoomDomList"
+              class="small-room"
+              :style="{width:item.threshold+'%'}"
+              :key="index"
+              v-for="(item,index) in taskList"
+            >
+              <span style="background:#fff;">{{index}}</span>
+            </div>
+
+            <div ref="lineDom" :style="{left:lineModel.left+'px'}" class="flag-line"></div>
+          </div>
+          <div style="margin:10px 0">
+            <Button type="primary" long v-show="status === 'extract'" @click="goExtract">抽取</Button>
+            <Button
+              type="primary"
+              :disabled="stopBtnModel.isDisabled"
+              long
+              v-show="status === 'stop'"
+              @click="goStop"
+            >停止</Button>
+          </div>
+          <Row>
+            <Button
+              v-show="previousBtnModel.isShow"
+              class="previous-setp"
+              @click="goPreviousStep(1)"
+            >上一步</Button>
+          </Row>
+        </div>
+      </div>
     </div>
+    <BackTop :height="200"></BackTop>
   </div>
 </template>
 <script>
+const defaultLineModel = {
+  speed: 120,
+  left: 5
+};
 export default {
   name: "gonna_something_vue",
   data() {
     return {
+      status: "extract", //stop
+      stopBtnModel: {
+        isDisabled: true,
+        timeout: 2000
+      },
+      lineModel: {
+        seed: 0,
+        speed: defaultLineModel.speed,
+        dom: null,
+        left: defaultLineModel.left,
+        timeout: 100
+      },
+      smallRoomModel: {
+        seed: 0,
+        speed: 100,
+        timeout: 100
+      },
+      previousBtnModel: {
+        isShow: true
+      },
+      isAverage: true,
+      taskList: [],
       current: 0,
       stepList: [
         {
           title: "配置任务"
         },
-        {
-          title: "分配阀值"
-        },
+
         {
           title: "抽取任务"
         }
       ]
     };
   },
-  methods: {},
+  methods: {
+    goExtract() {
+      this.status = "stop";
+      this.previousBtnModel.isShow = false;
+      setTimeout(() => {
+        this.stopBtnModel.isDisabled = false;
+      }, this.stopBtnModel.timeout);
+
+      this.moveLineDom();
+    },
+    moveLineDom() {
+      let bigDom = this.$refs.bigRoomDom;
+      let lineDom = this.$refs.lineDom;
+      let bigRoomDomRect = bigDom.getBoundingClientRect();
+      let lineRoomDomRect = lineDom.getBoundingClientRect();
+      this.lineModel.seed = setInterval(() => {
+        let { left, speed } = this.lineModel;
+        left += speed;
+        if (speed > 0) {
+          if (left < bigRoomDomRect.width - lineRoomDomRect.width) {
+            lineDom.style.left = left + "px";
+          } else if (left > bigRoomDomRect.width - lineRoomDomRect.width) {
+            left = bigRoomDomRect.width - lineRoomDomRect.width;
+            lineDom.style.left = left + "px";
+            speed = -speed;
+          }
+        } else {
+          if (left > 0) {
+            lineDom.style.left = left + "px";
+          } else if (left < 0) {
+            left = 0;
+            lineDom.style.left = left + "px";
+            speed = -speed;
+          }
+        }
+
+        Object.assign(this.lineModel, { left, speed });
+      }, this.lineModel.timeout);
+    },
+    goStop() {},
+    addTask() {
+      this.taskList.unshift({});
+      this.$nextTick(() => {
+        this.$refs.contentDomList[0].focus();
+      });
+      if (this.isAverage) {
+        this.averageThreshold();
+      }
+    },
+    averageThreshold() {
+      let value = 100 / this.taskList.length;
+      this.taskList.forEach(element => {
+        element.threshold = value;
+      });
+    },
+    deleteTask(argIndex) {
+      this.taskList.splice(argIndex, 1);
+      if (this.isAverage) {
+        this.averageThreshold();
+      }
+    },
+    goNextStep(argNumber) {
+      this.current += 1;
+    },
+    goPreviousStep(argNumber) {
+      this.current -= 1;
+    }
+  },
   computed: {},
   mounted() {}
 };
