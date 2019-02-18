@@ -173,6 +173,7 @@ export default {
         timeout: 2000
       },
       lineModel: {
+        isStopMove: false,
         seed: 0,
         speed: defaultLineModel.speed,
         dom: null,
@@ -217,9 +218,30 @@ export default {
       let bigRoomDomRect = bigDom.getBoundingClientRect();
       let lineRoomDomRect = lineDom.getBoundingClientRect();
       this.lineModel.seed = setInterval(() => {
-        let { left, speed } = this.lineModel;
+        let { left, speed, isStopMove } = this.lineModel;
         left += speed;
+        if (isStopMove) {
+          //进行减速
+          let value = Math.random() * 10 || 0;
+          if (speed > 0) {
+            if (speed - value > 0) {
+              speed -= value;
+            } else {
+              this.goResult();
+              return;
+            }
+          } else {
+            if (speed + value < 0) {
+              speed += value;
+            } else {
+              this.goResult();
+              return;
+            }
+          }
+        }
+
         if (speed > 0) {
+          //往左
           if (left < bigRoomDomRect.width - lineRoomDomRect.width) {
             lineDom.style.left = left + "px";
           } else if (left > bigRoomDomRect.width - lineRoomDomRect.width) {
@@ -228,6 +250,7 @@ export default {
             speed = -speed;
           }
         } else {
+          //往右
           if (left > 0) {
             lineDom.style.left = left + "px";
           } else if (left < 0) {
@@ -240,7 +263,37 @@ export default {
         this.lineModel = { ...this.lineModel, ...{ left, speed } };
       }, this.lineModel.timeout);
     },
-    goStop() {},
+    goStop() {
+      this.lineModel.isStopMove = true;
+    },
+    goResult() {
+      //判断lineDom停在了哪里。
+
+      this.previousBtnModel.isShow = true;
+      clearInterval(this.lineModel.seed);
+      let smallRoomDomList = this.$refs.smallRoomDomList;
+      let lineDom = this.$refs.lineDom;
+      let lineRoomDomRect = lineDom.getBoundingClientRect();
+      let index;
+      for (let i = 0; i < smallRoomDomList.length - 1; i++) {
+        let previousDomClientRect = smallRoomDomList[i].getBoundingClientRect();
+        let nextDomClientRect = smallRoomDomList[i + 1].getBoundingClientRect();
+
+        if (
+          lineRoomDomRect.left > previousDomClientRect.left &&
+          lineRoomDomRect.left < nextDomClientRect.left
+        ) {
+          index = i;
+          break;
+        }
+      }
+      if (index === undefined) {
+        //如果不在前面则在最后一个
+        index = smallRoomDomList.length - 1;
+      }
+
+      //准备动画
+    },
     addTask() {
       this.taskList.unshift({});
       this.$nextTick(() => {
@@ -266,6 +319,11 @@ export default {
       this.current += 1;
     },
     goPreviousStep(argNumber) {
+      if (argNumber === 1) {
+        //恢复初始状态
+        this.status = "extract";
+        Object.assign(this.lineModel, defaultLineModel, { isStopMove: false });
+      }
       this.current -= 1;
     }
   },
