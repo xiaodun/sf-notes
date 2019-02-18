@@ -6,10 +6,6 @@
   max-width: 1200px;
   margin: 0 auto;
 
-  .next-setp {
-    margin-top: 10px;
-  }
-
   .content {
     margin: 10px 0;
   }
@@ -122,7 +118,7 @@
                 ></Slider>
               </td>
               <td>
-                <Input :readonly="isAverage" style="width:55px" v-model="item.threshold"></Input>
+                <InputNumber :readonly="isAverage" style="width:55px" v-model="item.threshold"/>
               </td>
               <td>
                 <Button
@@ -135,7 +131,10 @@
             </tr>
           </table>
         </div>
-        <Button type="primary" class="next-setp" @click="goNextStep(0)">下一步</Button>
+        <div style="margin-top:10px">
+          <Button v-show="isRightCount()" type="primary" @click="goNextStep(0)">下一步</Button>
+          <Button type="error" v-show="!isRightCount()">阈值总数不为100</Button>
+        </div>
       </div>
       <div v-show="current === 1">
         <div class="extract-wrapper">
@@ -228,7 +227,21 @@ export default {
       ]
     };
   },
+  computed: {},
   methods: {
+    isRightCount() {
+      let count = this.taskList.reduce((account, current) => {
+        return (account += current.threshold);
+      }, 0);
+      if (
+        (100 - count <= 1 && 100 - count >= 0) ||
+        this.taskList.length === 0
+      ) {
+        return true;
+      }
+
+      return false;
+    },
     goExtract() {
       this.status = "stop";
       this.previousBtnModel.isShow = false;
@@ -323,7 +336,10 @@ export default {
       this.isShowResult = true;
     },
     addTask() {
-      this.taskList.unshift({});
+      this.taskList.unshift({
+        content: "",
+        threshold: 0
+      });
       this.$nextTick(() => {
         this.$refs.contentDomList[0].focus();
       });
@@ -332,7 +348,7 @@ export default {
       }
     },
     averageThreshold() {
-      let value = 100 / this.taskList.length;
+      let value = (100 / this.taskList.length) | 0;
       this.taskList.forEach(element => {
         element.threshold = value;
       });
