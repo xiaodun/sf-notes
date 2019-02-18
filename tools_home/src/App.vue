@@ -70,7 +70,7 @@
   text-overflow: ellipsis;
 
   border-bottom: 1px solid #ddd;
-  background-color: rgba(255, 255, 255);
+  background-color: rgb(255, 255, 255);
 
   &.box-shadow {
     .sf-shadow-1;
