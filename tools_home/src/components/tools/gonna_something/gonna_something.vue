@@ -335,6 +335,11 @@ export default {
       this.resultIndx = index;
       this.isShowResult = true;
     },
+    onLevaeConfirm() {
+      if (this.taskList.length > 0) {
+        return "确认离开吗?";
+      }
+    },
     addTask() {
       this.taskList.unshift({
         content: "",
@@ -373,7 +378,11 @@ export default {
       this.current -= 1;
     }
   },
-  computed: {},
-  mounted() {}
+  mounted() {
+    window.onbeforeunload = this.onLevaeConfirm;
+  },
+  beforeDestroy() {
+    window.onbeforeunload = this.onLevaeConfirm;
+  }
 };
 </script>
