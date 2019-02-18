@@ -18,7 +18,24 @@
   .extract-wrapper {
     padding: 20px 10px;
   }
-
+  .result-wrapper {
+    background-color: #eee;
+    width: 100%;
+    text-align: center;
+    line-height: 220px;
+    font-size: 16px;
+    height: 220px;
+  }
+  //显示结果动画
+  .result-enter-active,
+  .result-leave-active {
+    transform: scale(1);
+    transition: transform 0.45s ease-in-out;
+  }
+  .result-enter,
+  .result-leave-to {
+    transform: scale(0);
+  }
   .big-room {
     position: relative;
 
@@ -122,19 +139,26 @@
       </div>
       <div v-show="current === 1">
         <div class="extract-wrapper">
-          <div class="big-room" ref="bigRoomDom">
+          <transition name="result" mode="out-in">
             <div
-              ref="smallRoomDomList"
-              class="small-room"
-              :style="{width:item.threshold+'%'}"
-              :key="index"
-              v-for="(item,index) in taskList"
-            >
-              <span style="background:#fff;">{{index}}</span>
+              class="result-wrapper"
+              v-if="isShowResult"
+              key="result"
+            >{{resultIndx !== null && taskList[resultIndx].content}}</div>
+            <div key="extract" v-else class="big-room" ref="bigRoomDom">
+              <div
+                ref="smallRoomDomList"
+                class="small-room"
+                :style="{width:item.threshold+'%'}"
+                :key="index"
+                v-for="(item,index) in taskList"
+              >
+                <span style="background:#fff;">{{index}}</span>
+              </div>
+              <div ref="lineDom" :style="{left:lineModel.left+'px'}" class="flag-line"></div>
             </div>
+          </transition>
 
-            <div ref="lineDom" :style="{left:lineModel.left+'px'}" class="flag-line"></div>
-          </div>
           <div style="margin:10px 0">
             <Button type="primary" long v-show="status === 'extract'" @click="goExtract">抽取</Button>
             <Button
@@ -167,7 +191,9 @@ export default {
   name: "gonna_something_vue",
   data() {
     return {
+      isShowResult: false,
       status: "extract", //stop
+      resultIndx: null,
       stopBtnModel: {
         isDisabled: true,
         timeout: 2000
@@ -293,6 +319,8 @@ export default {
       }
 
       //准备动画
+      this.resultIndx = index;
+      this.isShowResult = true;
     },
     addTask() {
       this.taskList.unshift({});
@@ -322,6 +350,8 @@ export default {
       if (argNumber === 1) {
         //恢复初始状态
         this.status = "extract";
+        this.isShowResult = false;
+        this.resultIndx = null;
         Object.assign(this.lineModel, defaultLineModel, { isStopMove: false });
       }
       this.current -= 1;
