@@ -1,5 +1,5 @@
 <style lang="less">
-@import '~@/assets/style/base.less';
+@import "~@/assets/style/base.less";
 
 #gonna_something-vue-id {
   width: 85%;
@@ -66,11 +66,10 @@
       border-radius: 10px;
       background-color: #fd3232;
 
-.sf-shadow-1;
+      .sf-shadow-1;
     }
   }
 }
-
 </style>
 <template>
   <div id="gonna_something-vue-id">
@@ -238,7 +237,7 @@ export default {
           }
         }
 
-        Object.assign(this.lineModel, { left, speed });
+        this.lineModel = { ...this.lineModel, ...{ left, speed } };
       }, this.lineModel.timeout);
     },
     goStop() {},
