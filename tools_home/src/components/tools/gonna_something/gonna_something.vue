@@ -336,7 +336,7 @@ export default {
       this.isShowResult = true;
     },
     onLevaeConfirm() {
-      if (this.taskList.length > 0) {
+      if (this.taskList.length > 0 && this.current === 0) {
         return "确认离开吗?";
       }
     },
