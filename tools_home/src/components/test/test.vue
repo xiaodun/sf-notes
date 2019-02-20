@@ -25,9 +25,7 @@ export default {
     a1: {
       template: "<h2></h2>",
       data() {
-        return {
-          index: 0
-        };
+        return {};
       },
       mounted() {
         console.log(this.index);
@@ -44,11 +42,10 @@ export default {
 </script>
 
 <style lang="less" >
-@import '~@/assets/style/base.less';
+@import "~@/assets/style/base.less";
 
 #test-vue-id {
   width: 200px;
   height: 200px;
 }
-
 </style>

@@ -3,7 +3,7 @@
 
 <template>
   <div id="canvas-vue-id">
-    <canvas ref="canvasDom" width="400" height="400"></canvas>
+    <canvas id="canvas-id" ref="canvasDom" width="400" height="400"></canvas>
   </div>
 </template>
 <script>
@@ -21,17 +21,18 @@ export default {
   methods: {
     drawShape() {
       let context = this.$data._context;
+      let canvasDom = this.$refs.canvasDom;
 
-      context.beginPath();
-      context.save();
+      context.font = "40px bold Arial";
+      context.fillStyle = "black";
 
-      let width = 50,
-        height = 50,
-        radius = 10;
-      context.arc(20, 20, 10, Math.PI / 2, Math.PI);
-      context.stroke();
-      context.restore();
-      context.closePath();
+      // context.fillRect(0, 0, canvasDom.width, canvasDom.height);
+
+      context.arc(200, 200, 50, 0, 2 * Math.PI, true);
+      context.arc(200, 200, 80, 0, 2 * Math.PI, false);
+      context.shadowColor = "red";
+      context.shadowOffsetX = "10";
+      context.fill();
     }
   },
   watch: {},
@@ -48,8 +49,7 @@ export default {
 @import "~@/assets/style/base.less";
 
 #canvas-vue-id {
-  .star-canvas {
-    border: 1px solid #000;
+  #canvas-id {
   }
 }
 </style>
