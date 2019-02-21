@@ -31,7 +31,31 @@
       cursor: pre;
     }
   }
-
+  .ivu-menu-item.user {
+    //解决Ctrl+鼠标点击路由时跳转不正常  重置样式
+    padding: 0;
+    position: relative;
+    height: 50px;
+    &.ivu-menu-item-selected,
+    &:hover {
+      a {
+        color: #2d8cf0;
+      }
+    }
+    &.sub {
+      padding-left: 0 !important;
+      a {
+        padding-left: 43px;
+      }
+    }
+    a {
+      padding: 14px 24px;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      color: #515a6e;
+    }
+  }
   &.spread {
     left: 0;
   }
@@ -151,15 +175,21 @@
                   {{value.title}}
                 </template>
                 <MenuItem
-                  :to="item.to"
+                  class="user sub"
                   v-for="(item,index) in value.childs"
                   :name="key+'-'+index"
                   :key="key+'-'+index"
-                >{{item.content}}</MenuItem>
+                >
+                  <!-- 解决Ctrl+鼠标点击路由时跳转不正常 -->
+                  <a :href="'#'+item.to.path">{{item.content}}</a>
+                </MenuItem>
               </Submenu>
-              <MenuItem :key="key" :name="key" v-else :to="value.to">
-                <Icon :type="value.icon"/>
-                {{value.title}}
+              <MenuItem class="user" :key="key" :name="key" v-else>
+                <!-- 解决Ctrl+鼠标点击路由时跳转不正常 -->
+                <a :href="'#'+value.to.path">
+                  <Icon :type="value.icon"/>
+                  {{value.title}}
+                </a>
               </MenuItem>
             </template>
           </Menu>
