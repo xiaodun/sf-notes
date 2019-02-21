@@ -293,7 +293,8 @@ export default {
       });
     },
     menu_onselect(name) {
-      if (name == 1) {
+      let path = this.$router.history.current.fullPath;
+      if (name === "1") {
         this.createQecode();
         this.isShowQart = true;
       } else if (name === "debug") {
@@ -305,22 +306,31 @@ export default {
         }
         this.isDebug = !this.isDebug;
       }
+
+      if (name === "1" || name === "debug") {
+        //不进行菜单选择
+        //如果不重置 this.activeMenuName还是上一个路由的值
+        this.activeMenuName = "";
+        setTimeout(() => {
+          this.selectedMenu(path);
+        }, 20);
+      }
       this.$refs.slideMenu.classList.remove("spread");
     },
     toggleMenu() {
       this.$refs.slideMenu.classList.toggle("spread");
     },
-    selectedMenu(argTo, argForm) {
+    selectedMenu(argPath) {
+      console.log("wx", argPath, this.activeMenuName);
       //选中菜单  如果放在mounted中不能打开子级菜单
 
       this.activeMenuName = "";
-      let hash = argTo.path;
 
       for (let key in this.menuData) {
         let item = this.menuData[key];
         if (item.childs && item.childs.length > 0) {
           let isMatch = item.childs.some((element, index) => {
-            if (element.to.path === hash) {
+            if (element.to.path === argPath) {
               this.activeMenuName = key + "-" + index;
               return true;
             }
@@ -331,7 +341,7 @@ export default {
             break;
           }
         } else {
-          if (item.to.path === hash) {
+          if (item.to.path === argPath) {
             this.activeMenuName = key;
             this.activeSubName = [];
             break;
@@ -344,6 +354,7 @@ export default {
         this.activeSubName = [];
       }
 
+      console.log(this.activeMenuName);
       this.$nextTick(() => {
         //下面两个方法时iview提供的 不调用无法更新子级菜单
         this.$refs.slideMenuIview.updateOpened();
@@ -483,7 +494,7 @@ export default {
     $route(to, form) {
       this.is_home = to.path == "/" ? true : false;
       window.scrollTo(0, 0);
-      this.selectedMenu(to, form);
+      this.selectedMenu(to.path);
     }
   },
   created() {
