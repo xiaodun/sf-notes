@@ -171,7 +171,7 @@
       <div id="qrcode" ref="qrcode"></div>
     </Modal>
     <div id="top_wrapper" :class="{'box-shadow':isOverScroll}">
-      <Button icon="md-menu" class="item" @click="toggleMenu"></Button>
+      <Button ref="menuButtonDom" icon="md-menu" class="item" @click="toggleMenu"></Button>
       <div class="personal-word">
         <div class="pagination">
           <Icon
@@ -398,6 +398,26 @@ export default {
     if (this.$route.path != "/") {
       this.is_home = false;
     }
+
+    document.addEventListener(
+      "click",
+      e => {
+        let slideMenu = this.$refs.slideMenu;
+        let menuButtonDom = this.$refs.menuButtonDom.$el;
+        console.dir(menuButtonDom);
+        console.log(slideMenu.compareDocumentPosition(e.target));
+        if (
+          (slideMenu.compareDocumentPosition(e.target) & 16) === 0 &&
+          e.target !== menuButtonDom &&
+          (menuButtonDom.compareDocumentPosition(e.target) & 16) === 0
+        ) {
+          if (slideMenu.classList.contains("spread")) {
+            this.toggleMenu();
+          }
+        }
+      },
+      true
+    );
   },
   beforeDestroy() {
     window.removeEventListener("scroll", this.on_top_scroll);
