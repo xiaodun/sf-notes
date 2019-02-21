@@ -402,13 +402,16 @@ export default {
     document.addEventListener(
       "click",
       e => {
+        //点击其他地方收起侧边栏  发生在捕获阶段
         let slideMenu = this.$refs.slideMenu;
         let menuButtonDom = this.$refs.menuButtonDom.$el;
-        console.dir(menuButtonDom);
-        console.log(slideMenu.compareDocumentPosition(e.target));
+
         if (
+          //不是侧边栏里面的元素
           (slideMenu.compareDocumentPosition(e.target) & 16) === 0 &&
+          //不是触发按钮本身
           e.target !== menuButtonDom &&
+          //不是触发按钮里面的元素
           (menuButtonDom.compareDocumentPosition(e.target) & 16) === 0
         ) {
           if (slideMenu.classList.contains("spread")) {
