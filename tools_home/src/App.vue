@@ -279,6 +279,25 @@ export default {
     toggleMenu() {
       this.$refs.slideMenu.classList.toggle("spread");
     },
+    hideMenu(e) {
+      //点击其他地方收起侧边栏  发生在捕获阶段
+      let slideMenu = this.$refs.slideMenu;
+      let menuButtonDom = this.$refs.menuButtonDom.$el;
+
+      if (
+        //不是侧边栏里面的元素
+        (slideMenu.compareDocumentPosition(e.target) & 16) === 0 &&
+        //不是触发按钮本身
+        e.target !== menuButtonDom &&
+        //不是触发按钮里面的元素
+
+        (menuButtonDom.compareDocumentPosition(e.target) & 16) === 0
+      ) {
+        if (slideMenu.classList.contains("spread")) {
+          this.toggleMenu();
+        }
+      }
+    },
     createQecode() {
       this.$refs.qrcode.innerHTML = "";
       if (
@@ -427,6 +446,8 @@ export default {
     if (this.activeMenuName === "") {
       this.activeMenuName = "0";
     }
+
+    document.addEventListener("click", this.hideMenu, true);
   },
 
   mounted() {
@@ -434,32 +455,9 @@ export default {
     if (this.$route.path != "/") {
       this.is_home = false;
     }
-
-    document.addEventListener(
-      "click",
-      e => {
-        //点击其他地方收起侧边栏  发生在捕获阶段
-        let slideMenu = this.$refs.slideMenu;
-        let menuButtonDom = this.$refs.menuButtonDom.$el;
-
-        if (
-          //不是侧边栏里面的元素
-          (slideMenu.compareDocumentPosition(e.target) & 16) === 0 &&
-          //不是触发按钮本身
-          e.target !== menuButtonDom &&
-          //不是触发按钮里面的元素
-
-          (menuButtonDom.compareDocumentPosition(e.target) & 16) === 0
-        ) {
-          if (slideMenu.classList.contains("spread")) {
-            this.toggleMenu();
-          }
-        }
-      },
-      true
-    );
   },
   beforeDestroy() {
+    document.removeEventListener("click", this.hideMenu, true);
     window.removeEventListener("scroll", this.on_top_scroll);
   }
 };
