@@ -134,7 +134,11 @@
     <div id="slide-menu" :style="[{top:topAreaHeight+'px'}]" ref="slideMenu">
       <Row>
         <Col>
-          <Menu @on-select="menu_onselect">
+          <Menu
+            @on-select="menu_onselect"
+            :active-name="activeMenuName"
+            :open-names="activeSubName"
+          >
             <MenuItem name="0" to="/">首页</MenuItem>
             <MenuItem name="1">手机访问</MenuItem>
             <MenuItem name="debug">{{!isDebug?'启用调试':'关闭调试'}}</MenuItem>
@@ -293,6 +297,8 @@ export default {
   },
   data() {
     return {
+      activeMenuName: "",
+      activeSubName: [],
       topAreaHeight: _topAreaHight,
       mainWrapperMarginTop: _topAreaHight + 20,
       isOverScroll: false,
@@ -391,6 +397,36 @@ export default {
   },
   created() {
     window.addEventListener("scroll", this.on_top_scroll);
+
+    //选中菜单  如果放在mounted中不能打开子级菜单
+
+    let hash = window.location.hash.substring(1);
+
+    for (let key in this.menuData) {
+      let item = this.menuData[key];
+      if (item.childs && item.childs.length > 0) {
+        let isMatch = item.childs.some((element, index) => {
+          if (element.to.path === hash) {
+            this.activeMenuName = key + "-" + index;
+            return true;
+          }
+        });
+        if (isMatch) {
+          this.activeSubName = [key];
+
+          break;
+        }
+      } else {
+        if (item.to.path === hash) {
+          this.activeMenuName = key;
+          break;
+        }
+      }
+    }
+
+    if (this.activeMenuName === "") {
+      this.activeMenuName = "0";
+    }
   },
 
   mounted() {
@@ -412,6 +448,7 @@ export default {
           //不是触发按钮本身
           e.target !== menuButtonDom &&
           //不是触发按钮里面的元素
+
           (menuButtonDom.compareDocumentPosition(e.target) & 16) === 0
         ) {
           if (slideMenu.classList.contains("spread")) {
