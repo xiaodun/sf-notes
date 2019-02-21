@@ -135,6 +135,7 @@
       <Row>
         <Col>
           <Menu
+            ref="slideMenuIview"
             @on-select="menu_onselect"
             :active-name="activeMenuName"
             :open-names="activeSubName"
@@ -175,7 +176,7 @@
       <div id="qrcode" ref="qrcode"></div>
     </Modal>
     <div id="top_wrapper" :class="{'box-shadow':isOverScroll}">
-      <Button ref="menuButtonDom" icon="md-menu" class="item" @click="toggleMenu"></Button>
+      <Button ref="menuButtonIview" icon="md-menu" class="item" @click="toggleMenu"></Button>
       <div class="personal-word">
         <div class="pagination">
           <Icon
@@ -279,10 +280,50 @@ export default {
     toggleMenu() {
       this.$refs.slideMenu.classList.toggle("spread");
     },
+    selectedMenu(argTo, argForm) {
+      //选中菜单  如果放在mounted中不能打开子级菜单
+
+      this.activeMenuName = "";
+      let hash = argTo.path;
+
+      for (let key in this.menuData) {
+        let item = this.menuData[key];
+        if (item.childs && item.childs.length > 0) {
+          let isMatch = item.childs.some((element, index) => {
+            if (element.to.path === hash) {
+              this.activeMenuName = key + "-" + index;
+              return true;
+            }
+          });
+          if (isMatch) {
+            this.activeSubName = [key];
+
+            break;
+          }
+        } else {
+          if (item.to.path === hash) {
+            this.activeMenuName = key;
+            this.activeSubName = [];
+            break;
+          }
+        }
+      }
+
+      if (this.activeMenuName === "") {
+        this.activeMenuName = "0";
+        this.activeSubName = [];
+      }
+
+      this.$nextTick(() => {
+        //下面两个方法时iview提供的 不调用无法更新子级菜单
+        this.$refs.slideMenuIview.updateOpened();
+        this.$refs.slideMenuIview.updateActiveName();
+      });
+    },
     hideMenu(e) {
       //点击其他地方收起侧边栏  发生在捕获阶段
       let slideMenu = this.$refs.slideMenu;
-      let menuButtonDom = this.$refs.menuButtonDom.$el;
+      let menuButtonDom = this.$refs.menuButtonIview.$el;
 
       if (
         //不是侧边栏里面的元素
@@ -412,40 +453,11 @@ export default {
     $route(to, form) {
       this.is_home = to.path == "/" ? true : false;
       window.scrollTo(0, 0);
+      this.selectedMenu(to, form);
     }
   },
   created() {
     window.addEventListener("scroll", this.on_top_scroll);
-
-    //选中菜单  如果放在mounted中不能打开子级菜单
-
-    let hash = window.location.hash.substring(1);
-
-    for (let key in this.menuData) {
-      let item = this.menuData[key];
-      if (item.childs && item.childs.length > 0) {
-        let isMatch = item.childs.some((element, index) => {
-          if (element.to.path === hash) {
-            this.activeMenuName = key + "-" + index;
-            return true;
-          }
-        });
-        if (isMatch) {
-          this.activeSubName = [key];
-
-          break;
-        }
-      } else {
-        if (item.to.path === hash) {
-          this.activeMenuName = key;
-          break;
-        }
-      }
-    }
-
-    if (this.activeMenuName === "") {
-      this.activeMenuName = "0";
-    }
 
     document.addEventListener("click", this.hideMenu, true);
   },
