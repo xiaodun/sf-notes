@@ -321,7 +321,6 @@ export default {
       this.$refs.slideMenu.classList.toggle("spread");
     },
     selectedMenu(argPath) {
-      console.log("wx", argPath, this.activeMenuName);
       //选中菜单  如果放在mounted中不能打开子级菜单
 
       this.activeMenuName = "";
