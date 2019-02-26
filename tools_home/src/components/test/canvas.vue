@@ -23,16 +23,16 @@ export default {
       let context = this.$data._context;
       let canvasDom = this.$refs.canvasDom;
 
-      context.font = "40px bold Arial";
-      context.fillStyle = "black";
+      context.translate(200, 200);
+      let outerR = 50,
+        innerX = 100;
 
-      // context.fillRect(0, 0, canvasDom.width, canvasDom.height);
-
-      context.arc(200, 200, 50, 0, 2 * Math.PI, true);
-      context.arc(200, 200, 80, 0, 2 * Math.PI, false);
-      context.shadowColor = "red";
-      context.shadowOffsetX = "10";
-      context.fill();
+      let innerR =
+        Math.sqrt(Math.pow(outerR, 2) + Math.pow(innerX, 2)) *
+        (outerR / innerX);
+      context.arc(0, 0, outerR, 1.5 * Math.PI, 0.5 * Math.PI);
+      context.arcTo(innerX, 0, 0, -outerR, innerR);
+      context.stroke();
     }
   },
   watch: {},
