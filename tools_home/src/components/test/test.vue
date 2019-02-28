@@ -2,8 +2,11 @@
 
 
 <template>
-  <div id="test-vue-id">
-    <a href="#/notepad_vue">123</a>
+  <div id="test-vue-id" ref="testDom">
+    <form action>
+      <input type="name">
+      <a href="www.baidu.com" ref="submitDom">提交</a>
+    </form>
   </div>
 </template>
     <script>
@@ -11,30 +14,22 @@ export default {
   name: "test_vue",
 
   data() {
-    return {
-      names: ["test-vue"]
-    };
+    return {};
   },
-  components: {
-    A: {
-      template: "<h1></h1>"
-    },
-    a1: {
-      template: "<h2></h2>",
-      data() {
-        return {};
-      },
-      mounted() {
-        console.log(this.index);
-      }
+  components: {},
+  computed: {},
+  methods: {
+    test(event) {
+      console.log(event.detail);
     }
   },
-  computed: {
-    getName() {
-      alert(12);
-    }
-  },
-  mounted() {}
+  mounted() {
+    let { submitDom } = this.$refs;
+    submitDom.addEventListener("alert", () => {
+      // alert(1);
+    });
+    submitDom.dispatchEvent(new Event("alert"), { cancelable: true });
+  }
 };
 </script>
 
