@@ -1,44 +1,32 @@
 <style lang='less'>
+#test-vue-id {
+  .flex {
+    border: 1px solid #000;
+    height: 300px;
+    .child {
+      border: 1px solid red;
+    }
+  }
+}
 </style>
 <template >
-  <div>
-
-    <button
-      id="button-id"
-      @click="request"
-    >
-      {{quantity}}
-    </button>
-    <textarea
-      name=""
-      id="test-id"
-      cols="30"
-      rows="10"
-    >212121</textarea>
+  <div id="test-vue-id">
+    <div class="flex">
+      <div class="child">1</div>
+      <div class="child">2</div>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
   data() {
-    return {
-      quantity: ""
-    };
+    return {};
   },
 
   components: {},
-  methods: {
-    async request() {
-      const response = await new Promise(resolve => {
-        resolve("wx");
-      });
-
-      this.quantity = response;
-    }
-  },
+  methods: {},
   watch: {},
-  created() {
-    // this.request();
-  }
+  created() {}
 };
 </script>

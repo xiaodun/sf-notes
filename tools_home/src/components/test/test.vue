@@ -3,10 +3,10 @@
 
 <template>
   <div id="test-vue-id" ref="testDom">
-    <form action>
-      <input type="name">
-      <a href="www.baidu.com" ref="submitDom">提交</a>
-    </form>
+    <div class="flex">
+      <div class="child">1</div>
+      <div class="child">2</div>
+    </div>
   </div>
 </template>
     <script>
@@ -23,13 +23,7 @@ export default {
       console.log(event.detail);
     }
   },
-  mounted() {
-    let { submitDom } = this.$refs;
-    submitDom.addEventListener("alert", () => {
-      // alert(1);
-    });
-    submitDom.dispatchEvent(new Event("alert"), { cancelable: true });
-  }
+  mounted() {}
 };
 </script>
 
@@ -37,7 +31,13 @@ export default {
 @import "~@/assets/style/base.less";
 
 #test-vue-id {
-  width: 200px;
-  height: 200px;
+  .flex {
+    border: 1px solid #000;
+    height: 300px;
+    display: flex;
+    .child {
+      border: 1px solid red;
+    }
+  }
 }
 </style>
