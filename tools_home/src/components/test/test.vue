@@ -4,8 +4,7 @@
 <template>
   <div id="test-vue-id" ref="testDom">
     <div class="flex">
-      <div class="child">1</div>
-      <div class="child">2</div>
+      <Button @click="click($event,1)"></Button>
     </div>
   </div>
 </template>
@@ -19,6 +18,9 @@ export default {
   components: {},
   computed: {},
   methods: {
+    click(event, a) {
+      console.log(event, a);
+    },
     test(event) {
       console.log(event.detail);
     }
@@ -35,7 +37,9 @@ export default {
     border: 1px solid #000;
     height: 300px;
     display: flex;
+    flex-wrap: wrap;
     .child {
+      width: 400px;
       border: 1px solid red;
     }
   }
