@@ -2,32 +2,44 @@
 
 
 <template>
-  <div
-    id="test-vue-id"
-    ref="testDom"
-  >Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repudiandae, sequi? Tempora, eveniet. Voluptatum sint earum impedit. Omnis nam facere mollitia maxime in qui praesentium eum quaerat saepe quidem accusamus ea iure consequuntur iste delectus eveniet deleniti dolores impedit, rem necessitatibus. Voluptate, optio suscipit inventore cupiditate maxime laboriosam perspiciatis maiores voluptatem ipsam autem quaerat laudantium, libero placeat? Tempore ut aperiam similique quam, officia excepturi est animi commodi ratione a amet harum nostrum ex minus et dolor maxime cupiditate asperiores corrupti dolorum libero. Ab voluptatibus ipsum excepturi molestias, adipisci nulla quas? Modi, aut laborum neque voluptas maiores dolores deserunt optio nulla labore, dolorem eaque accusamus pariatur odit sit perferendis omnis, quisquam dolor quidem praesentium aperiam repellendus vero? Tempora dignissimos ducimus cumque in quia, molestiae incidunt? Quae nihil, laudantium rem in aliquid accusamus eius voluptates! Maiores officiis cum aut dolorem laudantium nisi sapiente. Odio sunt aliquam est eveniet dolores! Fugiat, dignissimos quia! Eaque, recusandae voluptatibus illo facilis ab eos assumenda rem asperiores eum possimus modi quaerat ratione vel similique laudantium aspernatur veniam aliquid nam quod fugit obcaecati atque repellat ducimus nesciunt? Nam minus consequatur, laboriosam odit sint adipisci reiciendis aliquid. Sed totam temporibus iure tempora velit laboriosam consequatur maiores voluptas blanditiis veritatis? Dolorum laboriosam vitae consectetur maiores quasi, nisi eveniet impedit consequatur asperiores atque possimus sed aperiam labore ullam inventore est assumenda? Aliquam, natus nobis earum illo, aperiam sit nostrum et quo aliquid in quia nihil dignissimos soluta vitae beatae accusamus architecto alias consequuntur repellat veritatis. Eum sed tenetur veritatis cumque adipisci consectetur est mollitia a nihil laudantium labore reiciendis quaerat voluptate fuga saepe molestias nulla alias quos quasi itaque distinctio impedit sit, illo facilis. Corrupti neque fugit suscipit a deserunt vero magni repellendus soluta, consequatur quo dignissimos fuga distinctio iste molestias odit nisi aspernatur error magnam, perferendis earum perspiciatis exercitationem. Ratione numquam dolorem rem expedita exercitationem, esse neque consequuntur modi placeat nesciunt totam ipsum. Vero odit, illum pariatur rem sit, perspiciatis dolor excepturi illo harum, saepe ab. Magnam repellendus ab voluptatibus, eum, tenetur natus pariatur quasi iure alias deleniti, nam numquam eaque consequuntur non totam? Laboriosam consequuntur ipsum ratione sapiente culpa id sequi iure veritatis tempore molestias tenetur, excepturi quibusdam? Ipsum numquam quia nemo, libero laborum blanditiis, natus quod voluptates sint, praesentium perferendis ullam atque! Delectus nisi dolore impedit similique ipsa natus aspernatur. Ipsam enim similique, assumenda voluptatum perferendis impedit modi animi quae doloremque labore amet delectus. Hic ad tenetur delectus magnam inventore ea magni alias explicabo dignissimos accusantium non nam quidem, consequuntur officia perferendis soluta animi quos optio itaque eveniet? Maxime, ex atque accusantium dolorem repudiandae pariatur! Officiis ipsum mollitia similique incidunt. Optio repellat labore ut maxime reprehenderit officiis voluptatum in laboriosam, assumenda accusamus sit doloribus odio ex. Assumenda maiores sunt hic eius nihil, aspernatur natus aut nisi illum labore rerum, a vel, autem officia? Delectus nulla assumenda explicabo aliquid, excepturi ipsa fuga aperiam officia rerum sed. Reiciendis voluptatibus quos ipsam iure veniam distinctio. Deleniti placeat maxime quae labore at ipsam amet totam, error, provident fugit saepe debitis, numquam perspiciatis architecto rerum enim! Autem expedita, doloribus repellendus ipsum assumenda atque in numquam inventore ut similique nulla accusamus impedit, molestiae temporibus rem distinctio accusantium magnam vero provident sapiente id? Provident natus autem et eaque quaerat? Sunt harum corporis aspernatur, earum sint id voluptatibus accusantium quam consequatur modi ipsam animi, velit consectetur. Quisquam placeat quos obcaecati libero, accusamus reiciendis sunt temporibus consequuntur ullam suscipit omnis ratione ea ut nesciunt quaerat numquam repellat fugiat vel! Eveniet porro commodi recusandae sapiente sed aut quis accusantium esse dicta. Nam culpa accusantium magnam placeat suscipit omnis, necessitatibus laborum voluptates soluta tempora officiis incidunt quibusdam non architecto error eveniet, impedit animi? Neque molestias rem pariatur accusantium voluptas temporibus eaque sed provident vero. Laboriosam sint sapiente dolorum! Assumenda repellendus eius nesciunt dolorem maiores, delectus minima, deleniti beatae animi enim, veritatis id hic fuga recusandae sint est nihil voluptas dolor non repellat obcaecati aperiam similique! Corrupti voluptate, dignissimos illum officia voluptas saepe repellendus aliquam quod, tempore dolorum quidem ipsam consectetur, excepturi accusamus? Asperiores officiis dignissimos, quasi error velit doloribus sint iste sed sunt in dolores voluptatem esse temporibus recusandae inventore quod est repudiandae pariatur veniam ex dicta explicabo. Minus inventore dicta, eos expedita, praesentium laboriosam ipsa minima suscipit delectus iure ab in iste libero! Perspiciatis, qui et. Velit quas nostrum unde molestias. Numquam eveniet amet totam modi pariatur placeat dolorem culpa saepe commodi aut minima, nostrum laborum fugiat minus fuga molestiae perferendis asperiores accusantium fugit voluptatem neque! Consequuntur, sunt esse quo nam fuga aliquid ad ut natus vitae quae earum ipsum tempore fugit non, repudiandae nesciunt temporibus laudantium quasi, ipsa eligendi. Quae quo sunt fuga corrupti itaque. Nulla, est illo, quas repudiandae nam, mollitia reprehenderit consequatur dolorem dolor molestiae recusandae. Quasi voluptas facere vel commodi doloribus perspiciatis fugit blanditiis optio adipisci, quia sed deserunt voluptatem eius aut corporis nemo exercitationem minima esse delectus, modi tenetur obcaecati accusamus sint non! Velit delectus vero saepe recusandae totam odio hic ut, fugiat harum aperiam dicta cupiditate sequi deleniti nisi iste, magni omnis suscipit! Aliquam animi iste laudantium veritatis rerum beatae alias eos ab blanditiis. Odio et ab aspernatur aut illo? Tempora, aliquid eligendi porro amet error suscipit alias, sapiente necessitatibus adipisci neque dolorem ullam commodi quas nulla impedit aperiam laudantium! Amet pariatur quae suscipit, ut aut accusantium ullam quaerat quod modi quam, cum magni assumenda facilis exercitationem quo ea sunt soluta dolore ipsa veniam neque provident corporis consequuntur! Excepturi corrupti enim quisquam officiis aliquam totam mollitia suscipit ipsam voluptate ipsum? Nemo suscipit inventore, ex excepturi aliquam totam! Unde eveniet dolores sint aut id. Quidem maxime necessitatibus in unde natus vel cumque pariatur officiis provident? Perspiciatis ea nihil, nulla numquam atque voluptate cumque, omnis velit quo placeat pariatur natus voluptatibus animi adipisci voluptates non laudantium officiis praesentium culpa. Similique tempore totam repellendus voluptatum modi rerum vero hic asperiores delectus sed non beatae tenetur ab esse ratione, itaque pariatur dicta, nemo atque. Exercitationem nemo repellat fuga possimus, tempora doloremque provident, sed perspiciatis consequatur quibusdam mollitia dicta amet, eaque et reprehenderit voluptate omnis sequi doloribus! Eaque!</div>
+  <div id="test-vue-id" ref="testDom">
+    {{time}}
+    <div>
+      <button @touchstart="onTouchStart" @click="onEnd">clickBtn</button>
+    </div>
+    <div>
+      <button @touchstart="onTouchStart" @touchend="onEnd">touchBtn</button>
+    </div>
+  </div>
 </template>
     <script>
 export default {
   name: "test_vue",
 
   data() {
-    return {};
+    return {
+      time: "",
+      startTime: ""
+    };
   },
   components: {},
   computed: {},
-  methods: {},
+  methods: {
+    onTouchStart() {
+      this.startTime = new Date();
+    },
+    onEnd(event) {
+      console.log(event);
+      this.time = Date.now() - this.startTime;
+    }
+  },
   mounted() {}
 };
 </script>
 
 <style lang="less" >
-@import '~@/assets/style/base.less';
+@import "~@/assets/style/base.less";
 
 #test-vue-id {
-  column-count: 3;
-  column-gap: 100px;
-  column-rule: 1px solid red;
 }
-
 </style>
