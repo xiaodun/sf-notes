@@ -1,74 +1,146 @@
 [
     {
-        "title": "",
-        "content": "规范git分支的使用，避免无用的提交",
+        "title": "学习",
+        "content": "深入了解git\nhttps://git-scm.com/book/zh/v1/%E8%B5%B7%E6%AD%A5",
         "tagIdList": [],
-        "createTime": 1552145346346,
-        "id": 1552145346346,
+        "createTime": 1552156637314,
+        "id": 1552156637314,
+        "updateTime": ""
+    },
+    {
+        "title": "git分支管理",
+        "content": "践行git分支管理、避免\"同步数据\"这种提交。\ndevelop用于满足日常的使用\nfeature用来开发新功能\nv1.0.0 将作为抽象层次最高存在，保持稳定性和有用提交，比如记事本功能，将用于展现战略性的计划。",
+        "tagIdList": [],
+        "createTime": 1552154766531,
+        "id": 1552154766531,
+        "updateTime": ""
+    },
+    {
+        "title": "简书",
+        "content": "对于自己之前写过的文章进行回炉、温故，主要目的在于精简和重复认知，便于加深印象。",
+        "tagIdList": [],
+        "createTime": 1552154993973,
+        "id": 1552154993973,
+        "updateTime": ""
+    },
+    {
+        "title": "sf-pc-web",
+        "content": "兼容、适配\n系统的了解上述两个步骤的践行规则，做到有计划、有步骤、有规律。\n而不是盲目去执行。",
+        "tagIdList": [],
+        "createTime": 1552155153517,
+        "id": 1552155153517,
+        "updateTime": ""
+    },
+    {
+        "title": "记事本",
+        "content": "对记事本进行重构，以组件的形式进行代码分离\n\n从安全，操作优化的方式改善记事本的使用。\n比如增加记事本内容加密功能",
+        "tagIdList": [],
+        "createTime": 1552156398174,
+        "id": 1552156398174,
+        "updateTime": ""
+    },
+    {
+        "title": "输出",
+        "content": "教学视频",
+        "tagIdList": [],
+        "createTime": 1552156498671,
+        "id": 1552156498671,
+        "updateTime": ""
+    },
+    {
+        "title": "输出",
+        "content": "自己的pc端UI框架\n",
+        "tagIdList": [],
+        "createTime": 1552156550421,
+        "id": 1552156550421,
+        "updateTime": ""
+    },
+    {
+        "title": "学习",
+        "content": "回顾Java",
+        "tagIdList": [],
+        "createTime": 1552156510680,
+        "id": 1552156510680,
+        "updateTime": ""
+    },
+    {
+        "title": "电台",
+        "content": "收听运营、理财、营销等话题",
+        "tagIdList": [],
+        "createTime": 1552156254021,
+        "id": 1552156254021,
+        "updateTime": ""
+    },
+    {
+        "title": "英语学习",
+        "content": "通过看感兴趣的视频进行学习。\n需要重温音标\n不建议在地铁上学，需要回到家里。",
+        "tagIdList": [],
+        "createTime": 1552156198543,
+        "id": 1552156198543,
+        "updateTime": ""
+    },
+    {
+        "title": "阅读",
+        "content": "增广贤文\n作为电子书的形式在状态极佳的情况下阅读，建议时间段为早上坐地铁的时间",
+        "tagIdList": [],
+        "createTime": 1552156133470,
+        "id": 1552156133470,
+        "updateTime": ""
+    },
+    {
+        "title": "阅读",
+        "content": "千年的古文\n考虑对这本书的内容兴趣不大，但是仍需要阅读，可在周六日早上进行阅读，后续工作日晚上也要抽出时间，早点读完！",
+        "tagIdList": [],
+        "createTime": 1552156008090,
+        "id": 1552156008090,
+        "updateTime": ""
+    },
+    {
+        "title": "慕课网",
+        "content": "移动端课程的学习",
+        "tagIdList": [],
+        "createTime": 1552155592471,
+        "id": 1552155592471,
+        "updateTime": ""
+    },
+    {
+        "title": "简书",
+        "content": "来世的相遇\n\n创建专题并持续更新。",
+        "tagIdList": [],
+        "createTime": 1552155494543,
+        "id": 1552155494543,
+        "updateTime": ""
+    },
+    {
+        "title": "简书",
+        "content": "高文集专题的持续更新\n回顾自己高中时期写的作品。",
+        "tagIdList": [],
+        "createTime": 1552155451351,
+        "id": 1552155451351,
+        "updateTime": ""
+    },
+    {
+        "title": "走出去计划",
+        "content": "要有意识的外出，比如看电影、购物、去公园、爬山等，而不是总是宅在家里，通过腾讯会员、淘宝等方式解决。",
+        "tagIdList": [],
+        "createTime": 1552155321975,
+        "id": 1552155321975,
+        "updateTime": ""
+    },
+    {
+        "title": "学习",
+        "content": "戴星河老师的走进大诗人系列-陶渊明",
+        "tagIdList": [],
+        "createTime": 1552155193873,
+        "id": 1552155193873,
         "updateTime": ""
     },
     {
         "title": "",
-        "content": "计算两点之间所成的角度  移动端旋转角度的计算",
+        "content": "\n做一个npm包  把内置的nodejs公共化\n",
         "tagIdList": [],
-        "createTime": 1552144079978,
-        "id": 1552144079978,
+        "createTime": 1552155044277,
+        "id": 1552155044277,
         "updateTime": ""
-    },
-    {
-        "title": "",
-        "content": "git工作规范、流程，减少团队的",
-        "tagIdList": [],
-        "createTime": 1551837899861,
-        "id": 1551837899861,
-        "updateTime": ""
-    },
-    {
-        "title": "",
-        "content": "取消github项目上的无用文件层次",
-        "tagIdList": [],
-        "createTime": 1552105530779,
-        "id": 1552105530779,
-        "updateTime": ""
-    },
-    {
-        "title": "",
-        "content": "手机、电脑的浏览器设置  不弹出翻译 设置为默认浏览器   从微信跳转不正常",
-        "tagIdList": [],
-        "createTime": 1552105270775,
-        "id": 1552105270775,
-        "updateTime": ""
-    },
-    {
-        "title": "2019-03-05",
-        "content": "sf-pc-web  记事本下载动画  解决手机端下载慢体验差的问题\n实践iview的svg",
-        "tagIdList": [],
-        "createTime": 1551753530381,
-        "id": 1551753530381,
-        "updateTime": 1551954474518
-    },
-    {
-        "title": "",
-        "content": "复读之前自己写的知识总结类的文章\n正则、递归相关",
-        "tagIdList": [],
-        "createTime": 1551711518112,
-        "id": 1551711518112,
-        "updateTime": ""
-    },
-    {
-        "title": "2019-02-28",
-        "content": "sf-pc-web，sf-mobile-web的兼容计划、手机端适配",
-        "tagIdList": [],
-        "createTime": 1551349328033,
-        "id": 1551349328033,
-        "updateTime": 1551612942993
-    },
-    {
-        "title": "2019-01-09",
-        "content": "做一个npm包  把内置的nodejs公共化",
-        "tagIdList": [],
-        "createTime": 1546997938804,
-        "id": 1546997938804,
-        "updateTime": 1551612923566
     }
 ]
