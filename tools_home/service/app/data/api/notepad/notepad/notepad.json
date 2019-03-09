@@ -1,18 +1,18 @@
 [
     {
         "title": "",
-        "content": "策略、模板编程模式",
+        "content": "规范git分支的使用，避免无用的提交",
         "tagIdList": [],
-        "createTime": 1551954116858,
-        "id": 1551954116858,
+        "createTime": 1552145346346,
+        "id": 1552145346346,
         "updateTime": ""
     },
     {
         "title": "",
-        "content": " line-height: 1;\n",
+        "content": "计算两点之间所成的角度  移动端旋转角度的计算",
         "tagIdList": [],
-        "createTime": 1551954149304,
-        "id": 1551954149304,
+        "createTime": 1552144079978,
+        "id": 1552144079978,
         "updateTime": ""
     },
     {
@@ -21,6 +21,22 @@
         "tagIdList": [],
         "createTime": 1551837899861,
         "id": 1551837899861,
+        "updateTime": ""
+    },
+    {
+        "title": "",
+        "content": "取消github项目上的无用文件层次",
+        "tagIdList": [],
+        "createTime": 1552105530779,
+        "id": 1552105530779,
+        "updateTime": ""
+    },
+    {
+        "title": "",
+        "content": "手机、电脑的浏览器设置  不弹出翻译 设置为默认浏览器   从微信跳转不正常",
+        "tagIdList": [],
+        "createTime": 1552105270775,
+        "id": 1552105270775,
         "updateTime": ""
     },
     {
