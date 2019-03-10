@@ -382,7 +382,7 @@ export default {
     window.onbeforeunload = this.onLevaeConfirm;
   },
   beforeDestroy() {
-    window.onbeforeunload = this.onLevaeConfirm;
+    window.onbeforeunload = null;
   }
 };
 </script>
