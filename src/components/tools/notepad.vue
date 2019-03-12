@@ -142,6 +142,9 @@
 
     .option {
       display: none;
+      @media screen and (max-width: 779px) {
+        display: block;
+      }
     }
   }
 }
