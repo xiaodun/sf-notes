@@ -304,9 +304,10 @@
               </Col>
               <Col class="option" span="10" offset="1">
                 <Button
+                  icon="md-download"
+                  :loading="item.isDownloading"
                   style="margin-right:10px"
                   shape="circle"
-                  icon="md-download"
                   @click="request_download_file(item)"
                 ></Button>
                 <Button
@@ -498,6 +499,7 @@ export default {
       this.$Message.error("上传失败!");
     },
     request_download_file(item) {
+      item.isDownloading = true;
       //提交下载文件
       this.$axios
         .request({
@@ -514,6 +516,7 @@ export default {
           a.click();
           a.remove();
           URL.revokeObjectURL(a.href);
+          item.isDownloading = false;
         });
     },
     change_filter_tag() {
@@ -681,6 +684,7 @@ export default {
         .then(response => {
           response.data.forEach((el, index, arr) => {
             el.describe = el.describe || "";
+            el.isDownloading = false;
           });
           this.fileModel.uploadList = response.data;
         });
