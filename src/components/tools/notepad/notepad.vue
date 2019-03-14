@@ -79,43 +79,6 @@
     }
   }
 
-  .tag-wrapper {
-    .tag {
-      margin: 10px 0 5px 0;
-
-      cursor: pointer;
-
-      &:hover {
-        .option {
-          display: block;
-        }
-      }
-
-      &.in-edit {
-        .option {
-          display: block;
-        }
-      }
-
-      .content {
-        line-height: 32px;
-
-        overflow: hidden;
-
-        height: 32px;
-
-        white-space: nowrap;
-        text-overflow: ellipsis;
-
-        border-bottom: 1px solid #ccc;
-      }
-
-      .option {
-        display: none;
-      }
-    }
-  }
-
   .upload-wrapper {
     margin-top: 15px;
 
@@ -222,58 +185,12 @@
         <div class="no-data" v-if="list && list.length === 0">暂无数据</div>
       </div>
       <!-- 标签管理 -->
-      <div class="tag-wrapper" v-if="showModelFlag === 'tag'">
-        <Button class="first-btn" @click="showModelFlag = 'notepad'">返回</Button>
-        <div class="first">
-          <Row>
-            <Col span="18">
-              <Input
-                v-model="tagModel.content"
-                @on-keyup.enter="request_add_tag(tagModel.content)"
-              />
-            </Col>
-            <Col span="1" offset="1">
-              <Button @click="request_add_tag(tagModel.content)" type="primary">添加</Button>
-            </Col>
-          </Row>
-          <div
-            class="tag"
-            :class="{'in-edit':item.isEdit}"
-            :key="item.id"
-            v-for="item in tagModel.list"
-          >
-            <Row>
-              <Col span="14">
-                <div class="content" v-show="!item.isEdit">{{item.content}}</div>
-                <Input v-show="item.isEdit" v-model="item.content"/>
-              </Col>
-              <Col class="option" span="8" offset="1">
-                <Button
-                  style="margin-right:10px;"
-                  v-show="!item.isEdit"
-                  @click="in_update_tag(item)"
-                  shape="circle"
-                  icon="md-create"
-                ></Button>
-                <Button
-                  v-show="!item.isEdit"
-                  @click="confirm_delete_tag(item)"
-                  style="margin-right:10px;"
-                  shape="circle"
-                  icon="md-remove"
-                ></Button>
-                <Button
-                  style="margin-right:10px;"
-                  v-show="item.isEdit"
-                  shape="circle"
-                  @click="reques_update_tag(item)"
-                  icon="md-checkmark"
-                ></Button>
-              </Col>
-            </Row>
-          </div>
-        </div>
-      </div>
+      <TagManagerComponent
+        @on-back="onChangeModel('notepad')"
+        v-model="tagModel.list"
+        v-if="showModelFlag === 'tag'"
+      ></TagManagerComponent>
+
       <!-- 文件管理 -->
       <div v-if="showModelFlag === 'file'" class="file-wrapper">
         <Button class="first-btn" @click="out_file_model()">返回</Button>
@@ -375,7 +292,7 @@
 //内置服务器配置
 import BuiltServiceConfig from "@root/service/app/config.json";
 import DateHelper from "@/assets/lib/DateHelper";
-
+import TagManagerComponent from "./tag_manager";
 export default {
   name: "",
   data() {
@@ -388,8 +305,7 @@ export default {
         isShow: false
       },
       tagModel: {
-        //标签管理相关
-        list: [] //已有标签
+        list: []
       },
       BuiltServiceConfig,
       requestPrefix: "/notepad/notepad", //记事 请求前缀
@@ -421,6 +337,9 @@ export default {
         content: ""
       }
     };
+  },
+  components: {
+    TagManagerComponent
   },
   filters: {},
   computed: {},
@@ -532,112 +451,27 @@ export default {
       this.pagination.page = argPage;
       this.request_get(this.pagination, { tagIdList: this.filterTagIdList });
     },
-    confirm_delete_tag(item) {
-      //确认是否删除标签
-      this.$Modal.confirm({
-        title: "删除标签",
-        content: "所有绑定了该标签的记事都会移除该标签,这个操作不可逆！",
-        onOk: this.rquest_delete_tag.bind(this, item)
-      });
-    },
-    rquest_delete_tag(item) {
-      //提交删除标签
-      this.$axios
-        .request({
-          method: "post",
-          url: this.requestPrefixTag + "/delete",
-          data: {
-            id: item.id
-          }
-        })
-        .then(response => {
-          this.request_get_tag();
-        });
-      //同步数据  将记事里面的标签数据删除
-      this.$axios
-        .request({
-          method: "post",
-          url: this.requestPrefix + "/removeTag",
-          data: {
-            id: item.id
-          }
-        })
-        .then(response => {
-          this.request_get(this.pagination, {
-            tagIdList: this.filterTagIdList
-          });
-        });
-    },
-    in_tag_model() {
-      //进入标签管理
-      this.showModelFlag = "tag";
-    },
-    in_file_model() {
-      //进入文件管理
-      this.showModelFlag = "file";
-      this.request_get_file();
-    },
-    out_file_model() {
-      //退出文件管理
-      this.showModelFlag = "notepad";
-    },
+
+    //  //同步数据  将记事里面的标签数据删除
+    //   this.$axios
+    //     .request({
+    //       method: "post",
+    //       url: this.requestPrefix + "/removeTag",
+    //       data: {
+    //         id: argItem.id
+    //       }
+    //     })
+    //     .then(response => {
+    //       this.request_get(this.pagination, {
+    //         tagIdList: this.filterTagIdList
+    //       });
+    //     });
+
     confirm_delete(argNotepad, index) {
       //确认是否删除记事
       this.active.notepad = argNotepad;
       this.active.index = index;
       this.deleteModel.isShow = true;
-    },
-    in_update_tag(item) {
-      //进入修改标签模式
-      item.isEdit = true;
-    },
-    abort_update_tag(item) {
-      //放弃标签的修改
-      item.isEdit = false;
-      item.content = item.originContent;
-    },
-    reques_update_tag(item) {
-      //提交标签的修改
-      item.content &&
-        item.content.trim() !== item.originContent.trim() &&
-        this.$axios
-          .request({
-            method: "post",
-            url: this.requestPrefixTag + "/update",
-            data: {
-              content: item.content,
-              id: item.id
-            }
-          })
-          .then(response => {
-            if (response.data.isFailed) {
-              //当新命名的标签与已有标签重名时
-              this.$Message.warning(response.data.message);
-            } else {
-              item.isEdit = false;
-            }
-          });
-    },
-    request_add_tag(argContent) {
-      //提交新增标签
-      argContent &&
-        this.$axios
-          .request({
-            method: "post",
-            url: this.requestPrefixTag + "/add",
-            data: {
-              content: argContent
-            }
-          })
-          .then(response => {
-            if (response.data.isFailed) {
-              // 当新增标签与已有标签重名时
-              this.$Message.warning(response.data.message);
-            } else {
-              this.tagModel.content = "";
-              this.request_get_tag();
-            }
-          });
     },
     confirm_delete_file(argItem) {
       this.$Modal.confirm({
@@ -662,21 +496,7 @@ export default {
           this.request_get_file();
         });
     },
-    request_get_tag() {
-      //提交获取标签
-      this.$axios
-        .request({
-          method: "post",
-          url: this.requestPrefixTag + "/get"
-        })
-        .then(response => {
-          this.tagModel.list = response.data.map((el, index, arr) => {
-            el.originContent = el.content;
-            el.isEdit = false;
-            return el;
-          });
-        });
-    },
+
     request_get_file() {
       //提交获取文件
       this.$axios
@@ -828,12 +648,13 @@ export default {
         //修改
         this.request_update(argNotepad);
       }
+    },
+    onChangeModel(argFlag) {
+      this.showModelFlag = argFlag;
     }
   },
 
   mounted() {
-    // 两者位置互换在单元测试的时候会报错 暂时不知道原因
-    this.request_get_tag();
     this.request_get(this.pagination);
   }
 };
