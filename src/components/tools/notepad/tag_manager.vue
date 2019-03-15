@@ -43,7 +43,7 @@
 </style>
 <template>
   <div id="tag_manager-vue-id">
-    <Button class="first-btn" @click="onBack">返回</Button>
+    <Button class="first-btn" @click="$emit('on-back')">返回</Button>
     <div class="first">
       <Row>
         <Col span="18">
@@ -202,9 +202,6 @@ export default {
           });
           this.$emit("change", list);
         });
-    },
-    onBack() {
-      this.$emit("on-back");
     }
   },
   computed: {},
