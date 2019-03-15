@@ -6,18 +6,6 @@
   padding-top: 45px;
   font-size: 14px;
 
-  .uploading-enter-active,
-  .uploading-leave-active {
-    transition: all 0.5s;
-  }
-
-  .uploading-enter,
-  .uploading-leave-to {
-    transform: translateY(30px);
-
-    opacity: 0;
-  }
-
   > .app-name {
     margin: 1em auto;
 
@@ -70,46 +58,6 @@
     white-space: pre-wrap;
     word-break: break-all;
   }
-
-  .file-wrapper {
-    .fileinfo {
-      margin: 20px;
-
-      color: #808080;
-    }
-  }
-
-  .upload-wrapper {
-    margin-top: 15px;
-
-    .file {
-      margin: 15px 0;
-
-      &:hover {
-        .option {
-          display: block;
-        }
-      }
-    }
-
-    .name {
-      overflow: hidden;
-
-      white-space: nowrap;
-      text-overflow: ellipsis;
-
-      border-bottom: 1px solid #ccc;
-
-      .vertical_lineheight(32px);
-    }
-
-    .option {
-      display: none;
-      @media screen and (max-width: 779px) {
-        display: block;
-      }
-    }
-  }
 }
 </style>
 <template>
@@ -117,8 +65,8 @@
     <!-- <h1 style="height:10px">h1</h1> -->
     <div class="wrapper">
       <div class="card-wrapper" v-show="showModelFlag === 'notepad'">
-        <Button icon="ios-pricetag" class="first-btn" @click="in_tag_model()">标签管理</Button>
-        <Button icon="ios-folder" class="first-btn" @click="in_file_model()">文件管理</Button>
+        <Button icon="ios-pricetag" class="first-btn" @click="showModelFlag = 'tag'">标签管理</Button>
+        <Button icon="ios-folder" class="first-btn" @click="showModelFlag = 'file'">文件管理</Button>
         <Button @click="edit()" type="primary" long>
           <span>添加</span>
         </Button>
@@ -186,65 +134,17 @@
       </div>
       <!-- 标签管理 -->
       <TagManagerComponent
-        @on-back="onChangeModel('notepad')"
-        v-model="tagModel.list"
         v-if="showModelFlag === 'tag'"
+        @on-back="()=>this.showModelFlag = 'notepad'"
+        v-model="tagModel.list"
       ></TagManagerComponent>
-
+      <FileManagerComponent
+        @on-back="()=>this.showModelFlag = 'notepad'"
+        v-if="showModelFlag === 'file'"
+        v-model="fileModel.uploadList"
+      ></FileManagerComponent>
       <!-- 文件管理 -->
-      <div v-if="showModelFlag === 'file'" class="file-wrapper">
-        <Button class="first-btn" @click="out_file_model()">返回</Button>
-        <Upload
-          :on-progress="upload_progress"
-          :on-error="upload_error"
-          :on-success="request_get_file"
-          ref="upload"
-          :show-upload-list="false"
-          :paste="true"
-          :action="BuiltServiceConfig.prefix + requestPrefixFile + '/upload'"
-          type="drag"
-          multiple
-        >
-          <div style="height:200px;line-height:200px;">点击或拖拽上传</div>
-        </Upload>
-        <!-- 上传 -->
-        <div class="upload-wrapper">
-          <!-- 正在上传的文件 -->
-          <transition-group tag="div" name="uploading">
-            <div class="uploading" :key="index" v-for="(item,index) in fileModel.uploadingList">
-              <div>{{item.name}}</div>
-              <Progress :percent="item.percent"/>
-            </div>
-          </transition-group>
-          <!-- 已经上传完毕 -->
-          <div class="file" :key="index" v-for="(item,index) in fileModel.uploadList">
-            <Row>
-              <Col span="12">
-                <div class="name">{{item.name}}</div>
-              </Col>
-              <Col class="option" span="10" offset="1">
-                <Button
-                  icon="md-download"
-                  :loading="item.isDownloading"
-                  style="margin-right:10px"
-                  shape="circle"
-                  @click="request_download_file(item)"
-                ></Button>
-                <Button
-                  shape="circle"
-                  icon="md-remove"
-                  style="margin-right:10px"
-                  @click="confirm_delete_file(item)"
-                ></Button>
-                <Button shape="circle" icon="md-information" @click="update_tag_info(item)"></Button>
-              </Col>
-              <Col span="14" v-if="item.describe">
-                <div class="fileinfo">{{item.describe}}</div>
-              </Col>
-            </Row>
-          </div>
-        </div>
-      </div>
+      <!-- v-if="showModelFlag === 'file'" class="file-wrapper" -->
     </div>
     <!-- 修改记事 -->
     <Modal v-model="editModel.isShow" :mask-closable="false" @on-visible-change="change_visible">
@@ -276,23 +176,12 @@
     <Modal v-model="deleteModel.isShow" @on-ok="request_del()">
       <div>确定删除?</div>
     </Modal>
-    <Modal title="修改描述" v-model="fileModel.isShow" @on-ok="request_update_fileinfo(fileModel)">
-      <div>
-        <Input
-          autofocus
-          @on-keyup.ctrl.enter="request_update_fileinfo(fileModel)"
-          type="textarea"
-          v-model="fileModel.describe"
-        />
-      </div>
-    </Modal>
   </div>
 </template>
 <script>
-//内置服务器配置
-import BuiltServiceConfig from "@root/service/app/config.json";
 import DateHelper from "@/assets/lib/DateHelper";
 import TagManagerComponent from "./tag_manager";
+import FileManagerComponent from "./file_manager";
 export default {
   name: "",
   data() {
@@ -300,17 +189,14 @@ export default {
       showModelFlag: "notepad", // tag 、 file
       fileModel: {
         //文件管理相关
-        uploadList: [], //以上传文件
-        uploadingList: [], //正在上传的文件
-        isShow: false
+        uploadList: [] //以上传文件
       },
       tagModel: {
         list: []
       },
-      BuiltServiceConfig,
+
       requestPrefix: "/notepad/notepad", //记事 请求前缀
-      requestPrefixTag: "/notepad/tag", //标签管理请求前缀
-      requestPrefixFile: "/notepad/upload", //上传文件请求前缀
+
       editModel: {
         //编辑记事的Modal
         isShow: false
@@ -339,7 +225,8 @@ export default {
     };
   },
   components: {
-    TagManagerComponent
+    TagManagerComponent,
+    FileManagerComponent
   },
   filters: {},
   computed: {},
@@ -359,11 +246,7 @@ export default {
 
       return result;
     },
-    update_tag_info(argItem) {
-      this.active.fileinfo = argItem;
-      this.fileModel.describe = argItem.describe;
-      this.fileModel.isShow = true;
-    },
+
     request_top_note(argItem) {
       this.$axios
         .request({
@@ -380,67 +263,7 @@ export default {
           this.$Message.success("置顶成功");
         });
     },
-    request_update_fileinfo(argItem) {
-      this.$axios
-        .request({
-          method: "post",
-          url: this.requestPrefixFile + "/update",
-          data: {
-            id: this.active.fileinfo.id,
-            describe: argItem.describe
-          }
-        })
-        .then(response => {
-          this.fileModel.isShow = false;
-          this.active.fileinfo.describe = argItem.describe;
-        });
-    },
-    upload_progress(event, file) {
-      let index = this.fileModel.uploadingList.findIndex(
-        el => el.file === file
-      );
 
-      if (index === -1) {
-        let uploadingFile = {};
-        uploadingFile.name = file.name;
-        uploadingFile.percent = event.percent | 0;
-        uploadingFile.file = file;
-        this.fileModel.uploadingList.push(uploadingFile);
-      } else {
-        this.fileModel.uploadingList[index].percent = event.percent | 0;
-      }
-      if (event.percent === 100) {
-        this.fileModel.uploadingList.splice(index, 1);
-      }
-    },
-    upload_error(error, file, filelist) {
-      let index = this.fileModel.uploadingList.findIndex(
-        el => el.file === file
-      );
-      this.fileModel.uploadingList.splice(index);
-      this.$Message.error("上传失败!");
-    },
-    request_download_file(item) {
-      item.isDownloading = true;
-      //提交下载文件
-      this.$axios
-        .request({
-          method: "get",
-          url: this.requestPrefixFile + "/download" + `?id=${item.id}`,
-          responseType: "blob"
-        })
-        .then(response => {
-          var blob = response.data;
-          var a = document.createElement("a");
-          a.download = item.name;
-          a.href = URL.createObjectURL(blob);
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          URL.revokeObjectURL(a.href);
-          item.isDownloading = false;
-        });
-    },
     change_filter_tag() {
       //过滤内容发生变化
       this.pagination.page = 1;
@@ -473,45 +296,7 @@ export default {
       this.active.index = index;
       this.deleteModel.isShow = true;
     },
-    confirm_delete_file(argItem) {
-      this.$Modal.confirm({
-        title: "文件删除",
-        content: "删除文件后,无法通过界面操作恢复!",
-        onOk: this.request_delete_file.bind(this, argItem)
-      });
-    },
-    request_delete_file(item) {
-      //提交删除文件
-      this.$axios
-        .request({
-          method: "post",
-          url: this.requestPrefixFile + "/delete",
-          data: {
-            id: item.id
-          }
-        })
-        .then(response => {
-          this.$Message.success("已删除!");
 
-          this.request_get_file();
-        });
-    },
-
-    request_get_file() {
-      //提交获取文件
-      this.$axios
-        .request({
-          method: "get",
-          url: this.requestPrefixFile + "/get"
-        })
-        .then(response => {
-          response.data.forEach((el, index, arr) => {
-            el.describe = el.describe || "";
-            el.isDownloading = false;
-          });
-          this.fileModel.uploadList = response.data;
-        });
-    },
     request_get(argPagination, argFilter = {}) {
       //得到日记信息
 
@@ -648,9 +433,6 @@ export default {
         //修改
         this.request_update(argNotepad);
       }
-    },
-    onChangeModel(argFlag) {
-      this.showModelFlag = argFlag;
     }
   },
 
