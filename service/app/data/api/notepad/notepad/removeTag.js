@@ -3,9 +3,8 @@
         //argData 数据的副本
         let tagId = argParams.id;
         argData.forEach((el, index, arr) => {
-            if (el.tagIdList) {
-                let index = el.tagIdList.indexOf(tagId);
-                el.tagIdList.splice(index, 1)
+            if (el.tagId === argParams.id) {
+                arr[index].tagId = null;
             }
         })
         return {
