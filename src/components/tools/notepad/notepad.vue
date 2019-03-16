@@ -64,7 +64,7 @@
   <div id="notepad-id">
     <!-- <h1 style="height:10px">h1</h1> -->
     <div class="wrapper">
-      <div class="card-wrapper" v-show="showModelFlag === 'notepad'">
+      <div class="card-wrapper" v-if="showModelFlag === 'notepad'">
         <Button icon="ios-pricetag" class="first-btn" @click="showModelFlag = 'tag'">标签管理</Button>
         <Button icon="ios-folder" class="first-btn" @click="showModelFlag = 'file'">文件管理</Button>
         <Button @click="onAdd()" type="primary" long>
@@ -136,6 +136,7 @@
         v-show="showModelFlag === 'tag'"
         @on-back="()=>this.showModelFlag = 'notepad'"
         v-model="tagList"
+        @on-delete-callback="onRequestDelTag"
       ></TagManagerComponent>
       <FileManagerComponent
         @on-back="()=>this.showModelFlag = 'notepad'"
@@ -202,7 +203,7 @@ export default {
       list: null,
       activNotepad: {},
       activeIndex: 0,
-      filterTagId: [] //用于过滤的标签id
+      filterTagId: "" //用于过滤的标签id
     };
   },
   components: {
@@ -263,21 +264,22 @@ export default {
       this.pagination.page = argPage;
       this.requestGet(this.pagination, { tagId: this.filterTagId });
     },
-
-    //  //同步数据  将记事里面的标签数据删除
-    //   this.$axios
-    //     .request({
-    //       method: "post",
-    //       url: this.requestPrefix + "/removeTag",
-    //       data: {
-    //         id: argItem.id
-    //       }
-    //     })
-    //     .then(response => {
-    //       this.request_get(this.pagination, {
-    //         tagId: this.filterTagId
-    //       });
-    //     });
+    onRequestDelTag(argId) {
+      //同步数据  将记事里面的标签数据删除
+      this.$axios
+        .request({
+          method: "post",
+          url: this.requestPrefix + "/removeTag",
+          data: {
+            id: argId
+          }
+        })
+        .then(response => {
+          this.requestGet(this.pagination, {
+            tagId: this.filterTagId
+          });
+        });
+    },
 
     onConfirmDelete(argNotepad, argIndex) {
       //确认是否删除记事

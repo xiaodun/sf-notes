@@ -175,6 +175,7 @@ export default {
             })
             .then(response => {
               this.requestGet();
+              this.$emit("on-delete-callback",argItem.id);
             });
         }
       });
