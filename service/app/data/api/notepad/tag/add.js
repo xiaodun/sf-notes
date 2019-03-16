@@ -3,13 +3,14 @@
     //argData 数据的副本
     argData = argData || [];
     let tag = {
-      id: +new Date (),
+      id: +new Date(),
       content: argParams.content,
+      color: argParams.color
     };
     //查重
-    let isExists = argData.some ((el, ndex) => {
+    let isExists = argData.some((el, ndex) => {
       let value = argParams.content;
-      return value.toLowerCase () == el.content.toLowerCase ();
+      return value.toLowerCase() == el.content.toLowerCase();
     });
     let responseData = {};
     if (isExists) {
@@ -24,7 +25,7 @@
         },
       };
     } else {
-      argData.unshift (tag);
+      argData.unshift(tag);
       responseData = {
         isWrite: true, //是否覆盖数据
         data: argData, //需要存储的新数据
@@ -37,4 +38,4 @@
     }
     return responseData;
   };
-}) ();
+})();

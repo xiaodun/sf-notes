@@ -5,7 +5,6 @@
   .tag {
     margin: 10px 0 5px 0;
 
-    cursor: pointer;
 
     &:hover {
       .option {
@@ -37,6 +36,9 @@
       .btn {
         margin-right: 10px;
       }
+      @media screen and (max-width: 960px) {
+        display: block;
+      }
     }
   }
 }
@@ -55,10 +57,13 @@
       </Row>
       <div class="tag" :class="{'in-edit':item.isEdit}" :key="item.id" v-for="(item,index) in list">
         <Row>
-          <Col span="14">
+          <Col span="9">
             <div class="content" v-show="!item.isEdit">{{item.content}}</div>
             <Input ref="updateInputList" v-show="item.isEdit" v-model.trim="item.updateValue"/>
           </Col>
+          <Col span="3" offset="1">
+            <input @change="onRequestUpdateColor(item,$event)" style="height:32px;cursor:pointer;" type="color" :value="item.color">
+          </col>
           <Col class="option" span="8" offset="1">
             <Button
               class="btn"
@@ -114,16 +119,31 @@ export default {
     };
   },
   methods: {
+    onRequestUpdateColor(argItem,$event){
+      argItem.color= $event.currentTarget.value;
+      this.$axios
+          .request({
+            method: "post",
+            url: this.requestPrefix + "/updateColor",
+            data: {
+              id: argItem.id,
+              color :argItem.color
+            }
+          })
+          .then(response => {
+            this.$Message.success("修改成功")
+          });
+    },
     onRequestAddTag(argContent) {
       //提交新增标签
-
       argContent.length > 0 &&
         this.$axios
           .request({
             method: "post",
             url: this.requestPrefix + "/add",
             data: {
-              content: argContent
+              content: argContent,
+              color :"#"+ (Math.random()*16777215 | 0).toString(16)
             }
           })
           .then(response => {
@@ -150,6 +170,8 @@ export default {
               data: {
                 id: argItem.id
               }
+
+              
             })
             .then(response => {
               this.requestGet();
