@@ -67,13 +67,13 @@
       <div class="card-wrapper" v-show="showModelFlag === 'notepad'">
         <Button icon="ios-pricetag" class="first-btn" @click="showModelFlag = 'tag'">标签管理</Button>
         <Button icon="ios-folder" class="first-btn" @click="showModelFlag = 'file'">文件管理</Button>
-        <Button @click="edit()" type="primary" long>
+        <Button @click="onAdd()" type="primary" long>
           <span>添加</span>
         </Button>
         <Select
           class="filter-select"
           placement="top"
-          @on-change="change_filter_tag()"
+          @on-change="onChangeFilterTag()"
           style="margin-top:10px;"
           v-model="filterTagIdList"
           multiple
@@ -99,13 +99,13 @@
                 {{item.title}}
               </p>
               <div slot="extra">
-                <Button type="text" @click="top_note(item)">置顶</Button>
+                <Button type="text" @click="onRequestTop(item)">置顶</Button>
                 <Icon
                   type="ios-open-outline"
-                  @click.stop="edit(item,index)"
+                  @click.stop="onEdit(item,index)"
                   style="margin-right:10px;cursor:pointer;"
                 ></Icon>
-                <Button @click.stop="confirm_delete(item,index)" style="color: red;">删除</Button>
+                <Button @click.stop="onConfirmDelete(item,index)" style="color: red;">删除</Button>
               </div>
               <div>
                 <div style="color: #bab9b9;">
@@ -116,13 +116,13 @@
                 </div>
                 <div></div>
 
-                <div class="show-area" v-html="convert_html(item.content)"></div>
+                <div class="show-area" v-html="convertHtml(item.content)"></div>
               </div>
             </Card>
           </div>
           <Page
             :current="pagination.page"
-            @on-change="change_page"
+            @on-change="onChangePage"
             style="margin-top: 20px;margin-bottom:20px;float: right;"
             :total="pagination.total"
             :page-size="pagination.size"
@@ -147,34 +147,31 @@
       <!-- v-if="showModelFlag === 'file'" class="file-wrapper" -->
     </div>
     <!-- 修改记事 -->
-    <Modal v-model="editModel.isShow" :mask-closable="false" @on-visible-change="change_visible">
+    <Modal v-model="isVisible" :mask-closable="false" @on-visible-change="onChangeVisible">
       <p slot="header"></p>
       <div>
         <Input
           ref="autoFocusInput"
-          @on-keyup.ctrl.enter="close_edit_model(notepad)"
+          @on-keyup.ctrl.enter="onCloseEditModel(activNotepad,activeIndex)"
           :clearable="true"
           :rows="10"
           placeholder="输入内容"
-          v-model="notepad.content"
+          v-model="activNotepad.content"
           type="textarea"
         />
 
         <br>
         <br>
-        <Select v-model="notepad.tagIdList" multiple>
+        <Select v-model="activNotepad.tagIdList" multiple>
           <Option :key="item.id" v-for="item in tagModel.list" :value="item.id">{{item.content}}</Option>
         </Select>
         <br>
         <br>
-        <Input :clearable="true" placeholder="输入标题" v-model="notepad.title"/>
+        <Input :clearable="true" placeholder="输入标题" v-model="activNotepad.title"/>
       </div>
       <div slot="footer">
-        <Button @click="close_edit_model(notepad)" type="primary">确定</Button>
+        <Button @click="onCloseEditModel(activNotepad,activeIndex)" type="primary">确定</Button>
       </div>
-    </Modal>
-    <Modal v-model="deleteModel.isShow" @on-ok="request_del()">
-      <div>确定删除?</div>
     </Modal>
   </div>
 </template>
@@ -196,32 +193,21 @@ export default {
       },
 
       requestPrefix: "/notepad/notepad", //记事 请求前缀
+      isShowAddModel: false,
+      isShowEditModel: false,
+      isShowDeleteModel: false,
 
-      editModel: {
-        //编辑记事的Modal
-        isShow: false
-      },
-      deleteModel: {
-        //删除记事的Modal
-        isShow: false
-      },
-
-      active: {
-        //当前活动的记事的索引
-        index: ""
-      },
+      //当前活动的记事的索引
+      activeIndex: "",
       pagination: {
         //记事 的分页器
         page: 1,
         size: 3
       },
       list: null,
-      filterTagIdList: [], //用于过滤的标签id
-      notepad: {
-        //日记的基本结构 用于日记的添加和修改
-        title: "",
-        content: ""
-      }
+      activNotepad: {},
+      activeIndex: 0,
+      filterTagIdList: [] //用于过滤的标签id
     };
   },
   components: {
@@ -229,12 +215,22 @@ export default {
     FileManagerComponent
   },
   filters: {},
-  computed: {},
+  computed: {
+    isVisible() {
+      return this.isShowAddModel || this.isShowEditModel;
+    }
+  },
   methods: {
-    top_note(argItem) {
-      this.request_top_note(argItem);
+    onAdd() {
+      this.activNotepad = {};
+      this.isShowAddModel = true;
     },
-    convert_html(argContent = "") {
+    onEdit(argNotepad, argIndex) {
+      this.activNotepad = { ...argNotepad };
+      this.isShowEditModel = true;
+      this.activeIndex = argIndex;
+    },
+    convertHtml(argContent = "") {
       // 将内容中的连接 替换成标签
 
       let pattern = /(http|https):\/\/[\S]+/g;
@@ -247,7 +243,7 @@ export default {
       return result;
     },
 
-    request_top_note(argItem) {
+    onRequestTop(argItem) {
       this.$axios
         .request({
           method: "post",
@@ -257,22 +253,22 @@ export default {
           }
         })
         .then(response => {
-          this.request_get(this.pagination, {
+          this.requestGet(this.pagination, {
             tagIdList: this.filterTagIdList
           });
           this.$Message.success("置顶成功");
         });
     },
 
-    change_filter_tag() {
+    onChangeFilterTag() {
       //过滤内容发生变化
       this.pagination.page = 1;
-      this.request_get(this.pagination, { tagIdList: this.filterTagIdList });
+      this.requestGet(this.pagination, { tagIdList: this.filterTagIdList });
     },
-    change_page(argPage) {
+    onChangePage(argPage) {
       //切换记事分页器
       this.pagination.page = argPage;
-      this.request_get(this.pagination, { tagIdList: this.filterTagIdList });
+      this.requestGet(this.pagination, { tagIdList: this.filterTagIdList });
     },
 
     //  //同步数据  将记事里面的标签数据删除
@@ -290,14 +286,32 @@ export default {
     //       });
     //     });
 
-    confirm_delete(argNotepad, index) {
+    onConfirmDelete(argNotepad, argIndex) {
       //确认是否删除记事
-      this.active.notepad = argNotepad;
-      this.active.index = index;
-      this.deleteModel.isShow = true;
+      this.$Modal.confirm({
+        title: "删除",
+        content: "确认删除这条记事嘛?",
+        onOk: () => {
+          this.$axios
+            .request({
+              method: "post",
+              url: this.requestPrefix + "/del",
+              data: {
+                id: argNotepad.id
+              }
+            })
+            .then(response => {
+              //从前端这里虽然在当前页没有数据时候会多请求一次,但是,一切因该以后台数据为准
+              //也是为了将逻辑内聚在request_get
+              this.requestGet(this.pagination, {
+                tagIdList: this.filterTagIdList
+              });
+            });
+        }
+      });
     },
 
-    request_get(argPagination, argFilter = {}) {
+    requestGet(argPagination, argFilter = {}) {
       //得到日记信息
 
       this.$axios
@@ -316,7 +330,7 @@ export default {
             let maxPage =
               ((response.data.total - 1) / this.pagination.size + 1) | 0;
             this.pagination.page = maxPage;
-            this.request_get(this.pagination, {
+            this.requestGet(this.pagination, {
               tagIdList: this.filterTagIdList
             });
           } else {
@@ -366,7 +380,16 @@ export default {
       }
       return notepad;
     },
-    request_add(argNotepad) {
+    onCloseEditModel(argNotepad, argIndex) {
+      if (this.isShowAddModel) {
+        this.requestAdd(argNotepad);
+      } else if (this.isShowEditModel) {
+        this.requestUpdate(argNotepad, argIndex);
+      }
+      this.isShowAddModel = false;
+      this.isShowEditModel = false;
+    },
+    requestAdd(argNotepad) {
       //提交添加记事
       this.filterTagIdList = [];
       this.$axios
@@ -377,10 +400,10 @@ export default {
         })
         .then(response => {
           this.pagination.page = 1;
-          this.request_get(this.pagination);
+          this.requestGet(this.pagination);
         });
     },
-    request_update(argNotepad) {
+    requestUpdate(argNotepad, argIndex) {
       //提交更改记事
       this.$axios
         .request({
@@ -390,54 +413,19 @@ export default {
         })
         .then(response => {
           let notepad = this.convert(response.data.data);
-          this.list.splice(this.active.index, 1, notepad);
+          this.list.splice(this.argIndex, 1, notepad);
         });
     },
-    change_visible() {
+    onChangeVisible() {
       //编辑、修改记事的时候  自动获得焦点
       this.$nextTick(() => {
         this.$refs.autoFocusInput.focus();
       });
-    },
-    edit(argNotepad = { title: "", content: "", tagIdList: [] }, argIndex) {
-      //编辑日记
-      this.editModel.isShow = true;
-      this.notepad = { ...argNotepad };
-      this.active.index = argIndex;
-    },
-    request_del() {
-      //请求删除记事
-      this.$axios
-        .request({
-          method: "post",
-          url: this.requestPrefix + "/del",
-          data: {
-            id: this.active.notepad.id
-          }
-        })
-        .then(response => {
-          //从前端这里虽然在当前页没有数据时候会多请求一次,但是,一切因该以后台数据为准
-          //也是为了将逻辑内聚在request_get
-          this.request_get(this.pagination, {
-            tagIdList: this.filterTagIdList
-          });
-        });
-    },
-
-    close_edit_model(argNotepad) {
-      this.editModel.isShow = false;
-      if (argNotepad.id === undefined) {
-        //创建
-        this.request_add(argNotepad);
-      } else {
-        //修改
-        this.request_update(argNotepad);
-      }
     }
   },
 
   mounted() {
-    this.request_get(this.pagination);
+    this.requestGet(this.pagination);
   }
 };
 </script>
