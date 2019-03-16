@@ -75,11 +75,10 @@
           placement="top"
           @on-change="onChangeFilterTag()"
           style="margin-top:10px;"
-          v-model="filterTagIdList"
-          multiple
+          v-model="filterTagId"
           placeholder="标签过滤"
         >
-          <Option :key="item.id" v-for="item in tagModel.list" :value="item.id">{{item.content}}</Option>
+          <Option :key="item.id" v-for="item in tagList" :value="item.id">{{item.content}}</Option>
         </Select>
         <!-- 记事的展示 -->
         <div v-if="list && list.length > 0">
@@ -134,14 +133,14 @@
       </div>
       <!-- 标签管理 -->
       <TagManagerComponent
-        v-if="showModelFlag === 'tag'"
+        v-show="showModelFlag === 'tag'"
         @on-back="()=>this.showModelFlag = 'notepad'"
-        v-model="tagModel.list"
+        v-model="tagList"
       ></TagManagerComponent>
       <FileManagerComponent
         @on-back="()=>this.showModelFlag = 'notepad'"
-        v-if="showModelFlag === 'file'"
-        v-model="fileModel.uploadList"
+        v-show="showModelFlag === 'file'"
+        v-model="fileUploadList"
       ></FileManagerComponent>
       <!-- 文件管理 -->
       <!-- v-if="showModelFlag === 'file'" class="file-wrapper" -->
@@ -162,8 +161,8 @@
 
         <br>
         <br>
-        <Select v-model="activNotepad.tagIdList" multiple>
-          <Option :key="item.id" v-for="item in tagModel.list" :value="item.id">{{item.content}}</Option>
+        <Select v-model="activNotepad.tagId">
+          <Option :key="item.id" v-for="item in tagList" :value="item.id">{{item.content}}</Option>
         </Select>
         <br>
         <br>
@@ -183,14 +182,10 @@ export default {
   name: "",
   data() {
     return {
+      isVisible: false,
       showModelFlag: "notepad", // tag 、 file
-      fileModel: {
-        //文件管理相关
-        uploadList: [] //以上传文件
-      },
-      tagModel: {
-        list: []
-      },
+      fileUploadList: [],
+      tagList: [],
 
       requestPrefix: "/notepad/notepad", //记事 请求前缀
       isShowAddModel: false,
@@ -207,7 +202,7 @@ export default {
       list: null,
       activNotepad: {},
       activeIndex: 0,
-      filterTagIdList: [] //用于过滤的标签id
+      filterTagId: [] //用于过滤的标签id
     };
   },
   components: {
@@ -215,20 +210,18 @@ export default {
     FileManagerComponent
   },
   filters: {},
-  computed: {
-    isVisible() {
-      return this.isShowAddModel || this.isShowEditModel;
-    }
-  },
+  computed: {},
   methods: {
     onAdd() {
       this.activNotepad = {};
       this.isShowAddModel = true;
+      this.isVisible = true;
     },
     onEdit(argNotepad, argIndex) {
       this.activNotepad = { ...argNotepad };
       this.isShowEditModel = true;
       this.activeIndex = argIndex;
+      this.isVisible = true;
     },
     convertHtml(argContent = "") {
       // 将内容中的连接 替换成标签
@@ -254,7 +247,7 @@ export default {
         })
         .then(response => {
           this.requestGet(this.pagination, {
-            tagIdList: this.filterTagIdList
+            tagId: this.filterTagId
           });
           this.$Message.success("置顶成功");
         });
@@ -263,12 +256,12 @@ export default {
     onChangeFilterTag() {
       //过滤内容发生变化
       this.pagination.page = 1;
-      this.requestGet(this.pagination, { tagIdList: this.filterTagIdList });
+      this.requestGet(this.pagination, { tagId: this.filterTagId });
     },
     onChangePage(argPage) {
       //切换记事分页器
       this.pagination.page = argPage;
-      this.requestGet(this.pagination, { tagIdList: this.filterTagIdList });
+      this.requestGet(this.pagination, { tagId: this.filterTagId });
     },
 
     //  //同步数据  将记事里面的标签数据删除
@@ -282,7 +275,7 @@ export default {
     //     })
     //     .then(response => {
     //       this.request_get(this.pagination, {
-    //         tagIdList: this.filterTagIdList
+    //         tagId: this.filterTagId
     //       });
     //     });
 
@@ -304,7 +297,7 @@ export default {
               //从前端这里虽然在当前页没有数据时候会多请求一次,但是,一切因该以后台数据为准
               //也是为了将逻辑内聚在request_get
               this.requestGet(this.pagination, {
-                tagIdList: this.filterTagIdList
+                tagId: this.filterTagId
               });
             });
         }
@@ -331,7 +324,7 @@ export default {
               ((response.data.total - 1) / this.pagination.size + 1) | 0;
             this.pagination.page = maxPage;
             this.requestGet(this.pagination, {
-              tagIdList: this.filterTagIdList
+              tagId: this.filterTagId
             });
           } else {
             this.list = [];
@@ -352,12 +345,12 @@ export default {
       ).get_format_date();
       notepad.createTime = createTime;
       //标题默认为创建日期
-      if (notepad.title === "") {
+      if (!notepad.title) {
         notepad.title = createTime;
       }
       //属性提前声明
       notepad.isMouseOver = false;
-      if (notepad.updateTime !== "") {
+      if (notepad.updateTime) {
         notepad.updateTime = DateHelper.get_instance_timestamp(
           notepad.updateTime
         ).get_format_date();
@@ -386,12 +379,13 @@ export default {
       } else if (this.isShowEditModel) {
         this.requestUpdate(argNotepad, argIndex);
       }
+      this.isVisible = false;
       this.isShowAddModel = false;
       this.isShowEditModel = false;
     },
     requestAdd(argNotepad) {
       //提交添加记事
-      this.filterTagIdList = [];
+      this.filterTagId = "";
       this.$axios
         .request({
           method: "post",
