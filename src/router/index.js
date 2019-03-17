@@ -23,7 +23,7 @@ const router = new Router({
     },
     {
       path: "/notepad_vue",
-      component: () => import("@/components/tools/notepad")
+      component: () => import("@/components/tools/notepad/notepad")
     },
     {
       path: "/clock_vue",
