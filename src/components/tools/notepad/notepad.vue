@@ -95,7 +95,11 @@
             >
               <p slot="title">
                 <Icon type="md-book"></Icon>
-                {{item.title}}
+                {{item.title }}
+                <span
+                  v-if="item.tagId"
+                  :style="{color:getTag(item.tagId).color}"
+                >{{item.tagId && ' - '+ getTag(item.tagId).content}}</span>
               </p>
               <div slot="extra">
                 <Button type="text" @click="onRequestTop(item)">置顶</Button>
@@ -213,6 +217,10 @@ export default {
   filters: {},
   computed: {},
   methods: {
+    getTag(argTagId) {
+      let tag = this.tagList.find(el => el.id === argTagId);
+      return tag;
+    },
     onAdd() {
       this.activNotepad = {};
       this.isShowAddModel = true;
