@@ -154,6 +154,7 @@
     <Modal v-model="isVisible" :mask-closable="false" @on-visible-change="onChangeVisible">
       <p slot="header"></p>
       <div>
+        <Checkbox style="margin-bottom:5px;" v-model="activNotepad.isEncrypt">加密</Checkbox>
         <Input
           ref="autoFocusInput"
           @on-keyup.ctrl.enter="onCloseEditModel(activNotepad,activeIndex)"
@@ -183,6 +184,7 @@
 import DateHelper from "@/assets/lib/DateHelper";
 import TagManagerComponent from "./tag_manager";
 import FileManagerComponent from "./file_manager";
+import CryptoJS from "crypto-js";
 export default {
   name: "",
   data() {
@@ -384,6 +386,20 @@ export default {
       return notepad;
     },
     onCloseEditModel(argNotepad, argIndex) {
+      let keyStr = "abcdefgabcdefg12";
+      var key = CryptoJS.enc.Utf8.parse(keyStr); //Latin1 w8m31+Yy/Nw6thPsMpO5fg==
+      var srcs = CryptoJS.enc.Utf8.parse("hello");
+      var encrypted = CryptoJS.AES.encrypt(srcs, key, {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7
+      });
+      console.log(encrypted.toString());
+      var decrypt = CryptoJS.AES.decrypt(encrypted.toString(), key, {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7
+      });
+      console.log(CryptoJS.enc.Utf8.stringify(decrypt).toString());
+      return;
       if (this.isShowAddModel) {
         this.requestAdd(argNotepad);
       } else if (this.isShowEditModel) {
