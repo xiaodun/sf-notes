@@ -109,6 +109,11 @@
                 >{{item.tagId && ' - '+ getTag(item.tagId).content}}</span>
               </p>
               <div slot="extra">
+                <!-- 设置了密钥  且被加密的信息 -->
+                <Checkbox
+                  v-show="publicKey != null && item.isEncrypt"
+                  @on-change="onToggleEncrypt(item,$event)"
+                >解密</Checkbox>
                 <Button type="text" @click="onRequestTop(item)">置顶</Button>
                 <Icon
                   type="ios-open-outline"
@@ -149,18 +154,18 @@
         v-model="tagList"
         @on-delete-callback="onRequestDelTag"
       ></TagManagerComponent>
+      <!-- 文件管理 -->
       <FileManagerComponent
         @on-back="()=>this.showModelFlag = 'notepad'"
         v-show="showModelFlag === 'file'"
         v-model="fileUploadList"
       ></FileManagerComponent>
+      <!-- 密钥管理 -->
       <KeyManagerComponent
         @on-back="()=>this.showModelFlag = 'notepad'"
         v-show="showModelFlag === 'key'"
         v-model="publicKey"
       ></KeyManagerComponent>
-      <!-- 文件管理 -->
-      <!-- v-if="showModelFlag === 'file'" class="file-wrapper" -->
     </div>
     <!-- 修改记事 -->
     <Modal v-model="isVisible" :mask-closable="false" @on-visible-change="onChangeVisible">
@@ -202,7 +207,8 @@ export default {
   name: "",
   data() {
     return {
-      publicKey: "",
+      // publicKey: null,
+      publicKey: "abcdefgabcdefg12",
       isVisible: false,
       showModelFlag: "notepad", // tag 、 file
       fileUploadList: [],
@@ -234,6 +240,36 @@ export default {
   filters: {},
   computed: {},
   methods: {
+    onToggleEncrypt(argItem, isChecked) {
+      if (isChecked) {
+        //解密
+        argItem.content = this.decrypt(this.publicKey, argItem.content);
+      } else {
+        //加密
+        argItem.content = this.encrypt(this.publicKey, argItem.content);
+      }
+      //标记当前文本状态
+      argItem.isDecripty = isChecked;
+    },
+    decrypt(argkey, argContent) {
+      var key = CryptoJS.enc.Utf8.parse(argkey);
+      var decrypt = CryptoJS.AES.decrypt(argContent, key, {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7
+      });
+      let string = CryptoJS.enc.Utf8.stringify(decrypt).toString();
+      return string;
+    },
+    encrypt(argkey, argContent) {
+      var key = CryptoJS.enc.Utf8.parse(argkey); //Latin1 w8m31+Yy/Nw6thPsMpO5fg==
+      var srcs = CryptoJS.enc.Utf8.parse(argContent);
+      var encrypted = CryptoJS.AES.encrypt(srcs, key, {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7
+      });
+      let string = encrypted.toString();
+      return string;
+    },
     getTag(argTagId) {
       let tag = this.tagList.find(el => el.id === argTagId);
       return tag;
@@ -401,20 +437,6 @@ export default {
       return notepad;
     },
     onCloseEditModel(argNotepad, argIndex) {
-      let keyStr = "abcdefgabcdefg12";
-      var key = CryptoJS.enc.Utf8.parse(keyStr); //Latin1 w8m31+Yy/Nw6thPsMpO5fg==
-      var srcs = CryptoJS.enc.Utf8.parse("hello");
-      var encrypted = CryptoJS.AES.encrypt(srcs, key, {
-        mode: CryptoJS.mode.ECB,
-        padding: CryptoJS.pad.Pkcs7
-      });
-      console.log(encrypted.toString());
-      var decrypt = CryptoJS.AES.decrypt(encrypted.toString(), key, {
-        mode: CryptoJS.mode.ECB,
-        padding: CryptoJS.pad.Pkcs7
-      });
-      console.log(CryptoJS.enc.Utf8.stringify(decrypt).toString());
-      return;
       if (this.isShowAddModel) {
         this.requestAdd(argNotepad);
       } else if (this.isShowEditModel) {
