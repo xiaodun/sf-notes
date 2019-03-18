@@ -1,12 +1,14 @@
 <style lang="less">
-@import "~@/assets/style/base.less";
+@import '~@/assets/style/base.less';
 
 #notepad-id {
-  //增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
-  padding-top: 45px;
   font-size: 14px;
 
-  > .app-name {
+//增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
+
+  padding-top: 45px;
+
+   > .app-name {
     margin: 1em auto;
 
     text-align: center;
@@ -27,7 +29,7 @@
     margin: 10px auto;
   }
 
-  > .wrapper {
+   > .wrapper {
     width: 85%;
     max-width: 650px;
     margin: 0 auto;
@@ -38,14 +40,17 @@
 
     text-align: center;
   }
+
   .filter-select {
     //解决出现、消失滚动条时  下拉选框错位的问题
     position: relative;
+
     .ivu-select-dropdown {
       //如果想让下拉选框弹出的位置在上面，则上面的空间-头部的空间需要大于165
       max-height: 165px;
     }
   }
+
   .card {
     margin-top: 10px;
 
@@ -59,6 +64,7 @@
     word-break: break-all;
   }
 }
+
 </style>
 <template>
   <div id="notepad-id">
@@ -67,6 +73,7 @@
       <div class="card-wrapper" v-if="showModelFlag === 'notepad'">
         <Button icon="ios-pricetag" class="first-btn" @click="showModelFlag = 'tag'">标签管理</Button>
         <Button icon="ios-folder" class="first-btn" @click="showModelFlag = 'file'">文件管理</Button>
+        <Button icon="md-lock" class="first-btn" @click="showModelFlag = 'key'">密钥管理</Button>
         <Button @click="onAdd()" type="primary" long>
           <span>添加</span>
         </Button>
@@ -147,6 +154,11 @@
         v-show="showModelFlag === 'file'"
         v-model="fileUploadList"
       ></FileManagerComponent>
+      <KeyManagerComponent
+        @on-back="()=>this.showModelFlag = 'notepad'"
+        v-show="showModelFlag === 'key'"
+        v-model="publicKey"
+      ></KeyManagerComponent>
       <!-- 文件管理 -->
       <!-- v-if="showModelFlag === 'file'" class="file-wrapper" -->
     </div>
@@ -184,11 +196,13 @@
 import DateHelper from "@/assets/lib/DateHelper";
 import TagManagerComponent from "./tag_manager";
 import FileManagerComponent from "./file_manager";
+import KeyManagerComponent from "./key_manager";
 import CryptoJS from "crypto-js";
 export default {
   name: "",
   data() {
     return {
+      publicKey: "",
       isVisible: false,
       showModelFlag: "notepad", // tag 、 file
       fileUploadList: [],
@@ -214,7 +228,8 @@ export default {
   },
   components: {
     TagManagerComponent,
-    FileManagerComponent
+    FileManagerComponent,
+    KeyManagerComponent
   },
   filters: {},
   computed: {},
