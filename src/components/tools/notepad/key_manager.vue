@@ -1,6 +1,5 @@
 <style lang="less">
-@import '~@/assets/style/base.less';
-
+@import "~@/assets/style/base.less";
 </style>
 <template>
   <div id="key_manager-vue-id" v-show="show">
@@ -73,7 +72,6 @@ export default {
       this.$emit("on-back");
     },
     onSubmit() {
-      console.log(this.$attrs);
       let formDomIview = this.$refs.formDomIview;
       formDomIview.validate(isValid => {
         if (isValid) {
