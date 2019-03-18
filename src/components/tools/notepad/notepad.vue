@@ -112,10 +112,12 @@
                 <!-- 设置了密钥  且被加密的信息 -->
                 <Checkbox
                   v-show="publicKey != null && item.isEncrypt"
+                  :value="item.isDecripty"
                   @on-change="onToggleEncrypt(item,$event)"
                 >解密</Checkbox>
                 <Button type="text" @click="onRequestTop(item)">置顶</Button>
                 <Icon
+                  v-show="!item.isEncrypt || item.isEncrypt && publicKey!=null"
                   type="ios-open-outline"
                   @click.stop="onEdit(item,index)"
                   style="margin-right:10px;cursor:pointer;"
@@ -171,7 +173,11 @@
     <Modal v-model="isVisible" :mask-closable="false" @on-visible-change="onChangeVisible">
       <p slot="header"></p>
       <div>
-        <Checkbox style="margin-bottom:5px;" v-model="activNotepad.isEncrypt">加密</Checkbox>
+        <Checkbox
+          v-show="publicKey != null"
+          style="margin-bottom:10px;"
+          v-model="activNotepad.isEncrypt"
+        >加密</Checkbox>
         <Input
           ref="autoFocusInput"
           @on-keyup.ctrl.enter="onCloseEditModel(activNotepad,activeIndex)"
@@ -207,8 +213,7 @@ export default {
   name: "",
   data() {
     return {
-      // publicKey: null,
-      publicKey: "abcdefgabcdefg12",
+      publicKey: null,
       isVisible: false,
       showModelFlag: "notepad", // tag 、 file
       fileUploadList: [],
@@ -252,8 +257,7 @@ export default {
       argItem.isDecripty = isChecked;
     },
     decrypt(argkey, argContent) {
-      var key = CryptoJS.enc.Utf8.parse(argkey);
-      var decrypt = CryptoJS.AES.decrypt(argContent, key, {
+      var decrypt = CryptoJS.AES.decrypt(argContent, argkey, {
         mode: CryptoJS.mode.ECB,
         padding: CryptoJS.pad.Pkcs7
       });
@@ -261,9 +265,8 @@ export default {
       return string;
     },
     encrypt(argkey, argContent) {
-      var key = CryptoJS.enc.Utf8.parse(argkey); //Latin1 w8m31+Yy/Nw6thPsMpO5fg==
       var srcs = CryptoJS.enc.Utf8.parse(argContent);
-      var encrypted = CryptoJS.AES.encrypt(srcs, key, {
+      var encrypted = CryptoJS.AES.encrypt(srcs, argkey, {
         mode: CryptoJS.mode.ECB,
         padding: CryptoJS.pad.Pkcs7
       });
@@ -281,6 +284,18 @@ export default {
     },
     onEdit(argNotepad, argIndex) {
       this.activNotepad = { ...argNotepad };
+
+      if (this.activNotepad.isEncrypt === true) {
+        this.activNotepad.isEncrypt = false;
+        if (!this.activNotepad.isDecripty) {
+          //在编辑的时候处于解密状态
+          this.activNotepad.isEncrypt = false;
+          this.activNotepad.content = this.decrypt(
+            this.publicKey,
+            this.activNotepad.content
+          );
+        }
+      }
       this.isShowEditModel = true;
       this.activeIndex = argIndex;
       this.isVisible = true;
@@ -437,10 +452,14 @@ export default {
       return notepad;
     },
     onCloseEditModel(argNotepad, argIndex) {
+      let notepad = { ...argNotepad };
+      if (notepad.isEncrypt) {
+        notepad.content = this.encrypt(this.publicKey, notepad.content);
+      }
       if (this.isShowAddModel) {
-        this.requestAdd(argNotepad);
+        this.requestAdd(notepad);
       } else if (this.isShowEditModel) {
-        this.requestUpdate(argNotepad, argIndex);
+        this.requestUpdate(notepad, argIndex);
       }
       this.isVisible = false;
       this.isShowAddModel = false;
@@ -448,6 +467,7 @@ export default {
     },
     requestAdd(argNotepad) {
       //提交添加记事
+
       this.filterTagId = "";
       this.$axios
         .request({
