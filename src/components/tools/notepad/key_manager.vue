@@ -3,12 +3,12 @@
 
 </style>
 <template>
-  <div id="key_manager-vue-id">
+  <div id="key_manager-vue-id" v-show="show">
     <Button class="first-btn" @click="onBack">返回</Button>
     <Alert>设置密钥后，务必要验证下能否正常解密，确保进一步的安全性。防止出现有1个以上的密钥情况</Alert>
     <Form ref="formDomIview" :model="formValidate" :rules="ruleValidate">
       <FormItem label="密钥" prop="firstKey">
-        <Input autofocus type="password" v-model="formValidate.firstKey"></Input>
+        <Input ref="firstIViewComponent" type="password" v-model="formValidate.firstKey"></Input>
       </FormItem>
       <FormItem label="确认密钥" prop="secondKey">
         <Input type="password" v-model="formValidate.secondKey"></Input>
@@ -28,6 +28,7 @@ export default {
     event: "change"
   },
   props: {
+    show: Boolean,
     publicKey: Object
   },
   data() {
@@ -72,6 +73,7 @@ export default {
       this.$emit("on-back");
     },
     onSubmit() {
+      console.log(this.$attrs);
       let formDomIview = this.$refs.formDomIview;
       formDomIview.validate(isValid => {
         if (isValid) {
@@ -86,6 +88,15 @@ export default {
     }
   },
   computed: {},
+  watch: {
+    show(newValue) {
+      if (newValue) {
+        this.$nextTick(() => {
+          this.$refs.firstIViewComponent.focus();
+        });
+      }
+    }
+  },
   mounted() {}
 };
 </script>

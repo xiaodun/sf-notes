@@ -165,7 +165,7 @@
       <!-- 密钥管理 -->
       <KeyManagerComponent
         @on-back="()=>this.showModelFlag = 'notepad'"
-        v-show="showModelFlag === 'key'"
+        :show="showModelFlag === 'key'"
         v-model="publicKey"
       ></KeyManagerComponent>
     </div>
