@@ -1,12 +1,14 @@
 <style lang="less">
-@import "~@/assets/style/base.less";
+@import '~@/assets/style/base.less';
 
 #notepad-id {
-  //增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
-  padding-top: 45px;
   font-size: 14px;
 
-  > .app-name {
+//增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
+
+  padding-top: 45px;
+
+   > .app-name {
     margin: 1em auto;
 
     text-align: center;
@@ -27,7 +29,7 @@
     margin: 10px auto;
   }
 
-  > .wrapper {
+   > .wrapper {
     width: 85%;
     max-width: 650px;
     margin: 0 auto;
@@ -38,14 +40,17 @@
 
     text-align: center;
   }
+
   .filter-select {
     //解决出现、消失滚动条时  下拉选框错位的问题
     position: relative;
+
     .ivu-select-dropdown {
       //如果想让下拉选框弹出的位置在上面，则上面的空间-头部的空间需要大于165
       max-height: 165px;
     }
   }
+
   .card {
     margin-top: 10px;
 
@@ -59,6 +64,7 @@
     word-break: break-all;
   }
 }
+
 </style>
 <template>
   <div id="notepad-id">
@@ -67,6 +73,7 @@
       <div class="card-wrapper" v-if="showModelFlag === 'notepad'">
         <Button icon="ios-pricetag" class="first-btn" @click="showModelFlag = 'tag'">标签管理</Button>
         <Button icon="ios-folder" class="first-btn" @click="showModelFlag = 'file'">文件管理</Button>
+        <Button icon="md-lock" class="first-btn" @click="showModelFlag = 'key'">密钥管理</Button>
         <Button @click="onAdd()" type="primary" long>
           <span>添加</span>
         </Button>
@@ -102,8 +109,15 @@
                 >{{item.tagId && ' - '+ getTag(item.tagId).content}}</span>
               </p>
               <div slot="extra">
+                <!-- 设置了密钥  且被加密的信息 -->
+                <Checkbox
+                  v-show="publicKey != null && item.isEncrypt"
+                  :value="item.isDecripty"
+                  @on-change="onToggleEncrypt(item,$event)"
+                >解密</Checkbox>
                 <Button type="text" @click="onRequestTop(item)">置顶</Button>
                 <Icon
+                  v-show="!item.isEncrypt || item.isEncrypt && publicKey!=null"
                   type="ios-open-outline"
                   @click.stop="onEdit(item,index)"
                   style="margin-right:10px;cursor:pointer;"
@@ -142,18 +156,28 @@
         v-model="tagList"
         @on-delete-callback="onRequestDelTag"
       ></TagManagerComponent>
+      <!-- 文件管理 -->
       <FileManagerComponent
         @on-back="()=>this.showModelFlag = 'notepad'"
         v-show="showModelFlag === 'file'"
         v-model="fileUploadList"
       ></FileManagerComponent>
-      <!-- 文件管理 -->
-      <!-- v-if="showModelFlag === 'file'" class="file-wrapper" -->
+      <!-- 密钥管理 -->
+      <KeyManagerComponent
+        @on-back="()=>this.showModelFlag = 'notepad'"
+        :show="showModelFlag === 'key'"
+        v-model="publicKey"
+      ></KeyManagerComponent>
     </div>
     <!-- 修改记事 -->
     <Modal v-model="isVisible" :mask-closable="false" @on-visible-change="onChangeVisible">
       <p slot="header"></p>
       <div>
+        <Checkbox
+          v-show="publicKey != null"
+          style="margin-bottom:10px;"
+          v-model="activNotepad.isEncrypt"
+        >加密</Checkbox>
         <Input
           ref="autoFocusInput"
           @on-keyup.ctrl.enter="onCloseEditModel(activNotepad,activeIndex)"
@@ -183,10 +207,13 @@
 import DateHelper from "@/assets/lib/DateHelper";
 import TagManagerComponent from "./tag_manager";
 import FileManagerComponent from "./file_manager";
+import KeyManagerComponent from "./key_manager";
+import CryptoJS from "crypto-js";
 export default {
   name: "",
   data() {
     return {
+      publicKey: null,
       isVisible: false,
       showModelFlag: "notepad", // tag 、 file
       fileUploadList: [],
@@ -212,11 +239,40 @@ export default {
   },
   components: {
     TagManagerComponent,
-    FileManagerComponent
+    FileManagerComponent,
+    KeyManagerComponent
   },
   filters: {},
   computed: {},
   methods: {
+    onToggleEncrypt(argItem, isChecked) {
+      if (isChecked) {
+        //解密
+        argItem.content = this.decrypt(this.publicKey, argItem.content);
+      } else {
+        //加密
+        argItem.content = this.encrypt(this.publicKey, argItem.content);
+      }
+      //标记当前文本状态
+      argItem.isDecripty = isChecked;
+    },
+    decrypt(argkey, argContent) {
+      var decrypt = CryptoJS.AES.decrypt(argContent, argkey, {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7
+      });
+      let string = CryptoJS.enc.Utf8.stringify(decrypt).toString();
+      return string;
+    },
+    encrypt(argkey, argContent) {
+      var srcs = CryptoJS.enc.Utf8.parse(argContent);
+      var encrypted = CryptoJS.AES.encrypt(srcs, argkey, {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7
+      });
+      let string = encrypted.toString();
+      return string;
+    },
     getTag(argTagId) {
       let tag = this.tagList.find(el => el.id === argTagId);
       return tag;
@@ -228,6 +284,18 @@ export default {
     },
     onEdit(argNotepad, argIndex) {
       this.activNotepad = { ...argNotepad };
+
+      if (this.activNotepad.isEncrypt === true) {
+        this.activNotepad.isEncrypt = false;
+        if (!this.activNotepad.isDecripty) {
+          //在编辑的时候处于解密状态
+          this.activNotepad.isEncrypt = false;
+          this.activNotepad.content = this.decrypt(
+            this.publicKey,
+            this.activNotepad.content
+          );
+        }
+      }
       this.isShowEditModel = true;
       this.activeIndex = argIndex;
       this.isVisible = true;
@@ -384,10 +452,14 @@ export default {
       return notepad;
     },
     onCloseEditModel(argNotepad, argIndex) {
+      let notepad = { ...argNotepad };
+      if (notepad.isEncrypt) {
+        notepad.content = this.encrypt(this.publicKey, notepad.content);
+      }
       if (this.isShowAddModel) {
-        this.requestAdd(argNotepad);
+        this.requestAdd(notepad);
       } else if (this.isShowEditModel) {
-        this.requestUpdate(argNotepad, argIndex);
+        this.requestUpdate(notepad, argIndex);
       }
       this.isVisible = false;
       this.isShowAddModel = false;
@@ -395,6 +467,7 @@ export default {
     },
     requestAdd(argNotepad) {
       //提交添加记事
+
       this.filterTagId = "";
       this.$axios
         .request({
