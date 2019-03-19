@@ -21,6 +21,7 @@
 </template>
 <script>
 import CryptoJS from "crypto-js";
+
 export default {
   name: "key_manager_vue",
   model: {
@@ -38,6 +39,15 @@ export default {
           {
             required: true,
             message: " "
+          },
+          {
+            validator: (rule, value, callback) => {
+              if (value && this.formValidate.secondKey) {
+                let formDomIview = this.$refs.formDomIview;
+                formDomIview.validateField("secondKey");
+              }
+              callback();
+            }
           }
         ],
         secondKey: [
