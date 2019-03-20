@@ -5,7 +5,6 @@
   .tag {
     margin: 10px 0 5px 0;
 
-
     &:hover {
       .option {
         display: block;
@@ -49,10 +48,10 @@
     <div class="first">
       <Row>
         <Col span="18">
-          <Input v-model.trim="tagName" @on-keyup.enter="onRequestAddTag(tagName)"/>
+          <Input v-model.trim="tagName" @on-keyup.enter="onAdd(tagName)"/>
         </Col>
         <Col span="1" offset="1">
-          <Button @click="onRequestAddTag(tagName)" type="primary">添加</Button>
+          <Button @click="onAdd(tagName)" type="primary">添加</Button>
         </Col>
       </Row>
       <div class="tag" :class="{'in-edit':item.isEdit}" :key="item.id" v-for="(item,index) in list">
@@ -62,8 +61,13 @@
             <Input ref="updateInputList" v-show="item.isEdit" v-model.trim="item.updateValue"/>
           </Col>
           <Col span="3" offset="1">
-            <input @change="onRequestUpdateColor(item,$event)" style="height:32px;cursor:pointer;" type="color" :value="item.color">
-          </col>
+            <input
+              @change="onUpdateColor(item,$event)"
+              style="height:32px;cursor:pointer;"
+              type="color"
+              :value="item.color"
+            >
+          </Col>
           <Col class="option" span="8" offset="1">
             <Button
               class="btn"
@@ -74,7 +78,7 @@
             ></Button>
             <Button
               v-show="!item.isEdit"
-              @click="onRquestDelete(item)"
+              @click="onConfirmDelete(item)"
               class="btn"
               shape="circle"
               icon="md-remove"
@@ -83,7 +87,7 @@
               class="btn"
               v-show="item.isEdit"
               shape="circle"
-              @click="onRequestUpdate(item)"
+              @click="onUpdate(item)"
               icon="md-checkmark"
             ></Button>
             <Button
@@ -119,88 +123,94 @@ export default {
     };
   },
   methods: {
-    onRequestUpdateColor(argItem,$event){
-      argItem.color= $event.currentTarget.value;
-      this.$axios
-          .request({
-            method: "post",
-            url: this.requestPrefix + "/updateColor",
-            data: {
-              id: argItem.id,
-              color :argItem.color
-            }
-          })
-          .then(response => {
-            this.$Message.success("修改成功")
-          });
+    async onUpdateColor(argItem, $event) {
+      argItem.color = $event.currentTarget.value;
+      let response = await this.requestUpdateColor(argItem);
+      this.$Message.success("修改成功");
     },
-    onRequestAddTag(argContent) {
+    requestUpdateColor(argItem) {
+      this.$axios.request({
+        method: "post",
+        url: this.requestPrefix + "/updateColor",
+        data: {
+          id: argItem.id,
+          color: argItem.color
+        }
+      });
+    },
+    async onAdd(argContent) {
+      if (argContent.length > 0) {
+        let response = await this.requestAdd(argContent);
+        if (response.data.isFailed) {
+          // 当新增标签与已有标签重名时
+          this.$Message.warning(response.data.message);
+        } else {
+          this.tagName = "";
+          this.onGet();
+        }
+      }
+    },
+    requestAdd(argContent) {
       //提交新增标签
-      argContent.length > 0 &&
-        this.$axios
-          .request({
-            method: "post",
-            url: this.requestPrefix + "/add",
-            data: {
-              content: argContent,
-              color :"#"+ (Math.random()*16777215 | 0).toString(16)
-            }
-          })
-          .then(response => {
-            if (response.data.isFailed) {
-              // 当新增标签与已有标签重名时
-              this.$Message.warning(response.data.message);
-            } else {
-              this.tagName = "";
-              this.requestGet();
-            }
-          });
-    },
 
-    onRquestDelete(argItem) {
+      return this.$axios.request({
+        method: "post",
+        url: this.requestPrefix + "/add",
+        data: {
+          content: argContent,
+          color: "#" + ((Math.random() * 16777215) | 0).toString(16)
+        }
+      });
+    },
+    onConfirmDelete(argItem) {
       //提交删除标签
       this.$Modal.confirm({
         title: "删除标签",
         content: "所有绑定了该标签的记事都会移除该标签,这个操作不可逆！",
         onOk: () => {
-          this.$axios
-            .request({
-              method: "post",
-              url: this.requestPrefix + "/delete",
-              data: {
-                id: argItem.id
-              }
-
-              
-            })
-            .then(response => {
-              this.requestGet();
-              this.$emit("on-delete-callback",argItem.id);
-            });
+          this.onDelete(argItem);
         }
       });
     },
-    onRequestUpdate(argItem) {
-      argItem.updateValue.length &&
-        argItem.updateValue !== argItem.content &&
-        this.$axios
-          .request({
-            method: "post",
-            url: this.requestPrefix + "/update",
-            data: {
-              content: argItem.updateValue,
-              id: argItem.id
-            }
-          })
-          .then(response => {
-            if (response.data.isFailed) {
-              //当新命名的标签与已有标签重名时
-              this.$Message.warning(response.data.message);
-            } else {
-              argItem.isEdit = false;
-              argItem.content = argItem.updateValue;
-            }
-          });
+    async onDelete(argItem) {
+      let response = await this.requestDelete(argItem);
+      this.onGet();
+      this.$emit("on-delete-callback", argItem.id);
+    },
+    requestDelete(argItem) {
+      return this.$axios.request({
+        method: "post",
+        url: this.requestPrefix + "/delete",
+        data: {
+          id: argItem.id
+        }
+      });
+    },
+
+    async onUpdate(argItem) {
+      if (
+        argItem.updateValue.length &&
+        argItem.updateValue !== argItem.content
+      ) {
+        let response = await this.requestUpdate(argItem);
+        if (response.data.isFailed) {
+          //当新命名的标签与已有标签重名时
+          this.$Message.warning(response.data.message);
+        } else {
+          argItem.isEdit = false;
+          argItem.content = argItem.updateValue;
+        }
+      }
+    },
+    requestUpdate(argItem) {
+      return this.$axios.request({
+        method: "post",
+        url: this.requestPrefix + "/update",
+        data: {
+          content: argItem.updateValue,
+          id: argItem.id
+        }
+      });
     },
     onToggleEdit(argItem, argFlag, argIndex) {
       argItem.updateValue = argItem.content;
@@ -210,26 +220,26 @@ export default {
           this.$refs.updateInputList[argIndex].focus();
         });
     },
+    async onGet() {
+      let response = await this.requestGet();
+      let list = response.data.map((el, index, arr) => {
+        el.updateValue = el.content;
+        el.isEdit = false;
+        return el;
+      });
+      this.$emit("change", list);
+    },
     requestGet() {
       //提交获取标签
-      this.$axios
-        .request({
-          method: "post",
-          url: this.requestPrefix + "/get"
-        })
-        .then(response => {
-          let list = response.data.map((el, index, arr) => {
-            el.updateValue = el.content;
-            el.isEdit = false;
-            return el;
-          });
-          this.$emit("change", list);
-        });
+      return this.$axios.request({
+        method: "post",
+        url: this.requestPrefix + "/get"
+      });
     }
   },
   computed: {},
   mounted() {
-    this.requestGet();
+    this.onGet();
   }
 };
 </script>

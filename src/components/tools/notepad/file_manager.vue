@@ -58,7 +58,7 @@
     <Upload
       :on-progress="onUploadProgress"
       :on-error="onUploadError"
-      :on-success="onRequestGet"
+      :on-success="onGet"
       ref="upload"
       :show-upload-list="false"
       :paste="true"
@@ -89,7 +89,7 @@
               :loading="item.isDownloading"
               style="margin-right:10px"
               shape="circle"
-              @click="onRequestDownload(item)"
+              @click="onDownload(item)"
             ></Button>
             <Button
               shape="circle"
@@ -105,7 +105,7 @@
         </Row>
       </div>
     </div>
-    <Modal title="修改描述" v-model="isShowUpdate" @on-ok="onRequestUpdate(activeFile)">
+    <Modal title="修改描述" v-model="isShowUpdate" @on-ok="onUpdate(activeFile)">
       <div>
         <Input
           ref="updateDom"
@@ -143,21 +143,21 @@ export default {
     };
   },
   methods: {
-    onRequestUpdate(argItem) {
-      this.$axios
-        .request({
-          method: "post",
-          url: this.requestPrefix + "/update",
-          data: {
-            id: argItem.id,
-            describe: argItem.describe
-          }
-        })
-        .then(response => {
-          this.$Message.success("修改成功");
-          this.isShowUpdate = false;
-          this.lastFile.describe = argItem.describe;
-        });
+    async onUpdate(argItem) {
+      let response = await this.requestUpdate(argItem);
+      this.$Message.success("修改成功");
+      this.isShowUpdate = false;
+      this.lastFile.describe = argItem.describe;
+    },
+    requestUpdate(argItem) {
+      return this.$axios.request({
+        method: "post",
+        url: this.requestPrefix + "/update",
+        data: {
+          id: argItem.id,
+          describe: argItem.describe
+        }
+      });
     },
     inUpdateModal(argItem) {
       this.lastFile = argItem;
@@ -186,68 +186,70 @@ export default {
     onUploadError(error, file, filelist) {
       this.$Message.error("上传失败!");
     },
-    onRequestDownload(argItem) {
+    async onDownload(argItem) {
       argItem.isDownloading = true;
+      let response = await this.requestDownload(argItem);
+      var blob = response.data;
+      var a = document.createElement("a");
+      a.download = argItem.name;
+      a.href = URL.createObjectURL(blob);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+      argItem.isDownloading = false;
+    },
+    requestDownload(argItem) {
       //提交下载文件
-      this.$axios
-        .request({
-          method: "get",
-          url: this.requestPrefix + "/download" + `?id=${argItem.id}`,
-          responseType: "blob"
-        })
-        .then(response => {
-          var blob = response.data;
-          var a = document.createElement("a");
-          a.download = argItem.name;
-          a.href = URL.createObjectURL(blob);
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          URL.revokeObjectURL(a.href);
-          argItem.isDownloading = false;
-        });
+      return this.$axios.request({
+        method: "get",
+        url: this.requestPrefix + "/download" + `?id=${argItem.id}`,
+        responseType: "blob"
+      });
     },
     onConfirmDelete(argItem) {
       this.$Modal.confirm({
         title: "文件删除",
         content: "删除文件后,无法通过界面操作恢复!",
         onOk: () => {
-          this.$axios
-            .request({
-              method: "post",
-              url: this.requestPrefix + "/delete",
-              data: {
-                id: argItem.id
-              }
-            })
-            .then(response => {
-              this.$Message.success("已删除!");
-
-              this.onRequestGet();
-            });
+          this.onDelete(argItem);
         }
       });
     },
+    async onDelete(argItem) {
+      let response = await this.requestDelete(argItem);
+      this.$Message.success("已删除!");
 
-    onRequestGet() {
+      this.onGet();
+    },
+    requestDelete(argItem) {
+      return this.$axios.request({
+        method: "post",
+        url: this.requestPrefix + "/delete",
+        data: {
+          id: argItem.id
+        }
+      });
+    },
+    async onGet() {
+      let response = await this.requestGet();
+      response.data.forEach((el, index, arr) => {
+        el.describe = el.describe || "";
+        el.isDownloading = false;
+      });
+      this.$emit("change", response.data);
+    },
+    requestGet() {
       //获取文件
-      this.$axios
-        .request({
-          method: "get",
-          url: this.requestPrefix + "/get"
-        })
-        .then(response => {
-          response.data.forEach((el, index, arr) => {
-            el.describe = el.describe || "";
-            el.isDownloading = false;
-          });
-          this.$emit("change", response.data);
-        });
+      return this.$axios.request({
+        method: "get",
+        url: this.requestPrefix + "/get"
+      });
     }
   },
   computed: {},
   mounted() {
-    this.onRequestGet();
+    this.onGet();
   }
 };
 </script>
