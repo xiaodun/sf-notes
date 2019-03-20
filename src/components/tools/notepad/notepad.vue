@@ -82,6 +82,7 @@
           @on-change="onChangeFilterTag()"
           style="margin-top:10px;"
           v-model="filterTagId"
+          clearable
           placeholder="标签过滤"
         >
           <Option :key="item.id" v-for="item in tagList" :value="item.id">{{item.content}}</Option>
