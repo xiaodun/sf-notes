@@ -340,7 +340,6 @@ export default {
       this.onGet(this.pagination, { tagId: this.filterTagId });
     },
     async onDeleteTag(argId) {
-      debugger;
       let response = await this.requestDelTag(argId);
       this.onGet(this.pagination, {
         tagId: this.filterTagId
@@ -461,7 +460,7 @@ export default {
       if (this.isShowAddModel) {
         this.onAdd(notepad);
       } else if (this.isShowEditModel) {
-        this.requestUpdate(notepad, argIndex);
+        this.onUpdate(notepad, argIndex);
       }
       this.isVisible = false;
       this.isShowAddModel = false;
@@ -482,18 +481,18 @@ export default {
         data: argNotepad
       });
     },
+    async onUpdate(argNotepad, argIndex) {
+      let response = await this.requestUpdate(argNotepad, argIndex);
+      let notepad = this.convert(response.data.data);
+      this.list.splice(argIndex, 1, notepad);
+    },
     requestUpdate(argNotepad, argIndex) {
       //提交更改记事
-      this.$axios
-        .request({
-          method: "post",
-          url: this.requestPrefix + "/update",
-          data: argNotepad
-        })
-        .then(response => {
-          let notepad = this.convert(response.data.data);
-          this.list.splice(this.argIndex, 1, notepad);
-        });
+      return this.$axios.request({
+        method: "post",
+        url: this.requestPrefix + "/update",
+        data: argNotepad
+      });
     },
     onChangeVisible() {
       //编辑、修改记事的时候  自动获得焦点

@@ -82,7 +82,6 @@ export default {
       this.$emit("on-back");
     },
     onSubmit() {
-      console.log(this.$attrs);
       let formDomIview = this.$refs.formDomIview;
       formDomIview.validate(isValid => {
         if (isValid) {
