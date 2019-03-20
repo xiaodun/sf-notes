@@ -390,7 +390,7 @@ export default {
         let maxPage =
           ((response.data.total - 1) / this.pagination.size + 1) | 0;
         this.pagination.page = maxPage;
-        this.requestGet(this.pagination, {
+        this.onGet(this.pagination, {
           tagId: this.filterTagId
         });
       } else {
