@@ -1,14 +1,14 @@
 <style lang="less">
-@import '~@/assets/style/base.less';
+@import "~@/assets/style/base.less";
 
 #notepad-id {
   font-size: 14px;
 
-//增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
+  //增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
 
   padding-top: 45px;
 
-   > .app-name {
+  > .app-name {
     margin: 1em auto;
 
     text-align: center;
@@ -29,7 +29,7 @@
     margin: 10px auto;
   }
 
-   > .wrapper {
+  > .wrapper {
     width: 85%;
     max-width: 650px;
     margin: 0 auto;
@@ -64,7 +64,6 @@
     word-break: break-all;
   }
 }
-
 </style>
 <template>
   <div id="notepad-id">
@@ -74,7 +73,7 @@
         <Button icon="ios-pricetag" class="first-btn" @click="showModelFlag = 'tag'">标签管理</Button>
         <Button icon="ios-folder" class="first-btn" @click="showModelFlag = 'file'">文件管理</Button>
         <Button icon="md-lock" class="first-btn" @click="showModelFlag = 'key'">密钥管理</Button>
-        <Button @click="onAdd()" type="primary" long>
+        <Button @click="onInAdd()" type="primary" long>
           <span>添加</span>
         </Button>
         <Select
@@ -115,11 +114,11 @@
                   :value="item.isDecripty"
                   @on-change="onToggleEncrypt(item,$event)"
                 >解密</Checkbox>
-                <Button type="text" @click="onRequestTop(item)">置顶</Button>
+                <Button type="text" @click="onTop(item)">置顶</Button>
                 <Icon
                   v-show="!item.isEncrypt || item.isEncrypt && publicKey!=null"
                   type="ios-open-outline"
-                  @click.stop="onEdit(item,index)"
+                  @click.stop="onInEdit(item,index)"
                   style="margin-right:10px;cursor:pointer;"
                 ></Icon>
                 <Button @click.stop="onConfirmDelete(item,index)" style="color: red;">删除</Button>
@@ -154,7 +153,7 @@
         v-show="showModelFlag === 'tag'"
         @on-back="()=>this.showModelFlag = 'notepad'"
         v-model="tagList"
-        @on-delete-callback="onRequestDelTag"
+        @on-delete-callback="onDeleteTag"
       ></TagManagerComponent>
       <!-- 文件管理 -->
       <FileManagerComponent
@@ -277,12 +276,12 @@ export default {
       let tag = this.tagList.find(el => el.id === argTagId);
       return tag;
     },
-    onAdd() {
+    onInAdd() {
       this.activNotepad = {};
       this.isShowAddModel = true;
       this.isVisible = true;
     },
-    onEdit(argNotepad, argIndex) {
+    onInEdit(argNotepad, argIndex) {
       this.activNotepad = { ...argNotepad };
 
       if (this.activNotepad.isEncrypt === true) {
@@ -312,49 +311,49 @@ export default {
 
       return result;
     },
-
-    onRequestTop(argItem) {
-      this.$axios
-        .request({
-          method: "post",
-          url: this.requestPrefix + "/top",
-          data: {
-            id: argItem.id
-          }
-        })
-        .then(response => {
-          this.requestGet(this.pagination, {
-            tagId: this.filterTagId
-          });
-          this.$Message.success("置顶成功");
-        });
+    async onTop(argItem) {
+      let response = await this.requestTop(argItem);
+      this.onGet(this.pagination, {
+        tagId: this.filterTagId
+      });
+      this.$Message.success("置顶成功");
+    },
+    requestTop(argItem) {
+      return this.$axios.request({
+        method: "post",
+        url: this.requestPrefix + "/top",
+        data: {
+          id: argItem.id
+        }
+      });
     },
 
     onChangeFilterTag() {
       //过滤内容发生变化
       this.pagination.page = 1;
-      this.requestGet(this.pagination, { tagId: this.filterTagId });
+      this.onGet(this.pagination, { tagId: this.filterTagId });
     },
     onChangePage(argPage) {
       //切换记事分页器
       this.pagination.page = argPage;
-      this.requestGet(this.pagination, { tagId: this.filterTagId });
+      this.onGet(this.pagination, { tagId: this.filterTagId });
     },
-    onRequestDelTag(argId) {
+    async onDeleteTag(argId) {
+      debugger;
+      let response = await this.requestDelTag(argId);
+      this.onGet(this.pagination, {
+        tagId: this.filterTagId
+      });
+    },
+    requestDelTag(argId) {
       //同步数据  将记事里面的标签数据删除
-      this.$axios
-        .request({
-          method: "post",
-          url: this.requestPrefix + "/removeTag",
-          data: {
-            id: argId
-          }
-        })
-        .then(response => {
-          this.requestGet(this.pagination, {
-            tagId: this.filterTagId
-          });
-        });
+      return this.$axios.request({
+        method: "post",
+        url: this.requestPrefix + "/removeTag",
+        data: {
+          id: argId
+        }
+      });
     },
 
     onConfirmDelete(argNotepad, argIndex) {
@@ -363,57 +362,59 @@ export default {
         title: "删除",
         content: "确认删除这条记事嘛?",
         onOk: () => {
-          this.$axios
-            .request({
-              method: "post",
-              url: this.requestPrefix + "/del",
-              data: {
-                id: argNotepad.id
-              }
-            })
-            .then(response => {
-              //从前端这里虽然在当前页没有数据时候会多请求一次,但是,一切因该以后台数据为准
-              //也是为了将逻辑内聚在request_get
-              this.requestGet(this.pagination, {
-                tagId: this.filterTagId
-              });
-            });
+          this.onDelete(argNotepad);
         }
       });
     },
+    async onDelete(argNotepad) {
+      let response = await this.requestDelete(argNotepad);
+      //从前端这里虽然在当前页没有数据时候会多请求一次,但是,一切因该以后台数据为准
+      //也是为了将逻辑内聚在request_get
+      this.onGet(this.pagination, {
+        tagId: this.filterTagId
+      });
+    },
+    requestDelete(argNotepad) {
+      return this.$axios.request({
+        method: "post",
+        url: this.requestPrefix + "/del",
+        data: {
+          id: argNotepad.id
+        }
+      });
+    },
+    async onGet(argPagination, argFilter = {}) {
+      let response = await this.requestGet(argPagination, argFilter);
+      if (response.data.data.length === 0 && this.pagination.page > 1) {
+        //获取的数据条数为0 且不是第一页  会根据后台返回的数据计算最大的一页进行请求
+        let maxPage =
+          ((response.data.total - 1) / this.pagination.size + 1) | 0;
+        this.pagination.page = maxPage;
+        this.requestGet(this.pagination, {
+          tagId: this.filterTagId
+        });
+      } else {
+        this.list = [];
+        response.data.data.forEach(el => {
+          let notepad = this.convert(el);
+          this.list.push(notepad);
+        });
+      }
 
+      this.pagination.total = response.data.total;
+    },
     requestGet(argPagination, argFilter = {}) {
       //得到日记信息
 
-      this.$axios
-        .request({
-          method: "post",
-          url: this.requestPrefix + "/get",
-          data: {
-            page: argPagination.page,
-            size: argPagination.size,
-            filter: argFilter
-          }
-        })
-        .then(response => {
-          if (response.data.data.length === 0 && this.pagination.page > 1) {
-            //获取的数据条数为0 且不是第一页  会根据后台返回的数据计算最大的一页进行请求
-            let maxPage =
-              ((response.data.total - 1) / this.pagination.size + 1) | 0;
-            this.pagination.page = maxPage;
-            this.requestGet(this.pagination, {
-              tagId: this.filterTagId
-            });
-          } else {
-            this.list = [];
-            response.data.data.forEach(el => {
-              let notepad = this.convert(el);
-              this.list.push(notepad);
-            });
-          }
-
-          this.pagination.total = response.data.total;
-        });
+      return this.$axios.request({
+        method: "post",
+        url: this.requestPrefix + "/get",
+        data: {
+          page: argPagination.page,
+          size: argPagination.size,
+          filter: argFilter
+        }
+      });
     },
     convert(argNotepad) {
       //转换请求过来的日记数据
@@ -457,7 +458,7 @@ export default {
         notepad.content = this.encrypt(this.publicKey, notepad.content);
       }
       if (this.isShowAddModel) {
-        this.requestAdd(notepad);
+        this.onAdd(notepad);
       } else if (this.isShowEditModel) {
         this.requestUpdate(notepad, argIndex);
       }
@@ -465,20 +466,20 @@ export default {
       this.isShowAddModel = false;
       this.isShowEditModel = false;
     },
+    async onAdd(argNotepad) {
+      this.filterTagId = "";
+      let response = await this.requestAdd(argNotepad);
+      this.pagination.page = 1;
+      this.onGet(this.pagination);
+    },
     requestAdd(argNotepad) {
       //提交添加记事
 
-      this.filterTagId = "";
-      this.$axios
-        .request({
-          method: "post",
-          url: this.requestPrefix + "/add",
-          data: argNotepad
-        })
-        .then(response => {
-          this.pagination.page = 1;
-          this.requestGet(this.pagination);
-        });
+      return this.$axios.request({
+        method: "post",
+        url: this.requestPrefix + "/add",
+        data: argNotepad
+      });
     },
     requestUpdate(argNotepad, argIndex) {
       //提交更改记事
@@ -502,7 +503,7 @@ export default {
   },
 
   mounted() {
-    this.requestGet(this.pagination);
+    this.onGet(this.pagination);
   }
 };
 </script>
