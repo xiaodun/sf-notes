@@ -55,6 +55,7 @@
 <template>
   <div id="file_manager-vue-id">
     <Button class="first-btn" @click="$emit('on-back')">返回</Button>
+    <Alert v-if="$browserMessage.isWeChat">微信内置浏览器不支持下载!</Alert>
     <Upload
       :on-progress="onUploadProgress"
       :on-error="onUploadError"
@@ -85,6 +86,7 @@
           </Col>
           <Col class="option" span="10" offset="1">
             <Button
+              v-if="!$browserMessage.isWeChat"
               icon="md-download"
               :loading="item.isDownloading"
               style="margin-right:10px"
