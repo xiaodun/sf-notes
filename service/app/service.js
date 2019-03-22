@@ -1,7 +1,7 @@
 /*  
  自定义前缀/应用名/数据名/命令
  程序会建立 自定义前缀/应用名/数据名 的文件夹结构 然后为每一个命令生成一个js文件
- 支持get和put方式
+ 支持get和post方式
 */
 var http_os = require("http");
 var file_os = require("fs");
@@ -139,7 +139,7 @@ var server = http_os.createServer(function(request, response) {
           }
         });
       } catch (error) {
-        response.end(error.stack);
+        dealError(response, error);
       }
     }
     function executeCommand(params) {
@@ -154,7 +154,6 @@ var server = http_os.createServer(function(request, response) {
         var result = eval(
           file_os.readFileSync(rootFloder.commandPath, "utf-8")
         )(cloneData, params);
-
         if (result.isDelete) {
           let path = rootFloder.path + "/" + result.file.flag;
           file_os.unlinkSync(path);
@@ -201,15 +200,18 @@ var server = http_os.createServer(function(request, response) {
           response.end(JSON.stringify(result.response.data));
         }
       } catch (error) {
-        console.log(error);
-        response.end(error.stack);
+        dealError(response, error);
       }
     }
   } catch (error) {
-    console.log(error);
-    response.end(error.stack);
+    dealError(response, error);
   }
 });
+function dealError(response, error) {
+  console.log(error);
+  response.writeHead(500);
+  response.end(error.stack);
+}
 server.setTimeout(0);
 server.listen(config.port, function() {
   console.log("service is running");
