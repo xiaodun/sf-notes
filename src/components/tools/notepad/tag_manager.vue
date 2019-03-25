@@ -1,5 +1,5 @@
 <style lang="less">
-@import "~@/assets/style/base.less";
+@import '~@/assets/style/base.less';
 
 #tag_manager-vue-id {
   .tag {
@@ -32,15 +32,18 @@
 
     .option {
       display: none;
+
       .btn {
         margin-right: 10px;
       }
+
       @media screen and (max-width: 960px) {
         display: block;
       }
     }
   }
 }
+
 </style>
 <template>
   <div id="tag_manager-vue-id">
@@ -113,7 +116,9 @@ export default {
   props: {
     list: {
       type: Array,
-      default: []
+      default: function() {
+        return [];
+      }
     }
   },
   data() {
