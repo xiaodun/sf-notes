@@ -1,6 +1,6 @@
 
 <style lang="less">
-@import "~@/assets/style/base.less";
+@import '~@/assets/style/base.less';
 
 .qrcode-model-wrapper {
   text-align: center;
@@ -14,13 +14,13 @@
 
   overflow-y: auto;
 
-  transition: left 0.15s ease-in-out;
+  transition: left .15s ease-in-out;
 
   background-color: #fff;
 
   will-change: left;
 
-  .sf-shadow-5;
+.sf-shadow-5;
 
   .ivu-menu {
     &:after {
@@ -31,31 +31,41 @@
       cursor: pre;
     }
   }
+
   .ivu-menu-item.user {
-    //解决Ctrl+鼠标点击路由时跳转不正常  重置样式
-    padding: 0;
     position: relative;
+
     height: 50px;
+
+//解决Ctrl+鼠标点击路由时跳转不正常  重置样式
+    padding: 0;
+
     &.ivu-menu-item-selected,
     &:hover {
       a {
         color: #2d8cf0;
       }
     }
+
     &.sub {
       padding-left: 0 !important;
+
       a {
         padding-left: 43px;
       }
     }
+
     a {
-      padding: 14px 24px;
+      position: absolute;
+
       width: 100%;
       height: 100%;
-      position: absolute;
+      padding: 14px 24px;
+
       color: #515a6e;
     }
   }
+
   &.spread {
     left: 0;
   }
@@ -72,11 +82,14 @@
 }
 
 #main-wrapper {
+  padding-top: 0;
+
+  transition: padding-top .75s ease-in;
   transform: translateZ(0);
-  margin-top: 0;
-  will-change: margin-top;
-  transition: margin-top 0.75s ease-in;
+
+  will-change: padding-top;
 }
+
 #top_wrapper {
   font-size: 0;
 
@@ -105,7 +118,7 @@
   }
 
   .personal-word {
-    font-family: "华文细黑";
+    font-family: '华文细黑';
     font-size: 16px;
     font-weight: 500;
 
@@ -144,7 +157,7 @@
         font-size: 12px;
       }
 
-      > :nth-child(n) {
+       > :nth-child(n) {
         line-height: 1;
 
         display: block;
@@ -152,6 +165,7 @@
     }
   }
 }
+
 </style>
 <template>
   <div id="app">
@@ -249,17 +263,10 @@ export default {
   },
   directives: {
     "initial-ani"(el) {
-      requestAnimationFrame(params => (el.style.marginTop = 100 + "px"));
+      requestAnimationFrame(params => (el.style.paddingTop = 100 + "px"));
     }
   },
   methods: {
-    routerTransitionEnter(el, done) {
-      el.style.marginTop = this.mainWrapperMarginTop + 100 + "px";
-      setTimeout(() => {
-        done();
-      }, 100);
-    },
-
     on_top_scroll() {
       let threshold = this.topAreaHeight - 15;
       let scrollTop =
@@ -353,7 +360,6 @@ export default {
         this.activeSubName = [];
       }
 
-      console.log(this.activeMenuName);
       this.$nextTick(() => {
         //下面两个方法时iview提供的 不调用无法更新子级菜单
         this.$refs.slideMenuIview.updateOpened();
