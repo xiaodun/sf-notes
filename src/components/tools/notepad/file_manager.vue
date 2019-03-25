@@ -1,10 +1,10 @@
 <style lang="less">
-@import "~@/assets/style/base.less";
+@import '~@/assets/style/base.less';
 
 #file_manager-vue-id {
   .uploading-enter-active,
   .uploading-leave-active {
-    transition: all 0.5s;
+    transition: all .5s;
   }
 
   .uploading-enter,
@@ -13,6 +13,7 @@
 
     opacity: 0;
   }
+
   .fileinfo {
     margin: 20px;
 
@@ -40,17 +41,19 @@
 
       border-bottom: 1px solid #ccc;
 
-      .vertical_lineheight(32px);
+.vertical_lineheight(32px);
     }
 
     .option {
       display: none;
+
       @media screen and (max-width: 779px) {
         display: block;
       }
     }
   }
 }
+
 </style>
 <template>
   <div id="file_manager-vue-id">
@@ -131,7 +134,9 @@ export default {
   props: {
     uploadList: {
       type: Array,
-      default: []
+      default: function() {
+        return [];
+      }
     }
   },
   data() {
