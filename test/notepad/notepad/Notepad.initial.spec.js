@@ -49,5 +49,15 @@ describe("记事本-初始", () => {
       });
       onGet.restore();
     });
+    describe("查看调用的方法", done => {
+      it("只调用了onGet", done => {
+        expect(Notepad.mounted.toString().replace(/\s/g, "")).toEqual(
+          `function mounted() {
+          this.onGet(this.pagination);
+        }`.replace(/\s/g, "")
+        );
+        done();
+      });
+    });
   });
 });
