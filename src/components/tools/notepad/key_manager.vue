@@ -1,5 +1,6 @@
 <style lang="less">
-@import "~@/assets/style/base.less";
+@import '~@/assets/style/base.less';
+
 </style>
 <template>
   <div id="key_manager-vue-id" v-show="show">
@@ -91,6 +92,7 @@ export default {
           }, 20);
           let key = CryptoJS.enc.Utf8.parse(this.formValidate.firstKey);
           this.$emit("change", key);
+          this.onBack();
         }
       });
     }
