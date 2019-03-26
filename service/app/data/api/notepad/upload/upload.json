@@ -1,5 +1,11 @@
 [
     {
+        "name": "caoliao2.5.2.crx",
+        "type": "application/x-chrome-extension",
+        "flag": "upload_fb62623d66be996ced0477b340190184",
+        "id": "15535650373730"
+    },
+    {
         "name": "农历.zip",
         "type": "application/x-zip-compressed",
         "flag": "upload_354b3fc5cd0da3d6086e71f5161251f0",
