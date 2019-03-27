@@ -51,6 +51,6 @@ module.exports = {
   performance: {
     hints: false
   },
-  devtool: "eval",
+  devtool: "inline-cheap-module-source-map",
   externals: [require("webpack-node-externals")()]
 };
