@@ -1,5 +1,5 @@
 <style lang="less">
-@import '~@/assets/style/base.less';
+@import "~@/assets/style/base.less";
 
 #tag_manager-vue-id {
   .tag {
@@ -43,7 +43,6 @@
     }
   }
 }
-
 </style>
 <template>
   <div id="tag_manager-vue-id">
