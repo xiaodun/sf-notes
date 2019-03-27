@@ -70,7 +70,12 @@
     <!-- <h1 style="height:10px">h1</h1> -->
     <div class="wrapper">
       <div class="card-wrapper" v-if="showModelFlag === 'notepad'">
-        <Button icon="ios-pricetag" class="first-btn" @click="showModelFlag = 'tag'">标签管理</Button>
+        <Button
+          ref="tagBtn"
+          icon="ios-pricetag"
+          class="first-btn"
+          @click="showModelFlag = 'tag'"
+        >标签管理</Button>
         <Button icon="ios-folder" class="first-btn" @click="showModelFlag = 'file'">文件管理</Button>
         <Button icon="md-lock" class="first-btn" @click="showModelFlag = 'key'">密钥管理</Button>
         <Button @click="onInAdd()" type="primary" long>
