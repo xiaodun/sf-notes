@@ -42,6 +42,7 @@ describe("记事本-初始", () => {
       let onGet = sinon.stub(Notepad.methods, "onGet");
       let wrapper = shallowMount(Notepad);
       it("只调用一次", done => {
+        expect(onGet.callCount).toBe(1);
         done();
       });
       it(`伴随参数为${JSON.stringify(wrapper.vm.pagination)}`, done => {
