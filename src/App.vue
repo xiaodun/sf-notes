@@ -1,6 +1,6 @@
 
 <style lang="less">
-@import '~@/assets/style/base.less';
+@import "~@/assets/style/base.less";
 
 .qrcode-model-wrapper {
   text-align: center;
@@ -14,13 +14,13 @@
 
   overflow-y: auto;
 
-  transition: left .15s ease-in-out;
+  transition: left 0.15s ease-in-out;
 
   background-color: #fff;
 
   will-change: left;
 
-.sf-shadow-5;
+  .sf-shadow-5;
 
   .ivu-menu {
     &:after {
@@ -37,7 +37,7 @@
 
     height: 50px;
 
-//解决Ctrl+鼠标点击路由时跳转不正常  重置样式
+    //解决Ctrl+鼠标点击路由时跳转不正常  重置样式
     padding: 0;
 
     &.ivu-menu-item-selected,
@@ -84,7 +84,7 @@
 #main-wrapper {
   padding-top: 0;
 
-  transition: padding-top .75s ease-in;
+  transition: padding-top 0.75s ease-in;
   transform: translateZ(0);
 
   will-change: padding-top;
@@ -118,7 +118,7 @@
   }
 
   .personal-word {
-    font-family: '华文细黑';
+    font-family: "华文细黑";
     font-size: 16px;
     font-weight: 500;
 
@@ -157,7 +157,7 @@
         font-size: 12px;
       }
 
-       > :nth-child(n) {
+      > :nth-child(n) {
         line-height: 1;
 
         display: block;
@@ -165,7 +165,6 @@
     }
   }
 }
-
 </style>
 <template>
   <div id="app">
@@ -180,7 +179,7 @@
           >
             <MenuItem name="0" to="/">首页</MenuItem>
             <MenuItem name="1">手机访问</MenuItem>
-            <MenuItem name="debug">{{!isDebug?'启用调试':'关闭调试'}}</MenuItem>
+            <MenuItem v-show="$browserMessage.isMobile" name="debug">{{!isDebug?'启用调试':'关闭调试'}}</MenuItem>
 
             <template v-for="(value,key) in menuData">
               <Submenu :key="key" :name="key" v-if="value.childs && value.childs.length > 0">
@@ -253,7 +252,8 @@ import AxiosHelper from "@/assets/lib/AxiosHelper";
 import QRCode from "qrcodejs2";
 const logo = require("@/assets/logo.png");
 import VConsole from "vconsole";
-var vConsole = new VConsole();
+import Vue from "vue";
+let vconsole;
 const _topAreaHight = 65;
 export default {
   name: "App",
@@ -305,6 +305,9 @@ export default {
         this.createQecode();
         this.isShowQart = true;
       } else if (name === "debug") {
+        if (!vconsole) {
+          vconsole = new VConsole();
+        }
         let vconsoleDom = document.getElementById("__vconsole");
         if (!this.isDebug) {
           vconsoleDom.style.display = "block";
