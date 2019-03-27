@@ -3,6 +3,10 @@ var webpack = require("webpack");
 const config = require("../config");
 const vueLoaderConfig = require("./vue-loader.conf");
 process.env.NODE_ENV = "test";
+function resolve(dir) {
+  return path.join(__dirname, "..", dir);
+}
+
 module.exports = {
   entry: "./src/main.js",
   output: {
@@ -28,7 +32,12 @@ module.exports = {
       {
         test: /\.js$/,
         loader: "babel-loader",
-        exclude: /node_modules/
+        exclude: /node_modules/,
+        include: [
+          resolve("src"),
+          resolve("test"),
+          resolve("node_modules/webpack-dev-server/client")
+        ]
       },
       {
         test: /\.(png|jpg|gif|svg)$/,
