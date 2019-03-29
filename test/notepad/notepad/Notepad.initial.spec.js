@@ -1,9 +1,9 @@
 import { shallowMount, mount, createLocalVue } from "@vue/test-utils";
 import Notepad from "@/components/tools/notepad/notepad.vue";
-
+let container = { ...Notepad };
 describe("记事本-初始", () => {
   describe("data数据初始验证", done => {
-    let data = Notepad.data();
+    let data = container.data();
 
     it("list为null", done => {
       expect(data.list).toBe(null);
@@ -39,8 +39,8 @@ describe("记事本-初始", () => {
   });
   describe("mounted函数调用的方法", () => {
     describe("onGet", () => {
-      let onGet = sinon.stub(Notepad.methods, "onGet");
-      let wrapper = shallowMount(Notepad);
+      let onGet = sinon.stub(container.methods, "onGet");
+      let wrapper = shallowMount(container);
       it("只调用一次", done => {
         expect(onGet.callCount).toBe(1);
         done();
@@ -52,7 +52,7 @@ describe("记事本-初始", () => {
     });
     describe("查看调用的方法", done => {
       it("只调用了onGet", done => {
-        expect(Notepad.mounted.toString().replace(/\s/g, "")).toEqual(
+        expect(container.mounted.toString().replace(/\s/g, "")).toEqual(
           `function mounted() {
           this.onGet(this.pagination);
         }`.replace(/\s/g, "")
