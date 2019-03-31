@@ -71,13 +71,12 @@
     <div class="wrapper">
       <div class="card-wrapper" v-if="showModelFlag === 'notepad'">
         <Button
-          ref="tagBtn"
           icon="ios-pricetag"
-          class="first-btn"
+          class="first-btn tag-btn"
           @click="showModelFlag = 'tag'"
         >标签管理</Button>
-        <Button icon="ios-folder" class="first-btn" @click="showModelFlag = 'file'">文件管理</Button>
-        <Button icon="md-lock" class="first-btn" @click="showModelFlag = 'key'">密钥管理</Button>
+        <Button icon="ios-folder" class="first-btn file-btn" @click="showModelFlag = 'file'">文件管理</Button>
+        <Button icon="md-lock" class="first-btn key-btn" @click="showModelFlag = 'key'">密钥管理</Button>
         <Button @click="onInAdd()" type="primary" long>
           <span>添加</span>
         </Button>
