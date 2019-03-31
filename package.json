@@ -9,7 +9,7 @@
     "start": "start-service.bat && npm run dev",
     "build": "node build/build.js",
     "test": "mocha-webpack --webpack-config build/webpack.test.conf.js --require test/setup.js test/**/*.spec.js",
-    "test-single": "mocha-webpack --webpack-config build/webpack.test.conf.js --require test/setup.js test\\notepad\\notepad\\Notepad.each.spec.js"
+    "test-single": "mocha-webpack --webpack-config build/webpack.test.conf.js --require test/setup.js test\\notepad\\notepad\\Notepad.able.spec.js"
   },
   "dependencies": {
     "axios": "^0.18.0",
