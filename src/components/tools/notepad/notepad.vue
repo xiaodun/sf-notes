@@ -1,14 +1,14 @@
 <style lang="less">
-@import "~@/assets/style/base.less";
+@import '~@/assets/style/base.less';
 
 #notepad-id {
   font-size: 14px;
 
-  //增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
+//增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
 
   padding-top: 45px;
 
-  > .app-name {
+   > .app-name {
     margin: 1em auto;
 
     text-align: center;
@@ -29,10 +29,14 @@
     margin: 10px auto;
   }
 
-  > .wrapper {
+   > .wrapper {
     width: 85%;
     max-width: 650px;
     margin: 0 auto;
+
+    .card-wrapper {
+      position: relative;
+    }
   }
 
   .no-data {
@@ -64,17 +68,14 @@
     word-break: break-all;
   }
 }
+
 </style>
 <template>
   <div id="notepad-id">
     <!-- <h1 style="height:10px">h1</h1> -->
     <div class="wrapper">
       <div class="card-wrapper" v-if="showModelFlag === 'notepad'">
-        <Button
-          icon="ios-pricetag"
-          class="first-btn tag-btn"
-          @click="showModelFlag = 'tag'"
-        >标签管理</Button>
+        <Button icon="ios-pricetag" class="first-btn tag-btn" @click="showModelFlag = 'tag'">标签管理</Button>
         <Button icon="ios-folder" class="first-btn file-btn" @click="showModelFlag = 'file'">文件管理</Button>
         <Button icon="md-lock" class="first-btn key-btn" @click="showModelFlag = 'key'">密钥管理</Button>
         <Button @click="onInAdd()" type="primary" long>
@@ -102,7 +103,7 @@
             <Card
               class="card"
               :bordered="false"
-              :style="item.isMouseOver && {boxShadow:`0 1px ${item.shadowBlur}px ${item.shadowSpread}px rgba(0,0,0,${item.shadowAlpha})`}"
+              :style="$browserMessage.isPC && item.isMouseOver && {boxShadow:`0 1px ${item.shadowBlur}px ${item.shadowSpread}px rgba(0,0,0,${item.shadowAlpha})`}"
             >
               <p slot="title">
                 <Icon type="md-book"></Icon>
@@ -112,7 +113,7 @@
                   :style="{color:getTag(item.tagId).color}"
                 >{{item.tagId && ' - '+ getTag(item.tagId).content}}</span>
               </p>
-              <div slot="extra">
+              <div slot="extra" v-if="$browserMessage.isPC">
                 <!-- 设置了密钥  且被加密的信息 -->
                 <Checkbox
                   v-show="publicKey != null && item.isEncrypt"
@@ -151,6 +152,7 @@
             simple
           />
         </div>
+        <Spin size="large" fix v-if="list === null && $browserMessage.isMobile"></Spin>
         <div class="no-data" v-if="list && list.length === 0">暂无数据</div>
       </div>
       <!-- 标签管理 -->
@@ -388,6 +390,7 @@ export default {
       });
     },
     async onGet(argPagination, argFilter = {}) {
+      this.list = null;
       let response = await this.requestGet(argPagination, argFilter);
       if (response.data.data.length === 0 && this.pagination.page > 1) {
         //获取的数据条数为0 且不是第一页  会根据后台返回的数据计算最大的一页进行请求
