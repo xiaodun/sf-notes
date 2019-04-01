@@ -1,5 +1,13 @@
 [
     {
+        "content": "在stup.js 中   global.DateHelper  = import('@/assert/lib') 报错 ",
+        "createTime": 1554115996066,
+        "id": 1554115996066,
+        "updateTime": 1554116107166,
+        "title": "2019-04-01",
+        "tagId": 1554116094877
+    },
+    {
         "content": "深圳最美海岸线  东西冲",
         "createTime": 1554110041793,
         "id": 1554110041793,
