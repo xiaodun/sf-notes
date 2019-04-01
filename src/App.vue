@@ -1,6 +1,6 @@
 
 <style lang="less">
-@import "~@/assets/style/base.less";
+@import '~@/assets/style/base.less';
 
 .qrcode-model-wrapper {
   text-align: center;
@@ -12,15 +12,16 @@
   bottom: 0;
   left: -100%;
 
+  overflow-x: hidden;
   overflow-y: auto;
 
-  transition: left 0.15s ease-in-out;
+  transition: left .15s ease-in-out;
 
   background-color: #fff;
 
   will-change: left;
 
-  .sf-shadow-5;
+.sf-shadow-5;
 
   .ivu-menu {
     &:after {
@@ -37,7 +38,7 @@
 
     height: 50px;
 
-    //解决Ctrl+鼠标点击路由时跳转不正常  重置样式
+//解决Ctrl+鼠标点击路由时跳转不正常  重置样式
     padding: 0;
 
     &.ivu-menu-item-selected,
@@ -83,8 +84,9 @@
 
 #main-wrapper {
   padding-top: 0;
+  padding-bottom: 15px;
 
-  transition: padding-top 0.75s ease-in;
+  transition: padding-top .75s ease-in;
   transform: translateZ(0);
 
   will-change: padding-top;
@@ -97,7 +99,9 @@
   z-index: 1000;
   top: 0;
 
+  display: flex;
   overflow: hidden;
+  align-items: center;
 
   width: 100%;
   margin: 0 0 20px 0;
@@ -113,20 +117,28 @@
     .sf-shadow-1;
   }
 
+  .menu-btn {
+    flex-shrink: 0;
+
+    margin-left: 15px;
+  }
+
   .item {
     margin-left: 5px;
   }
 
   .personal-word {
-    font-family: "华文细黑";
+    font-family: '华文细黑';
     font-size: 16px;
     font-weight: 500;
 
-    display: inline-block;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-grow: 1;
 
-    margin-left: 30px;
+    margin-left: 15px;
+    padding-right: 10px;
 
-    vertical-align: middle;
     letter-spacing: 1px;
 
     &:hover {
@@ -157,7 +169,7 @@
         font-size: 12px;
       }
 
-      > :nth-child(n) {
+       > :nth-child(n) {
         line-height: 1;
 
         display: block;
@@ -165,6 +177,7 @@
     }
   }
 }
+
 </style>
 <template>
   <div id="app">
@@ -182,12 +195,17 @@
             <MenuItem v-show="$browserMessage.isMobile" name="debug">{{!isDebug?'启用调试':'关闭调试'}}</MenuItem>
 
             <template v-for="(value,key) in menuData">
-              <Submenu :key="key" :name="key" v-if="value.childs && value.childs.length > 0">
+              <Submenu
+                v-if=" (($browserMessage.isMobile && value.isShowMobile )|| $browserMessage.isPC )&& value.childs && value.childs.length > 0"
+                :key="key"
+                :name="key"
+              >
                 <template slot="title">
                   <Icon :type="value.icon"/>
                   {{value.title}}
                 </template>
                 <MenuItem
+                  v-if="($browserMessage.isMobile && item.isShowMobile )|| $browserMessage.isPC "
                   class="user sub"
                   v-for="(item,index) in value.childs"
                   :name="key+'-'+index"
@@ -197,7 +215,12 @@
                   <a :href="'#'+item.to.path">{{item.content}}</a>
                 </MenuItem>
               </Submenu>
-              <MenuItem class="user" :key="key" :name="key" v-else>
+              <MenuItem
+                class="user"
+                :key="key"
+                :name="key"
+                v-else-if="($browserMessage.isMobile && value.isShowMobile )|| $browserMessage.isPC "
+              >
                 <!-- 解决Ctrl+鼠标点击路由时跳转不正常 -->
                 <a :href="'#'+value.to.path">
                   <Icon :type="value.icon"/>
@@ -219,7 +242,7 @@
       <div id="qrcode" ref="qrcode"></div>
     </Modal>
     <div id="top_wrapper" :class="{'box-shadow':isOverScroll}">
-      <Button ref="menuButtonIview" icon="md-menu" class="item" @click="toggleMenu"></Button>
+      <Button class="menu-btn" ref="menuButtonIview" icon="md-menu" @click="toggleMenu"></Button>
       <div class="personal-word">
         <div class="pagination">
           <Icon
@@ -263,7 +286,7 @@ export default {
   },
   directives: {
     "initial-ani"(el) {
-      requestAnimationFrame(params => (el.style.paddingTop = 100 + "px"));
+      setTimeout(params => (el.style.paddingTop = 100 + "px"), 20);
     }
   },
   methods: {
@@ -428,7 +451,7 @@ export default {
         math_postures_vue: {
           title: "四则运算",
           icon: "ios-calculator",
-
+          isShowMobile: true,
           content: "版本1",
           to: {
             path: "/math_postures"
@@ -436,6 +459,7 @@ export default {
         },
         clock_vue: {
           title: "闹钟",
+          isShowMobile: true,
           icon: "ios-clock-outline",
 
           content: "pc端版本",
@@ -446,7 +470,7 @@ export default {
         notepad: {
           title: "日记本",
           icon: "md-book",
-
+          isShowMobile: true,
           content: "版本1",
           to: {
             path: "/notepad_vue"
@@ -473,9 +497,11 @@ export default {
         test_vue: {
           title: "测试",
           icon: "ios-game-controller-b",
+          isShowMobile: true,
           childs: [
             {
               content: "测试用例",
+              isShowMobile: true,
               to: {
                 path: "/test"
               }

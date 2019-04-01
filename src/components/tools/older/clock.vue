@@ -337,7 +337,7 @@ export default {
       this.close_edit_model = false;
     },
     confirmDeleteClock(index) {
-      this.$Modal.error({
+      this.$Modal.confirm({
         title: '删除闹钟',
         content: '你确定删除吗?',
         onOk: () => {
@@ -809,11 +809,13 @@ export default {
 </script>
 <style lang="less">
 @import '~@/assets/style/base.less';
+
 #clock_vue {
   width: 85%;
-  max-width: 800px;
   min-width: 300px;
+  max-width: 800px;
   margin: 0 auto;
+
   header {
     text-align: center;
   }
@@ -821,45 +823,65 @@ export default {
   .time_panel {
     font-family: Times New Roman;
     font-size: 18px;
-    width: 220px;
-    letter-spacing: 1px;
-    .vertical_lineheight(40px);
     font-weight: 400;
+
+    width: 220px;
+
+    letter-spacing: 1px;
+
     border-radius: 30px;
+
+.vertical_lineheight(40px);
   }
+
   .time_area_alias {
-    margin-left: 10px;
-    color: #797979;
     font-size: 14px;
+
+    margin-left: 10px;
+
+    color: #797979;
   }
+
   .date_panel {
     font-size: 14px;
+
     margin-top: 26px;
+    padding-left: 10px;
+
     border-left: 5px solid #2d8cf0;
-    padding-left: 10px;
   }
+
   .lunar {
+    font-size: 14px;
+
     margin-left: 10px;
-    font-size: 14px;
+
+    letter-spacing: 1px;
+
     color: #919191;
-    letter-spacing: 1px;
   }
+
   .able-area {
-    letter-spacing: 1px;
     font-size: 14px;
+
     margin-top: 10px;
-    border-left: 5px solid rgb(0, 255, 13);
     padding-left: 10px;
+
+    letter-spacing: 1px;
+
+    border-left: 5px solid rgb(0, 255, 13);
+
     .notice {
       margin-left: 4px;
     }
   }
 
   .clock-area {
-    margin-top: 15px;
     width: 70%;
+    margin-top: 15px;
   }
 }
+
 .clocking_model {
   .ivu-modal-footer {
     button:nth-child(1) {
@@ -867,4 +889,6 @@ export default {
     }
   }
 }
+
+
 </style>
