@@ -18,7 +18,7 @@
   &:before {
     display: table;
 
-    content: " ";
+    content: ' ';
   }
 
   .info {
@@ -48,7 +48,7 @@
 
     height: 60px;
 
-    transition: all 0.35s linear;
+    transition: all .35s linear;
   }
 
   .list-leave-to {
@@ -56,6 +56,7 @@
     height: 0;
   }
 }
+
 </style>
 <template>
   <div id="math-postures-id">
@@ -122,7 +123,7 @@
             <Input
               @focus="'focus'+index"
               :ref="'input'+index"
-              type="text"
+              type="number"
               @on-keydown.enter="submit"
               v-model="item.userResult"
             />
