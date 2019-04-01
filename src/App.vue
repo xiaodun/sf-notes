@@ -12,6 +12,7 @@
   bottom: 0;
   left: -100%;
 
+  overflow-x: hidden;
   overflow-y: auto;
 
   transition: left .15s ease-in-out;
@@ -131,7 +132,8 @@
     font-size: 16px;
     font-weight: 500;
 
-    overflow: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
     flex-grow: 1;
 
     margin-left: 15px;
@@ -284,7 +286,7 @@ export default {
   },
   directives: {
     "initial-ani"(el) {
-      requestAnimationFrame(params => (el.style.paddingTop = 100 + "px"));
+      setTimeout(params => (el.style.paddingTop = 100 + "px"), 20);
     }
   },
   methods: {
