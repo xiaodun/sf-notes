@@ -1,6 +1,5 @@
 import { shallowMount, mount, createLocalVue } from "@vue/test-utils";
 import DateHelper from "@/assets/lib/DateHelper";
-import File from "@/components/tools/notepad/file_manager.vue";
 import Notepad from "@/components/tools/notepad/notepad.vue";
 describe("记事本-函数功能测试", () => {
   let Container = { ...Notepad };
