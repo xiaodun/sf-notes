@@ -1,11 +1,5 @@
 [
     {
-        "name": "Postman-win64-7.0.7-Setup.exe",
-        "type": "application/x-msdownload",
-        "flag": "upload_1244ad56e2142f757ae5b04f221825f6",
-        "id": "15542100954170"
-    },
-    {
         "name": "农历.zip",
         "type": "application/x-zip-compressed",
         "flag": "upload_354b3fc5cd0da3d6086e71f5161251f0",
