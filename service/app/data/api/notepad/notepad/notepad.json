@@ -29,12 +29,6 @@
         "title": "2019-04-06"
     },
     {
-        "content": "Q2: webpack 打包出来的文件体积过大怎么办\nQ3: webpack 热部署的原理\nQ4: webpack 打包速度过慢怎么办？",
-        "createTime": 1554368288031,
-        "id": 1554368288031,
-        "updateTime": ""
-    },
-    {
         "content": "Q1-4: webpack 打包的过程",
         "createTime": 1554368255218,
         "id": 1554368255218,
