@@ -1,12 +1,5 @@
 [
     {
-        "content": "https://www.cnblogs.com/jiasm/p/7683930.html",
-        "title": "讲解script",
-        "createTime": 1554606508425,
-        "id": 1554606508425,
-        "updateTime": ""
-    },
-    {
         "content": "eslint 的使用\n\nhttp://ilioner.github.io/2016/05/21/%E5%A6%82%E4%BD%95%E6%84%89%E5%BF%AB%E7%9A%84%E4%BD%BF%E7%94%A8ESLint%E8%BF%9B%E8%A1%8C%E4%BB%A3%E7%A0%81%E6%A0%A1%E9%AA%8C.html",
         "createTime": 1554133139738,
         "id": 1554133139738,
@@ -14,48 +7,9 @@
         "title": "2019-04-01"
     },
     {
-        "content": "如何将一个组件设置为全局组件\n\nhttps://segmentfault.com/a/1190000016473517",
-        "tagId": 1554604886662,
-        "title": "React",
-        "createTime": 1554343537033,
-        "id": 1554343537033,
-        "updateTime": 1554604895920
-    },
-    {
-        "content": "http://www.ruanyifeng.com/blog/2016/01/npm-install.html\n\nhttp://www.ruanyifeng.com/blog/2012/12/asynchronous%EF%BC%BFjavascript.html",
-        "createTime": 1554529157116,
-        "id": 1554529157116,
-        "updateTime": 1554605514512,
-        "title": "2019-04-06"
-    },
-    {
-        "content": "Q1-4: webpack 打包的过程",
-        "createTime": 1554368255218,
-        "id": 1554368255218,
-        "updateTime": ""
-    },
-    {
-        "content": " 模块化解决了前端的哪些痛点",
-        "createTime": 1554368143666,
-        "id": 1554368143666,
-        "updateTime": ""
-    },
-    {
-        "content": "什么时promise",
-        "createTime": 1554368115979,
-        "id": 1554368115979,
-        "updateTime": ""
-    },
-    {
         "content": "Q1: 三大框架解决了传统 JQ 开发的哪些问题\n使前端不用再操纵 DOM,数据驱动，通过数据的改变直接改变 DOM\nQ 1-1: Vue2.0 怎么实现双向绑定的\nQ 1-2: Vue3.0 怎么实现双向绑定的\nQ 1-3: Object.defineProperty() 和 proxy 的区别\nQ2: 你使用过哪些 Vue/React 全家桶，分别解决了什么问题\nQ3: Vue/React 的 diff 算法\nQ4: Vue hash 路由和 history 路由的区别\nQ5: Vue 计算属性和 watch 在什么场景下使用\nQ6: Vue 的 nexttick 实现的原理",
         "createTime": 1554368012097,
         "id": 1554368012097,
-        "updateTime": ""
-    },
-    {
-        "content": "前端常用的polyfill",
-        "createTime": 1554185238192,
-        "id": 1554185238192,
         "updateTime": ""
     }
 ]
