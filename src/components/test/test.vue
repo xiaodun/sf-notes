@@ -19,21 +19,24 @@ export default {
   computed: {},
   methods: {},
   mounted() {
-    var obj = {
-      name: "wx",
-      age: "12"
-    };
-    var proxy = new Proxy(obj, {
-      get: function(origin, key) {
-        console.log(origin, key);
-      }
-    });
-    proxy.name;
+    let total = 20000000;
+    let a = 1,
+      b = 3;
+    let times = 1;
+    let count = b;
+    do {
+      times++;
+      let temp = a;
+      count += a;
+      a = a + b;
+      b = temp;
+      console.log(count, a, b);
+    } while (count < total);
+    console.log(times);
   }
 };
 </script>
 
 <style lang="less" >
-@import '~@/assets/style/base.less';
-
+@import "~@/assets/style/base.less";
 </style>
