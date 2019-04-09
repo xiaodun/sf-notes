@@ -3,10 +3,12 @@
 
 <template>
   <div id="test-vue-id" ref="testDom">
-    <div>1</div>
+    <button class="antd-btn" @animationend="end" @click="test">测试</button>
   </div>
 </template>
+
     <script>
+import axios from "axios";
 export default {
   name: "test_vue",
 
