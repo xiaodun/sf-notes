@@ -273,7 +273,6 @@
 <script>
 import AxiosHelper from "@/assets/lib/AxiosHelper";
 import QRCode from "qrcodejs2";
-const logo = require("@/assets/logo.png");
 import VConsole from "vconsole";
 import Vue from "vue";
 let vconsole;
