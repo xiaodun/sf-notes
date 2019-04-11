@@ -441,11 +441,7 @@ export default {
         page: 1,
         total: 1
       },
-      config: {
-        value: location.href,
-        imagePath: logo,
-        filter: "color"
-      },
+      
       menuData: {
         math_postures_vue: {
           title: "四则运算",
