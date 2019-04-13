@@ -3,6 +3,7 @@
 
 <template>
   <div id="test-vue-id" ref="testDom">
+    <span style="border:1px solid red;">123</span>
     <button class="antd-btn" @animationend="end" @click="test">测试</button>
   </div>
 </template>
@@ -40,5 +41,6 @@ export default {
 </script>
 
 <style lang="less" >
-@import "~@/assets/style/base.less";
+@import '~@/assets/style/base.less';
+
 </style>
