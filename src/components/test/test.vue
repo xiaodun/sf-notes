@@ -2,19 +2,42 @@
 
 
 <template>
-  <div id="test-vue-id" ref="testDom">
-您的浏览器不支持 HTML5 canvas 标签。</canvas>
-    <Slider v-model="percent" :min="0" :max="100"></Slider>
-    
-    <svg width="100%" height="100%" viewBox="0 0 100 100">
+  <div
+    id="test-vue-id"
+    ref="testDom"
+  >
+    您的浏览器不支持 HTML5 canvas 标签。</canvas>
+    <Slider
+      v-model="percent"
+      :min="0"
+      :max="100"
+    ></Slider>
+
+    <svg
+      width="100%"
+      height="100%"
+      viewBox="0 0 100 100"
+    >
       <defs>
-        <linearGradient id="linearGradient-border" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" :style="{
+        <linearGradient
+          id="linearGradient-border"
+          x1="0%"
+          y1="0%"
+          x2="100%"
+          y2="100%"
+        >
+          <stop
+            offset="0%"
+            :style="{
             'stop-color':this.startColor
-          }"></stop>
-          <stop offset="100%" :style="{
+          }"
+          ></stop>
+          <stop
+            offset="100%"
+            :style="{
             'stop-color':this.endColor
-          }"></stop>
+          }"
+          ></stop>
         </linearGradient>
       </defs>
       <path
@@ -33,11 +56,14 @@
         :cy="boredrWidth"
         :r="dotRadius"
         :style="{
-        "transform-origin":"50px 50px",
-        "transform": `rotate(${this.dotRotateDeg}deg)`,
-        "fill":this.dotBgColor,
-        "transition":this.transition
-      }"
+        "
+        transform-origin":"50px
+        50px", "transform"
+        :
+        `rotate(${this.dotRotateDeg}deg)`, "fill"
+        :this.dotBgColor, "transition"
+        :this.transition
+        }"
       >></circle>
     </svg>
   </div>
@@ -84,31 +110,35 @@ export default {
   },
   methods: {},
   mounted() {
-      let arr = [1,3,4,10,8,7,9,13,15,89,1];
-      function sort(argList){
-        if(argList.length <= 1){
-          return argList;
-        }
-        let leftList = [],rightList=[],middle = argList.splice(Math.floor(argList.length/2),1)[0];
-        
-        argList.forEach((el,index,arr)=>{
-
-          if(el<middle){
-            leftList.push(el);
-          }
-          else{
-            rightList.push(el)
-          }
-        })
-        return sort(leftList).concat(middle,sort(rightList))
+    let arr = [1, 3, 4, 10, 8, 7, 9, 13, 15, 89, 1];
+    function sort(argList) {
+      if (argList.length <= 1) {
+        return argList;
       }
-      console.log(sort(arr))
+      let leftList = [],
+        rightList = [],
+        middle = argList.splice(Math.floor(argList.length / 2), 1)[0];
+
+      argList.forEach((el, index, arr) => {
+        if (el < middle) {
+          leftList.push(el);
+        } else {
+          rightList.push(el);
+        }
+      });
+      return sort(leftList).concat(middle, sort(rightList));
+    }
+
+    let defaults = { food: "spicy", price: "$$", ambiance: "noisy" };
+let search = { food: "rich", ...defaults };
+console.log(defaults,search)
   }
 };
 </script>
 
 <style lang="less" >
 @import "~@/assets/style/base.less";
+
 #test-vue-id {
   width: 200px;
   height: 200px;
