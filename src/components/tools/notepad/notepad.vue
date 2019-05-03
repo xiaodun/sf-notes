@@ -1,14 +1,14 @@
 <style lang="less">
-@import '~@/assets/style/base.less';
+@import "~@/assets/style/base.less";
 
 #notepad-id {
   font-size: 14px;
 
-//增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
+  //增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
 
   padding-top: 45px;
 
-   > .app-name {
+  > .app-name {
     margin: 1em auto;
 
     text-align: center;
@@ -29,7 +29,7 @@
     margin: 10px auto;
   }
 
-   > .wrapper {
+  > .wrapper {
     width: 85%;
     max-width: 650px;
     margin: 0 auto;
@@ -61,6 +61,13 @@
     .inner-shadow {
       display: none;
     }
+    .img-wrapper {
+      height: 200px;
+      overflow: hidden;
+      img {
+        max-width: 100%;
+      }
+    }
   }
 
   .show-area {
@@ -68,7 +75,6 @@
     word-break: break-all;
   }
 }
-
 </style>
 <template>
   <div id="notepad-id">
@@ -138,7 +144,9 @@
                 </div>
                 <div></div>
 
-                <div class="show-area" v-html="convertHtml(item.content)"></div>
+                <!-- <div class="show-area" v-html="convertHtml(item.content)"></div>
+                -->
+                <ShowNotepadComponent :data="item.content"></ShowNotepadComponent>
               </div>
             </Card>
           </div>
@@ -214,6 +222,7 @@ import DateHelper from "@/assets/lib/DateHelper";
 import TagManagerComponent from "./tag_manager";
 import FileManagerComponent from "./file_manager";
 import KeyManagerComponent from "./key_manager";
+import ShowNotepadComponent from "./show_notepad";
 import CryptoJS from "crypto-js";
 export default {
   name: "",
@@ -246,7 +255,8 @@ export default {
   components: {
     TagManagerComponent,
     FileManagerComponent,
-    KeyManagerComponent
+    KeyManagerComponent,
+    ShowNotepadComponent
   },
   filters: {},
   computed: {},
@@ -288,6 +298,9 @@ export default {
       this.isShowAddModel = true;
       this.isVisible = true;
     },
+    onZoomImg() {
+      alert(1);
+    },
     onInEdit(argNotepad, argIndex) {
       this.activNotepad = { ...argNotepad };
 
@@ -306,18 +319,7 @@ export default {
       this.activeIndex = argIndex;
       this.isVisible = true;
     },
-    convertHtml(argContent = "") {
-      // 将内容中的连接 替换成标签
 
-      let pattern = /(http|https):\/\/[\S]+/g;
-      let result = argContent;
-
-      result = result.replace(pattern, (all, group, index) => {
-        return `<a target="_black" href="${all}">${all}</a>`;
-      });
-
-      return result;
-    },
     async onTop(argItem) {
       let response = await this.requestTop(argItem);
       this.onGet(this.pagination, {
