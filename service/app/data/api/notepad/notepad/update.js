@@ -1,5 +1,5 @@
-(function() {
-  return function(argData, argParams) {
+(function () {
+  return function (argData, argParams) {
     //argData 数据的副本
     let id = argParams.id;
     let notepad = argData.find(el => {
@@ -12,6 +12,7 @@
     notepad.content = argParams.content;
     notepad.tagId = argParams.tagId;
     notepad.isEncrypt = argParams.isEncrypt;
+    notepad.base64 = argParams.base64;
     return {
       isWrite: true, //是否覆盖数据
       data: argData, //需要存储的新数据
