@@ -146,7 +146,7 @@
 
                 <!-- <div class="show-area" v-html="convertHtml(item.content)"></div>
                 -->
-                <ShowNotepadComponent :data="item.content"></ShowNotepadComponent>
+                <ShowNotepadComponent :data="item"></ShowNotepadComponent>
               </div>
             </Card>
           </div>
@@ -186,7 +186,7 @@
     <!-- 修改记事 -->
     <Modal v-model="isVisible" :mask-closable="false" @on-visible-change="onChangeVisible">
       <p slot="header"></p>
-      <div>
+      <div contenteditable="true" @paste="onPaste($event,activNotepad)">
         <Checkbox
           v-show="publicKey != null"
           style="margin-bottom:10px;"
@@ -197,7 +197,7 @@
           @on-keyup.ctrl.enter="onCloseEditModel(activNotepad,activeIndex)"
           :clearable="true"
           :rows="10"
-          placeholder="输入内容"
+          placeholder="输入内容,支持普通链接、图片链接、黏贴图片"
           v-model="activNotepad.content"
           type="textarea"
         />
@@ -212,7 +212,11 @@
         <Input :clearable="true" placeholder="输入标题" v-model="activNotepad.title"/>
       </div>
       <div slot="footer">
-        <Button @click="onCloseEditModel(activNotepad,activeIndex)" type="primary">确定</Button>
+        <Button
+          :loading="activNotepad.loadCount != 0"
+          @click="onCloseEditModel(activNotepad,activeIndex)"
+          type="primary"
+        >确定</Button>
       </div>
     </Modal>
   </div>
@@ -224,6 +228,7 @@ import FileManagerComponent from "./file_manager";
 import KeyManagerComponent from "./key_manager";
 import ShowNotepadComponent from "./show_notepad";
 import CryptoJS from "crypto-js";
+export const BASE64_IMG_PROTOCOL = "base64img";
 export default {
   name: "",
   data() {
@@ -261,6 +266,29 @@ export default {
   filters: {},
   computed: {},
   methods: {
+    onPaste(event, argItem) {
+      var items = event.clipboardData && event.clipboardData.items;
+      if (items && items.length) {
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].type.indexOf("image") !== -1) {
+            let reader = new FileReader();
+            reader.onload = function(event) {
+              argItem.loadCount--;
+              let fileName =
+                BASE64_IMG_PROTOCOL +
+                "://" +
+                ((Math.random() * 1000000) | 0) +
+                ".png";
+              argItem.base64[fileName] = event.target.result;
+              argItem.content += "\n" + fileName + "\n";
+            };
+            reader.readAsDataURL(items[i].getAsFile());
+            argItem.loadCount++;
+            break;
+          }
+        }
+      }
+    },
     onToggleEncrypt(argItem, isChecked) {
       if (isChecked) {
         //解密
@@ -294,7 +322,11 @@ export default {
       return tag;
     },
     onInAdd() {
-      this.activNotepad = {};
+      this.activNotepad = {
+        content: "",
+        loadCount: 0,
+        base64: {}
+      };
       this.isShowAddModel = true;
       this.isVisible = true;
     },
@@ -302,8 +334,8 @@ export default {
       alert(1);
     },
     onInEdit(argNotepad, argIndex) {
-      this.activNotepad = { ...argNotepad };
-
+      this.activNotepad = JSON.parse(JSON.stringify(argNotepad));
+      this.activNotepad.loadCount = 0;
       if (this.activNotepad.isEncrypt === true) {
         this.activNotepad.isEncrypt = false;
         if (!this.activNotepad.isDecripty) {
@@ -465,6 +497,12 @@ export default {
       let notepad = { ...argNotepad };
       if (notepad.isEncrypt) {
         notepad.content = this.encrypt(this.publicKey, notepad.content);
+      }
+      //统一移除不存在的base64
+      for (let base in argNotepad.base64) {
+        if (argNotepad.content.indexOf(base) === -1) {
+          delete argNotepad.base64[base];
+        }
       }
       if (this.isShowAddModel) {
         this.onAdd(notepad);

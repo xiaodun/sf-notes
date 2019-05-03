@@ -1,19 +1,20 @@
 <script>
+import { BASE64_IMG_PROTOCOL } from "./notepad";
 export default {
   name: "show_notepad",
   render(createElement) {
     let imgStuffixList = [".jpg", ".jpeg", ".gif", ".png"];
-    let pattern = /(http|https):\/\/[\S]+/g;
+    let pattern = RegExp(`(http|https|${BASE64_IMG_PROTOCOL}):\/\/[\\S]+`, "g");
     let lastIndex = 0;
     let renderList = [];
     let result;
-    if (!this.data.match(pattern)) {
+    if (!this.data.content.match(pattern)) {
       //没有动态创建的内容
-      renderList.push(this.data);
+      renderList.push(this.data.content);
     } else {
-      while ((result = pattern.exec(this.data)) !== null) {
+      while ((result = pattern.exec(this.data.content)) !== null) {
         if (result.index !== lastIndex) {
-          renderList.push(this.data.substring(lastIndex, result.index));
+          renderList.push(this.data.content.substring(lastIndex, result.index));
         }
 
         let isImg = imgStuffixList.some(stuffix => {
@@ -35,7 +36,9 @@ export default {
               [
                 createElement("img", {
                   attrs: {
-                    src: result[0],
+                    src: result[0].startsWith(BASE64_IMG_PROTOCOL)
+                      ? this.data.base64[result[0]]
+                      : result[0],
                     title: "双击放大"
                   }
                 })
@@ -70,7 +73,7 @@ export default {
   },
   props: {
     data: {
-      type: String
+      type: Object
     }
   },
   methods: {
