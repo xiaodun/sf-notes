@@ -144,9 +144,7 @@
                 </div>
                 <div></div>
 
-                <!-- <div class="show-area" v-html="convertHtml(item.content)"></div>
-                -->
-                <ShowNotepadComponent :data="item"></ShowNotepadComponent>
+                <ShowNotepadComponent @onZoomImg="onZoomImg" :data="item"></ShowNotepadComponent>
               </div>
             </Card>
           </div>
@@ -160,7 +158,7 @@
             simple
           />
         </div>
-        <Spin size="large" fix v-if="list === null && $browserMessage.isMobile"></Spin>
+        <Spin size="large" fix v-if="list === null "></Spin>
         <div class="no-data" v-if="list && list.length === 0">暂无数据</div>
       </div>
       <!-- 标签管理 -->
@@ -219,6 +217,10 @@
         >确定</Button>
       </div>
     </Modal>
+    <!--  -->
+    <Modal v-model="isZoomImg" footer-hide fullscreen title="放大图片">
+      <img :style="{'max-width':'100%'}" :src="activeImgSrc" alt>
+    </Modal>
   </div>
 </template>
 <script>
@@ -233,6 +235,8 @@ export default {
   name: "",
   data() {
     return {
+      activeImgSrc: null,
+      isZoomImg: false,
       publicKey: null,
       isVisible: false,
       showModelFlag: "notepad", // tag 、 file
@@ -330,8 +334,9 @@ export default {
       this.isShowAddModel = true;
       this.isVisible = true;
     },
-    onZoomImg() {
-      alert(1);
+    onZoomImg(argSrc) {
+      this.activeImgSrc = argSrc;
+      this.isZoomImg = true;
     },
     onInEdit(argNotepad, argIndex) {
       this.activNotepad = JSON.parse(JSON.stringify(argNotepad));

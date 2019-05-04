@@ -1,3 +1,4 @@
+
 <script>
 import { BASE64_IMG_PROTOCOL } from "./notepad";
 export default {
@@ -31,6 +32,11 @@ export default {
                 class: ["img-wrapper"],
                 on: {
                   click: this.onZoomImg
+                },
+                attrs: {
+                  "data-src": result[0].startsWith(BASE64_IMG_PROTOCOL)
+                    ? this.data.base64[result[0]]
+                    : result[0]
                 }
               },
               [
@@ -39,7 +45,7 @@ export default {
                     src: result[0].startsWith(BASE64_IMG_PROTOCOL)
                       ? this.data.base64[result[0]]
                       : result[0],
-                    title: "双击放大"
+                    title: "点击放大"
                   }
                 })
               ]
@@ -77,7 +83,9 @@ export default {
     }
   },
   methods: {
-    onZoomImg() {}
+    onZoomImg(event) {
+      this.$emit("onZoomImg", event.currentTarget.getAttribute("data-src"));
+    }
   }
 };
 </script>
