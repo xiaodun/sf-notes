@@ -1,14 +1,14 @@
 <style lang="less">
-@import '~@/assets/style/base.less';
+@import "~@/assets/style/base.less";
 
 #notepad-id {
   font-size: 14px;
 
-//增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
+  //增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
 
   padding-top: 45px;
 
-   > .app-name {
+  > .app-name {
     margin: 1em auto;
 
     text-align: center;
@@ -29,7 +29,7 @@
     margin: 10px auto;
   }
 
-   > .wrapper {
+  > .wrapper {
     width: 85%;
     max-width: 650px;
     margin: 0 auto;
@@ -61,6 +61,13 @@
     .inner-shadow {
       display: none;
     }
+    .img-wrapper {
+      height: 200px;
+      overflow: hidden;
+      img {
+        max-width: 100%;
+      }
+    }
   }
 
   .show-area {
@@ -68,7 +75,6 @@
     word-break: break-all;
   }
 }
-
 </style>
 <template>
   <div id="notepad-id">
@@ -138,7 +144,7 @@
                 </div>
                 <div></div>
 
-                <div class="show-area" v-html="convertHtml(item.content)"></div>
+                <ShowNotepadComponent @onZoomImg="onZoomImg" :data="item"></ShowNotepadComponent>
               </div>
             </Card>
           </div>
@@ -152,7 +158,7 @@
             simple
           />
         </div>
-        <Spin size="large" fix v-if="list === null && $browserMessage.isMobile"></Spin>
+        <Spin size="large" fix v-if="list === null "></Spin>
         <div class="no-data" v-if="list && list.length === 0">暂无数据</div>
       </div>
       <!-- 标签管理 -->
@@ -178,7 +184,7 @@
     <!-- 修改记事 -->
     <Modal v-model="isVisible" :mask-closable="false" @on-visible-change="onChangeVisible">
       <p slot="header"></p>
-      <div>
+      <div contenteditable="true" @paste="onPaste($event,activNotepad)">
         <Checkbox
           v-show="publicKey != null"
           style="margin-bottom:10px;"
@@ -189,7 +195,7 @@
           @on-keyup.ctrl.enter="onCloseEditModel(activNotepad,activeIndex)"
           :clearable="true"
           :rows="10"
-          placeholder="输入内容"
+          placeholder="输入内容,支持普通链接、图片链接、黏贴图片"
           v-model="activNotepad.content"
           type="textarea"
         />
@@ -204,8 +210,16 @@
         <Input :clearable="true" placeholder="输入标题" v-model="activNotepad.title"/>
       </div>
       <div slot="footer">
-        <Button @click="onCloseEditModel(activNotepad,activeIndex)" type="primary">确定</Button>
+        <Button
+          :loading="activNotepad.loadCount != 0"
+          @click="onCloseEditModel(activNotepad,activeIndex)"
+          type="primary"
+        >确定</Button>
       </div>
+    </Modal>
+    <!--  -->
+    <Modal v-model="isZoomImg" footer-hide fullscreen title="放大图片">
+      <img :style="{'max-width':'100%'}" :src="activeImgSrc" alt>
     </Modal>
   </div>
 </template>
@@ -214,11 +228,15 @@ import DateHelper from "@/assets/lib/DateHelper";
 import TagManagerComponent from "./tag_manager";
 import FileManagerComponent from "./file_manager";
 import KeyManagerComponent from "./key_manager";
+import ShowNotepadComponent from "./show_notepad";
 import CryptoJS from "crypto-js";
+export const BASE64_IMG_PROTOCOL = "base64img";
 export default {
   name: "",
   data() {
     return {
+      activeImgSrc: null,
+      isZoomImg: false,
       publicKey: null,
       isVisible: false,
       showModelFlag: "notepad", // tag 、 file
@@ -246,11 +264,35 @@ export default {
   components: {
     TagManagerComponent,
     FileManagerComponent,
-    KeyManagerComponent
+    KeyManagerComponent,
+    ShowNotepadComponent
   },
   filters: {},
   computed: {},
   methods: {
+    onPaste(event, argItem) {
+      var items = event.clipboardData && event.clipboardData.items;
+      if (items && items.length) {
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].type.indexOf("image") !== -1) {
+            let reader = new FileReader();
+            reader.onload = function(event) {
+              argItem.loadCount--;
+              let fileName =
+                BASE64_IMG_PROTOCOL +
+                "://" +
+                ((Math.random() * 1000000) | 0) +
+                ".png";
+              argItem.base64[fileName] = event.target.result;
+              argItem.content += "\n" + fileName + "\n";
+            };
+            reader.readAsDataURL(items[i].getAsFile());
+            argItem.loadCount++;
+            break;
+          }
+        }
+      }
+    },
     onToggleEncrypt(argItem, isChecked) {
       if (isChecked) {
         //解密
@@ -284,13 +326,21 @@ export default {
       return tag;
     },
     onInAdd() {
-      this.activNotepad = {};
+      this.activNotepad = {
+        content: "",
+        loadCount: 0,
+        base64: {}
+      };
       this.isShowAddModel = true;
       this.isVisible = true;
     },
+    onZoomImg(argSrc) {
+      this.activeImgSrc = argSrc;
+      this.isZoomImg = true;
+    },
     onInEdit(argNotepad, argIndex) {
-      this.activNotepad = { ...argNotepad };
-
+      this.activNotepad = JSON.parse(JSON.stringify(argNotepad));
+      this.activNotepad.loadCount = 0;
       if (this.activNotepad.isEncrypt === true) {
         this.activNotepad.isEncrypt = false;
         if (!this.activNotepad.isDecripty) {
@@ -306,18 +356,7 @@ export default {
       this.activeIndex = argIndex;
       this.isVisible = true;
     },
-    convertHtml(argContent = "") {
-      // 将内容中的连接 替换成标签
 
-      let pattern = /(http|https):\/\/[\S]+/g;
-      let result = argContent;
-
-      result = result.replace(pattern, (all, group, index) => {
-        return `<a target="_black" href="${all}">${all}</a>`;
-      });
-
-      return result;
-    },
     async onTop(argItem) {
       let response = await this.requestTop(argItem);
       this.onGet(this.pagination, {
@@ -463,6 +502,12 @@ export default {
       let notepad = { ...argNotepad };
       if (notepad.isEncrypt) {
         notepad.content = this.encrypt(this.publicKey, notepad.content);
+      }
+      //统一移除不存在的base64
+      for (let base in argNotepad.base64) {
+        if (argNotepad.content.indexOf(base) === -1) {
+          delete argNotepad.base64[base];
+        }
       }
       if (this.isShowAddModel) {
         this.onAdd(notepad);
