@@ -182,7 +182,12 @@
       ></KeyManagerComponent>
     </div>
     <!-- 修改记事 -->
-    <Modal v-model="isVisible" :mask-closable="false" @on-visible-change="onChangeVisible">
+    <Modal
+      v-model="isVisible"
+      :mask-closable="false"
+      @on-cancel="onCancelEditModel"
+      @on-visible-change="onChangeVisible"
+    >
       <p slot="header"></p>
       <div contenteditable="true" @paste="onPaste($event,activNotepad)">
         <Checkbox
@@ -292,6 +297,11 @@ export default {
           }
         }
       }
+    },
+    onCancelEditModel() {
+      //如果用户取消编辑不重置状态，那么当用户点击添加后取消  再点击编辑一个记事，确定后,会变成添加一个新的记事！
+      this.isShowAddModel = false;
+      this.isShowEditModel = false;
     },
     onToggleEncrypt(argItem, isChecked) {
       if (isChecked) {
