@@ -110,28 +110,14 @@ export default {
   },
   methods: {},
   mounted() {
-    let arr = [1, 3, 4, 10, 8, 7, 9, 13, 15, 89, 1];
-    function sort(argList) {
-      if (argList.length <= 1) {
-        return argList;
-      }
-      let leftList = [],
-        rightList = [],
-        middle = argList.splice(Math.floor(argList.length / 2), 1)[0];
-
-      argList.forEach((el, index, arr) => {
-        if (el < middle) {
-          leftList.push(el);
-        } else {
-          rightList.push(el);
-        }
-      });
-      return sort(leftList).concat(middle, sort(rightList));
+    let a = noop;
+  
+    function* range(start, stop) {
+      for (var i = start; i < stop; i++) yield i;
     }
 
-    let defaults = { food: "spicy", price: "$$", ambiance: "noisy" };
-let search = { food: "rich", ...defaults };
-console.log(defaults,search)
+    let iter = range(1, 5);
+    console.log(iter.next());
   }
 };
 </script>
