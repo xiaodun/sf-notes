@@ -1,0 +1,340 @@
+// 需要渲染的数据结构
+const itemList = [
+  {
+    // 性别
+    label: 'gender',
+    value: '',
+    // 公共数据
+    request: [{ field: 'genderConfidence', value: '0.6', operator: 'GTE' }],
+    list: [
+      {
+        name: 'man',
+
+        request: [{ field: 'gender', value: 'male', operator: 'EQ' }],
+      },
+      {
+        name: 'woman',
+
+        request: [{ field: 'gender', value: 'female', operator: 'EQ' }],
+      },
+    ],
+  },
+  {
+    // 年龄
+    label: 'age',
+    value: '',
+    request: [{ field: 'ageConfidence', value: '0.6', operator: 'GTE' }],
+    list: [
+      {
+        name: 'child',
+
+        request: [
+          { field: 'age', value: '0', operator: 'GTE' },
+          { field: 'age', value: '15', operator: 'LTE' },
+        ],
+      },
+      {
+        name: 'youth',
+
+        request: [
+          { field: 'age', value: '16', operator: 'GTE' },
+          { field: 'age', value: '30', operator: 'LTE' },
+        ],
+      },
+      {
+        name: 'middle.aged',
+
+        request: [
+          { field: 'age', value: '31', operator: 'GTE' },
+          { field: 'age', value: '46', operator: 'LTE' },
+        ],
+      },
+      {
+        name: 'elderly',
+
+        request: [{ field: 'age', value: '47', operator: 'GTE' }],
+      },
+    ],
+  },
+  {
+    // 眼镜
+    label: 'glasses',
+    value: '',
+    request: [{ field: 'glassesConfidence', value: '0.6', operator: 'GTE' }],
+    list: [
+      {
+        name: 'ordinary.glasses',
+
+        request: [{ field: 'glasses', value: 'glasses', operator: 'EQ' }],
+      },
+      {
+        name: 'sunglasses',
+
+        request: [{ field: 'glasses', value: 'sunglass', operator: 'EQ' }],
+      },
+      {
+        name: 'not.wearing.glasses',
+
+        request: [{ field: 'glasses', value: 'no', operator: 'EQ' }],
+      },
+    ],
+  },
+  {
+    // 民族
+    label: 'nationality',
+    value: '',
+    request: [{ field: 'raceConfidence', value: '0.6', operator: 'GTE' }],
+    list: [
+      {
+        name: 'han.nationality',
+
+        request: [{ field: 'race', value: 'han', operator: 'EQ' }],
+      },
+      {
+        name: 'other.nationality',
+
+        request: [{ field: 'race', value: 'other', operator: 'EQ' }],
+      },
+    ],
+  },
+  {
+    label: 'hat',
+    value: '',
+    request: [{ field: 'hatConfidence', value: '0.6', operator: 'GTE' }],
+    list: [
+      {
+        name: 'have.hat',
+
+        request: [{ field: 'hat', value: 'yes', operator: 'EQ' }],
+      },
+      {
+        name: 'no.hat',
+
+        request: [{ field: 'hat', value: 'no', operator: 'EQ' }],
+      },
+    ],
+  },
+  {
+    // 口罩
+    label: 'mask',
+
+    request: [{ field: 'maskConfidence', value: '0.6', operator: 'GTE' }],
+    list: [
+      {
+        name: 'have.mask',
+
+        request: [{ field: 'mask', value: 'yes', operator: 'EQ' }],
+      },
+      {
+        name: 'no.mask',
+
+        request: [{ field: 'mask', value: 'no', operator: 'EQ' }],
+      },
+    ],
+  },
+];
+export default itemList;
+
+
+import * as React from 'react';
+import { Radio } from 'antd';
+import { injectIntl, InjectedIntlProps, FormattedMessage } from 'react-intl';
+import BasicDropdown from '../BasicDropdown';
+import indexStyles from '../../index.module.less';
+import styles from './FaceAttr.module.less';
+
+import itemList from './FaceAttrData';
+/**
+ * 基于BasicDropdown,专注于筛选的逻辑
+ *
+ * 筛选内容的展示  取消、确定、重置行为,用于类似人脸属性的筛选
+ */
+interface OwnProps {
+  names?: any[];
+  title?: string; // Dropmenu的名字
+  label?: string; // 描述的标题
+  className?: string; // 可用于控制组件的根元素
+  onOk: (argRequests, argNames) => void;
+}
+const defaultTitle = 'App.Containers.Filter.dropmenu.faceAttr';
+// 以键值对的形式存放用户选项
+let requestDatas = {};
+// 存储dropMenu显示之前的值
+let lastRequestDatas = {};
+let lastItemList = null;
+export class FaceAttr extends React.PureComponent<
+  OwnProps & InjectedIntlProps
+> {
+  state = {
+    itemList: JSON.parse(JSON.stringify(itemList)),
+  };
+  constructor(props) {
+    super(props);
+  }
+  onOk = () => {
+    let requests = [];
+    const names: any = [];
+    for (const label in requestDatas) {
+      if (requestDatas.hasOwnProperty(label)) {
+        requests = requests.concat(requestDatas[label].request);
+        names.push({
+          label,
+          value: requestDatas[label].name,
+        });
+      }
+    }
+    this.props.onOk(requests, names);
+  };
+  onCancel = () => {
+    this.setState({
+      itemList: lastItemList,
+    });
+    requestDatas = lastRequestDatas;
+  };
+  onReset = () => {
+    this.setState({
+      itemList: JSON.parse(JSON.stringify(itemList)),
+    });
+
+    requestDatas = {};
+  };
+  onVisibleChange = argIsShow => {
+    if (argIsShow) {
+      // 显示
+      if (this.props.names) {
+        // 选中
+        requestDatas = {};
+        for (let i = 0; i < this.state.itemList.length; i++) {
+          const element = this.state.itemList[i];
+          const isMatch = this.props.names.some(item => {
+            if (element.label === item.label) {
+              element.value = item.value;
+              element.list.some(children => {
+                if (children.name === item.value) {
+                  // 初始接口需要的参数
+                  requestDatas[element.label] = {
+                    name: children.name,
+                    request: (element.request || []).concat(children.request),
+                  };
+                  return true;
+                }
+              });
+              return true;
+            }
+            return false;
+          });
+          if (!isMatch) {
+            element.value = '';
+          }
+        }
+        this.setState({
+          itemList: JSON.parse(JSON.stringify(this.state.itemList)),
+        });
+      }
+      lastItemList = JSON.parse(JSON.stringify(this.state.itemList));
+      lastRequestDatas = JSON.parse(JSON.stringify(requestDatas));
+    } else {
+      this.setState({
+        itemList: lastItemList,
+      });
+      requestDatas = lastRequestDatas;
+    }
+  };
+  onChange = (argFilterGroup, argItem) => {
+    argFilterGroup.value = argItem.name;
+    this.setState({
+      itemList: JSON.parse(JSON.stringify(this.state.itemList)),
+    });
+
+    const label = argFilterGroup.label;
+    requestDatas[label] = {
+      name: argItem.name,
+      request: (argFilterGroup.request || []).concat(argItem.request),
+    };
+  };
+
+  public render() {
+    const overlayContent = (
+      <div className={styles['faceAttr']}>
+        {this.state.itemList.map((filterGroup, filterGroupIndex) => {
+          return (
+            <div className={styles['filterGroup']} key={filterGroupIndex}>
+              <div className={styles['label']}>
+                <FormattedMessage id={filterGroup.label} />
+              </div>
+              <div>
+                <Radio.Group value={filterGroup.value}>
+                  {/*
+                    // @ts-ignore */}
+                  {filterGroup.list.map((item, index) => {
+                    return (
+                      <Radio
+                        onChange={() => this.onChange(filterGroup, item)}
+                        key={index}
+                        value={item.name}
+                      >
+                        <FormattedMessage id={item.name} />
+                      </Radio>
+                    );
+                  })}
+                </Radio.Group>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+    return (
+      <div className={this.props.className}>
+        {this.props.label && (
+          <span className={indexStyles['labelStyle']}>
+            <FormattedMessage
+              id={this.props.label}
+              values={{ stuffix: ' :' }}
+            />
+          </span>
+        )}
+
+        <BasicDropdown
+          onVisibleChange={this.onVisibleChange}
+          title={this.props.title || defaultTitle}
+          overlayContent={overlayContent}
+          onOk={this.onOk}
+          onCancel={this.onCancel}
+          onReset={this.onReset}
+        />
+      </div>
+    );
+  }
+}
+
+export default injectIntl(FaceAttr);
+
+
+.faceAttr {
+  > .filterGroup {
+    display: flex;
+
+    margin-bottom: 14px;
+
+    .label {
+      line-height: 2.5;
+
+      width: 100px;
+
+      text-align: left;
+
+      color: rgb(131, 149, 167);
+    }
+
+    :global(.ant-radio-group) {
+      line-height: 2.5;
+    }
+
+    :global(.ant-radio-wrapper) {
+      width: 100px;
+
+      color: #333;
+    }
+  }
+}
