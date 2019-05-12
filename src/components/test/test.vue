@@ -2,122 +2,52 @@
 
 
 <template>
-  <div
-    id="test-vue-id"
-    ref="testDom"
-  >
-    您的浏览器不支持 HTML5 canvas 标签。</canvas>
-    <Slider
-      v-model="percent"
-      :min="0"
-      :max="100"
-    ></Slider>
-
-    <svg
-      width="100%"
-      height="100%"
-      viewBox="0 0 100 100"
-    >
-      <defs>
-        <linearGradient
-          id="linearGradient-border"
-          x1="0%"
-          y1="0%"
-          x2="100%"
-          y2="100%"
-        >
-          <stop
-            offset="0%"
-            :style="{
-            'stop-color':this.startColor
-          }"
-          ></stop>
-          <stop
-            offset="100%"
-            :style="{
-            'stop-color':this.endColor
-          }"
-          ></stop>
-        </linearGradient>
-      </defs>
-      <path
-        :d="pathStrings"
-        stroke-width="5"
-        :stroke-dasharray="circumference"
-        :stroke-dashoffset="offset"
-        :style="{
-          'stroke':'url(#linearGradient-border)','fill':'transparent',
-          'transition':this.transition
-        }"
-      ></path>
-      <circle
-        id="circle-id"
-        cx="50"
-        :cy="boredrWidth"
-        :r="dotRadius"
-        :style="{
-        "
-        transform-origin":"50px
-        50px", "transform"
-        :
-        `rotate(${this.dotRotateDeg}deg)`, "fill"
-        :this.dotBgColor, "transition"
-        :this.transition
-        }"
-      >></circle>
-    </svg>
+  <div id="test-vue-id" ref="testDom">
+    <div class="item" v-for="(item,index) in list" :key="index">{{item}}</div>
   </div>
 </template>
 
     <script>
-import axios from "axios";
 export default {
   name: "test_vue",
 
   data() {
     return {
-      transition: "linear 0.6s",
-      dotBgColor: "rgb(255,80,80)",
-      percent: 10,
-      dotRadius: 5,
-      startColor: "rgb(255,0,0)",
-      endColor: "rgb(0,255,255)",
-      boredrWidth: 10
+      list: [],
+      startY: 0
     };
   },
   components: {},
-  computed: {
-    dotRotateDeg() {
-      return (
-        (-180 * ((this.percent / 100) * this.circumference)) /
-        (Math.PI * this.radius)
+  computed: {},
+  methods: {
+    fillList() {
+      let list = Array(50).fill(1);
+      list.forEach(
+        (el, index, arr) => (arr[index] = (Math.random() * 100) | 0)
       );
+      return list;
     },
-    offset() {
-      return this.circumference - (this.percent / 100) * this.circumference;
+    touchstart(event) {
+      let scrollTop = this.$refs.testDom.scrollTop,
+        clientHeight = this.$refs.testDom.clientHeight,
+        scrollHeight = this.$refs.testDom.scrollHeight;
+
+      let {
+        targetTouches: [Touch]
+      } = event;
+      // this.startY = targetTouches[]
     },
-    circumference() {
-      return 2 * Math.PI * this.radius;
-    },
-    radius() {
-      return 50 - this.boredrWidth;
-    },
-    pathStrings() {
-      return `M 50,50 m 0,-${this.radius}
-                a ${this.radius},${this.radius} 0 0 0 0,${2 * this.radius} 
-                 a ${this.radius},${this.radius} 0 0 0 0,-${2 * this.radius}`;
+    touchmove(event) {
+      let {
+        targetTouches: [Touch]
+      } = event;
+      console.log(Touch);
     }
   },
-  methods: {},
   mounted() {
-    let a = noop;
-  
-    function* range(start, stop) {
-      for (var i = start; i < stop; i++) yield i;
-    }
-
-    let iter = range(1, 5);
-    console.log(iter.next());
+    this.list = this.fillList();
+    this.$refs.testDom.addEventListener("touchstart", this.touchstart);
+    this.$refs.testDom.addEventListener("touchmove", this.touchmove);
   }
 };
 </script>
@@ -126,7 +56,8 @@ export default {
 @import "~@/assets/style/base.less";
 
 #test-vue-id {
-  width: 200px;
-  height: 200px;
+  width: 100%;
+  height: 400px;
+  overflow-y: auto;
 }
 </style>
