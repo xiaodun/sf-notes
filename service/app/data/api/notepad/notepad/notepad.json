@@ -1,5 +1,37 @@
 [
     {
+        "content": "document.addEventListener(\n  'dragover',\n  e => {\n    console.log(e);\n    e.preventDefault();\n    e.dataTransfer && (e.dataTransfer.dropEffect = 'none');\n  },\n  false,\n);\n\n let dragSeed = 0;\n  const onDragCancel = () => {\n    //对从网页外部拖入图片的特殊处理\n    window.clearTimeout(dragSeed);\n    dragSeed = window.setTimeout(() => {\n      onDragEnd();\n    }, 100);\n  };",
+        "loadCount": 0,
+        "base64": {},
+        "createTime": 1557632272909,
+        "id": 1557632272909,
+        "updateTime": ""
+    },
+    {
+        "content": "document.body.addEventListener(\n  'dragover',\n  function(e) {\n    e.preventDefault();\n    e.dataTransfer && (e.dataTransfer.dropEffect = 'none');\n  },\n  false,\n);",
+        "loadCount": 0,
+        "base64": {},
+        "createTime": 1557487094005,
+        "id": 1557487094005,
+        "updateTime": ""
+    },
+    {
+        "content": "es6 中类的继承",
+        "loadCount": 0,
+        "base64": {},
+        "createTime": 1557473294346,
+        "id": 1557473294346,
+        "updateTime": ""
+    },
+    {
+        "content": "变量提升",
+        "loadCount": 0,
+        "base64": {},
+        "createTime": 1557231667167,
+        "id": 1557231667167,
+        "updateTime": ""
+    },
+    {
         "content": "sf-inner-service   移动端应用在服务器端方式的重构",
         "loadCount": 0,
         "base64": {},
@@ -8,49 +40,9 @@
         "updateTime": ""
     },
     {
-        "content": "人脸属性的封装",
-        "loadCount": 0,
-        "base64": {},
-        "createTime": 1557209147992,
-        "id": 1557209147992,
-        "updateTime": ""
-    },
-    {
-        "content": "对请求头的封装\n\n",
-        "loadCount": 0,
-        "base64": {},
-        "createTime": 1557209132616,
-        "id": 1557209132616,
-        "updateTime": 1557230195241,
-        "title": "2019-05-07"
-    },
-    {
-        "content": "对运算符优先级的理解",
-        "loadCount": 0,
-        "base64": {},
-        "createTime": 1557193592497,
-        "id": 1557193592497,
-        "updateTime": ""
-    },
-    {
-        "content": "实现千分位\n\n练习一两道正则题目",
-        "loadCount": 0,
-        "base64": {},
-        "createTime": 1557052036121,
-        "id": 1557052036121,
-        "updateTime": 1557052070105,
-        "title": "2019-05-05"
-    },
-    {
         "content": "如何增加程序的可读性  从变量命名  注释、如何做注释",
         "createTime": 1556435572401,
         "id": 1556435572401,
-        "updateTime": ""
-    },
-    {
-        "content": "es6 类的继承",
-        "createTime": 1556415648980,
-        "id": 1556415648980,
         "updateTime": ""
     }
 ]

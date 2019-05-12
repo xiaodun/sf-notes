@@ -110,14 +110,14 @@ export default {
   },
   methods: {},
   mounted() {
-    let a = noop;
-  
-    function* range(start, stop) {
-      for (var i = start; i < stop; i++) yield i;
-    }
+    // let str = "123456789";
+    // let pattern = /(\d)(?=(\d{3})+$)/g;
+    // console.log(str.replace(pattern, "$1,"));
 
-    let iter = range(1, 5);
-    console.log(iter.next());
+    let str = "123456789";
+    var pattern = /\B(?=((\d{3})+(?!\d)))/g;
+   
+    console.log( str.replace(pattern, ","));
   }
 };
 </script>
