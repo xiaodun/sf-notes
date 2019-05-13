@@ -4,7 +4,7 @@
 #notepad-id {
   font-size: 14px;
 
-  //增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
+//增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
 
   padding-top: 45px;
 
@@ -61,9 +61,12 @@
     .inner-shadow {
       display: none;
     }
+
     .img-wrapper {
-      height: 200px;
       overflow: hidden;
+
+      height: 200px;
+
       img {
         max-width: 100%;
       }
@@ -75,16 +78,36 @@
     word-break: break-all;
   }
 }
+
 </style>
 <template>
   <div id="notepad-id">
     <!-- <h1 style="height:10px">h1</h1> -->
     <div class="wrapper">
-      <div class="card-wrapper" v-if="showModelFlag === 'notepad'">
-        <Button icon="ios-pricetag" class="first-btn tag-btn" @click="showModelFlag = 'tag'">标签管理</Button>
-        <Button icon="ios-folder" class="first-btn file-btn" @click="showModelFlag = 'file'">文件管理</Button>
-        <Button icon="md-lock" class="first-btn key-btn" @click="showModelFlag = 'key'">密钥管理</Button>
-        <Button @click="onInAdd()" type="primary" long>
+      <div
+        class="card-wrapper"
+        v-if="showModelFlag === 'notepad'"
+      >
+        <Button
+          icon="ios-pricetag"
+          class="first-btn tag-btn"
+          @click="showModelFlag = 'tag'"
+        >标签管理</Button>
+        <Button
+          icon="ios-folder"
+          class="first-btn file-btn"
+          @click="showModelFlag = 'file'"
+        >文件管理</Button>
+        <Button
+          icon="md-lock"
+          class="first-btn key-btn"
+          @click="showModelFlag = 'key'"
+        >密钥管理</Button>
+        <Button
+          @click="onInAdd()"
+          type="primary"
+          long
+        >
           <span>添加</span>
         </Button>
         <Select
@@ -96,7 +119,11 @@
           clearable
           placeholder="标签过滤"
         >
-          <Option :key="item.id" v-for="item in tagList" :value="item.id">{{item.content}}</Option>
+          <Option
+            :key="item.id"
+            v-for="item in tagList"
+            :value="item.id"
+          >{{item.content}}</Option>
         </Select>
         <!-- 记事的展示 -->
         <div v-if="list && list.length > 0">
@@ -119,21 +146,30 @@
                   :style="{color:getTag(item.tagId).color}"
                 >{{item.tagId && ' - '+ getTag(item.tagId).content}}</span>
               </p>
-              <div slot="extra" v-if="$browserMessage.isPC">
+              <div
+                slot="extra"
+                v-if="$browserMessage.isPC"
+              >
                 <!-- 设置了密钥  且被加密的信息 -->
                 <Checkbox
                   v-show="publicKey != null && item.isEncrypt"
                   :value="item.isDecripty"
                   @on-change="onToggleEncrypt(item,$event)"
                 >解密</Checkbox>
-                <Button type="text" @click="onTop(item)">置顶</Button>
+                <Button
+                  type="text"
+                  @click="onTop(item)"
+                >置顶</Button>
                 <Icon
                   v-show="!item.isEncrypt || item.isEncrypt && publicKey!=null"
                   type="ios-open-outline"
                   @click.stop="onInEdit(item,index)"
                   style="margin-right:10px;cursor:pointer;"
                 ></Icon>
-                <Button @click.stop="onConfirmDelete(item,index)" style="color: red;">删除</Button>
+                <Button
+                  @click.stop="onConfirmDelete(item,index)"
+                  style="color: red;"
+                >删除</Button>
               </div>
               <div>
                 <div style="color: #bab9b9;">
@@ -144,7 +180,10 @@
                 </div>
                 <div></div>
 
-                <ShowNotepadComponent @onZoomImg="onZoomImg" :data="item"></ShowNotepadComponent>
+                <ShowNotepadComponent
+                  @onZoomImg="onZoomImg"
+                  :data="item"
+                ></ShowNotepadComponent>
               </div>
             </Card>
           </div>
@@ -158,8 +197,15 @@
             simple
           />
         </div>
-        <Spin size="large" fix v-if="list === null "></Spin>
-        <div class="no-data" v-if="list && list.length === 0">暂无数据</div>
+        <Spin
+          size="large"
+          fix
+          v-if="list === null "
+        ></Spin>
+        <div
+          class="no-data"
+          v-if="list && list.length === 0"
+        >暂无数据</div>
       </div>
       <!-- 标签管理 -->
       <TagManagerComponent
@@ -189,12 +235,15 @@
       @on-visible-change="onChangeVisible"
     >
       <p slot="header"></p>
-      <div contenteditable="true" @paste="onPaste($event,activNotepad)">
-        <Checkbox
-          v-show="publicKey != null"
-          style="margin-bottom:10px;"
-          v-model="activNotepad.isEncrypt"
-        >加密</Checkbox>
+      <Checkbox
+        v-show="publicKey != null"
+        style="margin-bottom:10px;"
+        v-model="activNotepad.isEncrypt"
+      >加密</Checkbox>
+      <div
+        contenteditable="true"
+        @paste="onPaste($event,activNotepad)"
+      >
         <Input
           ref="autoFocusInput"
           @on-keyup.ctrl.enter="onCloseEditModel(activNotepad,activeIndex)"
@@ -204,16 +253,24 @@
           v-model="activNotepad.content"
           type="textarea"
         />
-
-        <br>
-        <br>
-        <Select v-model="activNotepad.tagId">
-          <Option :key="item.id" v-for="item in tagList" :value="item.id">{{item.content}}</Option>
-        </Select>
-        <br>
-        <br>
-        <Input :clearable="true" placeholder="输入标题" v-model="activNotepad.title"/>
       </div>
+      <br>
+      <br>
+      <Select v-model="activNotepad.tagId">
+        <Option
+          :key="item.id"
+          v-for="item in tagList"
+          :value="item.id"
+        >{{item.content}}</Option>
+      </Select>
+      <br>
+      <br>
+      <Input
+        :clearable="true"
+        placeholder="输入标题"
+        v-model="activNotepad.title"
+      />
+
       <div slot="footer">
         <Button
           :loading="activNotepad.loadCount != 0"
@@ -223,8 +280,17 @@
       </div>
     </Modal>
     <!--  -->
-    <Modal v-model="isZoomImg" footer-hide fullscreen title="放大图片">
-      <img :style="{'max-width':'100%'}" :src="activeImgSrc" alt>
+    <Modal
+      v-model="isZoomImg"
+      footer-hide
+      fullscreen
+      title="放大图片"
+    >
+      <img
+        :style="{'max-width':'100%'}"
+        :src="activeImgSrc"
+        alt
+      >
     </Modal>
   </div>
 </template>
