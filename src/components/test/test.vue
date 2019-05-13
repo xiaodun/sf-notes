@@ -2,8 +2,16 @@
 
 
 <template>
-  <div id="test-vue-id" ref="testDom">
-    <div class="item" v-for="(item,index) in list" :key="index">{{item}}</div>
+  <div
+    id="test-vue-id"
+    ref="testDom"
+    @touchend="touchend"
+  >
+    <div
+      class="item"
+      v-for="(item,index) in list"
+      :key="index"
+    >{{item}}</div>
   </div>
 </template>
 
@@ -27,27 +35,27 @@ export default {
       );
       return list;
     },
-    touchstart(event) {
+    touchend(event) {
+      let {
+        changedTouches: [Touch]
+      } = event;
+      let threshold = 20;
       let scrollTop = this.$refs.testDom.scrollTop,
         clientHeight = this.$refs.testDom.clientHeight,
         scrollHeight = this.$refs.testDom.scrollHeight;
 
-      let {
-        targetTouches: [Touch]
-      } = event;
-      // this.startY = targetTouches[]
-    },
-    touchmove(event) {
-      let {
-        targetTouches: [Touch]
-      } = event;
-      console.log(Touch);
+      if (clientHeight + scrollTop + threshold > scrollHeight) {
+        this.list.push(...this.fillList());
+      }
     }
   },
+
   mounted() {
-    this.list = this.fillList();
-    this.$refs.testDom.addEventListener("touchstart", this.touchstart);
-    this.$refs.testDom.addEventListener("touchmove", this.touchmove);
+    Array(50)
+      .fill()
+      .forEach(() => {
+        console.log(12);
+      });
   }
 };
 </script>
@@ -56,8 +64,10 @@ export default {
 @import "~@/assets/style/base.less";
 
 #test-vue-id {
+  overflow-y: auto;
+
   width: 100%;
   height: 400px;
-  overflow-y: auto;
 }
+
 </style>
