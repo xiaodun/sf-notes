@@ -1,5 +1,13 @@
 [
     {
+        "content": "全局捕获ERROR",
+        "loadCount": 0,
+        "base64": {},
+        "createTime": 1557845742468,
+        "id": 1557845742468,
+        "updateTime": ""
+    },
+    {
         "content": "http://blog.xinyufeng.net/cnhammerjs/getting-started/",
         "loadCount": 0,
         "base64": {},
