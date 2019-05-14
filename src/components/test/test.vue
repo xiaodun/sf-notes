@@ -51,11 +51,7 @@ export default {
   },
 
   mounted() {
-    Array(50)
-      .fill()
-      .forEach(() => {
-        console.log(12);
-      });
+     
   }
 };
 </script>
