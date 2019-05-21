@@ -2,16 +2,9 @@
 
 
 <template>
-  <div
-    id="test-vue-id"
-    ref="testDom"
-    @touchend="touchend"
-  >
-    <div
-      class="item"
-      v-for="(item,index) in list"
-      :key="index"
-    >{{item}}</div>
+  <div id="test-vue-id" ref="testDom" @touchend="touchend">
+    <div style="width:400px;height:200px;background:#ccc;margin:10px;">display:block;</div>
+    <span style="width:100%;height:200px;background:#eee;margin:10px;">display:inline;</span>
   </div>
 </template>
 
@@ -50,9 +43,7 @@ export default {
     }
   },
 
-  mounted() {
-     
-  }
+  mounted() {}
 };
 </script>
 
@@ -65,5 +56,4 @@ export default {
   width: 100%;
   height: 400px;
 }
-
 </style>
