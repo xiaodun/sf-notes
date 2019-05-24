@@ -7,6 +7,7 @@ import iView from "iView";
 import "iview/dist/styles/iview.css";
 import "@/assets/lib/AxiosHelper";
 import "@/assets/lib/Browser/index";
+import "babel-polyfill";
 Vue.use(iView);
 new Vue({
   router,
