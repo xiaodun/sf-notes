@@ -5,12 +5,10 @@ import App from "./App";
 import router from "./router";
 import iView from "iView";
 import "iview/dist/styles/iview.css";
-import store from "./vuex/store.js";
 import "@/assets/lib/AxiosHelper";
 import "@/assets/lib/Browser/index";
 Vue.use(iView);
 new Vue({
   router,
-  store,
   render: h => h(App)
 }).$mount("#app");
