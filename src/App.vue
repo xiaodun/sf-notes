@@ -1,6 +1,6 @@
 
 <style lang="less">
-@import '~@/assets/style/base.less';
+@import "~@/assets/style/base.less";
 
 .qrcode-model-wrapper {
   text-align: center;
@@ -101,7 +101,6 @@
 
   display: flex;
   overflow: hidden;
-  align-items: center;
 
   width: 100%;
   margin: 0 0 20px 0;
@@ -113,14 +112,16 @@
   border-bottom: 1px solid #ddd;
   background-color: rgb(255, 255, 255);
 
+  align-items: center;
+
   &.box-shadow {
     .sf-shadow-1;
   }
 
   .menu-btn {
-    flex-shrink: 0;
-
     margin-left: 15px;
+
+    flex-shrink: 0;
   }
 
   .item {
@@ -128,18 +129,19 @@
   }
 
   .personal-word {
-    font-family: '华文细黑';
+    font-family: "华文细黑";
     font-size: 16px;
     font-weight: 500;
 
     overflow-x: auto;
     overflow-y: hidden;
-    flex-grow: 1;
 
     margin-left: 15px;
     padding-right: 10px;
 
     letter-spacing: 1px;
+
+    flex-grow: 1;
 
     &:hover {
       .pagination {
@@ -169,7 +171,7 @@
         font-size: 12px;
       }
 
-       > :nth-child(n) {
+      > :nth-child(n) {
         line-height: 1;
 
         display: block;
@@ -181,54 +183,70 @@
 </style>
 <template>
   <div id="app">
-    <div id="slide-menu" :style="[{top:topAreaHeight+'px'}]" ref="slideMenu">
+    <div
+      id="slide-menu"
+      :style="[{top:topAreaHeight+'px'}]"
+      ref="slideMenu"
+    >
       <Row>
         <Col>
-          <Menu
-            ref="slideMenuIview"
-            @on-select="menu_onselect"
-            :active-name="activeMenuName"
-            :open-names="activeSubName"
-          >
-            <MenuItem name="0" to="/">首页</MenuItem>
-            <MenuItem name="1">手机访问</MenuItem>
-            <MenuItem v-show="$browserMessage.isMobile" name="debug">{{!isDebug?'启用调试':'关闭调试'}}</MenuItem>
+        <Menu
+          ref="slideMenuIview"
+          @on-select="menu_onselect"
+          :active-name="activeMenuName"
+          :open-names="activeSubName"
+        >
+          <MenuItem
+            name="0"
+            to="/"
+          >首页</MenuItem>
+          <MenuItem name="1">手机访问</MenuItem>
+          <MenuItem
+            v-show="$browserMessage.isMobile"
+            name="debug"
+          >{{!isDebug?'启用调试':'关闭调试'}}</MenuItem>
 
-            <template v-for="(value,key) in menuData">
-              <Submenu
-                v-if=" (($browserMessage.isMobile && value.isShowMobile )|| $browserMessage.isPC )&& value.childs && value.childs.length > 0"
-                :key="key"
-                :name="key"
-              >
-                <template slot="title">
-                  <Icon :type="value.icon"/>
-                  {{value.title}}
-                </template>
+          <template v-for="(value,key) in menuData">
+            <Submenu
+              v-if=" (($browserMessage.isMobile && value.isShowMobile )|| $browserMessage.isPC )&& value.childs && value.childs.length > 0"
+              :key="key"
+              :name="key"
+            >
+              <template slot="title">
+                <Icon :type="value.icon" />
+                {{value.title}}
+              </template>
+              <template>
+
+              </template>
+              <template v-for="(item,index) in value.childs">
+
                 <MenuItem
-                  v-if="($browserMessage.isMobile && item.isShowMobile )|| $browserMessage.isPC "
+                  v-if="($browserMessage.isMobile && item.isShowMobile) ||
+          $browserMessage.isPC"
                   class="user sub"
-                  v-for="(item,index) in value.childs"
                   :name="key+'-'+index"
                   :key="key+'-'+index"
                 >
-                  <!-- 解决Ctrl+鼠标点击路由时跳转不正常 -->
-                  <a :href="'#'+item.to.path">{{item.content}}</a>
-                </MenuItem>
-              </Submenu>
-              <MenuItem
-                class="user"
-                :key="key"
-                :name="key"
-                v-else-if="($browserMessage.isMobile && value.isShowMobile )|| $browserMessage.isPC "
-              >
                 <!-- 解决Ctrl+鼠标点击路由时跳转不正常 -->
-                <a :href="'#'+value.to.path">
-                  <Icon :type="value.icon"/>
-                  {{value.title}}
-                </a>
-              </MenuItem>
-            </template>
-          </Menu>
+                <a :href="'#'+item.to.path">{{item.content}}</a>
+                </MenuItem>
+              </template>
+            </Submenu>
+            <MenuItem
+              class="user"
+              :key="key"
+              :name="key"
+              v-else-if="($browserMessage.isMobile && value.isShowMobile )|| $browserMessage.isPC "
+            >
+            <!-- 解决Ctrl+鼠标点击路由时跳转不正常 -->
+            <a :href="'#'+value.to.path">
+              <Icon :type="value.icon" />
+              {{value.title}}
+            </a>
+            </MenuItem>
+          </template>
+        </Menu>
         </Col>
       </Row>
     </div>
@@ -239,10 +257,21 @@
       :footer-hide="true"
       v-model="isShowQart"
     >
-      <div id="qrcode" ref="qrcode"></div>
+      <div
+        id="qrcode"
+        ref="qrcode"
+      ></div>
     </Modal>
-    <div id="top_wrapper" :class="{'box-shadow':isOverScroll}">
-      <Button class="menu-btn" ref="menuButtonIview" icon="md-menu" @click="toggleMenu"></Button>
+    <div
+      id="top_wrapper"
+      :class="{'box-shadow':isOverScroll}"
+    >
+      <Button
+        class="menu-btn"
+        ref="menuButtonIview"
+        icon="md-menu"
+        @click="toggleMenu"
+      ></Button>
       <div class="personal-word">
         <div class="pagination">
           <Icon
@@ -252,8 +281,14 @@
             @click="change_word(wordPagination.current-1)"
           ></Icon>
           <span class="page">
-            <span v-text="wordPagination.current" class="current"></span>/
-            <span v-text="wordPagination.total" class="total"></span>
+            <span
+              v-text="wordPagination.current"
+              class="current"
+            ></span>/
+            <span
+              v-text="wordPagination.total"
+              class="total"
+            ></span>
           </span>
           <Icon
             @click="change_word(wordPagination.current+1)"
@@ -265,7 +300,10 @@
         {{personalWord}}
       </div>
     </div>
-    <div v-initial-ani id="main-wrapper">
+    <div
+      v-initial-ani
+      id="main-wrapper"
+    >
       <router-view></router-view>
     </div>
   </div>
@@ -441,7 +479,7 @@ export default {
         page: 1,
         total: 1
       },
-      
+
       menuData: {
         math_postures_vue: {
           title: "四则运算",
