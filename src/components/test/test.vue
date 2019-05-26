@@ -2,11 +2,7 @@
 
 
 <template>
-  <div
-    id="test-vue-id"
-    ref="testDom"
-    @touchend="touchend"
-  >
+  <div id="test-vue-id" ref="testDom" @touchend="touchend">
     <div style="width:400px;height:200px;background:#ccc;margin:10px;">display:block;</div>
     <span style="width:100%;height:200px;background:#eee;margin:10px;">display:inline;</span>
   </div>
@@ -47,28 +43,7 @@ export default {
     }
   },
 
-  mounted() {
-    let arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 14];
-    let start = 0,
-      end = arr.length - 1;
-    let index = 0;
-    let resultIndex = -1;
-    let number = 0;
-    let i = 10;
-    do {
-      index = Math.round((start + end) / 2);
-      let middle = arr[index];
-      if (middle > number) {
-        end = index;
-      } else if (middle < number) {
-        start = index;
-      } else {
-        resultIndex = index;
-        break;
-      }
-    } while (start < end && i++ < 99999);
-    console.log(resultIndex);
-  }
+  mounted() {}
 };
 </script>
 
@@ -81,5 +56,4 @@ export default {
   width: 100%;
   height: 400px;
 }
-
 </style>
