@@ -2,9 +2,12 @@
 
 
 <template>
-  <div id="test-vue-id" ref="testDom" @touchend="touchend">
-    <div style="width:400px;height:200px;background:#ccc;margin:10px;">display:block;</div>
-    <span style="width:100%;height:200px;background:#eee;margin:10px;">display:inline;</span>
+  <div
+    id="test-vue-id"
+    ref="testDom"
+    @touchend="touchend"
+  >
+    <div style="height:200px;box-shadow:inset 0 -1px 0 0 #dbdbdb;"></div>
   </div>
 </template>
 
@@ -56,4 +59,5 @@ export default {
   width: 100%;
   height: 400px;
 }
+
 </style>
