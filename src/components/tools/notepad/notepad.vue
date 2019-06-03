@@ -79,6 +79,7 @@
   }
 }
 
+
 </style>
 <template>
   <div id="notepad-id">
@@ -320,7 +321,6 @@ export default {
       isShowDeleteModel: false,
 
       //当前活动的记事的索引
-      activeIndex: "",
       pagination: {
         //记事 的分页器
         page: 1,
@@ -434,7 +434,7 @@ export default {
     },
 
     async onTop(argItem) {
-      let response = await this.requestTop(argItem);
+      await this.requestTop(argItem);
       this.onGet(this.pagination, {
         tagId: this.filterTagId
       });
@@ -458,10 +458,11 @@ export default {
     onChangePage(argPage) {
       //切换记事分页器
       this.pagination.page = argPage;
+
       this.onGet(this.pagination, { tagId: this.filterTagId });
     },
     async onDeleteTag(argId) {
-      let response = await this.requestDelTag(argId);
+      await this.requestDelTag(argId);
       this.onGet(this.pagination, {
         tagId: this.filterTagId
       });
@@ -488,7 +489,7 @@ export default {
       });
     },
     async onDelete(argNotepad) {
-      let response = await this.requestDelete(argNotepad);
+      await this.requestDelete(argNotepad);
       //从前端这里虽然在当前页没有数据时候会多请求一次,但是,一切因该以后台数据为准
       //也是为了将逻辑内聚在request_get
       this.onGet(this.pagination, {
@@ -596,7 +597,7 @@ export default {
     },
     async onAdd(argNotepad) {
       this.filterTagId = "";
-      let response = await this.requestAdd(argNotepad);
+      await this.requestAdd(argNotepad);
       this.pagination.page = 1;
       this.onGet(this.pagination);
     },
@@ -627,11 +628,29 @@ export default {
       this.$nextTick(() => {
         this.$refs.autoFocusInput.focus();
       });
+    },
+    onKeyboardChangePage(event) {
+      if (event.code === "ArrowLeft") {
+        if (this.pagination.page > 1) {
+          this.pagination.page--;
+          this.onChangePage(this.pagination.page);
+        }
+      } else if (event.code === "ArrowRight") {
+        let maxPage = Math.ceil(this.pagination.total / this.pagination.size);
+        if (this.pagination.page < maxPage) {
+          this.pagination.page++;
+          this.onChangePage(this.pagination.page);
+        }
+      }
     }
   },
 
   mounted() {
     this.onGet(this.pagination);
+    document.addEventListener("keydown", this.onKeyboardChangePage, true);
+  },
+  beforeDestroy() {
+    document.removeEventListener("keydown", this.onKeyboardChangePage, true);
   }
 };
 </script>
