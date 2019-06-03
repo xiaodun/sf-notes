@@ -1,16 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 
 <head>
     <meta charset="UTF-8">
     <style>
-        .red {
-            background: red;
-        }
+html,
+body {
+  height: 100%;
+}
 
-        .green {
-            background: green;
-        }
+body,
+ul {
+  margin: 0;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+#red,
+#green {
+  width: 100px;
+  height: 100px;
+}
+
+#red {
+  float: left;
+
+  background-color: #f00;
+}
+
+#green {
+  clear: both;
+
+  margin-top: 20px;
+;
+
+  background-color: #0f0;
+}
+
     </style>
 
 </head>
@@ -18,24 +47,15 @@
 
 <body>
 
+    <div id="red"></div>
 
-    <div class="green">block</div>
+    <div id="green"></div>
+
 
 </body>
-<script>
-    let greenDom = document.querySelector('.green');
 
-    let cloneDom = greenDom.cloneNode(true);
-
-
-    cloneDom.setAttribute('age', "12");
-    cloneDom.oop = 13;
-
-    document.body.append(cloneDom)
-</script>
 
 </html>
 <script>
-
 
 </script>

@@ -7,8 +7,7 @@
     ref="testDom"
     @touchend="touchend"
   >
-    <div style="height:200px;box-shadow:inset 0 -1px 0 0 #dbdbdb;"></div>
-    <div> </div>
+    <span>123</span>
   </div>
 </template>
 
