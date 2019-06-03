@@ -2,13 +2,8 @@
 
 
 <template>
-  <div
-    id="test-vue-id"
-    ref="testDom"
-    @touchend="touchend"
-  >
-    <div style="height:200px;box-shadow:inset 0 -1px 0 0 #dbdbdb;"></div>
-    <div> </div>
+  <div id="test-vue-id">
+    <main>123</main>
   </div>
 </template>
 
@@ -17,37 +12,29 @@ export default {
   name: "test_vue",
 
   data() {
-    return {
-      list: [],
-      startY: 0
-    };
+    return {};
   },
   components: {},
   computed: {},
-  methods: {
-    fillList() {
-      let list = Array(50).fill(1);
-      list.forEach(
-        (el, index, arr) => (arr[index] = (Math.random() * 100) | 0)
-      );
-      return list;
-    },
-    touchend(event) {
-      let {
-        changedTouches: [Touch]
-      } = event;
-      let threshold = 20;
-      let scrollTop = this.$refs.testDom.scrollTop,
-        clientHeight = this.$refs.testDom.clientHeight,
-        scrollHeight = this.$refs.testDom.scrollHeight;
+  methods: {},
 
-      if (clientHeight + scrollTop + threshold > scrollHeight) {
-        this.list.push(...this.fillList());
-      }
-    }
-  },
+  mounted() {
+    let str = `aa "55" $c b
+               nn (8*) q 12
+               true sdc 12 2w2`;
 
-  mounted() {}
+    let list = [];
+    str.split("\n").forEach((row, index) => {
+      list[index] = [];
+      row
+        .trim()
+        .split(/\s/)
+        .forEach(item => {
+          list[index].push(item);
+        });
+    });
+    console.log(list);
+  }
 };
 </script>
 
@@ -59,6 +46,9 @@ export default {
 
   width: 100%;
   height: 400px;
+
+  main {
+  }
 }
 
 </style>
