@@ -312,7 +312,6 @@
 import AxiosHelper from "@/assets/lib/AxiosHelper";
 import QRCode from "qrcodejs2";
 import VConsole from "vconsole";
-import Vue from "vue";
 let vconsole;
 const _topAreaHight = 65;
 export default {
@@ -385,6 +384,7 @@ export default {
           this.selectedMenu(path);
         }, 20);
       }
+
       this.$refs.slideMenu.classList.remove("spread");
     },
     toggleMenu() {
@@ -394,13 +394,15 @@ export default {
       //选中菜单  如果放在mounted中不能打开子级菜单
 
       this.activeMenuName = "";
-
+      let title = "";
       for (let key in this.menuData) {
         let item = this.menuData[key];
+
         if (item.childs && item.childs.length > 0) {
           let isMatch = item.childs.some((element, index) => {
             if (element.to.path === argPath) {
               this.activeMenuName = key + "-" + index;
+              title = element.content;
               return true;
             }
           });
@@ -411,6 +413,7 @@ export default {
           }
         } else {
           if (item.to.path === argPath) {
+            title = item.title;
             this.activeMenuName = key;
             this.activeSubName = [];
             break;
@@ -428,6 +431,13 @@ export default {
         this.$refs.slideMenuIview.updateOpened();
         this.$refs.slideMenuIview.updateActiveName();
       });
+
+      // 动态的设置标题
+      if (title !== "") {
+        document.title = document.title.split("&")[0] + "&" + title;
+      } else {
+        document.title = document.title.split("&")[0];
+      }
     },
     hideMenu(e) {
       //点击其他地方收起侧边栏  发生在捕获阶段
@@ -456,7 +466,7 @@ export default {
       ) {
         this.$refs.qrcode.innerHTML = "请确保你连上了网络！";
       } else {
-        let qrcode = new QRCode("qrcode", {
+        new QRCode("qrcode", {
           width: 232, // 设置宽度
           height: 232, // 设置高度
           text: window.location.href
