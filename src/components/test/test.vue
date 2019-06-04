@@ -2,8 +2,12 @@
 
 
 <template>
-  <div id="test-vue-id">
-    <main>123</main>
+  <div
+    id="test-vue-id"
+    ref="testDom"
+    @touchend="touchend"
+  >
+    <span>123</span>
   </div>
 </template>
 
