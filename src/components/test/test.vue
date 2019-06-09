@@ -2,11 +2,7 @@
 
 
 <template>
-  <div
-    id="test-vue-id"
-    ref="testDom"
-    @touchend="touchend"
-  >
+  <div id="test-vue-id" ref="testDom">
     <span>123</span>
   </div>
 </template>
@@ -23,21 +19,23 @@ export default {
   methods: {},
 
   mounted() {
-    let str = `aa "55" $c b
-               nn (8*) q 12
-               true sdc 12 2w2`;
-
-    let list = [];
-    str.split("\n").forEach((row, index) => {
-      list[index] = [];
-      row
-        .trim()
-        .split(/\s/)
-        .forEach(item => {
-          list[index].push(item);
-        });
-    });
-    console.log(list);
+    var obj1 = {
+      name: "obj1"
+    };
+    var obj2 = {
+      name: "obj2"
+    };
+    var obj3 = {
+      name: "obj3"
+    };
+    function say() {
+      console.log(this.name);
+    }
+    var fn = say
+      .bind(obj1)
+      .bind(obj2)
+      .bind(obj3);
+    fn();
   }
 };
 </script>
@@ -54,5 +52,4 @@ export default {
   main {
   }
 }
-
 </style>
