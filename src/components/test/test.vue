@@ -118,6 +118,21 @@ export default {
 
   mounted() {
     document.addEventListener("mouseup", this.onGlobalMouseup);
+
+    function sumStrings(a, b) {
+      var res = "",
+        c = 0;
+      a = a.split("");
+      b = b.split("");
+      while (a.length || b.length || c) {
+        c += ~~a.pop() + ~~b.pop();
+        res = (c % 10) + res;
+        c = c > 9;
+      }
+      console.log(res);
+      return res.replace(/^0+/, "");
+    }
+    console.log(sumStrings("12311", "1239"));
   }
 };
 </script>
