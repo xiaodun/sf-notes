@@ -2,27 +2,138 @@
 
 
 <template>
-  <div id="test-vue-id" ref="testDom">
-    <div class="wave-wrapper">
-      <div class="wave wave1"></div>
-      <div class="wave wave2"></div>
-      <div class="wave wave3"></div>
+  <div
+    id="test-vue-id"
+    ref="testDom"
+  >
+    <div
+      ref="collectionWrapperDom"
+      class="collection-wrapper"
+    >
+
+      <div
+        :key="collectionId"
+        v-for="(collectionValues,collectionId,index) in collectionObject"
+        class="collection "
+        @click="onChangeCollection(collectionId)"
+        @mousedown="onCollectionMousdown($event,collectionId,index)"
+        :class="{active:activeCollectionId === collectionId,hidden:dragCollectionId === collectionId}"
+      >
+        {{collectionValues.title}}
+      </div>
+
+    </div>
+    <div class="drop-area">
+      {{name}}
     </div>
   </div>
 </template>
 
     <script>
+let dragCollectionId,
+  activeCollection = {},
+  tempDraggableId = "temp-draggable-id";
 export default {
   name: "test_vue",
 
   data() {
-    return {};
+    return {
+      dragCollectionId: "-1",
+      activeCollectionId: "1",
+      name: "wx",
+      collectionObject: {
+        "1": {
+          title: "工具"
+        },
+        "2": {
+          title: "任务"
+        },
+        "3": {
+          title: "收藏的链接"
+        },
+        "4": {
+          title: "高文集"
+        },
+        "5": {
+          title: "Java"
+        }
+      }
+    };
   },
   components: {},
   computed: {},
-  methods: {},
+  methods: {
+    onCollectionMousdown(event, argId, argIndex) {
+      dragCollectionId = argId;
+      activeCollection.dom = event.currentTarget;
+      activeCollection.rect = event.currentTarget.getBoundingClientRect();
+      activeCollection.offsetX = event.offsetX;
+      activeCollection.offsetY = event.offsetY;
+      activeCollection.index = argIndex;
+      setTimeout(() => {
+        document.addEventListener("mousemove", this.onGlobalMousemove);
+      }, 20);
+    },
+    onChangeCollection(argId) {
+      this.activeCollectionId = argId;
+    },
 
-  mounted() {}
+    onGlobalMouseup(event) {
+      this.dragCollectionId = "-1";
+      document.removeEventListener("mousemove", this.onGlobalMousemove);
+      let collectionWrapperDom = this.$refs.collectionWrapperDom;
+      let tempDraggableDom = document.querySelector(`#${tempDraggableId}`);
+      if (tempDraggableDom) {
+        console.log(collectionWrapperDom);
+        collectionWrapperDom.removeChild(tempDraggableDom);
+      }
+    },
+    onGlobalMousemove(event) {
+      let collectionWrapperDom = this.$refs.collectionWrapperDom;
+      let tempDraggableDom = document.querySelector(`#${tempDraggableId}`);
+      if (!tempDraggableDom) {
+        tempDraggableDom = activeCollection.dom.cloneNode(true);
+        collectionWrapperDom.appendChild(tempDraggableDom);
+      }
+      let tempDraggableDomRect = tempDraggableDom.getBoundingClientRect();
+      tempDraggableDom.style.display = "block";
+      tempDraggableDom.id = tempDraggableId;
+
+      tempDraggableDom.style.top = activeCollection.rect.top + "px";
+      tempDraggableDom.style.left = activeCollection.rect.left + "px";
+      tempDraggableDom.style.width = activeCollection.rect.width + "px";
+      tempDraggableDom.style.height = activeCollection.rect.height + "px";
+
+      let translateY =
+        event.pageY - activeCollection.rect.top - activeCollection.offsetY;
+      tempDraggableDom.style.transform = `translate3d(${event.pageX -
+        activeCollection.rect.left -
+        activeCollection.offsetX}px,${translateY}px,0)`;
+
+      console.log(translateY / activeCollection.rect.height);
+
+      this.dragCollectionId = dragCollectionId;
+    }
+  },
+
+  mounted() {
+    document.addEventListener("mouseup", this.onGlobalMouseup);
+
+    function sumStrings(a, b) {
+      var res = "",
+        c = 0;
+      a = a.split("");
+      b = b.split("");
+      while (a.length || b.length || c) {
+        c += ~~a.pop() + ~~b.pop();
+        res = (c % 10) + res;
+        c = c > 9;
+      }
+      console.log(res);
+      return res.replace(/^0+/, "");
+    }
+    console.log(sumStrings("12311", "1239"));
+  }
 };
 </script>
 
@@ -30,57 +141,66 @@ export default {
 @import '~@/assets/style/base.less';
 
 #test-vue-id {
-  overflow-y: auto;
+  > .collection-wrapper {
+    overflow-y: auto;
 
-  .wave-wrapper {
-    position: relative;
+    width: 300px;
+    height: 600px;
 
-    overflow: hidden;
+    color: #f2f2f2;
+    background-color: #404040;
+
+    > .collection {
+      font-size: 15px;
+      line-height: 40px;
+
+      position: relative;
+
+      padding: 0 15px;
+
+      list-style: none;
+
+      cursor: pointer;
+      -webkit-user-select: none;
+         -moz-user-select: none;
+          -ms-user-select: none;
+              user-select: none;
+
+      color: #f2f2f2;
+      background-color: #404040;
+
+      &.active {
+        padding-left: 12px;
+
+        border-left: 3px solid #ec7259;
+        background-color: #666;
+      }
+
+      &.hidden {
+        opacity: 0;
+      }
+    }
+  }
+
+  .drop-area {
+    position: absolute;
+    top: 100px;
+    left: 300px;
 
     width: 100px;
     height: 100px;
-    margin: 30px auto;
 
-    border: 1px solid #eee;
-    border-radius: 50%;
+    border: 1px solid #000;
+  }
 
-    .wave {
-      position: absolute;
-      top: 60px;
-      left: 50%;
+  > .draggable-collection-wrapper {
+    position: fixed;
+  }
 
-      width: 200px;
-      height: 200px;
+  #temp-draggable-id {
+    position: fixed;
 
-      transform: translateX(-30%);
-      transform-origin: 50% 50%;
-      animation: rotate-cycle linear infinite;
-
-      border-radius: 65px;
-      background-color: rgba(0, 162, 255, .7);
-
-      &.wave1 {
-        animation-duration: 5s;
-      }
-
-      &.wave2 {
-        animation-duration: 7s;
-      }
-
-      &.wave3 {
-        animation-duration: 9s;
-      }
-    }
-
-    @keyframes rotate-cycle {
-      0% {
-        transform: translateX(-50%) rotate(0deg);
-      }
-
-      100% {
-        transform: translateX(-50%) rotate(360deg);
-      }
-    }
+    visibility: visible;
   }
 }
 
