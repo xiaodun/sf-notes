@@ -2,49 +2,16 @@
 
 
 <template>
-  <div
-    id="test-vue-id"
-    ref="testDom"
-  >
-    <button @click="onEmit()">emit</button>
-    <button @click="onOff()">off</button>
+  <div id="test-vue-id" ref="testDom">
+    <div class="wave-wrapper">
+      <div class="wave wave1"></div>
+      <div class="wave wave2"></div>
+      <div class="wave wave3"></div>
+    </div>
   </div>
 </template>
 
     <script>
-class EventTools {
-  callBackObj = {};
-  on(argKey, argCallback, isOne) {
-    if (this.callBackObj.argKey === undefined) {
-      this.callBackObj.argKey = new Set();
-    }
-    this.callBackObj.argKey.add(argCallback);
-    console.log(this.callBackObj.argKey);
-  }
-  emit(argKey) {
-    if (this.callBackObj.argKey) {
-      for (let callBack of this.callBackObj.argKey) {
-        callBack(...[...arguments].slice(1));
-      }
-    }
-  }
-  off(argKey, argCallback) {
-    if (this.callBackObj.argKey) {
-      this.callBackObj.argKey.delete(argCallback);
-      console.log(this.callBackObj.argKey);
-    }
-  }
-  once(argKey, argCallback) {
-    let _this = this;
-    let fn = function() {
-      argCallback.apply(null, arguments);
-
-      _this.off(argKey, fn);
-    };
-    this.on(argKey, fn);
-  }
-}
-let eventTools = new EventTools();
 export default {
   name: "test_vue",
 
@@ -53,38 +20,67 @@ export default {
   },
   components: {},
   computed: {},
-  methods: {
-    onEmit() {
-      eventTools.emit("key", 12, 13);
-    },
-    onOff() {
-      eventTools.off("key", this.test);
-    },
-    test() {
-      console.log(arguments);
-    }
-  },
+  methods: {},
 
-  mounted() {
-    eventTools.once("key", this.test, true);
-    eventTools.on("key", this.test);
-  }
+  mounted() {}
 };
 </script>
 
 <style lang="less" >
-@import "~@/assets/style/base.less";
+@import '~@/assets/style/base.less';
 
 #test-vue-id {
   overflow-y: auto;
 
-  width: 100%;
-  height: 400px;
-  margin: ~"calc((@{layout-header-height} - 24px) / 2)" 0;
+  .wave-wrapper {
+    position: relative;
 
-  @layout-header-height: 100px;
+    overflow: hidden;
 
-  main {
+    width: 100px;
+    height: 100px;
+    margin: 30px auto;
+
+    border: 1px solid #eee;
+    border-radius: 50%;
+
+    .wave {
+      position: absolute;
+      top: 60px;
+      left: 50%;
+
+      width: 200px;
+      height: 200px;
+
+      transform: translateX(-30%);
+      transform-origin: 50% 50%;
+      animation: rotate-cycle linear infinite;
+
+      border-radius: 65px;
+      background-color: rgba(0, 162, 255, .7);
+
+      &.wave1 {
+        animation-duration: 5s;
+      }
+
+      &.wave2 {
+        animation-duration: 7s;
+      }
+
+      &.wave3 {
+        animation-duration: 9s;
+      }
+    }
+
+    @keyframes rotate-cycle {
+      0% {
+        transform: translateX(-50%) rotate(0deg);
+      }
+
+      100% {
+        transform: translateX(-50%) rotate(360deg);
+      }
+    }
   }
 }
 
