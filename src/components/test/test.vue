@@ -2,36 +2,29 @@
 
 
 <template>
-  <div
-    id="test-vue-id"
-    ref="testDom"
-  >
-    <div
-      ref="collectionWrapperDom"
-      class="collection-wrapper"
-    >
-
-      <div
-        :key="collectionId"
-        v-for="(collectionValues,collectionId,index) in collectionObject"
-        class="collection "
-        @click="onChangeCollection(collectionId)"
-        @mousedown="onCollectionMousdown($event,collectionId,index)"
-        :class="{active:activeCollectionId === collectionId,hidden:dragCollectionId === collectionId}"
-      >
-        {{collectionValues.title}}
+  <div id="test-vue-id" ref="testDom">
+    <div class="bg-wrapper" ref="bgWrapperDom">
+      <div ref="collectionWrapperDom" class="collection-wrapper">
+        <div
+          :key="collectionValues.id"
+          v-for="(collectionValues,index) in collectionList"
+          class="collection"
+          :style="{transform:`translate3d(0,${collectionValues.translateY}px,0)`}"
+          @click="onChangeCollection(collectionValues.id)"
+          @mousedown="onCollectionMousdown($event,collectionValues.id,index)"
+          :class="{active:activeCollectionId === collectionValues.id,hidden:dragCollectionId === collectionValues.id}"
+        >{{collectionValues.title}}</div>
       </div>
-
-    </div>
-    <div class="drop-area">
-      {{name}}
     </div>
   </div>
 </template>
 
     <script>
 let dragCollectionId,
+  cusPos,
+  isScroll = false,
   activeCollection = {},
+  lastTranslateY = 0,
   tempDraggableId = "temp-draggable-id";
 export default {
   name: "test_vue",
@@ -40,30 +33,56 @@ export default {
     return {
       dragCollectionId: "-1",
       activeCollectionId: "1",
-      name: "wx",
-      collectionObject: {
-        "1": {
-          title: "工具"
+
+      collectionList: [
+        {
+          title: "工具",
+          id: "1",
+          translateY: 0
         },
-        "2": {
-          title: "任务"
+        {
+          title: "任务",
+          id: "2",
+          translateY: 0
         },
-        "3": {
-          title: "收藏的链接"
+        {
+          title: "收藏的链接",
+          id: "3",
+          translateY: 0
         },
-        "4": {
-          title: "高文集"
+        {
+          title: "高文集",
+          id: "4",
+          translateY: 0
         },
-        "5": {
-          title: "Java"
+        {
+          title: "Java",
+          id: "5",
+          translateY: 0
+        },
+        {
+          title: "TS",
+          id: "6",
+          translateY: 0
+        },
+        {
+          title: "web",
+          id: "7",
+          translateY: 0
+        },
+        {
+          title: "优美编程",
+          id: "8",
+          translateY: 0
         }
-      }
+      ]
     };
   },
   components: {},
   computed: {},
   methods: {
     onCollectionMousdown(event, argId, argIndex) {
+      isScroll = false;
       dragCollectionId = argId;
       activeCollection.dom = event.currentTarget;
       activeCollection.rect = event.currentTarget.getBoundingClientRect();
@@ -72,6 +91,7 @@ export default {
       activeCollection.index = argIndex;
       setTimeout(() => {
         document.addEventListener("mousemove", this.onGlobalMousemove);
+        document.addEventListener("mouseover", this.onGlobalMouseover);
       }, 20);
     },
     onChangeCollection(argId) {
@@ -81,15 +101,35 @@ export default {
     onGlobalMouseup(event) {
       this.dragCollectionId = "-1";
       document.removeEventListener("mousemove", this.onGlobalMousemove);
+      // document.removeEventListener("mouseover", this.onGlobalMouseover);
       let collectionWrapperDom = this.$refs.collectionWrapperDom;
+      collectionWrapperDom.classList.remove("move");
       let tempDraggableDom = document.querySelector(`#${tempDraggableId}`);
       if (tempDraggableDom) {
-        console.log(collectionWrapperDom);
+        //交换位置
+        let removeCollection = this.collectionList.splice(
+          activeCollection.index,
+          1
+        )[0];
+
+        this.collectionList.splice(
+          cusPos > activeCollection.index ? cusPos : cusPos,
+          0,
+          removeCollection
+        );
+
+        this.collectionList.forEach((collection, index, arr) => {
+          arr[index].translateY = 0;
+        });
         collectionWrapperDom.removeChild(tempDraggableDom);
       }
     },
     onGlobalMousemove(event) {
+      this.dragCollectionId = dragCollectionId;
       let collectionWrapperDom = this.$refs.collectionWrapperDom;
+      let bgWrapperDom = this.$refs.bgWrapperDom;
+
+      collectionWrapperDom.classList.add("move");
       let tempDraggableDom = document.querySelector(`#${tempDraggableId}`);
       if (!tempDraggableDom) {
         tempDraggableDom = activeCollection.dom.cloneNode(true);
@@ -106,65 +146,102 @@ export default {
 
       let translateY =
         event.pageY - activeCollection.rect.top - activeCollection.offsetY;
+
       tempDraggableDom.style.transform = `translate3d(${event.pageX -
         activeCollection.rect.left -
         activeCollection.offsetX}px,${translateY}px,0)`;
 
-      console.log(translateY / activeCollection.rect.height);
+      let currentViewBottomPos =
+        bgWrapperDom.offsetHeight + bgWrapperDom.scrollTop;
 
-      this.dragCollectionId = dragCollectionId;
+      let currentViewTopPos = bgWrapperDom.scrollTop;
+
+      let currentDragTopPos =
+        translateY +
+        (activeCollection.rect.top - collectionWrapperDom.offsetTop);
+      let currentDragBottmPos =
+        currentDragTopPos + activeCollection.rect.height;
+
+      if (currentDragBottmPos >= currentViewBottomPos) {
+        bgWrapperDom.scrollTop +=
+          (currentDragBottmPos - currentViewBottomPos) * 10;
+        isScroll = true;
+      } else if (currentDragTopPos <= currentViewTopPos) {
+        bgWrapperDom.scrollTop -= (currentDragTopPos - currentViewTopPos) * 10;
+      }
+
+      let moveNumber = Math.round(
+        (isScroll ? translateY + bgWrapperDom.scrollTop : translateY) /
+          activeCollection.rect.height +
+          0.1
+      );
+      // console.log(translateY);
+      //得到需要移动的元素
+
+      cusPos = activeCollection.index + moveNumber;
+      cusPos = cusPos < 0 ? 0 : cusPos;
+      cusPos =
+        cusPos < this.collectionList.length
+          ? cusPos
+          : this.collectionList.length - 1;
+
+      let moveCollection = this.collectionList[cusPos];
+
+      cusPos > activeCollection.index
+        ? (moveCollection.translateY = -activeCollection.rect.height)
+        : (moveCollection.translateY = activeCollection.rect.height);
+
+      if (translateY > 0) {
+        this.collectionList[cusPos + 1] &&
+          (this.collectionList[cusPos + 1].translateY = 0);
+      } else {
+        this.collectionList[cusPos - 1] &&
+          (this.collectionList[cusPos - 1].translateY = 0);
+      }
     }
   },
 
   mounted() {
     document.addEventListener("mouseup", this.onGlobalMouseup);
-
-    function sumStrings(a, b) {
-      var res = "",
-        c = 0;
-      a = a.split("");
-      b = b.split("");
-      while (a.length || b.length || c) {
-        c += ~~a.pop() + ~~b.pop();
-        res = (c % 10) + res;
-        c = c > 9;
-      }
-      console.log(res);
-      return res.replace(/^0+/, "");
-    }
-    console.log(sumStrings("12311", "1239"));
   }
 };
 </script>
 
 <style lang="less" >
-@import '~@/assets/style/base.less';
+@import "~@/assets/style/base.less";
 
 #test-vue-id {
-  > .collection-wrapper {
+  height: 500px;
+  > .bg-wrapper {
+    background-color: #404040;
     overflow-y: auto;
 
     width: 300px;
-    height: 600px;
-
+    height: 200px;
+  }
+  .collection-wrapper {
     color: #f2f2f2;
-    background-color: #404040;
-
+    background-color: #f0f0f0;
+    &.move {
+      > .collection {
+        transition: transform 0.25s ease-in-out;
+      }
+    }
     > .collection {
       font-size: 15px;
       line-height: 40px;
 
       position: relative;
-
+      background-color: #404040;
       padding: 0 15px;
 
       list-style: none;
-
+      transition: none;
       cursor: pointer;
       -webkit-user-select: none;
-         -moz-user-select: none;
-          -ms-user-select: none;
-              user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
 
       color: #f2f2f2;
       background-color: #404040;
@@ -182,26 +259,11 @@ export default {
     }
   }
 
-  .drop-area {
-    position: absolute;
-    top: 100px;
-    left: 300px;
-
-    width: 100px;
-    height: 100px;
-
-    border: 1px solid #000;
-  }
-
-  > .draggable-collection-wrapper {
-    position: fixed;
-  }
-
   #temp-draggable-id {
+    transition: none;
     position: fixed;
-
+    z-index: 10000;
     visibility: visible;
   }
 }
-
 </style>
