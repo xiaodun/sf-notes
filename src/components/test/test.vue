@@ -20,11 +20,9 @@
 </template>
 
     <script>
-let dragCollectionId,
-  cusPos,
-  isScroll = false,
-  activeCollection = {},
-  lastTranslateY = 0,
+let dragCollectionId, //被拖拽元素的id
+  cusPos, //被拖动的位置
+  activeCollection = {}, //存储被拖动的文集信息
   tempDraggableId = "temp-draggable-id";
 export default {
   name: "test_vue",
@@ -59,21 +57,6 @@ export default {
           title: "Java",
           id: "5",
           translateY: 0
-        },
-        {
-          title: "TS",
-          id: "6",
-          translateY: 0
-        },
-        {
-          title: "web",
-          id: "7",
-          translateY: 0
-        },
-        {
-          title: "优美编程",
-          id: "8",
-          translateY: 0
         }
       ]
     };
@@ -82,7 +65,6 @@ export default {
   computed: {},
   methods: {
     onCollectionMousdown(event, argId, argIndex) {
-      isScroll = false;
       dragCollectionId = argId;
       activeCollection.dom = event.currentTarget;
       activeCollection.rect = event.currentTarget.getBoundingClientRect();
@@ -90,8 +72,9 @@ export default {
       activeCollection.offsetY = event.offsetY;
       activeCollection.index = argIndex;
       setTimeout(() => {
+        //防止点击也出现移动的效果
+
         document.addEventListener("mousemove", this.onGlobalMousemove);
-        document.addEventListener("mouseover", this.onGlobalMouseover);
       }, 20);
     },
     onChangeCollection(argId) {
@@ -99,24 +82,21 @@ export default {
     },
 
     onGlobalMouseup(event) {
+      //状态重置
       this.dragCollectionId = "-1";
       document.removeEventListener("mousemove", this.onGlobalMousemove);
-      // document.removeEventListener("mouseover", this.onGlobalMouseover);
       let collectionWrapperDom = this.$refs.collectionWrapperDom;
       collectionWrapperDom.classList.remove("move");
       let tempDraggableDom = document.querySelector(`#${tempDraggableId}`);
       if (tempDraggableDom) {
         //交换位置
+        //移除
         let removeCollection = this.collectionList.splice(
           activeCollection.index,
           1
         )[0];
-
-        this.collectionList.splice(
-          cusPos > activeCollection.index ? cusPos : cusPos,
-          0,
-          removeCollection
-        );
+        //加入
+        this.collectionList.splice(cusPos, 0, removeCollection);
 
         this.collectionList.forEach((collection, index, arr) => {
           arr[index].translateY = 0;
@@ -135,6 +115,7 @@ export default {
         tempDraggableDom = activeCollection.dom.cloneNode(true);
         collectionWrapperDom.appendChild(tempDraggableDom);
       }
+      //将新创建的元素与被选中拖拽元素的位置同步 通过top、left
       let tempDraggableDomRect = tempDraggableDom.getBoundingClientRect();
       tempDraggableDom.style.display = "block";
       tempDraggableDom.id = tempDraggableId;
@@ -143,7 +124,7 @@ export default {
       tempDraggableDom.style.left = activeCollection.rect.left + "px";
       tempDraggableDom.style.width = activeCollection.rect.width + "px";
       tempDraggableDom.style.height = activeCollection.rect.height + "px";
-
+      //通过translate来改变元素的位置，来响应拖动
       let translateY =
         event.pageY - activeCollection.rect.top - activeCollection.offsetY;
 
@@ -151,31 +132,9 @@ export default {
         activeCollection.rect.left -
         activeCollection.offsetX}px,${translateY}px,0)`;
 
-      let currentViewBottomPos =
-        bgWrapperDom.offsetHeight + bgWrapperDom.scrollTop;
-
-      let currentViewTopPos = bgWrapperDom.scrollTop;
-
-      let currentDragTopPos =
-        translateY +
-        (activeCollection.rect.top - collectionWrapperDom.offsetTop);
-      let currentDragBottmPos =
-        currentDragTopPos + activeCollection.rect.height;
-
-      if (currentDragBottmPos >= currentViewBottomPos) {
-        bgWrapperDom.scrollTop +=
-          (currentDragBottmPos - currentViewBottomPos) * 10;
-        isScroll = true;
-      } else if (currentDragTopPos <= currentViewTopPos) {
-        bgWrapperDom.scrollTop -= (currentDragTopPos - currentViewTopPos) * 10;
-      }
-
       let moveNumber = Math.round(
-        (isScroll ? translateY + bgWrapperDom.scrollTop : translateY) /
-          activeCollection.rect.height +
-          0.1
+        translateY / activeCollection.rect.height + 0.1
       );
-      // console.log(translateY);
       //得到需要移动的元素
 
       cusPos = activeCollection.index + moveNumber;
@@ -191,6 +150,10 @@ export default {
         ? (moveCollection.translateY = -activeCollection.rect.height)
         : (moveCollection.translateY = activeCollection.rect.height);
 
+      //处理元素上下移动的情况
+      /**
+       * 例如当一个元素下移动时,又向上移动 需要充值当前位置的下一个元素的状态,反之亦然
+       */
       if (translateY > 0) {
         this.collectionList[cusPos + 1] &&
           (this.collectionList[cusPos + 1].translateY = 0);
@@ -214,7 +177,6 @@ export default {
   height: 500px;
   > .bg-wrapper {
     background-color: #404040;
-    overflow-y: auto;
 
     width: 300px;
     height: 200px;
