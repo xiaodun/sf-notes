@@ -68,7 +68,10 @@ export default {
         lastIndex = pattern.lastIndex;
       }
     }
-
+    //处理后面的元素
+    renderList.push(
+      this.data.content.substring(lastIndex, this.data.content.length)
+    );
     return createElement(
       "div",
       {
