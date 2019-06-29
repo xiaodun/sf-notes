@@ -11,7 +11,7 @@
         <Input ref="firstIViewComponent" type="password" v-model="formValidate.firstKey"></Input>
       </FormItem>
       <FormItem label="确认密钥" prop="secondKey">
-        <Input type="password" v-model="formValidate.secondKey"></Input>
+        <Input placeholder="密码至少为16位" type="password" v-model="formValidate.secondKey"></Input>
       </FormItem>
       <FormItem>
         <Button @click="onSubmit" type="primary">确定</Button>
@@ -41,6 +41,10 @@ export default {
             message: " "
           },
           {
+            min: 8,
+            message: "至少8位字符"
+          },
+          {
             validator: (rule, value, callback) => {
               if (value && this.formValidate.secondKey) {
                 let formDomIview = this.$refs.formDomIview;
@@ -55,6 +59,7 @@ export default {
             required: true,
             message: " "
           },
+
           {
             validator: (rule, value, callback) => {
               if (value) {
