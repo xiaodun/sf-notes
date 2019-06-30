@@ -1,39 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="Generator" content="EditPlus®" />
-    <meta name="Author" content="" />
-    <meta name="Keywords" content="" />
-    <meta name="Description" content="" />
-    <title></title>
-    <style>
-      body {
-        margin: 0;
-      }
-      .wrapper {
-        margin: 20px auto;
-        line-height: 30px;
-        height: 30px;
-        border-radius: 20px;
-        width: 200px;
-        background-color: #ccc;
-        padding: 0 10px;
-      }
-      .square {
-        width: 10px;
-        height: 10px;
-        background-color: #de4307;
-        display: inline-block;
-        float: right;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="wrapper">
-      <!-- <div style="float:right">
-    </div> -->
-      <span class="square"></span>
-    </div>
-  </body>
+
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <style type="text/css">
+* {
+  box-sizing: border-box;
+}
+
+.content {
+  display: table;
+
+  width: 100%;
+  min-width: 320px;
+  max-width: 1000px;
+  margin: 10px auto;
+  padding: 15px 15px;
+
+  border: 1px solid #06c;
+}
+
+.content ul {
+  display: table;
+
+  width: 100%;
+  padding: 0;
+
+  border-right: 1px solid #ccc;
+}
+
+.content ul li {
+  line-height: 100px;
+
+  display: table-cell;
+
+  height: 100px;
+
+  text-align: center;
+
+  border: 1px solid #ccc;
+  border-right: none;
+}
+
+  </style>
+</head>
+
+<body>
+  <div class="content">
+    <ul>
+      <li>2</li>
+      <li>2</li>
+      <li>3</li>
+      <li>4</li>
+      <li>5</li>
+    </ul>
+  </div>
+</body>
+
 </html>
