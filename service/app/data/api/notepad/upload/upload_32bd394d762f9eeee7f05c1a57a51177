@@ -36,6 +36,10 @@
       "</script>",
       "<style lang=\"less\">",
       "\t",
+      "@import \"~../../base.less\";",
+      "\t",
+      "//@import \"~@/UI/base.less\";",
+      "\t",
       "#${TM_FILENAME_BASE}-vue-id{}",
       "</style>"
     ],
