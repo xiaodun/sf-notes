@@ -2,23 +2,35 @@
 <html lang="zh">
   <head>
     <title>Document</title>
-    <link href="http://vjs.zencdn.net/5.19/video-js.min.css" rel="stylesheet" />
+    <style>
+.circle {
+  width: 100px;
+  height: 100px;
+
+  animation: line 1s 2s linear both 3;
+
+  border-radius: 50%;
+  background-color: red;
+}
+
+.circle:hover {
+  animation-play-state: paused;
+}
+
+@keyframes line {
+  from {
+    transform: translate(0px);
+  }
+
+  to {
+    transform: translate(200px);
+  }
+}
+
+    </style>
   </head>
 
   <body>
-    <video
-      id="my-player"
-      class="video-js vjs-default-skin vjs-big-play-centered"
-      controls
-      preload="auto"
-      autoplay="autoplay"
-      poster="//vjs.zencdn.net/v/oceans.png"
-      width="500"
-      height="400"
-      data-setup="{}"
-    >
-      <source src="rtmp://live.hkstv.hk.lxdns.com/live/hks1" type="rtmp/flv" />
-    </video>
+    <div class="circle"></div>
   </body>
-  <script src="http://vjs.zencdn.net/5.19/video.min.js"></script>
 </html>
