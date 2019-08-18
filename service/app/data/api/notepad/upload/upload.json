@@ -1,18 +1,5 @@
 [
     {
-        "name": "1楼.jpg",
-        "type": "image/jpeg",
-        "flag": "upload_0ec820b95fe1e5369d903caa1fc46651",
-        "id": "15628504746730"
-    },
-    {
-        "name": "vue-templete.code-snippets",
-        "type": "application/octet-stream",
-        "flag": "upload_32bd394d762f9eeee7f05c1a57a51177",
-        "id": "15621354975530",
-        "describe": "增加了base.less的引入"
-    },
-    {
         "name": "农历.zip",
         "type": "application/x-zip-compressed",
         "flag": "upload_354b3fc5cd0da3d6086e71f5161251f0",
