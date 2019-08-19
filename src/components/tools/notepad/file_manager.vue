@@ -74,6 +74,14 @@
 
     .label {
       font-weight: bold;
+      line-height: 32px;
+
+      overflow: hidden;
+
+      height: 32px;
+
+      white-space: nowrap;
+      text-overflow: ellipsis;
 
       color: #333;
     }
@@ -248,7 +256,7 @@
           <Col
             span="4"
             class="label"
-          >文件名称:</Col>
+          >名称:</Col>
           <Col span="20">
           <div class="name">{{activePreview.name}}</div>
           </Col>
@@ -257,26 +265,47 @@
           <Col
             span="4"
             class="label"
-          >文件类型:</Col>
+          >类型:</Col>
           <Col span="20">
-          <RadioGroup v-model="activePreview.type">
+          <RadioGroup
+            v-model="activePreview.type"
+            @on-change="onChangFileType()"
+          >
             <Radio
-              :disabled="true"
+              :disabled="computedDisabledFileRadio"
               :label="FileType.txt"
             >文本</Radio>
             <Radio
-              :disabled="true"
+              :disabled="computedDisabledFileRadio"
               :label="FileType.img"
             >图片</Radio>
             <Radio
-              :disabled="true"
+              :disabled="computedDisabledFileRadio"
               :label="FileType.audio"
             > 音频</Radio>
             <Radio
-              :disabled="true"
+              :disabled="computedDisabledFileRadio"
               :label="FileType.video"
             >视频</Radio>
           </RadioGroup>
+          </Col>
+        </Row>
+        <Row class="row">
+          <Col
+            span="4"
+            class="label"
+          >编码:</Col>
+          <Col span="10">
+          <Input
+            v-model="defaultEncode"
+            @on-keyup.enter="onParseFile(FileType.txt)"
+          ></Input>
+          </Col>
+          <Col
+            offset="1"
+            span="4"
+          >
+          <Button @click="onParseFile(FileType.txt)">解析</Button>
           </Col>
         </Row>
         <Row>
@@ -321,7 +350,7 @@
               v-else
               class="no-preview"
             >
-              该文件不在可预览的文件类型中!
+              该文件不在内置的可预览的文件类型中!可自行尝试!
             </div>
           </div>
         </Row>
@@ -352,7 +381,9 @@ export default {
   },
   data() {
     return {
+      defaultEncode: "utf-8",
       lastFile: null,
+      isCanTry: false, //是否可以自己尝试解析
       activeFile: {},
       activePreview: {
         type: "", //文件类型
@@ -373,9 +404,16 @@ export default {
     };
   },
   methods: {
+    onChangFileType() {
+      // 切换文件类型
+      setTimeout(() => {
+        this.resetActivePreview();
+        this.onParseFile(this.activePreview.type);
+      }, 20);
+    },
     onPreviewFile(argItem) {
+      this.isCanTry = false;
       //预览文件
-      console.log("wx", argItem);
       this.activeFile = { ...argItem };
       this.activePreview.name = argItem.name;
       this.activePreview.type = getFileType(argItem.name);
@@ -408,14 +446,14 @@ export default {
       var fileReader = new FileReader();
       switch (argType) {
         case FileType.txt:
-          fileReader.readAsText(data, "utf-8");
+          fileReader.readAsText(data, this.defaultEncode);
           fileReader.onload = event => {
             this.activePreview.txtContent = fileReader.result;
             this.activePreview.isLoading = false;
           };
           break;
         case FileType.img:
-          fileReader.readAsDataURL(data, "utf-8");
+          fileReader.readAsDataURL(data);
           fileReader.onload = event => {
             this.activePreview.isLoading = false;
             this.activePreview.imgSrc = fileReader.result;
@@ -438,6 +476,7 @@ export default {
 
           break;
         default:
+          this.isCanTry = true;
           this.activePreview.isLoading = false;
           break;
       }
@@ -545,6 +584,12 @@ export default {
         method: "get",
         url: this.requestPrefix + "/get"
       });
+    }
+  },
+  computed: {
+    computedDisabledFileRadio() {
+      let isDisabled = this.activeFile.isLoading || !this.isCanTry;
+      return isDisabled;
     }
   },
   beforeDestroy() {
