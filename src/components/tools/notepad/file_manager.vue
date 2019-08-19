@@ -166,12 +166,12 @@
         v-for="(item,index) in uploadList"
       >
         <Row>
-          <Col span="12">
+          <Col span="10">
           <div class="name">{{item.name}}</div>
           </Col>
           <Col
             class="option"
-            span="10"
+            span="12"
             offset="1"
           >
           <Button
@@ -331,6 +331,9 @@
 </template>
 <script>
 //内置服务器配置
+let fileToBlob = {
+  //缓存文件数据
+};
 import BuiltServiceConfig from "@root/service/app/config.json";
 import { FileType, StuffixWithType, getFileType } from "@/assets/lib/preview";
 export default {
@@ -372,6 +375,7 @@ export default {
   methods: {
     onPreviewFile(argItem) {
       //预览文件
+      console.log("wx", argItem);
       this.activeFile = { ...argItem };
       this.activePreview.name = argItem.name;
       this.activePreview.type = getFileType(argItem.name);
@@ -390,19 +394,28 @@ export default {
       URL.revokeObjectURL(this.activePreview.videoSrc);
     },
     async onParseFile(argType) {
-      let response = await this.requestDownload(this.activeFile);
-      var fileReader = new FileReader();
       this.activePreview.isLoading = true;
+      let data = fileToBlob[this.activeFile.id];
+      if (!data) {
+        /**
+         * 对于视频和音频可以采用二进制播放的形式来快速响应，考虑到使用场景，就不做特殊化处理了
+         */
+        let response = await this.requestDownload(this.activeFile);
+        data = response.data;
+        fileToBlob[this.activeFile.id] = data;
+      }
+
+      var fileReader = new FileReader();
       switch (argType) {
         case FileType.txt:
-          fileReader.readAsText(response.data, "utf-8");
+          fileReader.readAsText(data, "utf-8");
           fileReader.onload = event => {
             this.activePreview.txtContent = fileReader.result;
             this.activePreview.isLoading = false;
           };
           break;
         case FileType.img:
-          fileReader.readAsDataURL(response.data, "utf-8");
+          fileReader.readAsDataURL(data, "utf-8");
           fileReader.onload = event => {
             this.activePreview.isLoading = false;
             this.activePreview.imgSrc = fileReader.result;
@@ -410,7 +423,7 @@ export default {
           break;
         case FileType.video:
           {
-            let videoSrc = URL.createObjectURL(response.data);
+            let videoSrc = URL.createObjectURL(data);
             this.activePreview.isLoading = false;
             this.activePreview.videoSrc = videoSrc;
           }
@@ -418,7 +431,7 @@ export default {
           break;
         case FileType.audio:
           {
-            let audioSrc = URL.createObjectURL(response.data);
+            let audioSrc = URL.createObjectURL(data);
             this.activePreview.isLoading = false;
             this.activePreview.audioSrc = audioSrc;
           }
@@ -534,7 +547,10 @@ export default {
       });
     }
   },
-  computed: {},
+  beforeDestroy() {
+    //卸载组件时清空数据,fileToBlob由于不在组件内部,所以需要手动清空
+    fileToBlob = {};
+  },
   mounted() {
     this.onGet();
   }
