@@ -241,6 +241,7 @@
       footer-hide
       :mask-closable="false"
       class="preview-modal-9b45763"
+      @on-cancel="onClosePreviewFileModal"
     >
       <div class="container">
         <Row class="row">
@@ -279,43 +280,49 @@
           </Col>
         </Row>
         <Row>
-          <div v-if="activePreview.type">
-            <div
-              class="txt"
-              v-if="activePreview.type === FileType.txt"
-            >
-              {{activePreview.txtContent}}
-            </div>
-            <div
-              class="img"
-              v-if="activePreview.type === FileType.img"
-            >
-              <img :src="activePreview.imgSrc">
-            </div>
-            <div
-              class="audio"
-              v-if="activePreview.type === FileType.audio"
-            >
-              <audio
-                controls
-                :src="activePreview.audioSrc"
-              ></audio>
-            </div>
-            <div
-              class="video"
-              v-if="activePreview.type === FileType.video"
-            >
-              <video
-                controls
-                :src="activePreview.videoSrc"
-              ></video>
-            </div>
+          <div v-if="activePreview.isLoading">
+            解析中...
           </div>
-          <div
-            v-else
-            class="no-preview"
-          >
-            该文件不在可预览的文件类型中!
+          <div v-else>
+
+            <div v-if="activePreview.type">
+              <div
+                class="txt"
+                v-if="activePreview.type === FileType.txt"
+              >
+                {{activePreview.txtContent}}
+              </div>
+              <div
+                class="img"
+                v-if="activePreview.type === FileType.img"
+              >
+                <img :src="activePreview.imgSrc">
+              </div>
+              <div
+                class="audio"
+                v-if="activePreview.type === FileType.audio"
+              >
+                <audio
+                  controls
+                  :src="activePreview.audioSrc"
+                ></audio>
+              </div>
+              <div
+                class="video"
+                v-if="activePreview.type === FileType.video"
+              >
+                <video
+                  controls
+                  :src="activePreview.videoSrc"
+                ></video>
+              </div>
+            </div>
+            <div
+              v-else
+              class="no-preview"
+            >
+              该文件不在可预览的文件类型中!
+            </div>
           </div>
         </Row>
       </div>
@@ -350,7 +357,8 @@ export default {
         txtContent: "", //文本内容
         imgSrc: "", //图片内容,
         videoSrc: "", //视频内容
-        audioSrc: "" //音频内容
+        audioSrc: "", //音频内容
+        isLoading: false //是否处于解析状态
       },
       BuiltServiceConfig,
       requestPrefix: "/notepad/upload", //上传文件请求前缀
@@ -370,26 +378,40 @@ export default {
       this.onParseFile(this.activePreview.type);
       this.isPreviewFile = true;
     },
+    onClosePreviewFileModal() {
+      //关闭预览文件的模态框  清空状态
+
+      this.resetActivePreview();
+    },
+    resetActivePreview() {
+      this.activePreview.txtContent = "";
+      this.activePreview.imgSrc = "";
+      URL.revokeObjectURL(this.activePreview.audioSrc);
+      URL.revokeObjectURL(this.activePreview.videoSrc);
+    },
     async onParseFile(argType) {
       let response = await this.requestDownload(this.activeFile);
       var fileReader = new FileReader();
-
+      this.activePreview.isLoading = true;
       switch (argType) {
         case FileType.txt:
           fileReader.readAsText(response.data, "utf-8");
           fileReader.onload = event => {
             this.activePreview.txtContent = fileReader.result;
+            this.activePreview.isLoading = false;
           };
           break;
         case FileType.img:
           fileReader.readAsDataURL(response.data, "utf-8");
           fileReader.onload = event => {
+            this.activePreview.isLoading = false;
             this.activePreview.imgSrc = fileReader.result;
           };
           break;
         case FileType.video:
           {
             let videoSrc = URL.createObjectURL(response.data);
+            this.activePreview.isLoading = false;
             this.activePreview.videoSrc = videoSrc;
           }
 
@@ -397,13 +419,13 @@ export default {
         case FileType.audio:
           {
             let audioSrc = URL.createObjectURL(response.data);
-
+            this.activePreview.isLoading = false;
             this.activePreview.audioSrc = audioSrc;
           }
 
           break;
         default:
-          throw new Error(`不支持的文件类型:${argType}`);
+          this.activePreview.isLoading = false;
           break;
       }
     },
