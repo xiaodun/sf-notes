@@ -6,6 +6,7 @@ export const FileType = {
 };
 export const StuffixWithType = {
   ".less": FileType.txt,
+  ".txt": FileType.txt,
   ".bat": FileType.txt,
   ".json": FileType.txt,
   ".css": FileType.txt,
