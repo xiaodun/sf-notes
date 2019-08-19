@@ -30,7 +30,7 @@
   }
 
   > .wrapper {
-    width: 85%;
+    width: 95%;
     max-width: 650px;
     margin: 0 auto;
 
