@@ -1,5 +1,5 @@
 <style lang="less">
-@import '~@/assets/style/base.less';
+@import "~@/assets/style/base.less";
 
 #file_manager-vue-id {
   .uploading-enter-active,
@@ -54,10 +54,81 @@
   }
 }
 
+.preview-modal-9b45763 {
+  .ivu-modal {
+    width: 85% !important;
+    max-width: 560px !important;
+  }
+
+  .name {
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+    word-wrap: nowrap;
+  }
+
+  .row {
+    font-size: 14px;
+
+    margin-bottom: 10px;
+
+    .label {
+      font-weight: bold;
+
+      color: #333;
+    }
+  }
+
+  .no-preview {
+    padding: 40px;
+
+    text-align: center;
+  }
+
+  .txt {
+    font-size: 14px;
+
+    overflow: auto;
+
+    height: 500px;
+
+    white-space: pre;
+  }
+
+  .img {
+    img {
+      max-width: 100%;
+    }
+  }
+
+  .video {
+    video {
+      display: block;
+
+      width: 100%;
+    }
+  }
+
+  .audio {
+    audio {
+      display: block;
+
+      width: 100%;
+
+      &:focus {
+        outline: 0;
+      }
+    }
+  }
+}
+
 </style>
 <template>
   <div id="file_manager-vue-id">
-    <Button class="first-btn" @click="$emit('on-back')">返回</Button>
+    <Button
+      class="first-btn"
+      @click="$emit('on-back')"
+    >返回</Button>
     <Alert v-if="$browserMessage.isWeChat">微信内置浏览器不支持下载!</Alert>
     <Upload
       :on-progress="onUploadProgress"
@@ -75,42 +146,86 @@
     <!-- 上传 -->
     <div class="upload-wrapper">
       <!-- 正在上传的文件 -->
-      <transition-group tag="div" name="uploading">
-        <div class="uploading" :key="index" v-for="(item,index) in uploadingList">
+      <transition-group
+        tag="div"
+        name="uploading"
+      >
+        <div
+          class="uploading"
+          :key="index"
+          v-for="(item,index) in uploadingList"
+        >
           <div>{{item.name}}</div>
-          <Progress :percent="item.percent"/>
+          <Progress :percent="item.percent" />
         </div>
       </transition-group>
       <!-- 已经上传完毕 -->
-      <div class="file" :key="index" v-for="(item,index) in uploadList">
+      <div
+        class="file"
+        :key="index"
+        v-for="(item,index) in uploadList"
+      >
         <Row>
           <Col span="12">
-            <div class="name">{{item.name}}</div>
+          <div class="name">{{item.name}}</div>
           </Col>
-          <Col class="option" span="10" offset="1">
-            <Button
-              v-if="!$browserMessage.isWeChat"
-              icon="md-download"
-              :loading="item.isDownloading"
-              style="margin-right:10px"
-              shape="circle"
-              @click="onDownload(item)"
-            ></Button>
-            <Button
-              shape="circle"
-              icon="md-remove"
-              style="margin-right:10px"
-              @click="onConfirmDelete(item)"
-            ></Button>
-            <Button shape="circle" icon="md-information" @click="inUpdateModal(item)"></Button>
+          <Col
+            class="option"
+            span="10"
+            offset="1"
+          >
+          <Button
+            v-if="!$browserMessage.isWeChat"
+            icon="md-download"
+            :loading="item.isDownloading"
+            style="margin-right:10px"
+            title="下载"
+            shape="circle"
+            @click="onDownload(item)"
+          ></Button>
+          <Button
+            shape="circle"
+            icon="md-remove"
+            title="删除"
+            style="margin-right:10px"
+            @click="onConfirmDelete(item)"
+          ></Button>
+
+          <Button
+            shape="circle"
+            title="备注"
+            icon="md-information"
+            style="margin-right:10px"
+            @click="inUpdateModal(item)"
+          ></Button>
+          <Button
+            shape="circle"
+            icon="md-eye"
+            title="预览"
+            @click="onPreviewFile(item)"
+          ></Button>
           </Col>
-          <Col span="14" v-if="item.describe">
-            <div class="fileinfo">{{item.describe}}</div>
+          <Col
+            span="14"
+            v-if="item.describe"
+          >
+          <div class="fileinfo">{{item.describe}}</div>
+          </Col>
+          <Col
+            span="14"
+            v-if="item.describe"
+          >
+          <div class="fileinfo">{{item.describe}}</div>
           </Col>
         </Row>
       </div>
     </div>
-    <Modal title="修改描述" v-model="isShowUpdate" @on-ok="onUpdate(activeFile)">
+    <Modal
+      title="修改描述"
+      :mask-closable="false"
+      v-model="isShowUpdate"
+      @on-ok="onUpdate(activeFile)"
+    >
       <div>
         <Input
           ref="updateDom"
@@ -120,11 +235,97 @@
         />
       </div>
     </Modal>
+    <Modal
+      title="预览文件"
+      v-model="isPreviewFile"
+      footer-hide
+      :mask-closable="false"
+      class="preview-modal-9b45763"
+    >
+      <div class="container">
+        <Row class="row">
+          <Col
+            span="4"
+            class="label"
+          >文件名称:</Col>
+          <Col span="20">
+          <div class="name">{{activePreview.name}}</div>
+          </Col>
+        </Row>
+        <Row class="row">
+          <Col
+            span="4"
+            class="label"
+          >文件类型:</Col>
+          <Col span="20">
+          <RadioGroup v-model="activePreview.type">
+            <Radio
+              :disabled="true"
+              :label="FileType.txt"
+            >文本</Radio>
+            <Radio
+              :disabled="true"
+              :label="FileType.img"
+            >图片</Radio>
+            <Radio
+              :disabled="true"
+              :label="FileType.audio"
+            > 音频</Radio>
+            <Radio
+              :disabled="true"
+              :label="FileType.video"
+            >视频</Radio>
+          </RadioGroup>
+          </Col>
+        </Row>
+        <Row>
+          <div v-if="activePreview.type">
+            <div
+              class="txt"
+              v-if="activePreview.type === FileType.txt"
+            >
+              {{activePreview.txtContent}}
+            </div>
+            <div
+              class="img"
+              v-if="activePreview.type === FileType.img"
+            >
+              <img :src="activePreview.imgSrc">
+            </div>
+            <div
+              class="audio"
+              v-if="activePreview.type === FileType.audio"
+            >
+              <audio
+                controls
+                :src="activePreview.audioSrc"
+              ></audio>
+            </div>
+            <div
+              class="video"
+              v-if="activePreview.type === FileType.video"
+            >
+              <video
+                controls
+                :src="activePreview.videoSrc"
+              ></video>
+            </div>
+          </div>
+          <div
+            v-else
+            class="no-preview"
+          >
+            该文件不在可预览的文件类型中!
+          </div>
+        </Row>
+      </div>
+    </Modal>
   </div>
 </template>
 <script>
 //内置服务器配置
 import BuiltServiceConfig from "@root/service/app/config.json";
+import { FileType, StuffixWithType, getFileType } from "@/assets/lib/preview";
 export default {
   name: "file_manager_vue",
   model: {
@@ -143,13 +344,70 @@ export default {
     return {
       lastFile: null,
       activeFile: {},
+      activePreview: {
+        type: "", //文件类型
+        name: "", //文件名称
+        txtContent: "", //文本内容
+        imgSrc: "", //图片内容,
+        videoSrc: "", //视频内容
+        audioSrc: "" //音频内容
+      },
       BuiltServiceConfig,
       requestPrefix: "/notepad/upload", //上传文件请求前缀
       uploadingList: [], //正在上传的文件
-      isShowUpdate: false
+      isPreviewFile: false, //预览文件模态框
+      isShowUpdate: false,
+      FileType,
+      StuffixWithType
     };
   },
   methods: {
+    onPreviewFile(argItem) {
+      //预览文件
+      this.activeFile = { ...argItem };
+      this.activePreview.name = argItem.name;
+      this.activePreview.type = getFileType(argItem.name);
+      this.onParseFile(this.activePreview.type);
+      this.isPreviewFile = true;
+    },
+    async onParseFile(argType) {
+      let response = await this.requestDownload(this.activeFile);
+      var fileReader = new FileReader();
+
+      switch (argType) {
+        case FileType.txt:
+          fileReader.readAsText(response.data, "utf-8");
+          fileReader.onload = event => {
+            this.activePreview.txtContent = fileReader.result;
+          };
+          break;
+        case FileType.img:
+          fileReader.readAsDataURL(response.data, "utf-8");
+          fileReader.onload = event => {
+            this.activePreview.imgSrc = fileReader.result;
+          };
+          break;
+        case FileType.video:
+          {
+            let videoSrc = URL.createObjectURL(response.data);
+            this.activePreview.videoSrc = videoSrc;
+          }
+
+          break;
+        case FileType.audio:
+          {
+            let audioSrc = URL.createObjectURL(response.data);
+
+            this.activePreview.audioSrc = audioSrc;
+          }
+
+          break;
+        default:
+          throw new Error(`不支持的文件类型:${argType}`);
+          break;
+      }
+    },
+
     async onUpdate(argItem) {
       let response = await this.requestUpdate(argItem);
       this.$Message.success("修改成功");
