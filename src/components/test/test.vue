@@ -23,15 +23,7 @@ export default {
   computed: {},
   methods: {},
 
-  mounted() {
-    const user2 = {
-      id: 200,
-      name: "Vince Noir"
-    };
-
-    let renamed = ({ id, ...rest }) => ({ ID: id, ...rest });
-    console.log(renamed(user2));
-  }
+  mounted() {}
 };
 </script>
 
@@ -39,25 +31,14 @@ export default {
 @import "~@/assets/style/base.less";
 
 #test-vue-id {
+  height: 200px;
+  border: 1px solid #000;
+  display: flex;
   .circle {
+    margin: auto;
     width: 100px;
+    background: red;
     height: 100px;
-
-    animation: line 1.25s linear both 3;
-
-    border-radius: 50%;
-    background-color: red;
-  }
-
-  @keyframes line {
-    from {
-      transform: translate(0px);
-    }
-
-    to {
-      transform: translate(200px);
-    }
   }
 }
-
 </style>
