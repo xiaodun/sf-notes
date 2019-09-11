@@ -2,14 +2,9 @@
 
 
 <template>
-  <div
-    id="test-vue-id"
-    ref="testDom"
-  >
+  <div id="test-vue-id" ref="testDom">
     <div class="circle"></div>
-
   </div>
-
 </template>
 
     <script>
@@ -23,7 +18,11 @@ export default {
   computed: {},
   methods: {},
 
-  mounted() {}
+  mounted() {
+    const arr = [0, 1, [2, 3, [4, 5]]];
+    const [a, b, [c, d, [e, f]]] = arr;
+    console.log([].concat(...arr));
+  },
 };
 </script>
 
