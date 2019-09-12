@@ -1,5 +1,39 @@
 [
     {
+        "content": "看下antd的源码 看看这两种方式是不是只用一种就好 \n\nif ($event.dataTransfer.items) {\n          for (let i = 0; i < $event.dataTransfer.items.length; i++) {\n            const item = event.dataTransfer.items[i];\n            if (item.kind === \"file\") {\n              const file = item.getAsFile();\n              if (file) {\n                fileList.push(file);\n              }\n            }\n          }\n        } else {\n         \n          for (let i = 0; i < $event.dataTransfer.files.length; i++) {\n            const item = event.dataTransfer.items[i];\n            fileList.push(item);\n          }\n        }",
+        "loadCount": 0,
+        "base64": {},
+        "createTime": 1568205618109,
+        "id": 1568205618109,
+        "updateTime": ""
+    },
+    {
+        "content": "https://www.zhangxinxu.com/wordpress/2018/09/drag-drop-datatransfer-js/",
+        "loadCount": 0,
+        "base64": {},
+        "title": "拖拽",
+        "createTime": 1568201814581,
+        "id": 1568201814581,
+        "updateTime": ""
+    },
+    {
+        "content": "vue $emit这种方式如何声明",
+        "loadCount": 0,
+        "base64": {},
+        "createTime": 1568201578012,
+        "id": 1568201578012,
+        "updateTime": ""
+    },
+    {
+        "content": "https://www.npmjs.com/package/events",
+        "loadCount": 0,
+        "base64": {},
+        "title": "npm events",
+        "createTime": 1568199000859,
+        "id": 1568199000859,
+        "updateTime": ""
+    },
+    {
         "content": "const arr = [0, 1, 2];\nconst min = Math.min(...arr);\nconst max = Math.max(...arr);",
         "loadCount": 0,
         "base64": {},
