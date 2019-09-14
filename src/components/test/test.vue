@@ -2,14 +2,9 @@
 
 
 <template>
-  <div
-    id="test-vue-id"
-    ref="testDom"
-  >
+  <div id="test-vue-id" ref="testDom">
     <div class="circle"></div>
-
   </div>
-
 </template>
 
     <script>
@@ -36,9 +31,11 @@ export default {
   display: flex;
   .circle {
     margin: auto;
+    border-radius: 50%;
     width: 100px;
     background: red;
     height: 100px;
+    background: conic-gradient(red 0 50%, green 50% 60%);
   }
 }
 </style>
