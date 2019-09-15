@@ -1,116 +1,18 @@
 [
     {
-        "content": "TS的报错",
+        "content": "孤身影随形，寂寞奈何生。\n\n陈渊乱事挫败，冷落多少心情。\n\n宇下风雨不阻，修得身心两重。\n\n择到时机天成，一跃龙门登途。\n\n\n\n自己青少年时的心境，就像是漆黑的夜空，偶尔划过一两颗流星雨。\n\n我目睹着自己与其他人的不同，当开家长会时，与他们在街头上碰面时，当过年的时候前往奶奶的娘家时，不管是我一个人也好，周围一堆人也好，都会显得迟钝与木讷，被无形的屏障隔离一样。\n\n我变得脆弱，甚至在一些争端中，悲痛的哭泣，或是剧烈的反抗，都无济于事，总有人，把欺负一个需要别人帮助的人当作乐趣，来突显自己的强大，填充自己内心的空虚。\n\n我感受着自己与周围人的不同，课间操与体育课是我不想面对的，必须要出去却不知道出去能做些什么，不如坐在教室里安全。\n\n回到家中也难免被当作出气筒，莫名的指责与抱怨，让我难以适从，又无力反抗。\n\n我想自己的一辈子总不能这样过去吧。\n\n我开始反思一天中自己遇到的不开心的事情，想着自己再次遇到时应该怎么处理，一次次回首往事来开导自己，伤害你的人总会受到惩罚，这一切总会过去的。\n\n总要找点事情做，我会变的强大起来的，慢慢回到自己的人生道路，过往的一切也就不重要了。\n\n\n\n孤独的我只有影子作伴，寂寞的情绪无可奈何的滋生着。\n\n我总是不能释怀过往的悲痛，在一次次回忆中败下阵来，给我带来了多少失落与悲伤。\n\n不能在这样了啊，不管任何时候，都要不断的强化自己的身心，去成为一个更强的人吧！\n\n在苦难中不断的修炼，终归有一天，我会成功的，活出自己的人生，过上自己想要的生活。",
         "loadCount": 0,
         "base64": {},
-        "createTime": 1567308262359,
-        "id": 1567308262359,
+        "createTime": 1568463219134,
+        "id": 1568463219134,
         "updateTime": ""
     },
     {
-        "content": "出国旅游的资费",
+        "content": "userData？",
         "loadCount": 0,
         "base64": {},
-        "createTime": 1567266662705,
-        "id": 1567266662705,
-        "updateTime": ""
-    },
-    {
-        "content": "日坛公园相关人物",
-        "loadCount": 0,
-        "base64": {},
-        "createTime": 1567266652035,
-        "id": 1567266652035,
-        "updateTime": ""
-    },
-    {
-        "content": "做饭油总是蹦出来",
-        "loadCount": 0,
-        "base64": {},
-        "createTime": 1567245699480,
-        "id": 1567245699480,
-        "updateTime": ""
-    },
-    {
-        "content": "如何炒鸡肉  排骨",
-        "loadCount": 0,
-        "base64": {},
-        "createTime": 1567243146655,
-        "id": 1567243146655,
-        "updateTime": ""
-    },
-    {
-        "content": "看下antd的源码 看看这两种方式是不是只用一种就好 \n\nif ($event.dataTransfer.items) {\n          for (let i = 0; i < $event.dataTransfer.items.length; i++) {\n            const item = event.dataTransfer.items[i];\n            if (item.kind === \"file\") {\n              const file = item.getAsFile();\n              if (file) {\n                fileList.push(file);\n              }\n            }\n          }\n        } else {\n         \n          for (let i = 0; i < $event.dataTransfer.files.length; i++) {\n            const item = event.dataTransfer.items[i];\n            fileList.push(item);\n          }\n        }",
-        "loadCount": 0,
-        "base64": {},
-        "createTime": 1568205618109,
-        "id": 1568205618109,
-        "updateTime": ""
-    },
-    {
-        "content": "https://www.zhangxinxu.com/wordpress/2018/09/drag-drop-datatransfer-js/",
-        "loadCount": 0,
-        "base64": {},
-        "title": "拖拽",
-        "createTime": 1568201814581,
-        "id": 1568201814581,
-        "updateTime": ""
-    },
-    {
-        "content": "vue $emit这种方式如何声明",
-        "loadCount": 0,
-        "base64": {},
-        "createTime": 1568201578012,
-        "id": 1568201578012,
-        "updateTime": ""
-    },
-    {
-        "content": "https://www.npmjs.com/package/events",
-        "loadCount": 0,
-        "base64": {},
-        "title": "npm events",
-        "createTime": 1568199000859,
-        "id": 1568199000859,
-        "updateTime": ""
-    },
-    {
-        "content": "const arr = [0, 1, 2];\nconst min = Math.min(...arr);\nconst max = Math.max(...arr);",
-        "loadCount": 0,
-        "base64": {},
-        "createTime": 1567997741544,
-        "id": 1567997741544,
-        "updateTime": ""
-    },
-    {
-        "content": "function Func() {\n    if (a === b) {\n        console.log(\"x\");\n    } else {\n        console.log(\"y\");\n    }\n}\n// 换成\nfunction Func() {\n    if (a === b) {\n        Func = function() {\n            console.log(\"x\");\n        }\n    } else {\n        Func = function() {\n            console.log(\"y\");\n        }\n    }\n    return Func();\n}\n\n",
-        "loadCount": 0,
-        "base64": {},
-        "createTime": 1567997714431,
-        "id": 1567997714431,
-        "updateTime": ""
-    },
-    {
-        "content": "\nconst obj = { a: 0, b: 1, c: 2 }; // 只想拿b和c\nconst { a, ...rest } = obj;",
-        "loadCount": 0,
-        "base64": {},
-        "createTime": 1567997698394,
-        "id": 1567997698394,
-        "updateTime": ""
-    },
-    {
-        "content": "检测非空参数\nfunction IsRequired() {\n    throw new Error(\"param is required\");\n}\nfunction Func(name = IsRequired()) {\n    console.log(\"I Love \" + name);\n}\nFunc(); // \"param is required\"\nFunc(\"You\"); // \"I Love You\"\n\n作者：JowayYoung\n链接：https://juejin.im/post/5cc7afdde51d456e671c7e48\n来源：掘金\n著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。",
-        "loadCount": 0,
-        "base64": {},
-        "createTime": 1567997436655,
-        "id": 1567997436655,
-        "updateTime": ""
-    },
-    {
-        "content": "async function Func(deps) {\n    return deps.reduce(async(t, v) => {\n        const dep = await t;\n        const version = await Todo(v);\n        dep[v] = version;\n        return dep;\n    }, Promise.resolve({}));\n}\nconst result = await Func(); // 需在async包围下使用\n\n",
-        "loadCount": 0,
-        "base64": {},
-        "createTime": 1567996685080,
-        "id": 1567996685080,
+        "createTime": 1568436818262,
+        "id": 1568436818262,
         "updateTime": ""
     },
     {
@@ -121,49 +23,6 @@
         },
         "createTime": 1567772011272,
         "id": 1567772011272,
-        "updateTime": ""
-    },
-    {
-        "content": "应用eslint 和 ts",
-        "loadCount": 0,
-        "base64": {},
-        "tagId": 1553085238083,
-        "createTime": 1567761443996,
-        "id": 1567761443996,
-        "updateTime": ""
-    },
-    {
-        "content": "https://www.cnblogs.com/tugenhua0707/p/8060132.html",
-        "loadCount": 0,
-        "base64": {},
-        "createTime": 1567758216848,
-        "id": 1567758216848,
-        "updateTime": ""
-    },
-    {
-        "content": "http://eslint.cn/docs/rules/",
-        "loadCount": 0,
-        "base64": {},
-        "createTime": 1567755415598,
-        "id": 1567755415598,
-        "updateTime": 1567755428869,
-        "title": "eslint"
-    },
-    {
-        "content": "sourceMap的路径十分怪异",
-        "loadCount": 0,
-        "base64": {},
-        "title": "sf-feed",
-        "createTime": 1567651644387,
-        "id": 1567651644387,
-        "updateTime": ""
-    },
-    {
-        "content": "vccode 自动改名字",
-        "loadCount": 0,
-        "base64": {},
-        "createTime": 1566894723207,
-        "id": 1566894723207,
         "updateTime": ""
     }
 ]

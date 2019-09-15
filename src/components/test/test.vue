@@ -3,7 +3,9 @@
 
 <template>
   <div id="test-vue-id" ref="testDom">
-    <div class="circle"></div>
+    <Menu>
+      <Menu.item>wangxu</Menu.item>
+    </Menu>
   </div>
 </template>
 
@@ -19,9 +21,13 @@ export default {
   methods: {},
 
   mounted() {
-    const arr = [0, 1, [2, 3, [4, 5]]];
-    const [a, b, [c, d, [e, f]]] = arr;
-    console.log([].concat(...arr));
+    function test() {
+      return 456;
+    }
+    function name(a = test) {
+      console.log(a);
+    }
+    name();
   },
 };
 </script>
