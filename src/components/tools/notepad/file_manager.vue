@@ -290,7 +290,7 @@
           </RadioGroup>
           </Col>
         </Row>
-        <Row class="row">
+        <Row class="row" v-if="activePreview.type === FileType.txt">
           <Col
             span="4"
             class="label"
