@@ -2,11 +2,7 @@
 
 
 <template>
-  <div id="test-vue-id" ref="testDom">
-    <Menu>
-      <Menu.item>wangxu</Menu.item>
-    </Menu>
-  </div>
+  <div id="test-vue-id" ref="testDom"></div>
 </template>
 
     <script>
@@ -18,16 +14,22 @@ export default {
   },
   components: {},
   computed: {},
-  methods: {},
+  methods: {
+    async test() {
+      try {
+        let testRes = await this.$axios.request({
+          url: "/test/test/test",
+          method: "post",
+        });
+        console.log("wx", testRes);
+      } catch (error) {
+        console.error("错误");
+      }
+    },
+  },
 
   mounted() {
-    function test() {
-      return 456;
-    }
-    function name(a = test) {
-      console.log(a);
-    }
-    name();
+    this.test();
   },
 };
 </script>
@@ -36,16 +38,21 @@ export default {
 @import "~@/assets/style/base.less";
 
 #test-vue-id {
-  height: 200px;
-  border: 1px solid #000;
   display: flex;
+
+  height: 200px;
+
+  border: 1px solid #000;
+
   .circle {
-    margin: auto;
-    border-radius: 50%;
     width: 100px;
-    background: red;
     height: 100px;
+    margin: auto;
+
+    border-radius: 50%;
+    background: red;
     background: conic-gradient(red 0 50%, green 50% 60%);
   }
 }
+
 </style>
