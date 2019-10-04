@@ -4,7 +4,7 @@
 #notepad-id {
   font-size: 14px;
 
-//增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
+  //增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
 
   padding-top: 45px;
 
@@ -78,36 +78,31 @@
     word-break: break-all;
   }
 }
-
 </style>
 <template>
   <div id="notepad-id">
     <!-- <h1 style="height:10px">h1</h1> -->
     <div class="wrapper">
-      <div
-        class="card-wrapper"
-        v-if="showModelFlag === 'notepad'"
-      >
+      <div class="card-wrapper" v-if="showModelFlag === 'notepad'">
         <Button
           icon="ios-pricetag"
           class="first-btn tag-btn"
           @click="showModelFlag = 'tag'"
-        >标签管理</Button>
+          >标签管理</Button
+        >
         <Button
           icon="ios-folder"
           class="first-btn file-btn"
           @click="showModelFlag = 'file'"
-        >文件管理</Button>
+          >文件管理</Button
+        >
         <Button
           icon="md-lock"
           class="first-btn key-btn"
           @click="showModelFlag = 'key'"
-        >密钥管理</Button>
-        <Button
-          @click="onInAdd()"
-          type="primary"
-          long
+          >密钥管理</Button
         >
+        <Button @click="onInAdd()" type="primary" long>
           <span>添加</span>
         </Button>
         <Select
@@ -119,66 +114,74 @@
           clearable
           placeholder="标签过滤"
         >
-          <Option
-            :key="item.id"
-            v-for="item in tagList"
-            :value="item.id"
-          >{{item.content}}</Option>
+          <Option :key="item.id" v-for="item in tagList" :value="item.id">{{
+            item.content
+          }}</Option>
         </Select>
         <!-- 记事的展示 -->
         <div v-if="list && list.length > 0">
           <div
-            v-for="(item,index) in list"
+            v-for="(item, index) in list"
             :key="item.id"
-            @mouseover="item.isMouseOver=true"
-            @mouseout="item.isMouseOver=false"
+            @mouseover="item.isMouseOver = true"
+            @mouseout="item.isMouseOver = false"
           >
             <Card
               class="card"
               :bordered="false"
-              :style="$browserMessage.isPC && item.isMouseOver && {boxShadow:`0 1px ${item.shadowBlur}px ${item.shadowSpread}px rgba(0,0,0,${item.shadowAlpha})`}"
+              :style="
+                $browserMessage.isPC &&
+                  item.isMouseOver && {
+                    boxShadow: `0 1px ${item.shadowBlur}px ${item.shadowSpread}px rgba(0,0,0,${item.shadowAlpha})`,
+                  }
+              "
             >
               <p slot="title">
                 <Icon type="md-book"></Icon>
-                {{item.title }}
+                {{ item.title }}
                 <span
                   v-if="item.tagId"
-                  :style="{color:getTag(item.tagId).color}"
-                >{{item.tagId && ' - '+ getTag(item.tagId).content}}</span>
+                  :style="{ color: getTag(item.tagId).color }"
+                  >{{ item.tagId && " - " + getTag(item.tagId).content }}</span
+                >
               </p>
-              <div
-                slot="extra"
-                v-if="$browserMessage.isPC"
-              >
+              <div slot="extra" v-if="$browserMessage.isPC">
                 <!-- 设置了密钥  且被加密的信息 -->
                 <Checkbox
                   v-show="publicKey != null && item.isEncrypt"
                   :value="item.isDecripty"
-                  @on-change="onToggleEncrypt(item,$event)"
-                >解密</Checkbox>
-                <Button
-                  type="text"
-                  @click="onTop(item)"
-                >置顶</Button>
+                  @on-change="onToggleEncrypt(item, $event)"
+                  >解密</Checkbox
+                >
+                <Button type="text" @click="onTop(item)">置顶</Button>
                 <Icon
-                  v-show="!item.isEncrypt || item.isEncrypt && publicKey!=null"
+                  v-show="
+                    !item.isEncrypt || (item.isEncrypt && publicKey != null)
+                  "
                   type="ios-open-outline"
-                  @click.stop="onInEdit(item,index)"
+                  @click.stop="onInEdit(item, index)"
                   style="margin-right:10px;cursor:pointer;"
                 ></Icon>
                 <Button
-                  @click.stop="onConfirmDelete(item,index)"
+                  @click.stop="onConfirmDelete(item, index)"
                   style="color: red;"
-                >删除</Button>
+                  >删除</Button
+                >
               </div>
               <div>
                 <div style="color: #bab9b9;">
                   <span>创建日期</span>
-                  :{{item.createTime}}
+                  :{{ item.createTime }}
                   <span style="margin-left: 30px;">修改日期</span>
-                  :{{item.updateTime}}
+                  :{{ item.updateTime }}
                 </div>
-                <div></div>
+                <Row>
+                  <Col span="4" offset="20">
+                    <Button @click="onCopyAll(item.content)" title="复制全文"
+                      ><Icon size="18" type="ios-copy"
+                    /></Button>
+                  </Col>
+                </Row>
 
                 <ShowNotepadComponent
                   @onZoomImg="onZoomImg"
@@ -197,32 +200,25 @@
             simple
           />
         </div>
-        <Spin
-          size="large"
-          fix
-          v-if="list === null "
-        ></Spin>
-        <div
-          class="no-data"
-          v-if="list && list.length === 0"
-        >暂无数据</div>
+        <Spin size="large" fix v-if="list === null"></Spin>
+        <div class="no-data" v-if="list && list.length === 0">暂无数据</div>
       </div>
       <!-- 标签管理 -->
       <TagManagerComponent
         v-show="showModelFlag === 'tag'"
-        @on-back="()=>this.showModelFlag = 'notepad'"
+        @on-back="() => (this.showModelFlag = 'notepad')"
         v-model="tagList"
         @on-delete-callback="onDeleteTag"
       ></TagManagerComponent>
       <!-- 文件管理 -->
       <FileManagerComponent
-        @on-back="()=>this.showModelFlag = 'notepad'"
+        @on-back="() => (this.showModelFlag = 'notepad')"
         v-show="showModelFlag === 'file'"
         v-model="fileUploadList"
       ></FileManagerComponent>
       <!-- 密钥管理 -->
       <KeyManagerComponent
-        @on-back="()=>this.showModelFlag = 'notepad'"
+        @on-back="() => (this.showModelFlag = 'notepad')"
         :show="showModelFlag === 'key'"
         v-model="publicKey"
       ></KeyManagerComponent>
@@ -239,14 +235,12 @@
         v-show="publicKey != null"
         style="margin-bottom:10px;"
         v-model="activNotepad.isEncrypt"
-      >加密</Checkbox>
-      <div
-        contenteditable="true"
-        @paste="onPaste($event,activNotepad)"
+        >加密</Checkbox
       >
+      <div contenteditable="true" @paste="onPaste($event, activNotepad)">
         <Input
           ref="autoFocusInput"
-          @on-keyup.ctrl.enter="onCloseEditModel(activNotepad,activeIndex)"
+          @on-keyup.ctrl.enter="onCloseEditModel(activNotepad, activeIndex)"
           :clearable="true"
           :rows="10"
           placeholder="输入内容,支持普通链接、图片链接、黏贴图片"
@@ -254,17 +248,15 @@
           type="textarea"
         />
       </div>
-      <br>
-      <br>
+      <br />
+      <br />
       <Select v-model="activNotepad.tagId">
-        <Option
-          :key="item.id"
-          v-for="item in tagList"
-          :value="item.id"
-        >{{item.content}}</Option>
+        <Option :key="item.id" v-for="item in tagList" :value="item.id">{{
+          item.content
+        }}</Option>
       </Select>
-      <br>
-      <br>
+      <br />
+      <br />
       <Input
         :clearable="true"
         placeholder="输入标题"
@@ -274,23 +266,15 @@
       <div slot="footer">
         <Button
           :loading="activNotepad.loadCount != 0"
-          @click="onCloseEditModel(activNotepad,activeIndex)"
+          @click="onCloseEditModel(activNotepad, activeIndex)"
           type="primary"
-        >确定</Button>
+          >确定</Button
+        >
       </div>
     </Modal>
     <!--  -->
-    <Modal
-      v-model="isZoomImg"
-      footer-hide
-      fullscreen
-      title="放大图片"
-    >
-      <img
-        :style="{'max-width':'100%'}"
-        :src="activeImgSrc"
-        alt
-      >
+    <Modal v-model="isZoomImg" footer-hide fullscreen title="放大图片">
+      <img :style="{ 'max-width': '100%' }" :src="activeImgSrc" alt />
     </Modal>
   </div>
 </template>
@@ -323,23 +307,38 @@ export default {
       pagination: {
         //记事 的分页器
         page: 1,
-        size: 3
+        size: 3,
       },
       list: null,
       activNotepad: {},
       activeIndex: 0,
-      filterTagId: "" //用于过滤的标签id
+      filterTagId: "", //用于过滤的标签id
     };
   },
   components: {
     TagManagerComponent,
     FileManagerComponent,
     KeyManagerComponent,
-    ShowNotepadComponent
+    ShowNotepadComponent,
   },
   filters: {},
   computed: {},
   methods: {
+    onCopyAll(argText) {
+      //复制全文
+      const textarea = document.createElement("textarea");
+      textarea.setAttribute("readonly", true);
+      textarea.value = argText;
+      document.body.appendChild(textarea);
+      textarea.setSelectionRange(0, textarea.value.length);
+      textarea.select();
+      if (document.execCommand("copy")) {
+        this.$Message.success("复制成功");
+      } else {
+        this.$Message.error("复制失败");
+      }
+      document.body.removeChild(textarea);
+    },
     onPaste(event, argItem) {
       var items = event.clipboardData && event.clipboardData.items;
       if (items && items.length) {
@@ -382,7 +381,7 @@ export default {
     decrypt(argkey, argContent) {
       var decrypt = CryptoJS.AES.decrypt(argContent, argkey, {
         mode: CryptoJS.mode.ECB,
-        padding: CryptoJS.pad.Pkcs7
+        padding: CryptoJS.pad.Pkcs7,
       });
       let string = CryptoJS.enc.Utf8.stringify(decrypt).toString();
       return string;
@@ -391,20 +390,20 @@ export default {
       var srcs = CryptoJS.enc.Utf8.parse(argContent);
       var encrypted = CryptoJS.AES.encrypt(srcs, argkey, {
         mode: CryptoJS.mode.ECB,
-        padding: CryptoJS.pad.Pkcs7
+        padding: CryptoJS.pad.Pkcs7,
       });
       let string = encrypted.toString();
       return string;
     },
     getTag(argTagId) {
-      let tag = this.tagList.find(el => el.id === argTagId);
+      let tag = this.tagList.find((el) => el.id === argTagId);
       return tag;
     },
     onInAdd() {
       this.activNotepad = {
         content: "",
         loadCount: 0, //用户黏贴图片的时候记录正在转换的图片个数,loadCount为0时,才可以提交图片
-        base64: {}
+        base64: {},
       };
       this.isShowAddModel = true;
       this.isVisible = true;
@@ -423,7 +422,7 @@ export default {
           this.activNotepad.isEncrypt = false;
           this.activNotepad.content = this.decrypt(
             this.publicKey,
-            this.activNotepad.content
+            this.activNotepad.content,
           );
         }
       }
@@ -435,7 +434,7 @@ export default {
     async onTop(argItem) {
       await this.requestTop(argItem);
       this.onGet(this.pagination, {
-        tagId: this.filterTagId
+        tagId: this.filterTagId,
       });
       this.$Message.success("置顶成功");
     },
@@ -444,8 +443,8 @@ export default {
         method: "post",
         url: this.requestPrefix + "/top",
         data: {
-          id: argItem.id
-        }
+          id: argItem.id,
+        },
       });
     },
 
@@ -463,7 +462,7 @@ export default {
     async onDeleteTag(argId) {
       await this.requestDelTag(argId);
       this.onGet(this.pagination, {
-        tagId: this.filterTagId
+        tagId: this.filterTagId,
       });
     },
     requestDelTag(argId) {
@@ -472,8 +471,8 @@ export default {
         method: "post",
         url: this.requestPrefix + "/removeTag",
         data: {
-          id: argId
-        }
+          id: argId,
+        },
       });
     },
 
@@ -484,7 +483,7 @@ export default {
         content: "确认删除这条记事嘛?",
         onOk: () => {
           this.onDelete(argNotepad);
-        }
+        },
       });
     },
     async onDelete(argNotepad) {
@@ -492,7 +491,7 @@ export default {
       //从前端这里虽然在当前页没有数据时候会多请求一次,但是,一切因该以后台数据为准
       //也是为了将逻辑内聚在request_get
       this.onGet(this.pagination, {
-        tagId: this.filterTagId
+        tagId: this.filterTagId,
       });
     },
     requestDelete(argNotepad) {
@@ -500,8 +499,8 @@ export default {
         method: "post",
         url: this.requestPrefix + "/del",
         data: {
-          id: argNotepad.id
-        }
+          id: argNotepad.id,
+        },
       });
     },
     async onGet(argPagination, argFilter = {}) {
@@ -513,11 +512,11 @@ export default {
           ((response.data.total - 1) / this.pagination.size + 1) | 0;
         this.pagination.page = maxPage;
         this.onGet(this.pagination, {
-          tagId: this.filterTagId
+          tagId: this.filterTagId,
         });
       } else {
         this.list = [];
-        response.data.data.forEach(el => {
+        response.data.data.forEach((el) => {
           let notepad = this.convert(el);
           this.list.push(notepad);
         });
@@ -534,15 +533,15 @@ export default {
         data: {
           page: argPagination.page,
           size: argPagination.size,
-          filter: argFilter
-        }
+          filter: argFilter,
+        },
       });
     },
     convert(argNotepad) {
       //转换请求过来的日记数据
       let notepad = { ...argNotepad };
       let createTime = DateHelper.get_instance_timestamp(
-        notepad.createTime
+        notepad.createTime,
       ).get_format_date();
       notepad.createTime = createTime;
       //标题默认为创建日期
@@ -553,14 +552,14 @@ export default {
       notepad.isMouseOver = false;
       if (notepad.updateTime) {
         notepad.updateTime = DateHelper.get_instance_timestamp(
-          notepad.updateTime
+          notepad.updateTime,
         ).get_format_date();
       }
       //根据创建时间域当前时间所差的天数   动态的改变鼠标悬浮的阴影
       Object.assign(notepad, {
         shadowBlur: 6,
         shadowAlpha: 0.2,
-        shadowSpread: 0
+        shadowSpread: 0,
       });
       let currentTimestamp = Date.now();
       let day =
@@ -606,7 +605,7 @@ export default {
       return this.$axios.request({
         method: "post",
         url: this.requestPrefix + "/add",
-        data: argNotepad
+        data: argNotepad,
       });
     },
     async onUpdate(argNotepad, argIndex) {
@@ -619,7 +618,7 @@ export default {
       return this.$axios.request({
         method: "post",
         url: this.requestPrefix + "/update",
-        data: argNotepad
+        data: argNotepad,
       });
     },
     onChangeVisible() {
@@ -641,7 +640,7 @@ export default {
           this.onChangePage(this.pagination.page);
         }
       }
-    }
+    },
   },
 
   mounted() {
@@ -650,7 +649,7 @@ export default {
   },
   beforeDestroy() {
     document.removeEventListener("keydown", this.onKeyboardChangePage, true);
-  }
+  },
 };
 </script>
 
