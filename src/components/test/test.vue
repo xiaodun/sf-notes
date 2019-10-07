@@ -2,7 +2,10 @@
 
 
 <template>
-  <div id="test-vue-id" ref="testDom"></div>
+  <div id="test-vue-id" class="FlexWrapper" wrapper column ref="testDom">
+    <h1>头部</h1>
+    <div class="content"></div>
+  </div>
 </template>
 
     <script>
@@ -14,23 +17,9 @@ export default {
   },
   components: {},
   computed: {},
-  methods: {
-    async test() {
-      try {
-        let testRes = await this.$axios.request({
-          url: "/test/test/test",
-          method: "post",
-        });
-        console.log("wx", testRes);
-      } catch (error) {
-        console.error("错误");
-      }
-    },
-  },
+  methods: {},
 
-  mounted() {
-    this.test();
-  },
+  mounted() {},
 };
 </script>
 
@@ -38,20 +27,18 @@ export default {
 @import "~@/assets/style/base.less";
 
 #test-vue-id {
-  display: flex;
+  height: 100vh;
 
-  height: 200px;
+  h1 {
+    height: 15vh;
 
-  border: 1px solid #000;
+    background-color: red;
+  }
 
-  .circle {
-    width: 100px;
-    height: 100px;
-    margin: auto;
+  .content {
+    background-color: green;
 
-    border-radius: 50%;
-    background: red;
-    background: conic-gradient(red 0 50%, green 50% 60%);
+    flex-grow: 1;
   }
 }
 
