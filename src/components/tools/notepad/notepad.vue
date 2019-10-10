@@ -4,7 +4,7 @@
 #notepad-id {
   font-size: 14px;
 
-  //增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
+//增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
 
   padding-top: 45px;
 
@@ -78,6 +78,7 @@
     word-break: break-all;
   }
 }
+
 </style>
 <template>
   <div id="notepad-id">
@@ -628,6 +629,10 @@ export default {
       });
     },
     onKeyboardChangePage(event) {
+      if (event.target !== document.body) {
+        //防止在其他文本区域移动光标时报错
+        return;
+      }
       if (event.code === "ArrowLeft") {
         if (this.pagination.page > 1) {
           this.pagination.page--;
