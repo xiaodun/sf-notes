@@ -87,7 +87,7 @@
       <div class="card-wrapper" v-if="showModelFlag === 'notepad'">
         <Button
           icon="ios-pricetag"
-          class="first-btn tag-btn"
+          class="first-btn tag-btn shj"
           @click="showModelFlag = 'tag'"
           >标签管理</Button
         >
@@ -202,7 +202,7 @@
           />
         </div>
         <Spin size="large" fix v-if="list === null"></Spin>
-        <div class="no-data" v-if="list && list.length === 0">暂无数据</div>
+        <div class="no-data app" v-if="list && list.length === 0">暂无数据</div>
       </div>
       <!-- 标签管理 -->
       <TagManagerComponent
@@ -327,6 +327,7 @@ export default {
   methods: {
     onCopyAll(argText) {
       //复制全文
+      
       const textarea = document.createElement("textarea");
       textarea.setAttribute("readonly", true);
       textarea.value = argText;
