@@ -2,13 +2,11 @@
 
 
 <template>
-  <div id="test-vue-id" class="FlexWrapper" wrapper column ref="testDom">
-    <h1>头部</h1>
-    <div class="content"></div>
-  </div>
+  <div id="test-vue-id" class="FlexWrapper" wrapper column ref="testDom"></div>
 </template>
 
     <script>
+import * as _ from "lodash";
 export default {
   name: "test_vue",
 
@@ -19,7 +17,27 @@ export default {
   computed: {},
   methods: {},
 
-  mounted() {},
+  mounted() {
+    var abc = function(a, b, c) {
+      return [a, b, c];
+    };
+
+    var curried = _.curry(abc);
+
+    curried(1)(2)(3);
+    // => [1, 2, 3]
+
+    curried(1, 2)(3);
+    // => [1, 2, 3]
+
+    curried(1, 2, 3);
+    // => [1, 2, 3]
+
+    // Curried with placeholders.
+    console.log(curried(_, 1)(_, 3)(2));
+
+    // => [1, 2, 3]
+  },
 };
 </script>
 
@@ -27,19 +45,5 @@ export default {
 @import "~@/assets/style/base.less";
 
 #test-vue-id {
-  height: 100vh;
-
-  h1 {
-    height: 15vh;
-
-    background-color: red;
-  }
-
-  .content {
-    background-color: green;
-
-    flex-grow: 1;
-  }
 }
-
 </style>
