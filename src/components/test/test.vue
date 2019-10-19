@@ -2,41 +2,40 @@
 
 
 <template>
-  <div id="test-vue-id" class="FlexWrapper" wrapper column ref="testDom"></div>
+  <div id="test-vue-id" class="FlexWrapper" wrapper column ref="testDom">
+    <Button ref="btn">测试</Button>
+  </div>
 </template>
-
     <script>
 import * as _ from "lodash";
 export default {
   name: "test_vue",
 
   data() {
-    return {};
+    return {
+      one: "1",
+    };
   },
   components: {},
   computed: {},
-  methods: {},
+  methods: {
+    test() {},
+  },
 
   mounted() {
-    var abc = function(a, b, c) {
-      return [a, b, c];
+    var i = 0;
+    const moveZeroes = function(nums) {
+      let len = nums.length,
+        moveCount = 0;
+      for (let i = 0; i < len - moveCount; i++) {
+        if (nums[i] === 0) {
+          nums.splice(i, 1);
+          nums.push(0);
+          moveCount++;
+          i--;
+        }
+      }
     };
-
-    var curried = _.curry(abc);
-
-    curried(1)(2)(3);
-    // => [1, 2, 3]
-
-    curried(1, 2)(3);
-    // => [1, 2, 3]
-
-    curried(1, 2, 3);
-    // => [1, 2, 3]
-
-    // Curried with placeholders.
-    console.log(curried(_, 1)(_, 3)(2));
-
-    // => [1, 2, 3]
   },
 };
 </script>
