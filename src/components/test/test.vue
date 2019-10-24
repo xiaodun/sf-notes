@@ -23,19 +23,13 @@ export default {
   },
 
   mounted() {
-    var i = 0;
-    const moveZeroes = function(nums) {
-      let len = nums.length,
-        moveCount = 0;
-      for (let i = 0; i < len - moveCount; i++) {
-        if (nums[i] === 0) {
-          nums.splice(i, 1);
-          nums.push(0);
-          moveCount++;
-          i--;
-        }
-      }
-    };
+    const [boxes, cols, rows] = [7, 8, 8].map((v) =>
+      Array(v)
+        .fill(1)
+        .map(() => ({})),
+    );
+    boxes[5][5] = true;
+    console.log(boxes, cols, rows);
   },
 };
 </script>
