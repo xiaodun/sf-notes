@@ -1,4 +1,7 @@
+import BrowserMessage from "@/assets/lib/Browser/Browser.js";
+import _ from "lodash";
 const menuData = {
+
     math_postures_vue: {
         title: "四则运算",
         icon: "ios-calculator",
@@ -72,4 +75,23 @@ const menuData = {
         ]
     }
 }
+function platformFilterFun(argValue) {
+    // 过滤平台
+    let data = _.cloneDeep(argValue);
+    let list = _(data)
+        .filter(
+            (item) => {
+                if (item.childs && item.childs.length) {
+                    item.childs = platformFilterFun(item.childs);
+                }
+                return (BrowserMessage.isMobile && item.isShowMobile) ||
+                    BrowserMessage.isPC;
+            }
+
+        )
+        .value();
+    return list;
+}
+const platformMenuData = platformFilterFun(menuData);
 export default menuData;
+export { platformMenuData }
