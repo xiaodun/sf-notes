@@ -143,9 +143,8 @@
     </div>
     <!-- 修改记事 -->
     <Modal
-      v-model="isVisible"
+      v-model="isShowNotepadModal"
       :mask-closable="false"
-      @on-cancel="onCancelEditModel"
       @on-visible-change="onChangeVisible"
     >
       <p slot="header"></p>
@@ -216,7 +215,6 @@ export default {
       activeImgSrc: null,
       isZoomImg: false, //是否显示方大图片的模态框
       publicKey: null,
-      isVisible: false,
       showModelFlag: "notepad", // tag 、 file
       fileUploadList: [],
       tagList: [],
@@ -312,11 +310,6 @@ export default {
       reader.readAsDataURL(argFile);
       argNotepad.loadCount++;
     },
-    onCancelEditModel() {
-      //如果用户取消编辑不重置状态，那么当用户点击添加后取消  再点击编辑一个记事，确定后,会变成添加一个新的记事！
-      this.isShowAddModel = false;
-      this.isShowEditModel = false;
-    },
     onToggleEncrypt(argItem, isChecked) {
       if (isChecked) {
         //解密
@@ -356,7 +349,6 @@ export default {
         base64: {},
       };
       this.isShowAddModel = true;
-      this.isVisible = true;
     },
     onZoomImg(argSrc) {
       this.activeImgSrc = argSrc;
@@ -378,7 +370,6 @@ export default {
       }
       this.isShowEditModel = true;
       this.activeIndex = argIndex;
-      this.isVisible = true;
     },
 
     async onTop(argItem) {
@@ -539,7 +530,6 @@ export default {
       } else if (this.isShowEditModel) {
         this.onUpdate(notepad, argIndex);
       }
-      this.isVisible = false;
       this.isShowAddModel = false;
       this.isShowEditModel = false;
     },
@@ -601,11 +591,23 @@ export default {
     isCanChangePage() {
       //判断当前按下左右方向键,是否可以切换页码
       let isCan =
-        !this.isVisible &&
+        !this.isShowNotepadModal &&
         !this.isShowDeleteModel &&
         !this.isZoomImg &&
         this.showModelFlag === "notepad";
       return isCan;
+    },
+    isShowNotepadModal: {
+      //添加记事本 和 编辑记事本用的是一个模态框
+      set(argValue) {
+        console.log(argValue);
+        this.isShowEditModel = false;
+        this.isShowAddModel = false;
+      },
+      get() {
+        let isVisible = this.isShowAddModel || this.isShowEditModel;
+        return isVisible;
+      },
     },
   },
   mounted() {
