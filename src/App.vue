@@ -19,7 +19,7 @@
               !isDebug ? "启用调试" : "关闭调试"
             }}</MenuItem>
 
-            <template v-for="(value, key) in filter_platform(menuData)">
+            <template v-for="(value, key) in menuData">
               <Submenu
                 v-if="value.childs && value.childs.length > 0"
                 :key="key"
@@ -30,9 +30,7 @@
                   {{ value.title }}
                 </template>
                 <template> </template>
-                <template
-                  v-for="(item, index) in filter_platform(value.childs)"
-                >
+                <template v-for="(item, index) in value.childs">
                   <MenuItem
                     class="user sub"
                     :name="key + '-' + index"
@@ -104,7 +102,7 @@
 import AxiosHelper from "@/assets/lib/AxiosHelper";
 import QRCode from "qrcodejs2";
 import VConsole from "vconsole";
-import menuData from "./MenuData.js";
+import { platformMenuData } from "./MenuData.js";
 import _ from "lodash";
 let vconsole;
 const _topAreaHight = 65;
@@ -139,16 +137,7 @@ export default {
         this.request_personal_word(argPage);
       }
     },
-    filter_platform(argValue) {
-      let list = _(argValue)
-        .filter(
-          (item) =>
-            (this.$browserMessage.isMobile && item.isShowMobile) ||
-            this.$browserMessage.isPC,
-        )
-        .value();
-      return list;
-    },
+
     request_personal_word(argIndex) {
       AxiosHelper.request({
         method: "post",
@@ -295,7 +284,7 @@ export default {
         total: 1,
       },
 
-      menuData,
+      menuData: platformMenuData,
     };
   },
   computed: {},
