@@ -600,7 +600,7 @@ export default {
     isShowNotepadModal: {
       //添加记事本 和 编辑记事本用的是一个模态框
       set(argValue) {
-        console.log(argValue);
+        //这个值目前逻辑只会是false,是关闭模态框时触发的,因为程序不应该直接this.isShowNotepadModal = true
         this.isShowEditModel = false;
         this.isShowAddModel = false;
       },
