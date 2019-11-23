@@ -214,7 +214,7 @@ export default {
   data() {
     return {
       activeImgSrc: null,
-      isZoomImg: false,
+      isZoomImg: false, //是否显示方大图片的模态框
       publicKey: null,
       isVisible: false,
       showModelFlag: "notepad", // tag 、 file
@@ -578,8 +578,9 @@ export default {
       });
     },
     onKeyboardChangePage(event) {
-      if (event.target !== document.body) {
+      if (event.target !== document.body || !this.isCanChangePage) {
         //防止在其他文本区域移动光标时报错
+        //防止在其他页面或着模态框触发切换
         return;
       }
       if (event.code === "ArrowLeft") {
@@ -596,7 +597,17 @@ export default {
       }
     },
   },
-
+  computed: {
+    isCanChangePage() {
+      //判断当前按下左右方向键,是否可以切换页码
+      let isCan =
+        !this.isVisible &&
+        !this.isShowDeleteModel &&
+        !this.isZoomImg &&
+        this.showModelFlag === "notepad";
+      return isCan;
+    },
+  },
   mounted() {
     this.onGet(this.pagination);
     document.addEventListener("keydown", this.onKeyboardChangePage, true);
