@@ -1,271 +1,68 @@
-
-<style lang="less">
-@import "~@/assets/style/base.less";
-
-.qrcode-model-wrapper {
-  text-align: center;
-}
-
-#slide-menu {
-  position: fixed;
-  z-index: 12;
-  bottom: 0;
-  left: -100%;
-
-  overflow-x: hidden;
-  overflow-y: auto;
-
-  transition: left .15s ease-in-out;
-
-  background-color: #fff;
-
-  will-change: left;
-
-.sf-shadow-5;
-
-  .ivu-menu {
-    &:after {
-      display: none;
-    }
-
-    .disabled {
-      cursor: pre;
-    }
-  }
-
-  .ivu-menu-item.user {
-    position: relative;
-
-    height: 50px;
-
-//解决Ctrl+鼠标点击路由时跳转不正常  重置样式
-    padding: 0;
-
-    &.ivu-menu-item-selected,
-    &:hover {
-      a {
-        color: #2d8cf0;
-      }
-    }
-
-    &.sub {
-      padding-left: 0 !important;
-
-      a {
-        padding-left: 43px;
-      }
-    }
-
-    a {
-      position: absolute;
-
-      width: 100%;
-      height: 100%;
-      padding: 14px 24px;
-
-      color: #515a6e;
-    }
-  }
-
-  &.spread {
-    left: 0;
-  }
-
-  .arrow-back-btn {
-    font-size: 20px;
-
-    border-radius: 0;
-  }
-}
-
-#__vconsole {
-  display: none;
-}
-
-#main-wrapper {
-  padding-top: 0;
-  padding-bottom: 15px;
-
-  transition: padding-top .75s ease-in;
-  transform: translateZ(0);
-
-  will-change: padding-top;
-}
-
-#top_wrapper {
-  font-size: 0;
-
-  position: fixed;
-  z-index: 1000;
-  top: 0;
-
-  display: flex;
-  overflow: hidden;
-
-  width: 100%;
-  margin: 0 0 20px 0;
-  padding: 10px 0;
-
-  white-space: nowrap;
-  text-overflow: ellipsis;
-
-  border-bottom: 1px solid #ddd;
-  background-color: rgb(255, 255, 255);
-
-  align-items: center;
-
-  &.box-shadow {
-    .sf-shadow-1;
-  }
-
-  .menu-btn {
-    margin-left: 15px;
-
-    flex-shrink: 0;
-  }
-
-  .item {
-    margin-left: 5px;
-  }
-
-  .personal-word {
-    font-family: "华文细黑";
-    font-size: 16px;
-    font-weight: 500;
-
-    overflow-x: auto;
-    overflow-y: hidden;
-
-    margin-left: 15px;
-    padding-right: 10px;
-
-    letter-spacing: 1px;
-
-    flex-grow: 1;
-
-    &:hover {
-      .pagination {
-        visibility: visible;
-      }
-    }
-
-    .pagination {
-      display: inline-block;
-      visibility: hidden;
-
-      width: 40px;
-
-      user-select: none;
-      text-align: center;
-      vertical-align: middle;
-
-      .ivu-icon {
-        cursor: pointer;
-
-        &.disabled {
-          cursor: not-allowed;
-        }
-      }
-
-      .page {
-        font-size: 12px;
-      }
-
-      > :nth-child(n) {
-        line-height: 1;
-
-        display: block;
-      }
-    }
-  }
-}
-
-</style>
 <template>
   <div id="app">
     <div
       id="slide-menu"
-      :style="[{top:topAreaHeight+'px'}]"
+      :style="[{ top: topAreaHeight + 'px' }]"
       ref="slideMenu"
     >
       <Row>
         <Col>
-        <Menu
-          ref="slideMenuIview"
-          @on-select="menu_onselect"
-          :active-name="activeMenuName"
-          :open-names="activeSubName"
-        >
-          <MenuItem
-            name="0"
-            to="/"
-          >首页</MenuItem>
-          <MenuItem name="1">手机访问</MenuItem>
-          <MenuItem
-            v-show="$browserMessage.isMobile"
-            name="debug"
-          >{{!isDebug?'启用调试':'关闭调试'}}</MenuItem>
+          <Menu
+            ref="slideMenuIview"
+            @on-select="menu_onselect"
+            :active-name="activeMenuName"
+            :open-names="activeSubName"
+          >
+            <MenuItem name="0" to="/">首页</MenuItem>
+            <MenuItem name="1">手机访问</MenuItem>
+            <MenuItem v-show="$browserMessage.isMobile" name="debug">{{
+              !isDebug ? "启用调试" : "关闭调试"
+            }}</MenuItem>
 
-          <template v-for="(value,key) in menuData">
-            <Submenu
-              v-if=" (($browserMessage.isMobile && value.isShowMobile )|| $browserMessage.isPC )&& value.childs && value.childs.length > 0"
-              :key="key"
-              :name="key"
-            >
-              <template slot="title">
-                <Icon :type="value.icon" />
-                {{value.title}}
-              </template>
-              <template>
-
-              </template>
-              <template v-for="(item,index) in value.childs">
-
-                <MenuItem
-                  v-if="($browserMessage.isMobile && item.isShowMobile) ||
-          $browserMessage.isPC"
-                  class="user sub"
-                  :name="key+'-'+index"
-                  :key="key+'-'+index"
-                >
+            <template v-for="(value, key) in menuData">
+              <Submenu
+                v-if="value.childs && value.childs.length > 0"
+                :key="key"
+                :name="key"
+              >
+                <template slot="title">
+                  <Icon :type="value.icon" />
+                  {{ value.title }}
+                </template>
+                <template> </template>
+                <template v-for="(item, index) in value.childs">
+                  <MenuItem
+                    class="user sub"
+                    :name="key + '-' + index"
+                    :key="key + '-' + index"
+                  >
+                    <!-- 解决Ctrl+鼠标点击路由时跳转不正常 -->
+                    <a :href="'#' + item.to.path">{{ item.content }}</a>
+                  </MenuItem>
+                </template>
+              </Submenu>
+              <MenuItem class="user" :key="key" :name="key" v-else>
                 <!-- 解决Ctrl+鼠标点击路由时跳转不正常 -->
-                <a :href="'#'+item.to.path">{{item.content}}</a>
-                </MenuItem>
-              </template>
-            </Submenu>
-            <MenuItem
-              class="user"
-              :key="key"
-              :name="key"
-              v-else-if="($browserMessage.isMobile && value.isShowMobile )|| $browserMessage.isPC "
-            >
-            <!-- 解决Ctrl+鼠标点击路由时跳转不正常 -->
-            <a :href="'#'+value.to.path">
-              <Icon :type="value.icon" />
-              {{value.title}}
-            </a>
-            </MenuItem>
-          </template>
-        </Menu>
+                <a :href="'#' + value.to.path">
+                  <Icon :type="value.icon" />
+                  {{ value.title }}
+                </a>
+              </MenuItem>
+            </template>
+          </Menu>
         </Col>
       </Row>
     </div>
     <Modal
       class-name="qrcode-model-wrapper"
       title="用手机扫描"
-      :styles="{display:'inline-block',width:'auto'}"
+      :styles="{ display: 'inline-block', width: 'auto' }"
       :footer-hide="true"
       v-model="isShowQart"
     >
-      <div
-        id="qrcode"
-        ref="qrcode"
-      ></div>
+      <div id="qrcode" ref="qrcode"></div>
     </Modal>
-    <div
-      id="top_wrapper"
-      :class="{'box-shadow':isOverScroll}"
-    >
+    <div id="top_wrapper" :class="{ 'box-shadow': isOverScroll }">
       <Button
         class="menu-btn"
         ref="menuButtonIview"
@@ -278,32 +75,25 @@
             :class="wordPagination.current === 1 && 'disabled'"
             class="icon"
             type="md-arrow-dropup"
-            @click="change_word(wordPagination.current-1)"
+            @click="change_word(wordPagination.current - 1)"
           ></Icon>
           <span class="page">
-            <span
-              v-text="wordPagination.current"
-              class="current"
-            ></span>/
-            <span
-              v-text="wordPagination.total"
-              class="total"
-            ></span>
+            <span v-text="wordPagination.current" class="current"></span>/
+            <span v-text="wordPagination.total" class="total"></span>
           </span>
           <Icon
-            @click="change_word(wordPagination.current+1)"
+            @click="change_word(wordPagination.current + 1)"
             class="icon"
-            :class="wordPagination.current === wordPagination.total && 'disabled'"
+            :class="
+              wordPagination.current === wordPagination.total && 'disabled'
+            "
             type="md-arrow-dropdown"
           ></Icon>
         </div>
-        {{personalWord}}
+        {{ personalWord }}
       </div>
     </div>
-    <div
-      v-initial-ani
-      id="main-wrapper"
-    >
+    <div v-initial-ani id="main-wrapper">
       <router-view></router-view>
     </div>
   </div>
@@ -312,18 +102,21 @@
 import AxiosHelper from "@/assets/lib/AxiosHelper";
 import QRCode from "qrcodejs2";
 import VConsole from "vconsole";
+import { platformMenuData } from "./MenuData.js";
+import _ from "lodash";
 let vconsole;
 const _topAreaHight = 65;
 export default {
   name: "App",
 
   components: {
-    QRCode
+    QRCode,
   },
+
   directives: {
     "initial-ani"(el) {
-      setTimeout(params => (el.style.paddingTop = 100 + "px"), 20);
-    }
+      setTimeout((params) => (el.style.paddingTop = 100 + "px"), 20);
+    },
   },
   methods: {
     on_top_scroll() {
@@ -344,14 +137,15 @@ export default {
         this.request_personal_word(argPage);
       }
     },
+
     request_personal_word(argIndex) {
       AxiosHelper.request({
         method: "post",
         url: "/personal/word/get",
         data: {
-          index: argIndex - 1
-        }
-      }).then(response => {
+          index: argIndex - 1,
+        },
+      }).then((response) => {
         let data = response.data;
         this.personalWord = data.data.content;
         this.wordPagination.current = data.current + 1;
@@ -469,10 +263,10 @@ export default {
         new QRCode("qrcode", {
           width: 232, // 设置宽度
           height: 232, // 设置高度
-          text: window.location.href
+          text: window.location.href,
         });
       }
-    }
+    },
   },
   data() {
     return {
@@ -487,83 +281,10 @@ export default {
       isShowQart: false,
       wordPagination: {
         page: 1,
-        total: 1
+        total: 1,
       },
 
-      menuData: {
-        math_postures_vue: {
-          title: "四则运算",
-          icon: "ios-calculator",
-          isShowMobile: true,
-          content: "版本1",
-          to: {
-            path: "/math_postures"
-          }
-        },
-        clock_vue: {
-          title: "闹钟",
-          isShowMobile: true,
-          icon: "ios-clock-outline",
-
-          content: "pc端版本",
-          to: {
-            path: "/clock_vue"
-          }
-        },
-        notepad: {
-          title: "日记本",
-          icon: "md-book",
-          isShowMobile: true,
-          content: "版本1",
-          to: {
-            path: "/notepad_vue"
-          }
-        },
-        img_conventer: {
-          title: "图片转换器",
-          icon: "md-swap",
-
-          content: "版本1",
-          to: {
-            path: "/img_conventer"
-          }
-        },
-        gonna_something: {
-          title: "let's go",
-          icon: "md-walk",
-
-          content: "版本1",
-          to: {
-            path: "/gonna_something"
-          }
-        },
-        test_vue: {
-          title: "测试",
-          icon: "ios-game-controller-b",
-          isShowMobile: true,
-          childs: [
-            {
-              content: "测试用例",
-              isShowMobile: true,
-              to: {
-                path: "/test"
-              }
-            },
-            {
-              content: "内置后台node服务",
-              to: {
-                path: "/test_service"
-              }
-            },
-            {
-              content: "canvas",
-              to: {
-                path: "/test_canvas"
-              }
-            }
-          ]
-        }
-      }
+      menuData: platformMenuData,
     };
   },
   computed: {},
@@ -572,7 +293,7 @@ export default {
       this.is_home = to.path == "/" ? true : false;
       window.scrollTo(0, 0);
       this.selectedMenu(to.path);
-    }
+    },
   },
   created() {
     window.addEventListener("scroll", this.on_top_scroll);
@@ -589,6 +310,187 @@ export default {
   beforeDestroy() {
     document.removeEventListener("click", this.hideMenu, true);
     window.removeEventListener("scroll", this.on_top_scroll);
-  }
+  },
 };
 </script>
+<style lang="less">
+@import "~@/assets/style/base.less";
+
+.qrcode-model-wrapper {
+  text-align: center;
+}
+
+#slide-menu {
+  position: fixed;
+  z-index: 12;
+  bottom: 0;
+  left: -100%;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  transition: left 0.15s ease-in-out;
+
+  background-color: #fff;
+
+  will-change: left;
+
+  .sf-shadow-5;
+
+  .ivu-menu {
+    &:after {
+      display: none;
+    }
+
+    .disabled {
+      cursor: pre;
+    }
+  }
+
+  .ivu-menu-item.user {
+    position: relative;
+
+    height: 50px;
+
+    //解决Ctrl+鼠标点击路由时跳转不正常  重置样式
+    padding: 0;
+
+    &.ivu-menu-item-selected,
+    &:hover {
+      a {
+        color: #2d8cf0;
+      }
+    }
+
+    &.sub {
+      padding-left: 0 !important;
+
+      a {
+        padding-left: 43px;
+      }
+    }
+
+    a {
+      position: absolute;
+
+      width: 100%;
+      height: 100%;
+      padding: 14px 24px;
+
+      color: #515a6e;
+    }
+  }
+
+  &.spread {
+    left: 0;
+  }
+
+  .arrow-back-btn {
+    font-size: 20px;
+
+    border-radius: 0;
+  }
+}
+
+#__vconsole {
+  display: none;
+}
+
+#main-wrapper {
+  padding-top: 0;
+  padding-bottom: 15px;
+
+  transition: padding-top 0.75s ease-in;
+  transform: translateZ(0);
+
+  will-change: padding-top;
+}
+
+#top_wrapper {
+  font-size: 0;
+
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+
+  display: flex;
+  overflow: hidden;
+
+  width: 100%;
+  margin: 0 0 20px 0;
+  padding: 10px 0;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  border-bottom: 1px solid #ddd;
+  background-color: rgb(255, 255, 255);
+
+  align-items: center;
+
+  &.box-shadow {
+    .sf-shadow-1;
+  }
+
+  .menu-btn {
+    margin-left: 15px;
+
+    flex-shrink: 0;
+  }
+
+  .item {
+    margin-left: 5px;
+  }
+
+  .personal-word {
+    font-family: "华文细黑";
+    font-size: 16px;
+    font-weight: 500;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    margin-left: 15px;
+    padding-right: 10px;
+
+    letter-spacing: 1px;
+
+    flex-grow: 1;
+
+    &:hover {
+      .pagination {
+        visibility: visible;
+      }
+    }
+
+    .pagination {
+      display: inline-block;
+      visibility: hidden;
+
+      width: 40px;
+
+      user-select: none;
+      text-align: center;
+      vertical-align: middle;
+
+      .ivu-icon {
+        cursor: pointer;
+
+        &.disabled {
+          cursor: not-allowed;
+        }
+      }
+
+      .page {
+        font-size: 12px;
+      }
+
+      > :nth-child(n) {
+        line-height: 1;
+
+        display: block;
+      }
+    }
+  }
+}
+</style>

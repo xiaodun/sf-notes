@@ -1,88 +1,5 @@
-<style lang="less">
-@import "~@/assets/style/base.less";
-
-#notepad-id {
-  font-size: 14px;
-
-//增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
-
-  padding-top: 45px;
-
-  > .app-name {
-    margin: 1em auto;
-
-    text-align: center;
-  }
-
-  .first-btn {
-    margin-right: 15px;
-    margin-bottom: 20px;
-  }
-
-  .add-btn {
-    font-size: 40px;
-
-    display: block;
-
-    width: 100px;
-    height: 100px;
-    margin: 10px auto;
-  }
-
-  > .wrapper {
-    width: 95%;
-    max-width: 650px;
-    margin: 0 auto;
-
-    .card-wrapper {
-      position: relative;
-    }
-  }
-
-  .no-data {
-    line-height: 40px;
-
-    text-align: center;
-  }
-
-  .filter-select {
-    //解决出现、消失滚动条时  下拉选框错位的问题
-    position: relative;
-
-    .ivu-select-dropdown {
-      //如果想让下拉选框弹出的位置在上面，则上面的空间-头部的空间需要大于165
-      max-height: 165px;
-    }
-  }
-
-  .card {
-    margin-top: 10px;
-
-    .inner-shadow {
-      display: none;
-    }
-
-    .img-wrapper {
-      overflow: hidden;
-
-      height: 200px;
-
-      img {
-        max-width: 100%;
-      }
-    }
-  }
-
-  .show-area {
-    white-space: pre-wrap;
-    word-break: break-all;
-  }
-}
-
-</style>
 <template>
   <div id="notepad-id">
-    <!-- <h1 style="height:10px">h1</h1> -->
     <div class="wrapper">
       <div class="card-wrapper" v-if="showModelFlag === 'notepad'">
         <Button
@@ -226,9 +143,8 @@
     </div>
     <!-- 修改记事 -->
     <Modal
-      v-model="isVisible"
+      v-model="isShowNotepadModal"
       :mask-closable="false"
-      @on-cancel="onCancelEditModel"
       @on-visible-change="onChangeVisible"
     >
       <p slot="header"></p>
@@ -238,13 +154,18 @@
         v-model="activNotepad.isEncrypt"
         >加密</Checkbox
       >
-      <div contenteditable="true" @paste="onPaste($event, activNotepad)">
+      <div
+        contenteditable="true"
+        @paste="onPaste($event, activNotepad)"
+        @drop="onDropFile($event, activNotepad)"
+        @dragover="onDragOver"
+      >
         <Input
           ref="autoFocusInput"
           @on-keyup.ctrl.enter="onCloseEditModel(activNotepad, activeIndex)"
           :clearable="true"
           :rows="10"
-          placeholder="输入内容,支持普通链接、图片链接、黏贴图片"
+          placeholder="支持普通链接、图片链接、黏贴网络图片"
           v-model="activNotepad.content"
           type="textarea"
         />
@@ -292,9 +213,8 @@ export default {
   data() {
     return {
       activeImgSrc: null,
-      isZoomImg: false,
+      isZoomImg: false, //是否显示方大图片的模态框
       publicKey: null,
-      isVisible: false,
       showModelFlag: "notepad", // tag 、 file
       fileUploadList: [],
       tagList: [],
@@ -322,9 +242,30 @@ export default {
     KeyManagerComponent,
     ShowNotepadComponent,
   },
-  filters: {},
-  computed: {},
+
   methods: {
+    onDragOver($event) {
+      //支持拖拽桌面上的图片
+      const dataTransfer = $event.dataTransfer;
+      $event.preventDefault();
+      $event.stopPropagation();
+      if (dataTransfer) {
+        dataTransfer.dropEffect = "copy";
+      }
+    },
+    onDropFile($event, argNotepad) {
+      //网页、桌面拖拽图片
+      $event.preventDefault();
+      const dataTransfer = $event.dataTransfer;
+      if (dataTransfer.types.includes("Files")) {
+        //  从桌面拖拽文件到网页
+
+        for (let i = 0; i < dataTransfer.files.length; i++) {
+          const file = dataTransfer.files[i];
+          this.dealBase64PRotocol(argNotepad, file);
+        }
+      }
+    },
     onCopyAll(argText) {
       //复制全文
       
@@ -341,33 +282,34 @@ export default {
       }
       document.body.removeChild(textarea);
     },
-    onPaste(event, argItem) {
-      var items = event.clipboardData && event.clipboardData.items;
-      if (items && items.length) {
-        for (let i = 0; i < items.length; i++) {
-          if (items[i].type.indexOf("image") !== -1) {
-            let reader = new FileReader();
-            reader.onload = function(event) {
-              argItem.loadCount--;
-              let fileName =
-                BASE64_IMG_PROTOCOL +
-                "://" +
-                ((Math.random() * 1000000) | 0) +
-                ".png";
-              argItem.base64[fileName] = event.target.result;
-              argItem.content += "\n" + fileName + "\n";
-            };
-            reader.readAsDataURL(items[i].getAsFile());
-            argItem.loadCount++;
+    onPaste($event, argNotepad) {
+      //从剪贴板来的内容
+      var clipboardItems = $event.clipboardData && $event.clipboardData.items;
+      if (clipboardItems && clipboardItems.length) {
+        for (let i = 0; i < clipboardItems.length; i++) {
+          if (clipboardItems[i].type.indexOf("image") !== -1) {
+            const file = clipboardItems[i].getAsFile();
+            this.dealBase64PRotocol(argNotepad, file);
             break;
           }
         }
       }
     },
-    onCancelEditModel() {
-      //如果用户取消编辑不重置状态，那么当用户点击添加后取消  再点击编辑一个记事，确定后,会变成添加一个新的记事！
-      this.isShowAddModel = false;
-      this.isShowEditModel = false;
+    dealBase64PRotocol(argNotepad, argFile) {
+      let reader = new FileReader();
+      reader.onload = function(event) {
+        //转换为自定义图片
+        argNotepad.loadCount--;
+        let fileName =
+          BASE64_IMG_PROTOCOL +
+          "://" +
+          ((Math.random() * 1000000) | 0) +
+          ".png";
+        argNotepad.base64[fileName] = event.target.result;
+        argNotepad.content += "\n" + fileName + "\n";
+      };
+      reader.readAsDataURL(argFile);
+      argNotepad.loadCount++;
     },
     onToggleEncrypt(argItem, isChecked) {
       if (isChecked) {
@@ -408,7 +350,6 @@ export default {
         base64: {},
       };
       this.isShowAddModel = true;
-      this.isVisible = true;
     },
     onZoomImg(argSrc) {
       this.activeImgSrc = argSrc;
@@ -430,7 +371,6 @@ export default {
       }
       this.isShowEditModel = true;
       this.activeIndex = argIndex;
-      this.isVisible = true;
     },
 
     async onTop(argItem) {
@@ -591,7 +531,6 @@ export default {
       } else if (this.isShowEditModel) {
         this.onUpdate(notepad, argIndex);
       }
-      this.isVisible = false;
       this.isShowAddModel = false;
       this.isShowEditModel = false;
     },
@@ -630,8 +569,9 @@ export default {
       });
     },
     onKeyboardChangePage(event) {
-      if (event.target !== document.body) {
+      if (event.target !== document.body || !this.isCanChangePage) {
         //防止在其他文本区域移动光标时报错
+        //防止在其他页面或着模态框触发切换
         return;
       }
       if (event.code === "ArrowLeft") {
@@ -648,7 +588,29 @@ export default {
       }
     },
   },
-
+  computed: {
+    isCanChangePage() {
+      //判断当前按下左右方向键,是否可以切换页码
+      let isCan =
+        !this.isShowNotepadModal &&
+        !this.isShowDeleteModel &&
+        !this.isZoomImg &&
+        this.showModelFlag === "notepad";
+      return isCan;
+    },
+    isShowNotepadModal: {
+      //添加记事本 和 编辑记事本用的是一个模态框
+      set(argValue) {
+        //这个值目前逻辑只会是false,是关闭模态框时触发的,因为程序不应该直接this.isShowNotepadModal = true
+        this.isShowEditModel = false;
+        this.isShowAddModel = false;
+      },
+      get() {
+        let isVisible = this.isShowAddModel || this.isShowEditModel;
+        return isVisible;
+      },
+    },
+  },
   mounted() {
     this.onGet(this.pagination);
     document.addEventListener("keydown", this.onKeyboardChangePage, true);
@@ -659,3 +621,84 @@ export default {
 };
 </script>
 
+<style lang="less">
+@import "~@/assets/style/base.less";
+
+#notepad-id {
+  font-size: 14px;
+
+  //增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
+
+  padding-top: 45px;
+
+  > .app-name {
+    margin: 1em auto;
+
+    text-align: center;
+  }
+
+  .first-btn {
+    margin-right: 15px;
+    margin-bottom: 20px;
+  }
+
+  .add-btn {
+    font-size: 40px;
+
+    display: block;
+
+    width: 100px;
+    height: 100px;
+    margin: 10px auto;
+  }
+
+  > .wrapper {
+    width: 95%;
+    max-width: 650px;
+    margin: 0 auto;
+
+    .card-wrapper {
+      position: relative;
+    }
+  }
+
+  .no-data {
+    line-height: 40px;
+
+    text-align: center;
+  }
+
+  .filter-select {
+    //解决出现、消失滚动条时  下拉选框错位的问题
+    position: relative;
+
+    .ivu-select-dropdown {
+      //如果想让下拉选框弹出的位置在上面，则上面的空间-头部的空间需要大于165
+      max-height: 165px;
+    }
+  }
+
+  .card {
+    margin-top: 10px;
+
+    .inner-shadow {
+      display: none;
+    }
+
+    .img-wrapper {
+      overflow: hidden;
+
+      height: 200px;
+
+      img {
+        max-width: 100%;
+      }
+    }
+  }
+
+  .show-area {
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+}
+</style>
