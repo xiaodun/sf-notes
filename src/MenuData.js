@@ -81,11 +81,12 @@ function platformFilterFun(argValue) {
     let list = _(data)
         .filter(
             (item) => {
-                if (item.childs && item.childs.length) {
+                const isShow = (BrowserMessage.isMobile && item.isShowMobile) ||
+                    BrowserMessage.isPC;
+                if (isShow && item.childs && item.childs.length) {
                     item.childs = platformFilterFun(item.childs);
                 }
-                return (BrowserMessage.isMobile && item.isShowMobile) ||
-                    BrowserMessage.isPC;
+                return isShow;
             }
 
         )
