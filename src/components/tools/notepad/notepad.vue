@@ -160,12 +160,13 @@
         @drop="onDropFile($event, activNotepad)"
         @dragover="onDragOver"
       >
+        <!-- 复制桌面图片在Windows上不可行 -->
         <Input
           ref="autoFocusInput"
           @on-keyup.ctrl.enter="onCloseEditModel(activNotepad, activeIndex)"
           :clearable="true"
           :rows="10"
-          placeholder="支持普通链接、图片链接、黏贴网络图片"
+          placeholder="支持普通链接、图片链接、黏贴网络图片、拖拽桌面图片"
           v-model="activNotepad.content"
           type="textarea"
         />
@@ -254,6 +255,9 @@ export default {
       }
     },
     onDropFile($event, argNotepad) {
+      /**
+       * 支持从网页拖拽图片 需要借助后台 参见今日头条
+       */
       //网页、桌面拖拽图片
       $event.preventDefault();
       const dataTransfer = $event.dataTransfer;
