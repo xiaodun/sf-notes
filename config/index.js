@@ -3,20 +3,12 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 
 const path = require("path");
+const internalIp = require('internal-ip');
 var os = require("os");
-var IPv4 = "localhost";
 var readFile = require("fs");
-let network = os.networkInterfaces();
+var IPv4 = internalIp.v4.sync();
 
-//动态的获取本机IP地址
-for (let key in network) {
-  let env = network[key];
-  for (var i = 0; i < env.length; i++) {
-    if (env[i].family == "IPv4" && env[i].address != "127.0.0.1") {
-      IPv4 = env[i].address;
-    }
-  }
-}
+
 //获取内置服务器的配置
 let bultinService = {
   path: "./service/app/config.json"
