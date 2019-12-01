@@ -160,12 +160,13 @@
         @drop="onDropFile($event, activNotepad)"
         @dragover="onDragOver"
       >
+        <!-- 复制桌面图片在Windows上不可行 -->
         <Input
           ref="autoFocusInput"
           @on-keyup.ctrl.enter="onCloseEditModel(activNotepad, activeIndex)"
           :clearable="true"
           :rows="10"
-          placeholder="支持普通链接、图片链接、黏贴网络图片"
+          placeholder="支持普通链接、图片链接、黏贴网络图片、拖拽桌面图片"
           v-model="activNotepad.content"
           type="textarea"
         />
@@ -231,7 +232,25 @@ export default {
         size: 3,
       },
       list: null,
-      activNotepad: {},
+      activNotepad: {
+        /*
+base64:{
+  key:value
+}
+content:"L4CAHeDScIxfKPgeEqDPsw==" 笔记本内容
+createTime:"2019-12-01" 创建时间
+id:1575176618524 
+isEncrypt:true  是否加密 标记从后台返回的状态
+isMouseOver:false 鼠标是否悬浮
+loadCount:0  当前正在转换为base64的图片个数
+shadowAlpha:0.2  显示阴影的透明度
+shadowBlur:6  显示阴影的模糊度
+shadowSpread:0 显示阴影的传播范围
+title:"2019-12-01" 记事标题
+updateTime:"2019-12-01" 记事修改时间 
+isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
+         */
+      },
       activeIndex: 0,
       filterTagId: "", //用于过滤的标签id
     };
@@ -254,6 +273,9 @@ export default {
       }
     },
     onDropFile($event, argNotepad) {
+      /**
+       * 支持从网页拖拽图片 需要借助后台 参见今日头条
+       */
       //网页、桌面拖拽图片
       $event.preventDefault();
       const dataTransfer = $event.dataTransfer;
@@ -358,11 +380,11 @@ export default {
     onInEdit(argNotepad, argIndex) {
       this.activNotepad = JSON.parse(JSON.stringify(argNotepad));
       this.activNotepad.loadCount = 0;
-      if (this.activNotepad.isEncrypt === true) {
-        this.activNotepad.isEncrypt = false;
+      if (this.activNotepad.isEncrypt) {
         if (!this.activNotepad.isDecripty) {
+          //this.activNotepad.isDecripty 为true说明文本已经解密了
           //在编辑的时候处于解密状态
-          this.activNotepad.isEncrypt = false;
+
           this.activNotepad.content = this.decrypt(
             this.publicKey,
             this.activNotepad.content,
