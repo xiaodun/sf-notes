@@ -131,8 +131,7 @@
       <!-- 文件管理 -->
       <FileManagerComponent
         @on-back="() => (this.showModelFlag = 'notepad')"
-        v-show="showModelFlag === 'file'"
-        v-model="fileUploadList"
+        v-if="showModelFlag === 'file'"
       ></FileManagerComponent>
       <!-- 密钥管理 -->
       <KeyManagerComponent
@@ -217,7 +216,6 @@ export default {
       isZoomImg: false, //是否显示方大图片的模态框
       publicKey: null,
       showModelFlag: "notepad", // tag 、 file
-      fileUploadList: [],
       tagList: [],
 
       requestPrefix: "/notepad/notepad", //记事 请求前缀
