@@ -153,7 +153,7 @@
       <transition-group tag="div" name="uploading">
         <div
           class="uploading"
-          :key="index"
+          :key="item.id"
           v-for="(item, index) in uploadingList"
         >
           <div>{{ item.name }}</div>
@@ -536,6 +536,7 @@ export default {
     async onGet() {
       let response = await this.requestGet();
       response.data.forEach((el, index, arr) => {
+        el.id = _.uniqueId();
         el.describe = el.describe || "";
         el.isDownloading = false;
       });
