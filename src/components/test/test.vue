@@ -3,33 +3,36 @@
 
 <template>
   <div id="test-vue-id" class="FlexWrapper" wrapper column ref="testDom">
-    <Button ref="btn">测试</Button>
+    <div :key="index" v-for="(item, index) in list">
+      <p>{{ item.id }} <Button @click="onDelete(item)">删除</Button></p>
+    </div>
   </div>
 </template>
     <script>
-import * as _ from "lodash";
+import _ from "lodash";
+import produce from "immer";
 export default {
   name: "test_vue",
 
   data() {
     return {
-      one: "1",
+      list: [{ id: 1 }, { id: 2 }, { id: 3 }],
     };
   },
+
   components: {},
   computed: {},
   methods: {
-    test() {},
+    onDelete(argItem) {
+      _.pullAllBy(this.list, [argItem], "id");
+
+      console.log(this.list.splice === Array.prototype.splice);
+      console.log("wx", this.list);
+    },
   },
 
   mounted() {
-    const [boxes, cols, rows] = [7, 8, 8].map((v) =>
-      Array(v)
-        .fill(1)
-        .map(() => ({})),
-    );
-    boxes[5][5] = true;
-    console.log(boxes, cols, rows);
+    let arr = [{ id: 1 }];
   },
 };
 </script>
