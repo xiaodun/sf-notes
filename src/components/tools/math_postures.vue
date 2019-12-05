@@ -18,7 +18,7 @@
   &:before {
     display: table;
 
-    content: ' ';
+    content: " ";
   }
 
   .info {
@@ -48,7 +48,7 @@
 
     height: 60px;
 
-    transition: all .35s linear;
+    transition: all 0.35s linear;
   }
 
   .list-leave-to {
@@ -56,7 +56,6 @@
     height: 0;
   }
 }
-
 </style>
 <template>
   <div id="math-postures-id">
@@ -64,8 +63,8 @@
       <Button
         long
         size="large"
-        :icon="isAnswerModel === false ?'md-play':'md-power'"
-        :type="isAnswerModel === false ?'success':'error'"
+        :icon="isAnswerModel === false ? 'md-play' : 'md-power'"
+        :type="isAnswerModel === false ? 'success' : 'error'"
         @click="toggle_model()"
       ></Button>
     </h1>
@@ -95,19 +94,19 @@
             ></Button>
           </Cell>
           <Cell title="包含的运算">
-            <p slot="extra">{{include_sign_info}}</p>
+            <p slot="extra">{{ include_sign_info }}</p>
           </Cell>
           <Cell title="允许出现括号">
-            <p slot="extra">{{isIncludeBrackets ? '是' : '否'}}</p>
+            <p slot="extra">{{ isIncludeBrackets ? "是" : "否" }}</p>
           </Cell>
           <Cell title="题目个数">
-            <p slot="extra">{{count }}</p>
+            <p slot="extra">{{ count }}</p>
           </Cell>
           <Cell title="单个数字最大值">
-            <p slot="extra">{{numberModel.max }}</p>
+            <p slot="extra">{{ numberModel.max }}</p>
           </Cell>
           <Cell title="数字的个数">
-            <p slot="extra">{{numberModel.count }}</p>
+            <p slot="extra">{{ numberModel.count }}</p>
           </Cell>
         </CellGroup>
       </Card>
@@ -118,11 +117,15 @@
       </Divider>
       <Form ref="formInline">
         <transition-group name="list">
-          <FormItem :key="index" v-show="item.isShow" v-for="(item,index ) in answer">
-            <span class="expression">{{item.expression}}</span>
+          <FormItem
+            :key="item.id"
+            v-show="item.isShow"
+            v-for="(item, index) in answer"
+          >
+            <span class="expression">{{ item.expression }}</span>
             <Input
-              @focus="'focus'+index"
-              :ref="'input'+index"
+              @focus="'focus' + index"
+              :ref="'input' + index"
               type="number"
               @on-keydown.enter="submit"
               v-model="item.userResult"
@@ -130,7 +133,9 @@
           </FormItem>
         </transition-group>
         <FormItem>
-          <Button @click="submit" class="submit" size="large" type="primary">提交</Button>
+          <Button @click="submit" class="submit" size="large" type="primary"
+            >提交</Button
+          >
         </FormItem>
       </Form>
       <div></div>
@@ -145,10 +150,11 @@
         <FormItem label="包含的运算">
           <Checkbox
             :key="key"
-            v-for="(value,key) in configModal.signModel"
+            v-for="(value, key) in configModal.signModel"
             @on-change="change_include_sign(key)"
             v-model="value.isInclude"
-          >{{value.content}}</Checkbox>
+            >{{ value.content }}</Checkbox
+          >
         </FormItem>
         <FormItem label="允许出现括号">
           <i-switch v-model="configModal.isIncludeBrackets"></i-switch>
@@ -185,6 +191,7 @@
 
 <script>
 import AxiosHelper from "@/assets/lib/AxiosHelper";
+import _ from "lodash";
 export default {
   name: "math_postures",
   data() {
@@ -194,37 +201,37 @@ export default {
       configModal: {
         isShow: false,
         signModel: {},
-        numberModel: {}
+        numberModel: {},
       },
       signModel: {
         add: {
           value: "+",
           content: "加法",
-          isInclude: true
+          isInclude: true,
         },
         sub: {
           value: "-",
           content: "减法",
-          isInclude: true
+          isInclude: true,
         },
         multiply: {
           value: "*",
           content: "乘法",
-          isInclude: true
+          isInclude: true,
         },
         divide: {
           value: "/",
           content: "除法",
-          isInclude: false
-        }
+          isInclude: false,
+        },
       },
       isAnswerModel: false,
       count: 10, //题目的总个数
       isIncludeBrackets: false,
       numberModel: {
         max: 10, //数的最大值
-        count: 2 //数字的个数
-      }
+        count: 2, //数字的个数
+      },
     };
   },
   computed: {
@@ -236,7 +243,7 @@ export default {
         sign.isInclude && result.push(sign.content);
       }
       return result.join("、");
-    }
+    },
   },
   methods: {
     /**
@@ -265,8 +272,8 @@ export default {
       AxiosHelper.request({
         method: "post",
         url: this.requestPrefixConfig + "/saveConfig",
-        data: argConfig
-      }).then(response => {
+        data: argConfig,
+      }).then((response) => {
         this.$Message.success("保存成功");
       });
     },
@@ -274,8 +281,8 @@ export default {
       //提交 获取配置
       AxiosHelper.request({
         method: "get",
-        url: this.requestPrefixConfig + "/getConfig"
-      }).then(response => {
+        url: this.requestPrefixConfig + "/getConfig",
+      }).then((response) => {
         let data = response.data;
         if (data && JSON.stringify(data) !== "{}") {
           //数据转换
@@ -291,13 +298,13 @@ export default {
     convert_config_for_request() {
       //将配置数据转换后台村存储的格式
       let data = {
-        signModel: []
+        signModel: [],
       };
       for (let key in this.configModal.signModel) {
         let el = this.configModal.signModel[key];
         data.signModel.push({
           key: key,
-          isInclude: el.isInclude
+          isInclude: el.isInclude,
         });
       }
 
@@ -308,7 +315,7 @@ export default {
     },
     submit() {
       //回答正确的隐藏
-      this.answer.forEach(el => {
+      this.answer.forEach((el) => {
         var flag = el.result == el.userResult;
         if (flag) {
           el.isShow = false;
@@ -316,13 +323,13 @@ export default {
       });
 
       //最靠前的未回答对的获得焦点
-      let index = this.answer.findIndex(el => el.isShow);
+      let index = this.answer.findIndex((el) => el.isShow);
       if (index !== -1) {
         this.$refs["input" + index][0].focus();
       }
 
       //全部答对
-      if (this.answer.every(el => !el.isShow)) {
+      if (this.answer.every((el) => !el.isShow)) {
         this.$Message.success("全部答对");
         this.isAnswerModel = false;
         this.answer = [];
@@ -333,7 +340,7 @@ export default {
       if (this.get_include_sign().length == 0) {
         // 如果只包含一种运算  则不能够取消勾选
         this.$nextTick(
-          () => (this.configModal.signModel[argKey].isInclude = true)
+          () => (this.configModal.signModel[argKey].isInclude = true),
         );
       }
     },
@@ -375,16 +382,18 @@ export default {
 
         //将符合的式子放入answer
         let strNumber = this.format_parse_arr(parseArr);
-        let isHave = this.answer.some(el => el.expression === strNumber);
+        let isHave = this.answer.some((el) => el.expression === strNumber);
         if (!isHave) {
           let result = this.computed_expression([...parseArr]);
           let isAllow = this.is_allow_result(result);
           if (isAllow) {
             current++;
             this.answer.push({
+              //  Do not use v-for index as key on <transition-group> children, this is the same as not using keys.
+              id: _.uniqueId(),
               expression: strNumber,
               result,
-              isShow: true
+              isShow: true,
             });
           }
         }
@@ -628,11 +637,11 @@ export default {
         list.push(singList[pos]);
       }
       return list;
-    }
+    },
   },
 
   mounted() {
     this.request_get_config();
-  }
+  },
 };
 </script>
