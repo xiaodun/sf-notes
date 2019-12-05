@@ -124,18 +124,18 @@
       <!-- 标签管理 -->
       <TagManagerComponent
         v-show="showModelFlag === 'tag'"
-        @on-back="() => (this.showModelFlag = 'notepad')"
+        @on-back="onBackNotepadPage"
         v-model="tagList"
         @on-delete-callback="onDeleteTag"
       ></TagManagerComponent>
       <!-- 文件管理 -->
       <FileManagerComponent
-        @on-back="() => (this.showModelFlag = 'notepad')"
+        @on-back="onBackNotepadPage"
         v-if="showModelFlag === 'file'"
       ></FileManagerComponent>
       <!-- 密钥管理 -->
       <KeyManagerComponent
-        @on-back="() => (this.showModelFlag = 'notepad')"
+        @on-back="onBackNotepadPage"
         :show="showModelFlag === 'key'"
         v-model="publicKey"
       ></KeyManagerComponent>
@@ -261,6 +261,10 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
   },
 
   methods: {
+    onBackNotepadPage() {
+      //回到记事本页面
+      this.showModelFlag = "notepad";
+    },
     onDragOver($event) {
       //支持拖拽桌面上的图片
       const dataTransfer = $event.dataTransfer;
