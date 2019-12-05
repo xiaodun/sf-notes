@@ -153,7 +153,7 @@
       <transition-group tag="div" name="uploading">
         <div
           class="uploading"
-          :key="index"
+          :key="item.id"
           v-for="(item, index) in uploadingList"
         >
           <div>{{ item.name }}</div>
@@ -314,23 +314,13 @@ import BuiltServiceConfig from "@root/service/app/config.json";
 import { FileType, StuffixWithType, getFileType } from "@/assets/lib/preview";
 export default {
   name: "file_manager_vue",
-  model: {
-    prop: "uploadList",
-    event: "change",
-  },
-  props: {
-    uploadList: {
-      type: Array,
-      default: function() {
-        return [];
-      },
-    },
-  },
+
   data() {
     return {
       defaultEncode: "utf-8",
       lastFile: null,
       isCanTry: false, //是否可以自己尝试解析
+      uploadList: [], //已经上传的文件
       activeFile: {},
       activePreview: {
         type: "", //文件类型
@@ -485,8 +475,7 @@ export default {
             this.$Message.error("该文件已经被删除了");
             //移除这个文件
             _.pullAllBy(this.uploadList, [{ id: argItem.id }], "id");
-
-            this.$emit("change", [...this.uploadList]);
+            this.uploadList = [...this.uploadList];
           }
         };
       } else {
@@ -535,11 +524,13 @@ export default {
     },
     async onGet() {
       let response = await this.requestGet();
-      response.data.forEach((el, index, arr) => {
-        el.describe = el.describe || "";
-        el.isDownloading = false;
+      this.uploadList = response.data.map((el, index, arr) => {
+        return {
+          ...el,
+          describe: el.describe || "",
+          isDownloading: false,
+        };
       });
-      this.$emit("change", response.data);
     },
     requestGet() {
       //获取文件
