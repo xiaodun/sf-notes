@@ -55,7 +55,14 @@
               "
             >
               <p slot="title">
-                <Icon type="md-book"></Icon>
+                <Icon
+                  style="cursor:pointer;"
+                  @click="onCopyAll(item.title)"
+                  :size="16"
+                  class="notepad-title"
+                  type="md-book"
+                  title="复制标题"
+                ></Icon>
                 {{ item.title }}
                 <span
                   v-if="item.tagId"
@@ -703,7 +710,10 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
 
   .card {
     margin-top: 10px;
-
+    .notepad-title {
+      cursor: pointer;
+      margin-right: 1em;
+    }
     .inner-shadow {
       display: none;
     }
