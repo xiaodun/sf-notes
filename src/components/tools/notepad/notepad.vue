@@ -325,7 +325,12 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       var clipboardItems = $event.clipboardData && $event.clipboardData.items;
       if (clipboardItems && clipboardItems.length) {
         for (let i = 0; i < clipboardItems.length; i++) {
-          if (clipboardItems[i].kind.indexOf("image") !== -1) {
+          if (clipboardItems[i].kind === "file" && clipboardItems[i].type.indexOf("image") !== -1) {
+            /**
+             * 确认为一个图片类型 只靠type或kind不行
+
+                有道黏贴可能会出现  kind: "string", type: "text/yne-image-json"
+             */
             const file = clipboardItems[i].getAsFile();
             this.dealBase64PRotocol(argNotepad, file);
             break;
