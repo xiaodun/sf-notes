@@ -1,5 +1,6 @@
 
 <script>
+import _ from "lodash";
 import { BASE64_IMG_PROTOCOL } from "./notepad";
 export default {
   name: "show_notepad",
@@ -9,10 +10,11 @@ export default {
     // \u4e00-\u9fa5 匹配查询参数里的中文
     let pattern = RegExp(
       `(https?|ftp|file|${BASE64_IMG_PROTOCOL})://[-A-Za-z0-9+&@#/%?=~_|!:,.;\u4e00-\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]`,
-      "g"
+      "g",
     );
     let lastIndex = 0;
     let renderList = [];
+    let dealStrList = [];
     let result;
     if (!this.data.content.match(pattern)) {
       //没有动态创建的内容
@@ -23,7 +25,7 @@ export default {
           renderList.push(this.data.content.substring(lastIndex, result.index));
         }
 
-        let isImg = imgStuffixList.some(stuffix => {
+        let isImg = imgStuffixList.some((stuffix) => {
           if (result[0].endsWith(stuffix)) {
             return true;
           }
@@ -36,13 +38,13 @@ export default {
               {
                 class: ["img-wrapper"],
                 on: {
-                  click: this.onZoomImg
+                  click: this.onZoomImg,
                 },
                 attrs: {
                   "data-src": result[0].startsWith(BASE64_IMG_PROTOCOL)
                     ? this.data.base64[result[0]]
-                    : result[0]
-                }
+                    : result[0],
+                },
               },
               [
                 createElement("img", {
@@ -50,11 +52,11 @@ export default {
                     src: result[0].startsWith(BASE64_IMG_PROTOCOL)
                       ? this.data.base64[result[0]]
                       : result[0],
-                    title: "点击放大"
-                  }
-                })
-              ]
-            )
+                    title: "点击放大",
+                  },
+                }),
+              ],
+            ),
           );
         } else {
           //是个普通的超链接
@@ -62,12 +64,12 @@ export default {
             createElement("a", {
               attrs: {
                 target: "_black",
-                href: result[0]
+                href: result[0],
               },
               domProps: {
-                innerHTML: result[0]
-              }
-            })
+                innerHTML: result[0],
+              },
+            }),
           );
         }
         lastIndex = pattern.lastIndex;
@@ -75,26 +77,46 @@ export default {
       //处理后面的元素
       if (lastIndex)
         renderList.push(
-          this.data.content.substring(lastIndex, this.data.content.length)
+          this.data.content.substring(lastIndex, this.data.content.length),
         );
     }
+    //为普通字符串加上div包裹,方便复制
+
+    renderList.forEach((item, index) => {
+      if (typeof item === "string" && item.trim() !== "") {
+        item.split(/\n/).forEach((str) => {
+          let dom = createElement("div", {
+            class: {
+              line: true,
+            },
+
+            domProps: {
+              innerText: str,
+            },
+          });
+          dealStrList.push(dom);
+        });
+      } else {
+        dealStrList.push(item);
+      }
+    });
     return createElement(
       "div",
       {
-        class: ["show-area"]
+        class: ["show-area"],
       },
-      renderList
+      dealStrList,
     );
   },
   props: {
     data: {
-      type: Object
-    }
+      type: Object,
+    },
   },
   methods: {
     onZoomImg(event) {
       this.$emit("onZoomImg", event.currentTarget.getAttribute("data-src"));
-    }
-  }
+    },
+  },
 };
 </script>

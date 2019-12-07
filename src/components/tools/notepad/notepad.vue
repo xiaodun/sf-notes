@@ -93,7 +93,7 @@
                   >删除</Button
                 >
               </div>
-              <div>
+              <div @click="onCopyLine($event)">
                 <div style="color: #bab9b9;">
                   <span>创建日期</span>
                   :{{ item.createTime }}
@@ -268,6 +268,14 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
   },
 
   methods: {
+    onCopyLine($event) {
+      //复制记事本中单独的一行
+      $event.stopPropagation();
+      let dom = $event.target;
+      if (dom.classList.contains("line")) {
+        this.onCopyAll(dom.innerText);
+      }
+    },
     onBackNotepadPage() {
       //回到记事本页面
       this.showModelFlag = "notepad";
@@ -318,7 +326,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       var clipboardItems = $event.clipboardData && $event.clipboardData.items;
       if (clipboardItems && clipboardItems.length) {
         for (let i = 0; i < clipboardItems.length; i++) {
-          if (clipboardItems[i].type.indexOf("image") !== -1) {
+          if (clipboardItems[i].kind.indexOf("image") !== -1) {
             const file = clipboardItems[i].getAsFile();
             this.dealBase64PRotocol(argNotepad, file);
             break;
@@ -726,6 +734,15 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
 
       img {
         max-width: 100%;
+      }
+    }
+    .line {
+      //一行记事  纯文本
+      line-height: 28px;
+      &:hover {
+        background-color: #f7ecec;
+        transition: background-color 0.25s linear;
+        cursor: pointer;
       }
     }
   }
