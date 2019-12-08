@@ -17,10 +17,10 @@
             "isInclude": false
         }
     ],
-    "count": 10,
+    "count": 5,
     "isIncludeBrackets": false,
     "numberModel": {
         "max": 10,
-        "count": 3
+        "count": 2
     }
 }
