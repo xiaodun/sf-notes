@@ -445,9 +445,9 @@ export default {
     },
     onUploadProgress(argEvent, argFile) {
       let index = this.uploadingList.findIndex((el) => el.file === argFile);
-
       if (index === -1) {
         let uploadingFile = {};
+        uploadingFile.id = _.uniqueId();
         uploadingFile.name = argFile.name;
         uploadingFile.percent = argEvent.percent | 0;
         uploadingFile.file = argFile;
