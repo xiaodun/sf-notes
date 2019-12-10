@@ -208,6 +208,7 @@
   </div>
 </template>
 <script>
+
 import DateHelper from "@/assets/lib/DateHelper";
 import TagManagerComponent from "./tag_manager";
 import FileManagerComponent from "./file_manager";
@@ -271,10 +272,9 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
     onCopyLine($event) {
       //复制记事本中单独的一行
       $event.stopPropagation();
-      let dom = $event.target;
-      if (dom.classList.contains("line")) {
-        this.onCopyAll(dom.innerText);
-      }
+      let lineDom = $event.target.closest(".line");
+
+      this.onCopyAll(lineDom.textContent);
     },
     onBackNotepadPage() {
       //回到记事本页面
@@ -325,7 +325,10 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       var clipboardItems = $event.clipboardData && $event.clipboardData.items;
       if (clipboardItems && clipboardItems.length) {
         for (let i = 0; i < clipboardItems.length; i++) {
-          if (clipboardItems[i].kind === "file" && clipboardItems[i].type.indexOf("image") !== -1) {
+          if (
+            clipboardItems[i].kind === "file" &&
+            clipboardItems[i].type.indexOf("image") !== -1
+          ) {
             /**
              * 确认为一个图片类型 只靠type或kind不行
 
