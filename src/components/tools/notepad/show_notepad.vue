@@ -16,67 +16,70 @@ export default {
     let renderList = [];
     let dealStrList = [];
     let result;
-    //处理动态创建的内容
-
-    while ((result = pattern.exec(this.data.content)) !== null) {
-      if (result.index !== lastIndex) {
-        renderList.push(this.data.content.substring(lastIndex, result.index));
-      }
-
-      let isImg = imgStuffixList.some((stuffix) => {
-        if (result[0].endsWith(stuffix)) {
-          return true;
+    if (!this.data.content.match(pattern)) {
+      //没有动态创建的内容
+      renderList.push(this.data.content);
+    } else {
+      while ((result = pattern.exec(this.data.content)) !== null) {
+        if (result.index !== lastIndex) {
+          renderList.push(this.data.content.substring(lastIndex, result.index));
         }
-      });
-      if (isImg) {
-        //是图片
-        renderList.push(
-          createElement(
-            "div",
-            {
-              class: ["img-wrapper"],
-              on: {
-                click: this.onZoomImg,
-              },
-              attrs: {
-                "data-src": result[0].startsWith(BASE64_IMG_PROTOCOL)
-                  ? this.data.base64[result[0]]
-                  : result[0],
-              },
-            },
-            [
-              createElement("img", {
+
+        let isImg = imgStuffixList.some((stuffix) => {
+          if (result[0].endsWith(stuffix)) {
+            return true;
+          }
+        });
+        if (isImg) {
+          //是图片
+          renderList.push(
+            createElement(
+              "div",
+              {
+                class: ["img-wrapper"],
+                on: {
+                  click: this.onZoomImg,
+                },
                 attrs: {
-                  src: result[0].startsWith(BASE64_IMG_PROTOCOL)
+                  "data-src": result[0].startsWith(BASE64_IMG_PROTOCOL)
                     ? this.data.base64[result[0]]
                     : result[0],
-                  title: "点击放大",
                 },
-              }),
-            ],
-          ),
-        );
-      } else {
-        //是个普通的超链接
-        renderList.push(
-          createElement("a", {
-            attrs: {
-              target: "_black",
-              href: result[0],
-            },
-            domProps: {
-              innerHTML: result[0],
-            },
-          }),
-        );
+              },
+              [
+                createElement("img", {
+                  attrs: {
+                    src: result[0].startsWith(BASE64_IMG_PROTOCOL)
+                      ? this.data.base64[result[0]]
+                      : result[0],
+                    title: "点击放大",
+                  },
+                }),
+              ],
+            ),
+          );
+        } else {
+          //是个普通的超链接
+          renderList.push(
+            createElement("a", {
+              attrs: {
+                target: "_black",
+                href: result[0],
+              },
+              domProps: {
+                innerHTML: result[0],
+              },
+            }),
+          );
+        }
+        lastIndex = pattern.lastIndex;
       }
-      lastIndex = pattern.lastIndex;
+      //处理后面的元素
+      if (lastIndex)
+        renderList.push(
+          this.data.content.substring(lastIndex, this.data.content.length),
+        );
     }
-    //处理后面的元素
-    if (lastIndex !== this.data.content.length) {
-      renderList.push(this.data.content.substring(lastIndex));
-    }
-
     //为普通字符串加上div包裹,方便复制
 
     renderList.forEach((item, index) => {
