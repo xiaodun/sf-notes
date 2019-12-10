@@ -2,6 +2,7 @@
 <script>
 import _ from "lodash";
 import { BASE64_IMG_PROTOCOL } from "./notepad";
+import Highlight from "@/components/common/Highlight";
 export default {
   name: "show_notepad",
   render(createElement) {
@@ -16,6 +17,16 @@ export default {
     let renderList = [];
     let dealStrList = [];
     let result;
+    //筛选出代码块里的内容 暂不考虑代码块嵌套
+    renderList = this.dealCodeBlock(this.data.content, createElement);
+    console.log("wx", renderList);
+    return createElement(
+      "div",
+      {
+        class: ["show-area"],
+      },
+      renderList,
+    );
     //处理动态创建的内容
 
     while ((result = pattern.exec(this.data.content)) !== null) {
@@ -113,6 +124,49 @@ export default {
   methods: {
     onZoomImg(event) {
       this.$emit("onZoomImg", event.currentTarget.getAttribute("data-src"));
+    },
+    dealCodeBlock(argContnet = "", argCreateElement) {
+      //处理代码块
+      let renderList = [];
+      let result;
+      let flag = "```";
+      //记录位置的数组
+      let posArr = [0];
+      let index;
+
+      while ((index = argContnet.indexOf(flag, index + 1)) !== -1) {
+        if (posArr.length < 3) {
+          posArr.push(index);
+        }
+
+        if (posArr.length == 3) {
+          let [first, second, third] = posArr;
+          let codeStr = argContnet.substring(second + flag.length + 1, third);
+          renderList.push(argContnet.substring(first, second));
+          renderList.push(
+            argCreateElement(
+              "div",
+              {
+                class: {
+                  line: true,
+                },
+              },
+              [
+                argCreateElement(Highlight, {
+                  scopedSlots: {
+                    default: () => codeStr,
+                  },
+                }),
+              ],
+            ),
+          );
+          //移除以处理的标记
+          posArr = [third + flag.length + 1];
+        }
+      }
+
+      renderList.push(argContnet.substring(posArr[0]));
+      return renderList;
     },
   },
 };
