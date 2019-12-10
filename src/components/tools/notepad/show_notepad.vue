@@ -9,7 +9,6 @@ export default {
     let renderList = [];
     renderList = this.dealCodeBlock(this.data.content, createElement);
     renderList = this.dealSpecialBlock(renderList, createElement);
-    console.log("wx", renderList);
     renderList = this.wrapperStrBlock(renderList, createElement);
 
     return createElement(
