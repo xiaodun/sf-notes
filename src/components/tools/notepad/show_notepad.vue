@@ -160,6 +160,8 @@ export default {
               },
               [
                 argCreateElement(Highlight, {
+                  key: Math.random(),
+
                   scopedSlots: {
                     default: () => codeStr,
                   },
