@@ -3,9 +3,7 @@
 
 <template>
   <div id="test-vue-id" class="FlexWrapper" wrapper column ref="testDom">
-    <div :key="index" v-for="(item, index) in list">
-      <p>{{ item.id }} <Button @click="onDelete(item)">删除</Button></p>
-    </div>
+    
   </div>
 </template>
     <script>
@@ -22,18 +20,9 @@ export default {
 
   components: {},
   computed: {},
-  methods: {
-    onDelete(argItem) {
-      _.pullAllBy(this.list, [argItem], "id");
+  methods: {},
 
-      console.log(this.list.splice === Array.prototype.splice);
-      console.log("wx", this.list);
-    },
-  },
-
-  mounted() {
-    let arr = [{ id: 1 }];
-  },
+  mounted() {},
 };
 </script>
 
