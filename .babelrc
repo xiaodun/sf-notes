@@ -1,19 +1,34 @@
 {
   "presets": [
-    ["env", {
-      "modules": false,
-      "targets": {
-        "browsers": ["> 1%", "last 2 versions", "not ie <= 8"]
+    [
+      "env",
+      {
+        "development": {
+          "plugins": [
+            "dynamic-import-node"
+          ]
+        },
+        "modules": false,
+        "targets": {
+          "browsers": [
+            "> 1%",
+            "last 2 versions",
+            "not ie <= 8"
+          ]
+        }
       }
-    }],
+    ],
     "stage-2"
   ],
   "plugins": [
     "transform-vue-jsx",
     "transform-runtime",
-    ["import", {
-      "libraryName": "iview",
-      "libraryDirectory": "src/components"
-    }]
+    [
+      "import",
+      {
+        "libraryName": "iview",
+        "libraryDirectory": "src/components"
+      }
+    ]
   ],
 }
