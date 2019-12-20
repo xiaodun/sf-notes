@@ -42,14 +42,22 @@ export default {
   },
 
   mounted() {
-    this.generateList();
-    // (function() {
-    //   $0.style.display = "block";
-    //   console.log($0.getBoundingClientRect());
+    (function() {
+      const apiVersion = "v1";
+      const prefix = "api";
+      const mapUrlPattern = /{(.*?)}/g;
+      const mapUrlObj = {
+        apiVersion,
+        prefix,
+      };
+      let url = "{prefix}/door/{apiVersion}/access/room/getAreaRoomInfoTree";
+      url = url.replace(mapUrlPattern, (all, key) => {
+        let value = mapUrlObj[key] == undefined ? all : mapUrlObj[key];
+        return value;
+      });
 
-    //   $0.style.display = "none";
-    // })();
-    console.log("wx");
+      console.log(url);
+    })();
   },
 };
 </script>
