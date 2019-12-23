@@ -93,7 +93,12 @@
                   >删除</Button
                 >
               </div>
-              <div @click="onCopyLine($event)">
+              <div
+                @click="
+                  onCopyLine($event);
+                  onSignLine($event);
+                "
+              >
                 <div style="color: #bab9b9;">
                   <span>创建日期</span>
                   :{{ item.createTime }}
@@ -208,7 +213,6 @@
   </div>
 </template>
 <script>
-
 import DateHelper from "@/assets/lib/DateHelper";
 import TagManagerComponent from "./tag_manager";
 import FileManagerComponent from "./file_manager";
@@ -275,6 +279,14 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       let lineDom = $event.target.closest(".line");
 
       this.onCopyAll(lineDom.textContent);
+    },
+    onSignLine($event) {
+      let lineDom = $event.target.closest(".line");
+      let currentTargetDom = $event.currentTarget;
+      currentTargetDom.querySelectorAll(".line").forEach((dom) => {
+        dom.classList.remove("selected");
+      });
+      lineDom.classList.add("selected");
     },
     onBackNotepadPage() {
       //回到记事本页面
@@ -440,6 +452,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       //过滤内容发生变化
       this.pagination.page = 1;
       this.onGet(this.pagination, { tagId: this.filterTagId });
+      window.localStorage.filterTagId = this.filterTagId;
     },
     onChangePage(argPage) {
       //切换记事分页器
@@ -657,8 +670,12 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       },
     },
   },
+  created() {
+    //初始化标签
+    this.filterTagId = +window.localStorage.filterTagId;
+  },
   mounted() {
-    this.onGet(this.pagination);
+    this.onGet(this.pagination, { tagId: this.filterTagId });
     document.addEventListener("keydown", this.onKeyboardChangePage, true);
   },
   beforeDestroy() {
@@ -743,13 +760,18 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
         max-width: 100%;
       }
     }
+    @lineFlagColor: #f7ecec;
     .line {
       //一行记事  纯文本
       line-height: 28px;
-      &:hover {
-        background-color: #f7ecec;
+      &:hover,
+      &.selected {
+        background-color: @lineFlagColor;
         transition: background-color 0.25s linear;
         cursor: pointer;
+        .highlight-vue {
+          background-color: transparent;
+        }
       }
     }
   }
