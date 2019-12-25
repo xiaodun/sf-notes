@@ -467,7 +467,7 @@ export default {
       display: inline-block;
       visibility: hidden;
 
-      width: 40px;
+margin-right: 6px;
 
       user-select: none;
       text-align: center;
