@@ -53,9 +53,9 @@ module.exports = {
      */
 
     // https://webpack.js.org/configuration/devtool/#development
-    devtool: 'cheap-module-eval-source-map',
+    // devtool: 'cheap-module-eval-source-map',
     // 使用debugger-for-chrome 用这个插件定位代码追却,实际开发中cheap-module-eval-source-map更快  debugger-for-chrome 不咋好用...
-    // devtool: "#source-map",
+    devtool: "#source-map",
 
     // If you have problems debugging vue-files in devtools,
     // set this to false - it *may* help

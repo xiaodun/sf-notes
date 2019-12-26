@@ -337,7 +337,7 @@ export default {
     },
     onLevaeConfirm() {
       if (this.taskList.length > 0 && this.current === 0) {
-        return "确认离开吗?";
+        return true;
       }
     },
     addTask() {
