@@ -400,6 +400,12 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
     },
     getTag(argTagId) {
       let tag = this.tagList.find((el) => el.id === argTagId);
+      if (!tag) {
+        console.error(
+          "出现了脏数据:",
+          "可能是切换分支后,用旧的页面添加了数据,刷新界面后,新的数据没有对应的标签",
+        );
+      }
       return tag;
     },
     onInAdd() {
