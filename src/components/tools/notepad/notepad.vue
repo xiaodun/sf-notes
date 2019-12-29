@@ -400,6 +400,12 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
     },
     getTag(argTagId) {
       let tag = this.tagList.find((el) => el.id === argTagId);
+      if (!tag) {
+        console.error(
+          "出现了脏数据:",
+          "可能是切换分支后,用旧的页面添加了数据,刷新界面后,新的数据没有对应的标签",
+        );
+      }
       return tag;
     },
     onInAdd() {
@@ -407,6 +413,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
         content: "",
         loadCount: 0, //用户黏贴图片的时候记录正在转换的图片个数,loadCount为0时,才可以提交图片
         base64: {},
+        tagId: this.filterTagId,
       };
       this.isShowAddModel = true;
     },
@@ -595,7 +602,6 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       this.isShowEditModel = false;
     },
     async onAdd(argNotepad) {
-      this.filterTagId = "";
       await this.requestAdd(argNotepad);
       this.pagination.page = 1;
       this.onGet(this.pagination);
