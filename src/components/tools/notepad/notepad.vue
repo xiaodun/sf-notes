@@ -603,7 +603,9 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
     async onAdd(argNotepad) {
       await this.requestAdd(argNotepad);
       this.pagination.page = 1;
-      this.onGet(this.pagination);
+      this.onGet(this.pagination,{
+        tagId:this.filterTagId
+      });
     },
     requestAdd(argNotepad) {
       //提交添加记事
