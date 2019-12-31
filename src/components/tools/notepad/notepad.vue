@@ -30,6 +30,7 @@
           style="margin-top:10px;"
           v-model="filterTagId"
           clearable
+          filterable
           placeholder="标签过滤"
         >
           <Option :key="item.id" v-for="item in tagList" :value="item.id">{{
@@ -184,7 +185,7 @@
       </div>
       <br />
       <br />
-      <Select v-model="activNotepad.tagId">
+      <Select v-model="activNotepad.tagId" clearable filterable>
         <Option :key="item.id" v-for="item in tagList" :value="item.id">{{
           item.content
         }}</Option>
@@ -604,8 +605,8 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
     async onAdd(argNotepad) {
       await this.requestAdd(argNotepad);
       this.pagination.page = 1;
-      this.onGet(this.pagination,{
-        tagId:this.filterTagId
+      this.onGet(this.pagination, {
+        tagId: this.filterTagId,
       });
     },
     requestAdd(argNotepad) {
