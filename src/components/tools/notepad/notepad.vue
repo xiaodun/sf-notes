@@ -103,7 +103,7 @@
                 </div>
                 <Row>
                   <Col span="4" offset="20">
-                    <Button @click="onCopyAll(item.content)" title="复制全文"
+                    <Button @click.stop="onCopyAll(item.content)" title="复制全文"
                       ><Icon size="18" type="ios-copy"
                     /></Button>
                   </Col>
@@ -273,13 +273,18 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
     onLine($event) {
       $event.stopPropagation();
       const { target } = $event;
+      let lineDom = $event.target.closest(".line");
+      let highlightDom = lineDom.querySelector(".highlight-vue");
       if (target.classList.contains("run-btn")) {
-        let lineDom = $event.target
-          .closest(".line")
-          .querySelector(".highlight-vue");
-        this.runJSCode(lineDom.textContent);
+        this.runJSCode(highlightDom.textContent);
       } else {
-        this.onCopyLine($event);
+        if(highlightDom){
+           this.onCopyAll(highlightDom.textContent);
+        }
+        else{
+
+          this.onCopyAll(lineDom.textContent);
+        }
       }
       this.onSignLine($event);
     },
@@ -292,15 +297,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       this.scripDom.textContent = argCode;
       document.body.appendChild(this.scripDom);
     },
-    onCopyLine($event) {
-      //复制记事本中单独的一行
-
-      let lineDom = $event.target
-        .closest(".line")
-        .querySelector(".highlight-vue");
-
-      this.onCopyAll(lineDom.textContent);
-    },
+    
     onSignLine($event) {
       let lineDom = $event.target.closest(".line");
       let currentTargetDom = $event.currentTarget;
@@ -425,7 +422,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
           "出现了脏数据:",
           "可能是切换分支后,用旧的页面添加了数据,刷新界面后,新的数据没有对应的标签",
         );
-        return {}
+        return {};
       }
       return tag;
     },
