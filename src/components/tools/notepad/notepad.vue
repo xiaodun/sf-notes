@@ -103,7 +103,9 @@
                 </div>
                 <Row>
                   <Col span="4" offset="20">
-                    <Button @click.stop="onCopyAll(item.content)" title="复制全文"
+                    <Button
+                      @click.stop="onCopyAll(item.content)"
+                      title="复制全文"
                       ><Icon size="18" type="ios-copy"
                     /></Button>
                   </Col>
@@ -274,19 +276,19 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       $event.stopPropagation();
       const { target } = $event;
       let lineDom = $event.target.closest(".line");
-      let highlightDom = lineDom.querySelector(".highlight-vue");
-      if (target.classList.contains("run-btn")) {
-        this.runJSCode(highlightDom.textContent);
-      } else {
-        if(highlightDom){
-           this.onCopyAll(highlightDom.textContent);
+      if (lineDom) {
+        let highlightDom = lineDom.querySelector(".highlight-vue");
+        if (target.classList.contains("run-btn")) {
+          this.runJSCode(highlightDom.textContent);
+        } else {
+          if (highlightDom) {
+            this.onCopyAll(highlightDom.textContent);
+          } else {
+            this.onCopyAll(lineDom.textContent);
+          }
         }
-        else{
-
-          this.onCopyAll(lineDom.textContent);
-        }
+        this.onSignLine($event);
       }
-      this.onSignLine($event);
     },
     runJSCode(argCode) {
       console.clear();
@@ -297,7 +299,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       this.scripDom.textContent = argCode;
       document.body.appendChild(this.scripDom);
     },
-    
+
     onSignLine($event) {
       let lineDom = $event.target.closest(".line");
       let currentTargetDom = $event.currentTarget;
