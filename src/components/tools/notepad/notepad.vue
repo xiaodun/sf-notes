@@ -94,12 +94,7 @@
                   >删除</Button
                 >
               </div>
-              <div
-                @click="
-                  onCopyLine($event);
-                  onSignLine($event);
-                "
-              >
+              <div @click="onLine">
                 <div style="color: #bab9b9;">
                   <span>创建日期</span>
                   :{{ item.createTime }}
@@ -221,6 +216,7 @@ import KeyManagerComponent from "./key_manager";
 import ShowNotepadComponent from "./show_notepad";
 import CryptoJS from "crypto-js";
 export const BASE64_IMG_PROTOCOL = "base64img";
+
 export default {
   name: "",
   data() {
@@ -274,10 +270,34 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
   },
 
   methods: {
+    onLine($event) {
+      $event.stopPropagation();
+      const { target } = $event;
+      if (target.classList.contains("run-btn")) {
+        let lineDom = $event.target
+          .closest(".line")
+          .querySelector(".highlight-vue");
+        this.runJSCode(lineDom.textContent);
+      } else {
+        this.onCopyLine($event);
+      }
+      this.onSignLine($event);
+    },
+    runJSCode(argCode) {
+      console.clear();
+      if (this.scripDom) {
+        this.scripDom.remove();
+      }
+      this.scripDom = document.createElement("script");
+      this.scripDom.textContent = argCode;
+      document.body.appendChild(this.scripDom);
+    },
     onCopyLine($event) {
       //复制记事本中单独的一行
-      $event.stopPropagation();
-      let lineDom = $event.target.closest(".line");
+
+      let lineDom = $event.target
+        .closest(".line")
+        .querySelector(".highlight-vue");
 
       this.onCopyAll(lineDom.textContent);
     },
@@ -405,6 +425,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
           "出现了脏数据:",
           "可能是切换分支后,用旧的页面添加了数据,刷新界面后,新的数据没有对应的标签",
         );
+        return {}
       }
       return tag;
     },
@@ -688,6 +709,9 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
     document.addEventListener("keydown", this.onKeyboardChangePage, true);
   },
   beforeDestroy() {
+    if (!this.scripDom) {
+      this.scripDom.remove();
+    }
     document.removeEventListener("keydown", this.onKeyboardChangePage, true);
   },
 };
@@ -773,6 +797,8 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
     .line {
       //一行记事  纯文本
       line-height: 28px;
+      position: relative;
+
       &:hover,
       &.selected {
         background-color: @lineFlagColor;
@@ -781,6 +807,11 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
         .highlight-vue {
           background-color: transparent;
         }
+      }
+      .run-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
       }
     }
   }
