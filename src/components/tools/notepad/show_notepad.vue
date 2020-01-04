@@ -159,6 +159,20 @@ export default {
                 },
               },
               [
+                //  <Button type="default" ghost>Default</Button>
+                argCreateElement("Button", {
+                  attrs: {
+                    type: "primary",
+                    ghost: true,
+                  },
+                  class: {
+                    "run-btn": true,
+                  },
+
+                  domProps: {
+                    innerHTML: "执行",
+                  },
+                }),
                 argCreateElement(Highlight, {
                   key: Math.random(),
 
