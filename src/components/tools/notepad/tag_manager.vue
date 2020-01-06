@@ -238,7 +238,7 @@ export default {
       let response = await this.requestGet();
       let isHave = window.localStorage.filterTagId ? false : true;
       let list = response.data.map((el, index, arr) => {
-        if (el.content == window.localStorage.filterTagId) {
+        if (el.id == window.localStorage.filterTagId) {
           isHave = true;
         }
         el.updateValue = el.content;
