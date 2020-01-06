@@ -236,11 +236,25 @@ export default {
     },
     async onGet() {
       let response = await this.requestGet();
+      let isHave = window.localStorage.filterTagId ? false : true;
       let list = response.data.map((el, index, arr) => {
+        if (el.content == window.localStorage.filterTagId) {
+          isHave = true;
+        }
         el.updateValue = el.content;
         el.isEdit = false;
         return el;
       });
+      if (!isHave) {
+        if (
+          window.confirm(
+            "切换分支导致标签数据异常,点击确定将重置localStorage里的filterTagId!"
+          )
+        ) {
+          window.localStorage.filterTagId = "";
+          window.location.reload();
+        }
+      }
       this.$emit("change", list);
     },
     requestGet() {

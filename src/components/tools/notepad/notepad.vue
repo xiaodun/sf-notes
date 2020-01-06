@@ -1,6 +1,7 @@
 <template>
   <div id="notepad-id">
     <div class="wrapper">
+      <Alert>feature 分支</Alert>
       <div class="card-wrapper" v-if="showModelFlag === 'notepad'">
         <Button
           icon="ios-pricetag"
@@ -51,7 +52,7 @@
               :style="
                 $browserMessage.isPC &&
                   item.isMouseOver && {
-                    boxShadow: `0 1px ${item.shadowBlur}px ${item.shadowSpread}px rgba(0,0,0,${item.shadowAlpha})`,
+                    boxShadow: `0 1px ${item.shadowBlur}px ${item.shadowSpread}px rgba(0,0,0,${item.shadowAlpha})`
                   }
               "
             >
@@ -238,7 +239,7 @@ export default {
       pagination: {
         //记事 的分页器
         page: 1,
-        size: 3,
+        size: 3
       },
       list: null,
       activNotepad: {
@@ -261,14 +262,14 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
          */
       },
       activeIndex: 0,
-      filterTagId: "", //用于过滤的标签id
+      filterTagId: "" //用于过滤的标签id
     };
   },
   components: {
     TagManagerComponent,
     FileManagerComponent,
     KeyManagerComponent,
-    ShowNotepadComponent,
+    ShowNotepadComponent
   },
 
   methods: {
@@ -303,7 +304,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
     onSignLine($event) {
       let lineDom = $event.target.closest(".line");
       let currentTargetDom = $event.currentTarget;
-      currentTargetDom.querySelectorAll(".line").forEach((dom) => {
+      currentTargetDom.querySelectorAll(".line").forEach(dom => {
         dom.classList.remove("selected");
       });
       lineDom.classList.add("selected");
@@ -404,7 +405,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
     decrypt(argkey, argContent) {
       var decrypt = CryptoJS.AES.decrypt(argContent, argkey, {
         mode: CryptoJS.mode.ECB,
-        padding: CryptoJS.pad.Pkcs7,
+        padding: CryptoJS.pad.Pkcs7
       });
       let string = CryptoJS.enc.Utf8.stringify(decrypt).toString();
       return string;
@@ -413,19 +414,18 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       var srcs = CryptoJS.enc.Utf8.parse(argContent);
       var encrypted = CryptoJS.AES.encrypt(srcs, argkey, {
         mode: CryptoJS.mode.ECB,
-        padding: CryptoJS.pad.Pkcs7,
+        padding: CryptoJS.pad.Pkcs7
       });
       let string = encrypted.toString();
       return string;
     },
     getTag(argTagId) {
-      let tag = this.tagList.find((el) => el.id === argTagId);
+      let tag = this.tagList.find(el => el.id === argTagId);
       if (!tag) {
-        console.error(
-          "出现了脏数据:",
-          "可能是切换分支后,用旧的页面添加了数据,刷新界面后,新的数据没有对应的标签",
-        );
-        return {};
+        //可能是姐tag 接口还没有返回值 也可能是是切换分支导致没有这个id
+        return {
+          content: ""
+        };
       }
       return tag;
     },
@@ -434,7 +434,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
         content: "",
         loadCount: 0, //用户黏贴图片的时候记录正在转换的图片个数,loadCount为0时,才可以提交图片
         base64: {},
-        tagId: this.filterTagId,
+        tagId: this.filterTagId
       };
       this.isShowAddModel = true;
     },
@@ -452,7 +452,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
 
           this.activNotepad.content = this.decrypt(
             this.publicKey,
-            this.activNotepad.content,
+            this.activNotepad.content
           );
         }
       }
@@ -463,7 +463,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
     async onTop(argItem) {
       await this.requestTop(argItem);
       this.onGet(this.pagination, {
-        tagId: this.filterTagId,
+        tagId: this.filterTagId
       });
       this.$Message.success("置顶成功");
     },
@@ -472,8 +472,8 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
         method: "post",
         url: this.requestPrefix + "/top",
         data: {
-          id: argItem.id,
-        },
+          id: argItem.id
+        }
       });
     },
 
@@ -492,7 +492,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
     async onDeleteTag(argId) {
       await this.requestDelTag(argId);
       this.onGet(this.pagination, {
-        tagId: this.filterTagId,
+        tagId: this.filterTagId
       });
     },
     requestDelTag(argId) {
@@ -501,8 +501,8 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
         method: "post",
         url: this.requestPrefix + "/removeTag",
         data: {
-          id: argId,
-        },
+          id: argId
+        }
       });
     },
 
@@ -513,7 +513,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
         content: "确认删除这条记事嘛?",
         onOk: () => {
           this.onDelete(argNotepad);
-        },
+        }
       });
     },
     async onDelete(argNotepad) {
@@ -521,7 +521,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       //从前端这里虽然在当前页没有数据时候会多请求一次,但是,一切因该以后台数据为准
       //也是为了将逻辑内聚在request_get
       this.onGet(this.pagination, {
-        tagId: this.filterTagId,
+        tagId: this.filterTagId
       });
     },
     requestDelete(argNotepad) {
@@ -529,8 +529,8 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
         method: "post",
         url: this.requestPrefix + "/del",
         data: {
-          id: argNotepad.id,
-        },
+          id: argNotepad.id
+        }
       });
     },
     async onGet(argPagination, argFilter = {}) {
@@ -542,11 +542,11 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
           ((response.data.total - 1) / this.pagination.size + 1) | 0;
         this.pagination.page = maxPage;
         this.onGet(this.pagination, {
-          tagId: this.filterTagId,
+          tagId: this.filterTagId
         });
       } else {
         this.list = [];
-        response.data.data.forEach((el) => {
+        response.data.data.forEach(el => {
           let notepad = this.convert(el);
           this.list.push(notepad);
         });
@@ -563,15 +563,15 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
         data: {
           page: argPagination.page,
           size: argPagination.size,
-          filter: argFilter,
-        },
+          filter: argFilter
+        }
       });
     },
     convert(argNotepad) {
       //转换请求过来的日记数据
       let notepad = { ...argNotepad };
       let createTime = DateHelper.get_instance_timestamp(
-        notepad.createTime,
+        notepad.createTime
       ).get_format_date();
       notepad.createTime = createTime;
       //标题默认为创建日期
@@ -582,14 +582,14 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       notepad.isMouseOver = false;
       if (notepad.updateTime) {
         notepad.updateTime = DateHelper.get_instance_timestamp(
-          notepad.updateTime,
+          notepad.updateTime
         ).get_format_date();
       }
       //根据创建时间域当前时间所差的天数   动态的改变鼠标悬浮的阴影
       Object.assign(notepad, {
         shadowBlur: 6,
         shadowAlpha: 0.2,
-        shadowSpread: 0,
+        shadowSpread: 0
       });
       let currentTimestamp = Date.now();
       let day =
@@ -626,7 +626,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       await this.requestAdd(argNotepad);
       this.pagination.page = 1;
       this.onGet(this.pagination, {
-        tagId: this.filterTagId,
+        tagId: this.filterTagId
       });
     },
     requestAdd(argNotepad) {
@@ -635,7 +635,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       return this.$axios.request({
         method: "post",
         url: this.requestPrefix + "/add",
-        data: argNotepad,
+        data: argNotepad
       });
     },
     async onUpdate(argNotepad, argIndex) {
@@ -648,7 +648,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       return this.$axios.request({
         method: "post",
         url: this.requestPrefix + "/update",
-        data: argNotepad,
+        data: argNotepad
       });
     },
     onChangeVisible() {
@@ -675,7 +675,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
           this.onChangePage(this.pagination.page);
         }
       }
-    },
+    }
   },
   computed: {
     isCanChangePage() {
@@ -697,14 +697,15 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       get() {
         let isVisible = this.isShowAddModel || this.isShowEditModel;
         return isVisible;
-      },
-    },
+      }
+    }
   },
   created() {
     //初始化标签
     this.filterTagId = +window.localStorage.filterTagId;
   },
   mounted() {
+  
     this.onGet(this.pagination, { tagId: this.filterTagId });
     document.addEventListener("keydown", this.onKeyboardChangePage, true);
   },
@@ -713,7 +714,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       this.scripDom.remove();
     }
     document.removeEventListener("keydown", this.onKeyboardChangePage, true);
-  },
+  }
 };
 </script>
 
