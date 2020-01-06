@@ -50,31 +50,40 @@
     <div class="first">
       <Row>
         <Col span="18">
-          <Input v-model.trim="tagName" @on-keyup.enter="onAdd(tagName)"/>
+          <Input v-model.trim="tagName" @on-keyup.enter="onAdd(tagName)" />
         </Col>
         <Col span="1" offset="1">
           <Button @click="onAdd(tagName)" type="primary">添加</Button>
         </Col>
       </Row>
-      <div class="tag" :class="{'in-edit':item.isEdit}" :key="item.id" v-for="(item,index) in list">
+      <div
+        class="tag"
+        :class="{ 'in-edit': item.isEdit }"
+        :key="item.id"
+        v-for="(item, index) in list"
+      >
         <Row>
           <Col span="9">
-            <div class="content" v-show="!item.isEdit">{{item.content}}</div>
-            <Input ref="updateInputList" v-show="item.isEdit" v-model.trim="item.updateValue"/>
+            <div class="content" v-show="!item.isEdit">{{ item.content }}</div>
+            <Input
+              ref="updateInputList"
+              v-show="item.isEdit"
+              v-model.trim="item.updateValue"
+            />
           </Col>
           <Col span="3" offset="1">
             <input
-              @change="onUpdateColor(item,$event)"
+              @change="onUpdateColor(item, $event)"
               style="height:32px;cursor:pointer;"
               type="color"
               :value="item.color"
-            >
+            />
           </Col>
           <Col class="option" span="8" offset="1">
             <Button
               class="btn"
               v-show="!item.isEdit"
-              @click="onToggleEdit(item,true,index)"
+              @click="onToggleEdit(item, true, index)"
               shape="circle"
               icon="md-create"
             ></Button>
@@ -96,7 +105,7 @@
               class="btn"
               v-show="item.isEdit"
               shape="circle"
-              @click="onToggleEdit(item,false,index)"
+              @click="onToggleEdit(item, false, index)"
               icon="md-close"
             ></Button>
           </Col>
@@ -226,11 +235,25 @@ export default {
     },
     async onGet() {
       let response = await this.requestGet();
+      let isHave = window.localStorage.filterTagId ? false : true;
       let list = response.data.map((el, index, arr) => {
+        if (el.content == window.localStorage.filterTagId) {
+          isHave = true;
+        }
         el.updateValue = el.content;
         el.isEdit = false;
         return el;
       });
+      if (!isHave) {
+        if (
+          window.confirm(
+            "切换分支导致标签数据异常,点击确定将重置localStorage里的filterTagId!"
+          )
+        ) {
+          window.localStorage.filterTagId = "";
+          window.location.reload();
+        }
+      }
       this.$emit("change", list);
     },
     requestGet() {
