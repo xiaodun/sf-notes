@@ -1,6 +1,7 @@
 <template>
   <div id="notepad-id">
     <div class="wrapper">
+      <Alert>feature 分支</Alert>
       <div class="card-wrapper" v-if="showModelFlag === 'notepad'">
         <Button
           icon="ios-pricetag"
