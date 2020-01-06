@@ -704,7 +704,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
     this.filterTagId = +window.localStorage.filterTagId;
   },
   mounted() {
-    alert(1);
+  
     this.onGet(this.pagination, { tagId: this.filterTagId });
     document.addEventListener("keydown", this.onKeyboardChangePage, true);
   },
