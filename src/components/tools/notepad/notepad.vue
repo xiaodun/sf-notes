@@ -296,7 +296,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
         this.scripDom.remove();
       }
       this.scripDom = document.createElement("script");
-      this.scripDom.textContent = argCode;
+      this.scripDom.textContent = `!function(){${argCode}}()`;
       document.body.appendChild(this.scripDom);
     },
 
@@ -709,7 +709,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
     document.addEventListener("keydown", this.onKeyboardChangePage, true);
   },
   beforeDestroy() {
-    if (!this.scripDom) {
+    if (this.scripDom) {
       this.scripDom.remove();
     }
     document.removeEventListener("keydown", this.onKeyboardChangePage, true);
