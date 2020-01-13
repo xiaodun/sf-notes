@@ -52,6 +52,11 @@
       }
     }
   }
+  .check-wrapper {
+    .toggle {
+      margin-bottom: 16px;
+    }
+  }
 }
 
 .preview-modal-9b45763 {
@@ -173,50 +178,72 @@
           <Progress :percent="item.percent" />
         </div>
       </transition-group>
+      <div class="check-wrapper">
+        <div class="toggle">
+          批处理:&nbsp;&nbsp;<i-switch
+            v-model="isBatch"
+            @on-change="onChangeBatchSwitch"
+          ></i-switch>
+        </div>
+        <div v-show="isBatch">
+          <Checkbox @on-change="onCheckedAll" v-model="isCheckedAll"
+            >全选</Checkbox
+          >
+          <Button type="warning" @click="onBatchConfirmDelFile">删除</Button>
+        </div>
+      </div>
       <!-- 已经上传完毕 -->
       <div class="file" :key="index" v-for="(item, index) in uploadList">
         <Row>
-          <Col span="10">
-            <div class="name">{{ item.name }}</div>
-          </Col>
-          <Col class="option" span="12" offset="1">
-            <Button
-              v-if="!$browserMessage.isWeChat"
-              icon="md-download"
-              :loading="item.isDownloading"
-              style="margin-right:10px"
-              title="下载"
-              shape="circle"
-              @click="onDownload(item)"
-            ></Button>
-            <Button
-              shape="circle"
-              icon="md-remove"
-              title="删除"
-              style="margin-right:10px"
-              @click="onConfirmDelete(item)"
-            ></Button>
+          <CheckboxGroup v-model="checkedFileList">
+            <Col v-show="isBatch" span="2" style="height:32px;line-height:32px;"
+              ><Checkbox :label="item.id">&nbsp;</Checkbox></Col
+            >
 
-            <Button
-              shape="circle"
-              title="备注"
-              icon="md-information"
-              style="margin-right:10px"
-              @click="inUpdateModal(item)"
-            ></Button>
-            <Button
-              shape="circle"
-              icon="md-eye"
-              title="预览"
-              @click="onPreviewFile(item, index)"
-            ></Button>
-          </Col>
-          <Col span="14" v-if="item.describe">
-            <div class="fileinfo">{{ item.describe }}</div>
-          </Col>
-          <Col span="14" v-if="item.describe">
-            <div class="fileinfo">{{ item.describe }}</div>
-          </Col>
+            <Col :span="isBatch ? 8 : 10">
+              <div class="name" @click="onToggleChecked(item)">
+                {{ item.name }}
+              </div>
+            </Col>
+            <Col class="option" span="12" offset="1">
+              <Button
+                v-if="!$browserMessage.isWeChat"
+                icon="md-download"
+                :loading="item.isDownloading"
+                style="margin-right:10px"
+                title="下载"
+                shape="circle"
+                @click="onDownload(item)"
+              ></Button>
+              <Button
+                shape="circle"
+                icon="md-remove"
+                title="删除"
+                style="margin-right:10px"
+                @click="onConfirmDelete(item)"
+              ></Button>
+
+              <Button
+                shape="circle"
+                title="备注"
+                icon="md-information"
+                style="margin-right:10px"
+                @click="inUpdateModal(item)"
+              ></Button>
+              <Button
+                shape="circle"
+                icon="md-eye"
+                title="预览"
+                @click="onPreviewFile(item, index)"
+              ></Button>
+            </Col>
+            <Col span="14" v-if="item.describe">
+              <div class="fileinfo">{{ item.describe }}</div>
+            </Col>
+            <Col span="14" v-if="item.describe">
+              <div class="fileinfo">{{ item.describe }}</div>
+            </Col>
+          </CheckboxGroup>
         </Row>
       </div>
     </div>
@@ -344,6 +371,8 @@ export default {
 
   data() {
     return {
+      checkedFileList: [], //记录选中文件的id
+      isBatch: false, //是否开启批处理
       defaultEncode: "utf-8",
       lastFile: null,
       isCanTry: false, //是否可以自己尝试解析
@@ -369,6 +398,51 @@ export default {
     };
   },
   methods: {
+    onToggleChecked(argFile) {
+      if (!this.isBatch) {
+        return;
+      }
+      if (this.checkedFileList.includes(argFile.id)) {
+        let index = this.checkedFileList.findIndex((id) => argFile.id === id);
+        this.checkedFileList.splice(index, 1);
+      } else {
+        this.checkedFileList.push(argFile.id);
+      }
+    },
+    onBatchConfirmDelFile() {
+      if (this.checkedFileList.length === 0) {
+        return;
+      }
+      this.$Modal.confirm({
+        title: "文件批量删除",
+        content: "删除文件后,无法通过界面操作恢复!",
+        onOk: () => {
+          this.onBatchDelFile();
+        },
+      });
+    },
+    onChangeBatchSwitch(argValue) {
+      if (!argValue) {
+        this.checkedFileList = [];
+      }
+    },
+    async onBatchDelFile() {
+      for (let i = 0; i < this.checkedFileList.length; i++) {
+        const id = this.checkedFileList[i];
+        let response = await this.requestDelete(id);
+      }
+      this.$Message.success("删除成功");
+      this.checkedFileList = [];
+      this.onGet();
+    },
+    onCheckedAll(argValue) {
+      if (argValue) {
+        let list = this.uploadList.map((item) => item.id);
+        this.checkedFileList = list;
+      } else {
+        this.checkedFileList = [];
+      }
+    },
     onChangeNext() {
       let index = this.activePreview.index + 1;
       if (index >= this.uploadList.length) {
@@ -564,17 +638,17 @@ export default {
       });
     },
     async onDelete(argItem) {
-      let response = await this.requestDelete(argItem);
+      let response = await this.requestDelete(argItem.id);
       this.$Message.success("已删除!");
 
       this.onGet();
     },
-    requestDelete(argItem) {
+    requestDelete(argId) {
       return this.$axios.request({
         method: "post",
         url: this.requestPrefix + "/delete",
         data: {
-          id: argItem.id,
+          id: argId,
         },
       });
     },
@@ -600,6 +674,17 @@ export default {
     computedDisabledFileRadio() {
       let isDisabled = this.activeFile.isLoading || !this.isCanTry;
       return isDisabled;
+    },
+    isCheckedAll: {
+      get() {
+        let isChecked =
+          this.checkedFileList.length !== 0 &&
+          this.checkedFileList.length === this.uploadList.length;
+        return isChecked;
+      },
+      set(argValue) {
+        return argValue;
+      },
     },
   },
   beforeDestroy() {
