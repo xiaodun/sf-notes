@@ -128,6 +128,19 @@
       }
     }
   }
+  .change-source {
+    position: absolute;
+    top: 50%;
+
+    &.left {
+      left: 0;
+      transform: translateY(-50%) translateX(-110%);
+    }
+    &.right {
+      right: 0;
+      transform: translateY(-50%) translateX(110%);
+    }
+  }
 }
 </style>
 <template>
@@ -195,7 +208,7 @@
               shape="circle"
               icon="md-eye"
               title="预览"
-              @click="onPreviewFile(item)"
+              @click="onPreviewFile(item, index)"
             ></Button>
           </Col>
           <Col span="14" v-if="item.describe">
@@ -301,6 +314,20 @@
           </div>
         </Row>
       </div>
+      <Button
+        class="change-source left"
+        shape="circle"
+        icon="ios-arrow-back"
+        size="large"
+        @click.stop="onChangePrevious"
+      ></Button>
+      <Button
+        @click.stop="onChangeNext"
+        size="large"
+        class="change-source right"
+        shape="circle"
+        icon="ios-arrow-forward"
+      ></Button>
     </Modal>
   </div>
 </template>
@@ -323,6 +350,7 @@ export default {
       uploadList: [], //已经上传的文件
       activeFile: {},
       activePreview: {
+        index: 0, //预览索引
         type: "", //文件类型
         name: "", //文件名称
         txtContent: "", //文本内容
@@ -341,6 +369,33 @@ export default {
     };
   },
   methods: {
+    onChangeNext() {
+      let index = this.activePreview.index + 1;
+      if (index >= this.uploadList.length) {
+        index = 0;
+      }
+      const currentItem = this.uploadList[index];
+      this.onPreviewFile(currentItem, index);
+    },
+    onChangeResurce($event) {
+      if (this.isPreviewFile) {
+        const { keyCode } = $event;
+        if (keyCode === 37) {
+          this.onChangePrevious();
+        } else if (keyCode === 39) {
+          this.onChangeNext();
+        }
+      }
+    },
+    onChangePrevious($event) {
+      console.log("wx");
+      let index = this.activePreview.index - 1;
+      if (index < 0) {
+        index = this.uploadList.length - 1;
+      }
+      const currentItem = this.uploadList[index];
+      this.onPreviewFile(currentItem, index);
+    },
     onChangFileType() {
       // 切换文件类型
       setTimeout(() => {
@@ -348,11 +403,12 @@ export default {
         this.onParseFile(this.activePreview.type);
       }, 20);
     },
-    onPreviewFile(argItem) {
+    onPreviewFile(argItem, argIndex) {
       this.isCanTry = false;
       //预览文件
       this.activeFile = { ...argItem };
       this.activePreview.name = argItem.name;
+      this.activePreview.index = argIndex;
       this.activePreview.type = getFileType(argItem.name);
       this.onParseFile(this.activePreview.type);
       this.isPreviewFile = true;
@@ -549,9 +605,11 @@ export default {
   beforeDestroy() {
     //卸载组件时清空数据,fileToBlob由于不在组件内部,所以需要手动清空
     fileToBlob = {};
+    document.removeEventListener("keyup", this.onChangeResurce);
   },
   mounted() {
     this.onGet();
+    document.addEventListener("keyup", this.onChangeResurce);
   },
 };
 </script>
