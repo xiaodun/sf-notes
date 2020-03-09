@@ -40,11 +40,20 @@
         <!-- 记事的展示 -->
         <div v-if="list && list.length > 0">
           <div
+            class="card-root"
             v-for="(item, index) in list"
             :key="item.id"
             @mouseover="item.isMouseOver = true"
             @mouseout="item.isMouseOver = false"
           >
+            <div>
+              <Button
+                @click="onInAdd(index)"
+                class="add"
+                icon="ios-add"
+                style="margin-top:5px"
+              ></Button>
+            </div>
             <Card
               class="card"
               :bordered="false"
@@ -117,6 +126,14 @@
                 ></ShowNotepadComponent>
               </div>
             </Card>
+            <div class="FloatWrapper add">
+              <Button
+                @click="onInAdd(index + 1)"
+                style="margin-top:5px;"
+                class="right"
+                icon="ios-add"
+              ></Button>
+            </div>
           </div>
           <Page
             :current="pagination.page"
@@ -339,7 +356,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
     },
     onCopyAll(argText) {
       //复制全文
-      
+
       const textarea = document.createElement("textarea");
       textarea.setAttribute("readonly", true);
       textarea.value = argText;
@@ -428,7 +445,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       }
       return tag;
     },
-    onInAdd() {
+    onInAdd(argIndex = 0) {
       this.activNotepad = {
         content: "",
         loadCount: 0, //用户黏贴图片的时候记录正在转换的图片个数,loadCount为0时,才可以提交图片
@@ -436,6 +453,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
         tagId: this.filterTagId
       };
       this.isShowAddModel = true;
+      this.addIndex = argIndex;
     },
     onZoomImg(argSrc) {
       this.activeImgSrc = argSrc;
@@ -614,27 +632,30 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
         }
       }
       if (this.isShowAddModel) {
-        this.onAdd(notepad);
+        this.onAdd(notepad, this.addIndex);
       } else if (this.isShowEditModel) {
         this.onUpdate(notepad, argIndex);
       }
       this.isShowAddModel = false;
       this.isShowEditModel = false;
     },
-    async onAdd(argNotepad) {
-      await this.requestAdd(argNotepad);
+    async onAdd(argNotepad, argIndex) {
+      await this.requestAdd(argNotepad, argIndex);
       this.pagination.page = 1;
       this.onGet(this.pagination, {
         tagId: this.filterTagId
       });
     },
-    requestAdd(argNotepad) {
+    requestAdd(argNotepad, argIndex) {
       //提交添加记事
 
       return this.$axios.request({
         method: "post",
         url: this.requestPrefix + "/add",
-        data: argNotepad
+        data: {
+          index: argIndex,
+          notepad: argNotepad
+        }
       });
     },
     async onUpdate(argNotepad, argIndex) {
@@ -704,7 +725,6 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
     this.filterTagId = +window.localStorage.filterTagId;
   },
   mounted() {
-  
     this.onGet(this.pagination, { tagId: this.filterTagId });
     document.addEventListener("keydown", this.onKeyboardChangePage, true);
   },
@@ -726,7 +746,16 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
   //增大上面的空间 为了使过滤标签的下拉弹框能在上面弹出
 
   padding-top: 45px;
-
+  .card-root {
+    .add {
+      visibility: hidden;
+    }
+    &:hover {
+      .add {
+        visibility: visible;
+      }
+    }
+  }
   > .app-name {
     margin: 1em auto;
 
