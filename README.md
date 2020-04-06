@@ -3,6 +3,7 @@
 
 # fly
 
+![预览](https://github.com/xiaodun/sf-pc-web/blob/v1.0.0-develop/preview.png)
 
 ## 运行须知
 
