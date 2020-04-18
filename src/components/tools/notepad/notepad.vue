@@ -54,16 +54,7 @@
                 style="margin-top:5px"
               ></Button>
             </div>
-            <Card
-              class="card"
-              :bordered="false"
-              :style="
-                $browserMessage.isPC &&
-                  item.isMouseOver && {
-                    boxShadow: `0 1px ${item.shadowBlur}px ${item.shadowSpread}px rgba(0,0,0,${item.shadowAlpha})`,
-                  }
-              "
-            >
+            <Card class="card" :bordered="false">
               <p slot="title">
                 <Icon
                   style="cursor:pointer;"
@@ -269,9 +260,6 @@ id:1575176618524
 isEncrypt:true  是否加密 标记从后台返回的状态
 isMouseOver:false 鼠标是否悬浮
 loadCount:0  当前正在转换为base64的图片个数
-shadowAlpha:0.2  显示阴影的透明度
-shadowBlur:6  显示阴影的模糊度
-shadowSpread:0 显示阴影的传播范围
 title:"2019-12-01" 记事标题
 updateTime:"2019-12-01" 记事修改时间 
 isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
@@ -602,22 +590,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
           notepad.updateTime,
         ).get_format_date();
       }
-      //根据创建时间域当前时间所差的天数   动态的改变鼠标悬浮的阴影
-      Object.assign(notepad, {
-        shadowBlur: 6,
-        shadowAlpha: 0.2,
-        shadowSpread: 0,
-      });
-      let currentTimestamp = Date.now();
-      let day =
-        ((currentTimestamp - (argNotepad.updateTime || argNotepad.createTime)) /
-          (24 * 60 * 60 * 1000)) |
-        0;
-      if (day > 0) {
-        notepad.shadowBlur += 10 * day;
-        notepad.shadowAlpha += 0.05 * day;
-        notepad.shadowSpread += 5 * day;
-      }
+
       return notepad;
     },
     onCloseEditModel(argNotepad, argIndex) {
