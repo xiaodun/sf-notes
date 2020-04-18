@@ -14,24 +14,31 @@
   .extract-wrapper {
     padding: 20px 10px;
   }
+
   .result-wrapper {
-    background-color: #eee;
-    width: 100%;
-    text-align: center;
-    line-height: 220px;
     font-size: 16px;
+    line-height: 220px;
+
+    width: 100%;
     height: 220px;
+
+    text-align: center;
+
+    background-color: #eee;
   }
+
   //显示结果动画
   .result-enter-active,
   .result-leave-active {
+    transition: transform .45s ease-in-out;
     transform: scale(1);
-    transition: transform 0.45s ease-in-out;
   }
+
   .result-enter,
   .result-leave-to {
     transform: scale(0);
   }
+
   .big-room {
     position: relative;
 
@@ -79,22 +86,33 @@
       border-radius: 10px;
       background-color: #fd3232;
 
-      .sf-shadow-1;
+.sf-shadow-1;
     }
   }
 }
+
 </style>
 <template>
   <div id="gonna_something-vue-id">
     <Steps :current="current">
-      <Step v-for="(item,index) in stepList" :title="item.title" :key="index" size="small"></Step>
+      <Step
+        v-for="(item, index) in stepList"
+        :title="item.title"
+        :key="index"
+        size="small"
+      ></Step>
     </Steps>
 
     <div class="task-wrapper">
       <div v-show="current === 0">
-        <Checkbox style="margin-bottom:10px;" v-model="isAverage" @on-change="averageThreshold">均分阈值</Checkbox>
+        <Checkbox
+          style="margin-bottom:10px;"
+          v-model="isAverage"
+          @on-change="averageThreshold"
+          >均分阈值</Checkbox
+        >
         <Button @click="addTask" long>添加</Button>
-        <div :key="index" v-for="(item,index) in taskList">
+        <div :key="index" v-for="(item, index) in taskList">
           <table>
             <tr>
               <td>
@@ -118,7 +136,11 @@
                 ></Slider>
               </td>
               <td>
-                <InputNumber :readonly="isAverage" style="width:55px" v-model="item.threshold"/>
+                <InputNumber
+                  :readonly="isAverage"
+                  style="width:55px"
+                  v-model="item.threshold"
+                />
               </td>
               <td>
                 <Button
@@ -132,48 +154,60 @@
           </table>
         </div>
         <div style="margin-top:10px">
-          <Button v-show="isRightCount()" type="primary" @click="goNextStep(0)">下一步</Button>
+          <Button v-show="isRightCount()" type="primary" @click="goNextStep(0)"
+            >下一步</Button
+          >
           <Button type="error" v-show="!isRightCount()">阈值总数不为100</Button>
         </div>
       </div>
       <div v-show="current === 1">
         <div class="extract-wrapper">
           <transition name="result" mode="out-in">
-            <div
-              class="result-wrapper"
-              v-if="isShowResult"
-              key="result"
-            >{{resultIndx !== null && taskList[resultIndx].content}}</div>
+            <div class="result-wrapper" v-if="isShowResult" key="result">
+              {{ resultIndx !== null && taskList[resultIndx].content }}
+            </div>
             <div key="extract" v-else class="big-room" ref="bigRoomDom">
               <div
                 ref="smallRoomDomList"
                 class="small-room"
-                :style="{width:item.threshold+'%'}"
+                :style="{ width: item.threshold + '%' }"
                 :key="index"
-                v-for="(item,index) in taskList"
+                v-for="(item, index) in taskList"
               >
-                <span style="background:#fff;">{{index}}</span>
+                <span style="background:#fff;">{{ index }}</span>
               </div>
-              <div ref="lineDom" :style="{left:lineModel.left+'px'}" class="flag-line"></div>
+              <div
+                ref="lineDom"
+                :style="{ left: lineModel.left + 'px' }"
+                class="flag-line"
+              ></div>
             </div>
           </transition>
 
           <div style="margin:10px 0">
-            <Button type="primary" long v-show="status === 'extract'" @click="goExtract">抽取</Button>
+            <Button
+              type="primary"
+              long
+              v-show="status === 'extract'"
+              @click="goExtract"
+              >抽取</Button
+            >
             <Button
               type="primary"
               :disabled="stopBtnModel.isDisabled"
               long
               v-show="status === 'stop'"
               @click="goStop"
-            >停止</Button>
+              >停止</Button
+            >
           </div>
           <Row>
             <Button
               v-show="previousBtnModel.isShow"
               class="previous-setp"
               @click="goPreviousStep(1)"
-            >上一步</Button>
+              >上一步</Button
+            >
           </Row>
         </div>
       </div>
@@ -184,7 +218,7 @@
 <script>
 const defaultLineModel = {
   speed: 120,
-  left: 5
+  left: 5,
 };
 export default {
   name: "gonna_something_vue",
@@ -195,7 +229,7 @@ export default {
       resultIndx: null,
       stopBtnModel: {
         isDisabled: true,
-        timeout: 2000
+        timeout: 2000,
       },
       lineModel: {
         isStopMove: false,
@@ -203,28 +237,28 @@ export default {
         speed: defaultLineModel.speed,
         dom: null,
         left: defaultLineModel.left,
-        timeout: 100
+        timeout: 100,
       },
       smallRoomModel: {
         seed: 0,
         speed: 100,
-        timeout: 100
+        timeout: 100,
       },
       previousBtnModel: {
-        isShow: true
+        isShow: true,
       },
       isAverage: true,
       taskList: [],
       current: 0,
       stepList: [
         {
-          title: "配置任务"
+          title: "配置任务",
         },
 
         {
-          title: "抽取任务"
-        }
-      ]
+          title: "抽取任务",
+        },
+      ],
     };
   },
   computed: {},
@@ -343,7 +377,7 @@ export default {
     addTask() {
       this.taskList.unshift({
         content: "",
-        threshold: 0
+        threshold: 0,
       });
       this.$nextTick(() => {
         this.$refs.contentDomList[0].focus();
@@ -354,7 +388,7 @@ export default {
     },
     averageThreshold() {
       let value = (100 / this.taskList.length) | 0;
-      this.taskList.forEach(element => {
+      this.taskList.forEach((element) => {
         element.threshold = value;
       });
     },
@@ -376,13 +410,13 @@ export default {
         Object.assign(this.lineModel, defaultLineModel, { isStopMove: false });
       }
       this.current -= 1;
-    }
+    },
   },
   mounted() {
     window.onbeforeunload = this.onLevaeConfirm;
   },
   beforeDestroy() {
     window.onbeforeunload = null;
-  }
+  },
 };
 </script>

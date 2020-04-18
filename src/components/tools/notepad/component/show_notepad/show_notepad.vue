@@ -1,7 +1,7 @@
 
 <script>
 import _ from "lodash";
-import { BASE64_IMG_PROTOCOL } from "./notepad";
+import { BASE64_IMG_PROTOCOL } from "../../";
 import Highlight from "@/components/common/Highlight";
 export default {
   name: "show_notepad",
