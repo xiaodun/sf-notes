@@ -220,6 +220,7 @@
 </template>
 <script>
 import DateHelper from "@/assets/lib/DateHelper";
+import * as NotepadRequest from "./NotepadRequest";
 import TagManagerComponent from "./tag_manager";
 import FileManagerComponent from "./file_manager";
 import KeyManagerComponent from "./key_manager";
@@ -237,7 +238,6 @@ export default {
       showModelFlag: "notepad", // tag 、 file
       tagList: [],
 
-      requestPrefix: "/notepad/notepad", //记事 请求前缀
       isShowAddModel: false,
       isShowEditModel: false,
       isShowDeleteModel: false,
@@ -465,23 +465,6 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       this.activeIndex = argIndex;
     },
 
-    async onTop(argItem) {
-      await this.requestTop(argItem);
-      this.onGet(this.pagination, {
-        tagId: this.filterTagId,
-      });
-      this.$Message.success("置顶成功");
-    },
-    requestTop(argItem) {
-      return this.$axios.request({
-        method: "post",
-        url: this.requestPrefix + "/top",
-        data: {
-          id: argItem.id,
-        },
-      });
-    },
-
     onChangeFilterTag() {
       //过滤内容发生变化
       this.pagination.page = 1;
@@ -494,22 +477,6 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
 
       this.onGet(this.pagination, { tagId: this.filterTagId });
     },
-    async onDeleteTag(argId) {
-      await this.requestDelTag(argId);
-      this.onGet(this.pagination, {
-        tagId: this.filterTagId,
-      });
-    },
-    requestDelTag(argId) {
-      //同步数据  将记事里面的标签数据删除
-      return this.$axios.request({
-        method: "post",
-        url: this.requestPrefix + "/removeTag",
-        data: {
-          id: argId,
-        },
-      });
-    },
 
     onConfirmDelete(argNotepad, argIndex) {
       //确认是否删除记事
@@ -521,56 +488,31 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
         },
       });
     },
-    async onDelete(argNotepad) {
-      await this.requestDelete(argNotepad);
-      //从前端这里虽然在当前页没有数据时候会多请求一次,但是,一切因该以后台数据为准
-      //也是为了将逻辑内聚在request_get
-      this.onGet(this.pagination, {
-        tagId: this.filterTagId,
+
+    onChangeVisible() {
+      //编辑、修改记事的时候  自动获得焦点
+      this.$nextTick(() => {
+        this.$refs.autoFocusInput.focus();
       });
     },
-    requestDelete(argNotepad) {
-      return this.$axios.request({
-        method: "post",
-        url: this.requestPrefix + "/del",
-        data: {
-          id: argNotepad.id,
-        },
-      });
-    },
-    async onGet(argPagination, argFilter = {}) {
-      this.list = null;
-      let response = await this.requestGet(argPagination, argFilter);
-      if (response.data.data.length === 0 && this.pagination.page > 1) {
-        //获取的数据条数为0 且不是第一页  会根据后台返回的数据计算最大的一页进行请求
-        let maxPage =
-          ((response.data.total - 1) / this.pagination.size + 1) | 0;
-        this.pagination.page = maxPage;
-        this.onGet(this.pagination, {
-          tagId: this.filterTagId,
-        });
-      } else {
-        this.list = [];
-        response.data.data.forEach((el) => {
-          let notepad = this.convert(el);
-          this.list.push(notepad);
-        });
+    onKeyboardChangePage(event) {
+      if (event.target !== document.body || !this.isCanChangePage) {
+        //防止在其他文本区域移动光标时报错
+        //防止在其他页面或着模态框触发切换
+        return;
       }
-
-      this.pagination.total = response.data.total;
-    },
-    requestGet(argPagination, argFilter = {}) {
-      //得到日记信息
-
-      return this.$axios.request({
-        method: "post",
-        url: this.requestPrefix + "/get",
-        data: {
-          page: argPagination.page,
-          size: argPagination.size,
-          filter: argFilter,
-        },
-      });
+      if (event.code === "ArrowLeft") {
+        if (this.pagination.page > 1) {
+          this.pagination.page--;
+          this.onChangePage(this.pagination.page);
+        }
+      } else if (event.code === "ArrowRight") {
+        let maxPage = Math.ceil(this.pagination.total / this.pagination.size);
+        if (this.pagination.page < maxPage) {
+          this.pagination.page++;
+          this.onChangePage(this.pagination.page);
+        }
+      }
     },
     convert(argNotepad) {
       //转换请求过来的日记数据
@@ -612,62 +554,62 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       this.isShowAddModel = false;
       this.isShowEditModel = false;
     },
-    async onAdd(argNotepad, argIndex) {
-      await this.requestAdd(argNotepad, argIndex);
-      this.pagination.page = 1;
-      this.onGet(this.pagination, {
+    async onDelete(argNotepad) {
+      await NotepadRequest.del(argNotepad);
+      //从前端这里虽然在当前页没有数据时候会多请求一次,但是,一切因该以后台数据为准
+      //也是为了将逻辑内聚在request_get
+      await this.onGet(this.pagination, {
         tagId: this.filterTagId,
       });
     },
-    requestAdd(argNotepad, argIndex) {
-      //提交添加记事
+    async onDeleteTag(argId) {
+      await NotepadRequest.delTag(argId);
 
-      return this.$axios.request({
-        method: "post",
-        url: this.requestPrefix + "/add",
-        data: {
-          index: argIndex,
-          notepad: argNotepad,
-        },
+      await this.onGet(this.pagination, {
+        tagId: this.filterTagId,
       });
     },
+    async onTop(argItem) {
+      await NotepadRequest.top(argItem);
+      await this.onGet(this.pagination, {
+        tagId: this.filterTagId,
+      });
+      this.$Message.success("置顶成功");
+    },
+
+    async onGet(argPagination, argFilter = {}) {
+      this.list = null;
+      let response = await NotepadRequest.get(argPagination, argFilter);
+      if (response.data.data.length === 0 && this.pagination.page > 1) {
+        //获取的数据条数为0 且不是第一页  会根据后台返回的数据计算最大的一页进行请求
+        let maxPage =
+          ((response.data.total - 1) / this.pagination.size + 1) | 0;
+        this.pagination.page = maxPage;
+        this.onGet(this.pagination, {
+          tagId: this.filterTagId,
+        });
+      } else {
+        this.list = [];
+        response.data.data.forEach((el) => {
+          let notepad = this.convert(el);
+          this.list.push(notepad);
+        });
+      }
+
+      this.pagination.total = response.data.total;
+    },
+    async onAdd(argNotepad, argIndex) {
+      await NotepadRequest.add(argNotepad, argIndex);
+      this.pagination.page = 1;
+      await this.onGet(this.pagination, {
+        tagId: this.filterTagId,
+      });
+    },
+
     async onUpdate(argNotepad, argIndex) {
-      let response = await this.requestUpdate(argNotepad, argIndex);
+      let response = await NotepadRequest.update(argNotepad, argIndex);
       let notepad = this.convert(response.data.data);
       this.list.splice(argIndex, 1, notepad);
-    },
-    requestUpdate(argNotepad, argIndex) {
-      //提交更改记事
-      return this.$axios.request({
-        method: "post",
-        url: this.requestPrefix + "/update",
-        data: argNotepad,
-      });
-    },
-    onChangeVisible() {
-      //编辑、修改记事的时候  自动获得焦点
-      this.$nextTick(() => {
-        this.$refs.autoFocusInput.focus();
-      });
-    },
-    onKeyboardChangePage(event) {
-      if (event.target !== document.body || !this.isCanChangePage) {
-        //防止在其他文本区域移动光标时报错
-        //防止在其他页面或着模态框触发切换
-        return;
-      }
-      if (event.code === "ArrowLeft") {
-        if (this.pagination.page > 1) {
-          this.pagination.page--;
-          this.onChangePage(this.pagination.page);
-        }
-      } else if (event.code === "ArrowRight") {
-        let maxPage = Math.ceil(this.pagination.total / this.pagination.size);
-        if (this.pagination.page < maxPage) {
-          this.pagination.page++;
-          this.onChangePage(this.pagination.page);
-        }
-      }
     },
   },
   computed: {
