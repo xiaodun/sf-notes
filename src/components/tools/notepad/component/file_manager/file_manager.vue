@@ -1,153 +1,3 @@
-<style lang="less">
-@import "~@/assets/style/base.less";
-
-#file_manager-vue-id {
-  .uploading-enter-active,
-  .uploading-leave-active {
-    transition: all 0.5s;
-  }
-
-  .uploading-enter,
-  .uploading-leave-to {
-    transform: translateY(30px);
-
-    opacity: 0;
-  }
-
-  .fileinfo {
-    margin: 20px;
-
-    color: #808080;
-  }
-
-  .upload-wrapper {
-    margin-top: 15px;
-
-    .file {
-      margin: 15px 0;
-
-      &:hover {
-        .option {
-          display: block;
-        }
-      }
-    }
-
-    .name {
-      overflow: hidden;
-
-      white-space: nowrap;
-      text-overflow: ellipsis;
-
-      border-bottom: 1px solid #ccc;
-
-      .vertical_lineheight(32px);
-    }
-
-    .option {
-      display: none;
-
-      @media screen and (max-width: 779px) {
-        display: block;
-      }
-    }
-  }
-  .check-wrapper {
-    .toggle {
-      margin-bottom: 16px;
-    }
-  }
-}
-
-.preview-modal-9b45763 {
-  .ivu-modal {
-    width: 85% !important;
-    max-width: 560px !important;
-  }
-
-  .name {
-    overflow: hidden;
-
-    text-overflow: ellipsis;
-    word-wrap: nowrap;
-  }
-
-  .row {
-    font-size: 14px;
-
-    margin-bottom: 10px;
-
-    .label {
-      font-weight: bold;
-      line-height: 32px;
-
-      overflow: hidden;
-
-      height: 32px;
-
-      white-space: nowrap;
-      text-overflow: ellipsis;
-
-      color: #333;
-    }
-  }
-
-  .no-preview {
-    padding: 40px;
-
-    text-align: center;
-  }
-
-  .txt {
-    font-size: 14px;
-
-    overflow: auto;
-
-    height: 500px;
-
-    white-space: pre;
-  }
-
-  .img {
-    img {
-      max-width: 100%;
-    }
-  }
-
-  .video {
-    video {
-      display: block;
-
-      width: 100%;
-    }
-  }
-
-  .audio {
-    audio {
-      display: block;
-
-      width: 100%;
-
-      &:focus {
-        outline: 0;
-      }
-    }
-  }
-  .change-source {
-    position: absolute;
-    top: 50%;
-
-    &.left {
-      left: 0;
-      transform: translateY(-50%) translateX(-110%);
-    }
-    &.right {
-      right: 0;
-      transform: translateY(-50%) translateX(110%);
-    }
-  }
-}
-</style>
 <template>
   <div id="file_manager-vue-id">
     <Button class="first-btn" @click="$emit('on-back')">返回</Button>
@@ -169,11 +19,7 @@
     <div class="upload-wrapper">
       <!-- 正在上传的文件 -->
       <transition-group tag="div" name="uploading">
-        <div
-          class="uploading"
-          :key="item.id"
-          v-for="(item, index) in uploadingList"
-        >
+        <div class="uploading" :key="item.id" v-for="item in uploadingList">
           <div>{{ item.name }}</div>
           <Progress :percent="item.percent" />
         </div>
@@ -237,10 +83,7 @@
                 @click="onPreviewFile(item, index)"
               ></Button>
             </Col>
-            <Col span="14" v-if="item.describe">
-              <div class="fileinfo">{{ item.describe }}</div>
-            </Col>
-            <Col span="14" v-if="item.describe">
+            <Col span="20" v-if="item.describe">
               <div class="fileinfo">{{ item.describe }}</div>
             </Col>
           </CheckboxGroup>
@@ -256,7 +99,7 @@
       <div>
         <Input
           ref="updateDom"
-          @on-keyup.ctrl.enter="onRequestUpdate(activeFile)"
+          @on-keyup.ctrl.enter="onUpdate(activeFile)"
           type="textarea"
           v-model="activeFile.describe"
         />
@@ -271,13 +114,13 @@
       @on-cancel="onClosePreviewFileModal"
     >
       <div class="container">
-        <Row class="row">
+        <Row type="flex" align="middle" class="row">
           <Col span="4" class="label">名称:</Col>
           <Col span="20">
             <div class="name">{{ activePreview.name }}</div>
           </Col>
         </Row>
-        <Row class="row">
+        <Row type="flex" align="middle" class="row">
           <Col span="4" class="label">类型:</Col>
           <Col span="20">
             <RadioGroup
@@ -304,7 +147,12 @@
             </RadioGroup>
           </Col>
         </Row>
-        <Row class="row" v-if="activePreview.type === FileType.txt">
+        <Row
+          type="flex"
+          align="middle"
+          class="row"
+          v-if="activePreview.type === FileType.txt"
+        >
           <Col span="4" class="label">编码:</Col>
           <Col span="10">
             <Input
@@ -358,343 +206,6 @@
     </Modal>
   </div>
 </template>
-<script>
-//内置服务器配置
-let fileToBlob = {
-  //缓存文件数据
-};
-import _ from "lodash";
-import BuiltServiceConfig from "@root/service/app/config.json";
-import { FileType, StuffixWithType, getFileType } from "@/assets/lib/preview";
-export default {
-  name: "file_manager_vue",
-
-  data() {
-    return {
-      checkedFileList: [], //记录选中文件的id
-      isBatch: false, //是否开启批处理
-      defaultEncode: "utf-8",
-      lastFile: null,
-      isCanTry: false, //是否可以自己尝试解析
-      uploadList: [], //已经上传的文件
-      activeFile: {},
-      activePreview: {
-        index: 0, //预览索引
-        type: "", //文件类型
-        name: "", //文件名称
-        txtContent: "", //文本内容
-        imgSrc: "", //图片内容,
-        videoSrc: "", //视频内容
-        audioSrc: "", //音频内容
-        isLoading: false, //是否处于解析状态
-      },
-      BuiltServiceConfig,
-      requestPrefix: "/notepad/upload", //上传文件请求前缀
-      uploadingList: [], //正在上传的文件
-      isPreviewFile: false, //预览文件模态框
-      isShowUpdate: false,
-      FileType,
-      StuffixWithType,
-    };
-  },
-  methods: {
-    onToggleChecked(argFile) {
-      if (!this.isBatch) {
-        return;
-      }
-      if (this.checkedFileList.includes(argFile.id)) {
-        let index = this.checkedFileList.findIndex((id) => argFile.id === id);
-        this.checkedFileList.splice(index, 1);
-      } else {
-        this.checkedFileList.push(argFile.id);
-      }
-    },
-    onBatchConfirmDelFile() {
-      if (this.checkedFileList.length === 0) {
-        return;
-      }
-      this.$Modal.confirm({
-        title: "文件批量删除",
-        content: "删除文件后,无法通过界面操作恢复!",
-        onOk: () => {
-          this.onBatchDelFile();
-        },
-      });
-    },
-    onChangeBatchSwitch(argValue) {
-      if (!argValue) {
-        this.checkedFileList = [];
-      }
-    },
-    async onBatchDelFile() {
-      for (let i = 0; i < this.checkedFileList.length; i++) {
-        const id = this.checkedFileList[i];
-        let response = await this.requestDelete(id);
-      }
-      this.$Message.success("删除成功");
-      this.checkedFileList = [];
-      this.onGet();
-    },
-    onCheckedAll(argValue) {
-      if (argValue) {
-        let list = this.uploadList.map((item) => item.id);
-        this.checkedFileList = list;
-      } else {
-        this.checkedFileList = [];
-      }
-    },
-    onChangeNext() {
-      let index = this.activePreview.index + 1;
-      if (index >= this.uploadList.length) {
-        index = 0;
-      }
-      const currentItem = this.uploadList[index];
-      this.onPreviewFile(currentItem, index);
-    },
-    onChangeResurce($event) {
-      if (this.isPreviewFile) {
-        const { keyCode } = $event;
-        if (keyCode === 37) {
-          this.onChangePrevious();
-        } else if (keyCode === 39) {
-          this.onChangeNext();
-        }
-      }
-    },
-    onChangePrevious($event) {
-      console.log("wx");
-      let index = this.activePreview.index - 1;
-      if (index < 0) {
-        index = this.uploadList.length - 1;
-      }
-      const currentItem = this.uploadList[index];
-      this.onPreviewFile(currentItem, index);
-    },
-    onChangFileType() {
-      // 切换文件类型
-      setTimeout(() => {
-        this.resetActivePreview();
-        this.onParseFile(this.activePreview.type);
-      }, 20);
-    },
-    onPreviewFile(argItem, argIndex) {
-      this.isCanTry = false;
-      //预览文件
-      this.activeFile = { ...argItem };
-      this.activePreview.name = argItem.name;
-      this.activePreview.index = argIndex;
-      this.activePreview.type = getFileType(argItem.name);
-      this.onParseFile(this.activePreview.type);
-      this.isPreviewFile = true;
-    },
-    onClosePreviewFileModal() {
-      //关闭预览文件的模态框  清空状态
-
-      this.resetActivePreview();
-    },
-    resetActivePreview() {
-      this.activePreview.txtContent = "";
-      this.activePreview.imgSrc = "";
-      URL.revokeObjectURL(this.activePreview.audioSrc);
-      URL.revokeObjectURL(this.activePreview.videoSrc);
-    },
-    async onParseFile(argType) {
-      this.activePreview.isLoading = true;
-      let data = fileToBlob[this.activeFile.id];
-      if (!data) {
-        /**
-         * 对于视频和音频可以采用二进制播放的形式来快速响应，考虑到使用场景，就不做特殊化处理了
-         */
-        let response = await this.requestDownload(this.activeFile);
-        data = response.data;
-        fileToBlob[this.activeFile.id] = data;
-      }
-
-      var fileReader = new FileReader();
-      switch (argType) {
-        case FileType.txt:
-          fileReader.readAsText(data, this.defaultEncode);
-          fileReader.onload = (event) => {
-            this.activePreview.txtContent = fileReader.result;
-            this.activePreview.isLoading = false;
-          };
-          break;
-        case FileType.img:
-          fileReader.readAsDataURL(data);
-          fileReader.onload = (event) => {
-            this.activePreview.isLoading = false;
-            this.activePreview.imgSrc = fileReader.result;
-          };
-          break;
-        case FileType.video:
-          {
-            let videoSrc = URL.createObjectURL(data);
-            this.activePreview.isLoading = false;
-            this.activePreview.videoSrc = videoSrc;
-          }
-
-          break;
-        case FileType.audio:
-          {
-            let audioSrc = URL.createObjectURL(data);
-            this.activePreview.isLoading = false;
-            this.activePreview.audioSrc = audioSrc;
-          }
-
-          break;
-        default:
-          this.isCanTry = true;
-          this.activePreview.isLoading = false;
-          break;
-      }
-    },
-
-    async onUpdate(argItem) {
-      let response = await this.requestUpdate(argItem);
-      this.$Message.success("修改成功");
-      this.isShowUpdate = false;
-      this.lastFile.describe = argItem.describe;
-    },
-    requestUpdate(argItem) {
-      return this.$axios.request({
-        method: "post",
-        url: this.requestPrefix + "/update",
-        data: {
-          id: argItem.id,
-          describe: argItem.describe,
-        },
-      });
-    },
-    inUpdateModal(argItem) {
-      this.lastFile = argItem;
-      this.activeFile = { ...argItem };
-      this.isShowUpdate = true;
-      this.$nextTick(() => {
-        this.$refs.updateDom.focus();
-      });
-    },
-    onUploadProgress(argEvent, argFile) {
-      let index = this.uploadingList.findIndex((el) => el.file === argFile);
-      if (index === -1) {
-        let uploadingFile = {};
-        uploadingFile.id = _.uniqueId();
-        uploadingFile.name = argFile.name;
-        uploadingFile.percent = argEvent.percent | 0;
-        uploadingFile.file = argFile;
-        this.uploadingList.push(uploadingFile);
-      } else {
-        this.uploadingList[index].percent = argEvent.percent | 0;
-      }
-      if (argEvent.percent === 100) {
-        this.uploadingList.splice(index, 1);
-      }
-    },
-    onUploadError(error, file, filelist) {
-      this.$Message.error("上传失败!");
-    },
-    async onDownload(argItem) {
-      argItem.isDownloading = true;
-      let response = await this.requestDownload(argItem);
-      var blob = response.data;
-      if (blob.type === "application/json") {
-        const reader = new FileReader();
-        reader.readAsText(blob, "utf-8");
-        reader.onload = () => {
-          let data = JSON.parse(reader.result);
-          if (data.flag === -1) {
-            this.$Message.error("该文件已经被删除了");
-            //移除这个文件
-            _.pullAllBy(this.uploadList, [{ id: argItem.id }], "id");
-            this.uploadList = [...this.uploadList];
-          }
-        };
-      } else {
-        var a = document.createElement("a");
-        a.download = argItem.name;
-        a.href = URL.createObjectURL(blob);
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(a.href);
-      }
-
-      argItem.isDownloading = false;
-    },
-    requestDownload(argItem) {
-      //提交下载文件
-      return this.$axios.request({
-        method: "get",
-        url: this.requestPrefix + "/download" + `?id=${argItem.id}`,
-        responseType: "blob",
-      });
-    },
-    onConfirmDelete(argItem) {
-      this.$Modal.confirm({
-        title: "文件删除",
-        content: "删除文件后,无法通过界面操作恢复!",
-        onOk: () => {
-          this.onDelete(argItem);
-        },
-      });
-    },
-    async onDelete(argItem) {
-      let response = await this.requestDelete(argItem.id);
-      this.$Message.success("已删除!");
-
-      this.onGet();
-    },
-    requestDelete(argId) {
-      return this.$axios.request({
-        method: "post",
-        url: this.requestPrefix + "/delete",
-        data: {
-          id: argId,
-        },
-      });
-    },
-    async onGet() {
-      let response = await this.requestGet();
-      this.uploadList = response.data.map((el, index, arr) => {
-        return {
-          ...el,
-          describe: el.describe || "",
-          isDownloading: false,
-        };
-      });
-    },
-    requestGet() {
-      //获取文件
-      return this.$axios.request({
-        method: "get",
-        url: this.requestPrefix + "/get",
-      });
-    },
-  },
-  computed: {
-    computedDisabledFileRadio() {
-      let isDisabled = this.activeFile.isLoading || !this.isCanTry;
-      return isDisabled;
-    },
-    isCheckedAll: {
-      get() {
-        let isChecked =
-          this.checkedFileList.length !== 0 &&
-          this.checkedFileList.length === this.uploadList.length;
-        return isChecked;
-      },
-      set(argValue) {
-        return argValue;
-      },
-    },
-  },
-  beforeDestroy() {
-    //卸载组件时清空数据,fileToBlob由于不在组件内部,所以需要手动清空
-    fileToBlob = {};
-    document.removeEventListener("keyup", this.onChangeResurce);
-  },
-  mounted() {
-    this.onGet();
-    document.addEventListener("keyup", this.onChangeResurce);
-  },
-};
+<script src="./file_manager.js">
 </script>
+<style lang="less" src="./file_manager.less" ></style>

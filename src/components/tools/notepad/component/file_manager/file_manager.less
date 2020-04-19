@@ -1,0 +1,153 @@
+@import "../../../../../assets/style/base.less";
+
+#file_manager-vue-id {
+  .uploading-enter-active,
+  .uploading-leave-active {
+    transition: all .5s;
+  }
+
+  .uploading-enter,
+  .uploading-leave-to {
+    transform: translateY(30px);
+
+    opacity: 0;
+  }
+
+  .fileinfo {
+    margin: 20px;
+
+    color: #808080;
+  }
+
+  .upload-wrapper {
+    margin-top: 15px;
+
+    .file {
+      margin: 15px 0;
+
+      &:hover {
+        .option {
+          display: block;
+        }
+      }
+    }
+
+    .name {
+      overflow: hidden;
+
+      white-space: nowrap;
+      text-overflow: ellipsis;
+
+      border-bottom: 1px solid #ccc;
+
+.vertical_lineheight(32px);
+    }
+
+    .option {
+      display: none;
+
+      @media screen and (max-width: 779px) {
+        display: block;
+      }
+    }
+  }
+
+  .check-wrapper {
+    .toggle {
+      margin-bottom: 16px;
+    }
+  }
+}
+
+.preview-modal-9b45763 {
+  .ivu-modal {
+    width: 85% !important;
+    max-width: 560px !important;
+  }
+
+  .name {
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+    word-wrap: nowrap;
+  }
+
+  .row {
+    font-size: 14px;
+
+    margin-bottom: 10px;
+
+    .label {
+      font-weight: bold;
+      line-height: 32px;
+
+      overflow: hidden;
+
+      height: 32px;
+
+      white-space: nowrap;
+      text-overflow: ellipsis;
+
+      color: #333;
+    }
+  }
+
+  .no-preview {
+    padding: 40px;
+
+    text-align: center;
+  }
+
+  .txt {
+    font-size: 14px;
+
+    overflow: auto;
+
+    height: 500px;
+
+    white-space: pre;
+  }
+
+  .img {
+    img {
+      max-width: 100%;
+    }
+  }
+
+  .video {
+    video {
+      display: block;
+
+      width: 100%;
+    }
+  }
+
+  .audio {
+    audio {
+      display: block;
+
+      width: 100%;
+
+      &:focus {
+        outline: 0;
+      }
+    }
+  }
+
+  .change-source {
+    position: absolute;
+    top: 50%;
+
+    &.left {
+      left: 0;
+
+      transform: translateY(-50%) translateX(-110%);
+    }
+
+    &.right {
+      right: 0;
+
+      transform: translateY(-50%) translateX(110%);
+    }
+  }
+}
