@@ -59,6 +59,9 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
   },
 
   methods: {
+    onFlagChange(flag) {
+      this.showModelFlag = flag;
+    },
     onLine($event) {
       $event.stopPropagation();
       const { target } = $event;
@@ -421,7 +424,24 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
     //初始化标签
     this.filterTagId = +window.localStorage.filterTagId;
   },
+  watch: {
+    showModelFlag(val) {
+      this.$router.push({
+        query: {
+          flag: val
+        }
+      });
+    }
+  },
   mounted() {
+    const {
+      history: {
+        current: {
+          query: { flag = "notepad" }
+        }
+      }
+    } = this.$router;
+    this.showModelFlag = flag;
     this.onGet(this.pagination, { tagId: this.filterTagId });
     document.addEventListener("keydown", this.onKeyboardChangePage, true);
   },

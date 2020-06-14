@@ -5,19 +5,19 @@
         <Button
           icon="ios-pricetag"
           class="first-btn tag-btn shj"
-          @click="showModelFlag = 'tag'"
+          @click="onFlagChange('tag')"
           >标签管理</Button
         >
         <Button
           icon="ios-folder"
           class="first-btn file-btn"
-          @click="showModelFlag = 'file'"
+          @click="onFlagChange('file')"
           >文件管理</Button
         >
         <Button
           icon="md-lock"
           class="first-btn key-btn"
-          @click="showModelFlag = 'key'"
+          @click="onFlagChange('key')"
           >密钥管理</Button
         >
         <Button @click="onInAdd()" type="primary" long>
