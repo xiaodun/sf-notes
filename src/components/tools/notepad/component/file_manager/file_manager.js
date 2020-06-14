@@ -66,6 +66,18 @@ export default {
         }
       });
     },
+    async onBatchDownload() {
+      if (this.checkedFileList.length === 0) {
+        return;
+      }
+      const fileList = this.uploadList.filter(file =>
+        this.checkedFileList.includes(file.id)
+      );
+      for (let i = 0; i < fileList.length; i++) {
+        await this.onDownload(fileList[i]);
+      }
+      this.$Message.success("批量下载完成!");
+    },
     onChangeBatchSwitch(argValue) {
       if (!argValue) {
         this.checkedFileList = [];
