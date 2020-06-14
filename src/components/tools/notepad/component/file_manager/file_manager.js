@@ -7,6 +7,7 @@ import BuiltServiceConfig from "@root/service/app/config.json";
 import * as FileRequest from "./fileRequest";
 import { FileType, StuffixWithType, getFileType } from "@/assets/lib/preview";
 import { Prefix as RequestPrefix } from "./fileRequest";
+export const DOWNLOAD_LIST = "downloadList";
 export default {
   name: "file_manager_vue",
 
@@ -36,7 +37,9 @@ export default {
       isPreviewFile: false, //预览文件模态框
       isShowUpdate: false,
       FileType,
-      StuffixWithType
+      StuffixWithType,
+      //记录已下载的文件
+      downloadList: []
     };
   },
   methods: {
@@ -258,6 +261,8 @@ export default {
         a.click();
         a.remove();
         URL.revokeObjectURL(a.href);
+        this.downloadList.push(argItem.id);
+        sessionStorage[DOWNLOAD_LIST] = JSON.stringify(this.downloadList);
       }
 
       argItem.isDownloading = false;
@@ -305,6 +310,8 @@ export default {
   },
   mounted() {
     this.onGet();
+    this.downloadList = JSON.parse(window.sessionStorage[DOWNLOAD_LIST]) || [];
+    console.log("wx", this.downloadList);
     document.addEventListener("keyup", this.onChangeResurce);
   }
 };

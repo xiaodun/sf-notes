@@ -39,7 +39,12 @@
         </div>
       </div>
       <!-- 已经上传完毕 -->
-      <div class="file" :key="index" v-for="(item, index) in uploadList">
+      <div
+        :class="{ download: downloadList.includes(item.id) }"
+        class="file"
+        :key="index"
+        v-for="(item, index) in uploadList"
+      >
         <Row>
           <CheckboxGroup v-model="checkedFileList">
             <Col v-show="isBatch" span="2" style="height:32px;line-height:32px;"
