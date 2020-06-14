@@ -186,7 +186,7 @@ export default {
     async onBatchDelFile() {
       for (let i = 0; i < this.checkedFileList.length; i++) {
         const id = this.checkedFileList[i];
-        let response = await FileRequest.del(id);
+        await FileRequest.del(id);
       }
       this.$Message.success("删除成功");
       this.checkedFileList = [];
@@ -280,10 +280,10 @@ export default {
     },
 
     async onDelete(argItem) {
-      let response = await FileRequest.del(argItem.id);
+      this.onToggleChecked(argItem);
+      await FileRequest.del(argItem.id);
       this.$Message.success("已删除!");
-
-      await this.onGet();
+      this.onGet();
     },
 
     async onGet() {
