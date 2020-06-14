@@ -36,6 +36,7 @@
             >全选</Checkbox
           >
           <Button type="warning" @click="onBatchConfirmDelFile">删除</Button>
+          <Button @click="onBatchDownload">下载</Button>
         </div>
       </div>
       <!-- 已经上传完毕 -->
