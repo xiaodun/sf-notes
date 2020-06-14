@@ -99,7 +99,6 @@ export default {
       }
     },
     onChangePrevious($event) {
-      console.log("wx");
       let index = this.activePreview.index - 1;
       if (index < 0) {
         index = this.uploadList.length - 1;
@@ -310,8 +309,8 @@ export default {
   },
   mounted() {
     this.onGet();
-    this.downloadList = JSON.parse(window.sessionStorage[DOWNLOAD_LIST]) || [];
-    console.log("wx", this.downloadList);
+    this.downloadList =
+      JSON.parse(window.sessionStorage[DOWNLOAD_LIST] || null) || [];
     document.addEventListener("keyup", this.onChangeResurce);
   }
 };
