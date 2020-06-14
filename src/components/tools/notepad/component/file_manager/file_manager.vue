@@ -43,7 +43,7 @@
       <div
         :class="{ download: downloadList.includes(item.id) }"
         class="file"
-        :key="index"
+        :key="item.id"
         v-for="(item, index) in uploadList"
       >
         <Row>
