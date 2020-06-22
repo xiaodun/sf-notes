@@ -58,13 +58,8 @@ export default {
       if (this.checkedFileList.length === 0) {
         return;
       }
-      this.$Modal.confirm({
-        title: "文件批量删除",
-        content: "删除文件后,无法通过界面操作恢复!",
-        onOk: () => {
-          this.onBatchDelFile();
-        }
-      });
+
+      this.onBatchDelFile();
     },
     async onBatchDownload() {
       if (this.checkedFileList.length === 0) {
@@ -173,15 +168,6 @@ export default {
     },
     onUploadError(error, file, filelist) {
       this.$Message.error("上传失败!");
-    },
-    onConfirmDelete(argItem) {
-      this.$Modal.confirm({
-        title: "文件删除",
-        content: "删除文件后,无法通过界面操作恢复!",
-        onOk: () => {
-          this.onDelete(argItem);
-        }
-      });
     },
     async onBatchDelFile() {
       for (let i = 0; i < this.checkedFileList.length; i++) {

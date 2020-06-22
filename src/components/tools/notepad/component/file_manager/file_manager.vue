@@ -40,14 +40,14 @@
         </div>
       </div>
       <!-- 已经上传完毕 -->
-      <div
-        :class="{ download: downloadList.includes(item.id) }"
-        class="file"
-        :key="item.id"
-        v-for="(item, index) in uploadList"
-      >
-        <Row>
-          <CheckboxGroup v-model="checkedFileList">
+      <CheckboxGroup v-model="checkedFileList">
+        <div
+          :class="{ download: downloadList.includes(item.id) }"
+          class="file"
+          :key="index"
+          v-for="(item, index) in uploadList"
+        >
+          <Row>
             <Col v-show="isBatch" span="2" style="height:32px;line-height:32px;"
               ><Checkbox :label="item.id">&nbsp;</Checkbox></Col
             >
@@ -72,7 +72,7 @@
                 icon="md-remove"
                 title="删除"
                 style="margin-right:10px"
-                @click="onConfirmDelete(item)"
+                @click="onDelete(item)"
               ></Button>
 
               <Button
@@ -92,9 +92,9 @@
             <Col span="20" v-if="item.describe">
               <div class="fileinfo">{{ item.describe }}</div>
             </Col>
-          </CheckboxGroup>
-        </Row>
-      </div>
+          </Row>
+        </div>
+      </CheckboxGroup>
     </div>
     <Modal
       title="修改描述"
