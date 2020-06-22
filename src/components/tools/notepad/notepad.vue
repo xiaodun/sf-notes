@@ -89,7 +89,7 @@
                   style="margin-right:10px;cursor:pointer;"
                 ></Icon>
                 <Button
-                  @click.stop="onConfirmDelete(item, index)"
+                  @click.stop="onDelete(item)"
                   style="color: red;"
                   >删除</Button
                 >
@@ -221,6 +221,5 @@
 <script src="./notepad.js">
 </script>
 
-<style lang="less" src="./notepad.less"></style>
-
-
+<style lang="less" src="./notepad.less">
+</style>

@@ -263,17 +263,6 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
       this.onGet(this.pagination, { tagId: this.filterTagId });
     },
 
-    onConfirmDelete(argNotepad, argIndex) {
-      //确认是否删除记事
-      this.$Modal.confirm({
-        title: "删除",
-        content: "确认删除这条记事嘛?",
-        onOk: () => {
-          this.onDelete(argNotepad);
-        }
-      });
-    },
-
     onChangeVisible() {
       //编辑、修改记事的时候  自动获得焦点
       this.$nextTick(() => {
