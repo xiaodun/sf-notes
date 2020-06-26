@@ -88,13 +88,11 @@
                   @click.stop="onInEdit(item, index)"
                   style="margin-right:10px;cursor:pointer;"
                 ></Icon>
-                <Button
-                  @click.stop="onDelete(item)"
-                  style="color: red;"
+                <Button @click.stop="onDelete(item)" style="color: red;"
                   >删除</Button
                 >
               </div>
-              <div @click="onLine">
+              <div @click="onLine($event, item, index)">
                 <div style="color: #bab9b9;">
                   <span>创建日期</span>
                   :{{ item.createTime }}

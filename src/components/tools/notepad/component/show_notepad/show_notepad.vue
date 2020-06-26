@@ -38,7 +38,7 @@ export default {
         "g",
       );
       let list = [];
-
+      let rowIndex = 0;
       //处理动态创建的内容
       argRenderList.map((content) => {
         if (typeof content === "string") {
@@ -114,15 +114,34 @@ export default {
       argRenderList.forEach((item, index) => {
         if (typeof item === "string" && item.trim() !== "") {
           item.split(/\n/).forEach((str) => {
-            let dom = argCreateElement("div", {
-              class: {
-                line: true,
+            let dom = argCreateElement(
+              "div",
+              {
+                class: {
+                  line: true,
+                },
               },
+              [
+                argCreateElement("a", {
+                  attrs: {
+                    herf: "javascript:void(0)",
+                    content: str,
+                  },
+                  class: {
+                    "del-btn": true,
+                  },
 
-              domProps: {
-                innerText: str,
-              },
-            });
+                  domProps: {
+                    innerHTML: "删除",
+                  },
+                }),
+                argCreateElement("span", {
+                  domProps: {
+                    innerText: str,
+                  },
+                }),
+              ],
+            );
             list.push(dom);
           });
         } else {
