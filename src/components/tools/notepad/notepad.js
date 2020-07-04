@@ -87,13 +87,13 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
             //场景比较少见 暂不支持
             this.$Message.error("被删除的行不唯一,暂不支持!");
           }
-
-          console.log("wx", index, lastIndex);
         } else {
           if (highlightDom) {
             this.onCopyAll(highlightDom.textContent);
           } else {
-            this.onCopyAll(lineDom.textContent);
+            const index = lineDom.innerText.lastIndexOf("删除");
+            const str = lineDom.innerText.substring(0, index).trim();
+            this.onCopyAll(str);
           }
         }
         this.onSignLine($event);
