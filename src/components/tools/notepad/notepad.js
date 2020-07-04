@@ -70,9 +70,8 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
         let highlightDom = lineDom.querySelector(".highlight-vue");
         if (target.classList.contains("run-btn")) {
           this.runJSCode(highlightDom.textContent);
-        }
-        else if (target.classList.contains("del-btn")) {
-          const delContent = target.getAttribute('content').split("\n")[0];
+        } else if (target.classList.contains("del-btn")) {
+          const delContent = target.getAttribute("content").split("\n")[0];
 
           const list = argItem.content.split("\n");
           const index = list.indexOf(delContent);
@@ -80,20 +79,17 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
 
           if (index === lastIndex) {
             //只出现一次
-            list.splice(index, 1)
+            list.splice(index, 1);
             const newContent = list.join("\n");
             argItem.content = newContent;
-            this.onUpdate(argItem, argIndex)
-          }
-          else {
+            this.onUpdate(argItem, argIndex);
+          } else {
             //场景比较少见 暂不支持
-            this.$Message.error('被删除的行不唯一,暂不支持!')
+            this.$Message.error("被删除的行不唯一,暂不支持!");
           }
 
-
-          console.log('wx', index, lastIndex)
-        }
-        else {
+          console.log("wx", index, lastIndex);
+        } else {
           if (highlightDom) {
             this.onCopyAll(highlightDom.textContent);
           } else {
@@ -189,7 +185,7 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
     },
     dealBase64PRotocol(argNotepad, argFile) {
       let reader = new FileReader();
-      reader.onload = function (event) {
+      reader.onload = function(event) {
         //转换为自定义图片
         argNotepad.loadCount--;
         let fileName =
@@ -397,7 +393,6 @@ isDecripty:fasle  标记当前文本状态 是否在客户端被解密了
     },
     async onAdd(argNotepad, argIndex) {
       await NotepadRequest.add(argNotepad, argIndex);
-      this.pagination.page = 1;
       await this.onGet(this.pagination, {
         tagId: this.filterTagId
       });
