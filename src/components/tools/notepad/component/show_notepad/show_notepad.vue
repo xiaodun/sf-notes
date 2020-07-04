@@ -122,6 +122,11 @@ export default {
                 },
               },
               [
+                argCreateElement("span", {
+                  domProps: {
+                    innerText: str,
+                  },
+                }),
                 argCreateElement("a", {
                   attrs: {
                     herf: "javascript:void(0)",
@@ -133,11 +138,6 @@ export default {
 
                   domProps: {
                     innerHTML: "删除",
-                  },
-                }),
-                argCreateElement("span", {
-                  domProps: {
-                    innerText: str,
                   },
                 }),
               ],
