@@ -48,7 +48,9 @@
           >
             <div>
               <Button
-                @click="onInAdd(index)"
+                @click="
+                  onInAdd(index + (pagination.page - 1) * pagination.size)
+                "
                 class="add"
                 icon="ios-add"
                 style="margin-top:5px"
@@ -117,7 +119,9 @@
             </Card>
             <div class="FloatWrapper add">
               <Button
-                @click="onInAdd(index + 1)"
+                @click="
+                  onInAdd(index + 1 + (pagination.page - 1) * pagination.size)
+                "
                 style="margin-top:5px;"
                 class="right"
                 icon="ios-add"

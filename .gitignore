@@ -12,3 +12,4 @@ yarn-error.log*
 *.ntvs*
 *.njsproj
 *.sln
+service/app/data/api/notepad/notepad/notepad.json

@@ -1,114 +1,128 @@
 [
     {
-        "content": "本周任务：\n\n\n上周完成：\n代购助手 - 下单发货- 修改代购信息 - 对接mock数据\n完成\n代购助手 - 下单发货 - 代购设置 - 对接mock数据\n完成\n代购助手 - 利润分析- 表格- 对接mock数据\n完成\n商品选择控制高度\n完成\n测试短信，短信类型错误\n完成\n卡库设置页面，刷新报错\n完成\n【批量修改】首页，选择修改项目页面\n完成\n带搜索的【全部商品】无商品时提示信息调整\n完成\n绑定卡库，如果sku设置了卡库商品的设置改为展开；如果商品设置了卡库，sku不显示设置\n完成\n框架兜底报错改为message居中（群发短信的校验效果）\n完成\n祝好！\n------------------------\n王旭\n深圳市达客宝科技有限公司\nEmail: wangxu@dakebao.com\nMobile: 13584963122\n",
+        "content": "6",
         "loadCount": 0,
         "base64": {},
         "tagId": null,
-        "createTime": 1592961975334,
-        "id": 1592961975334,
-        "updateTime": 1592994012379,
-        "title": "2020-06-24"
-    },
-    {
-        "content": "```\n   const div = document.createElement('div');\n    div.className = 'response-error-notification';\n    document.body.appendChild(div);\n    notification.error({\n      message: '',\n      description: '1231',\n      getContainer: () => div,\n      duration: null,\n      className: 'klo',\n    });\n\n```",
-        "loadCount": 0,
-        "base64": {},
-        "tagId": null,
-        "createTime": 1592986011250,
-        "id": 1592986011250,
+        "createTime": 1593876151940,
+        "id": 1593876151940,
         "updateTime": ""
     },
     {
-        "content": "The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.\n\n      const duration = moment.duration(moment(maxGoodsSendTime) -  moment() );\n",
+        "content": "4",
         "loadCount": 0,
         "base64": {},
         "tagId": null,
-        "createTime": 1592790985843,
-        "id": 1592790985843,
+        "createTime": 1593876141986,
+        "id": 1593876141986,
         "updateTime": ""
     },
     {
-        "content": "\n接口嵌套\n```\nexport interface PurchasesTradesQueryParams extends PageQuery {\n  purchased?: boolean; //是否下单\n  status?: TradeStatus; //订单状态，枚举类 tradeStatus.ts\n  tradeSids?: string; //订单号（可选，多个订单号逗号或空格分隔）\n  purchaseAccount?: string; //代购账号（可选）\n  refunded?: boolean; //退款中\n\n  purchaseTradeSid?: string; //代购订单号（可选，多个订单号逗号或空格分隔）\n}\nexport interface PurchasesTradesConsignee {\n  name: string; // 客户\n  province: string;\n  city: string;\n  address: string;\n}\n\nexport interface PurchasesTradesItem {\n  id: string;\n  sid: string;\n  payTime: number;\n  createTime: number;\n  platform: Platform;\n```",
+        "content": "6",
         "loadCount": 0,
         "base64": {},
         "tagId": null,
-        "title": "尝试用命名空间解决",
-        "createTime": 1592879628469,
-        "id": 1592879628469,
-        "updateTime": 1592879709102
-    },
-    {
-        "content": "extends 和 interface的区别",
-        "loadCount": 0,
-        "base64": {},
-        "tagId": null,
-        "createTime": 1592822067980,
-        "id": 1592822067980,
+        "createTime": 1593875825519,
+        "id": 1593875825519,
         "updateTime": ""
     },
     {
-        "content": "你可以通过 declare 关键字来告诉 TypeScript，你正在试图表述一个其他地方已经存在的代码，如：写在 JavaScript、CoffeeScript 或者是像浏览器和 Node.js 运行环境里的代码：\n```\nfoo = 123; // Error: 'foo' is not defined\n```\n和：\n```\ndeclare var foo: any;\nfoo = 123; // allow\n```",
+        "content": "3",
         "loadCount": 0,
         "base64": {},
         "tagId": null,
-        "createTime": 1592821710918,
-        "id": 1592821710918,
+        "createTime": 1593875735624,
+        "id": 1593875735624,
         "updateTime": ""
     },
     {
-        "content": "在 JavaScript 中， extend 是一种非常常见的模式，在这种模式中，你可以从两个对象中创建一个新对象，新对象拥有着两个对象所有的功能。交叉类型可以让你安全的使用此种模式：\n```\nfunction extend<T extends object, U extends object>(first: T, second: U): T & U {\n  const result = <T & U>{};\n  for (let id in first) {\n    (<T>result)[id] = first[id];\n  }\n  for (let id in second) {\n    if (!result.hasOwnProperty(id)) {\n      (<U>result)[id] = second[id];\n    }\n  }\n\n  return result;\n}\n\nconst x = extend({ a: 'hello' }, { b: 42 });\n\n// 现在 x 拥有了 a 属性与 b 属性\nconst a = x.a;\nconst b = x.b;\n```",
+        "content": "1",
         "loadCount": 0,
         "base64": {},
         "tagId": null,
-        "title": "交叉类型",
-        "createTime": 1592820904555,
-        "id": 1592820904555,
+        "createTime": 1593875685924,
+        "id": 1593875685924,
         "updateTime": ""
     },
     {
-        "content": "泛型\n```\nfunction reverse<T>(items: T[]): T[] {\n  const toreturn = [];\n  for (let i = items.length - 1; i >= 0; i--) {\n    toreturn.push(items[i]);\n  }\n  return toreturn;\n}\n\nconst sample = [1, 2, 3];\nlet reversed = reverse(sample);\n\nconsole.log(reversed); // 3, 2, 1\n\n// Safety\nreversed[0] = '1'; // Error\nreversed = ['1', '2']; // Error\n\nreversed[0] = 1; // ok\nreversed = [1, 2]; // ok\n```",
+        "content": "2",
         "loadCount": 0,
         "base64": {},
         "tagId": null,
-        "createTime": 1592820441547,
-        "id": 1592820441547,
+        "createTime": 1593875705378,
+        "id": 1593875705378,
         "updateTime": ""
     },
     {
-        "content": "一键下单、重新下单、批量发货等接口  ",
+        "content": "121",
         "loadCount": 0,
         "base64": {},
         "tagId": null,
-        "createTime": 1592532364158,
-        "id": 1592532364158,
-        "updateTime": 1592787953770,
-        "title": "2020-06-19"
-    },
-    {
-        "content": "强烈推荐阅读 《提问的智慧》、《如何向开源社区提问题》 和 《如何有效地报告 Bug》、《如何向开源项目提交无法解答的问题》，更好的问题更容易获得帮助。",
-        "loadCount": 0,
-        "base64": {},
-        "tagId": null,
-        "createTime": 1592462005916,
-        "id": 1592462005916,
+        "createTime": 1593876320277,
+        "id": 1593876320277,
         "updateTime": ""
     },
     {
-        "content": "[文章] (a==1 && a==2 && a==3)能输出 ture 么？：https://segmentfault.com/a/1190000012921114\n\n",
+        "content": "122",
         "loadCount": 0,
         "base64": {},
         "tagId": null,
-        "createTime": 1592461631345,
-        "id": 1592461631345,
+        "createTime": 1593876304865,
+        "id": 1593876304865,
         "updateTime": ""
     },
     {
-        "content": "[文章] 如何看待 CSS 中 BEM 的命名方式：https://www.zhihu.com/question/21935157",
+        "content": "123",
         "loadCount": 0,
         "base64": {},
         "tagId": null,
-        "createTime": 1592461485973,
-        "id": 1592461485973,
+        "createTime": 1593876314184,
+        "id": 1593876314184,
+        "updateTime": ""
+    },
+    {
+        "content": "香槟",
+        "loadCount": 0,
+        "base64": {},
+        "tagId": null,
+        "createTime": 1593522124337,
+        "id": 1593522124337,
+        "updateTime": ""
+    },
+    {
+        "content": "默认就是大图标预览",
+        "loadCount": 0,
+        "base64": {},
+        "tagId": null,
+        "createTime": 1593272819110,
+        "id": 1593272819110,
+        "updateTime": ""
+    },
+    {
+        "content": "chrome点击不好用\n超过上传时间报错",
+        "loadCount": 0,
+        "base64": {},
+        "tagId": null,
+        "createTime": 1593272001796,
+        "id": 1593272001796,
+        "updateTime": ""
+    },
+    {
+        "content": "尼康D5600 同步照片 、 连接至wifi",
+        "loadCount": 0,
+        "base64": {},
+        "tagId": null,
+        "createTime": 1593265877425,
+        "id": 1593265877425,
+        "updateTime": ""
+    },
+    {
+        "content": "1",
+        "loadCount": 0,
+        "base64": {},
+        "tagId": null,
+        "createTime": 1593876203955,
+        "id": 1593876203955,
         "updateTime": ""
     }
 ]
