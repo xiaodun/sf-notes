@@ -13,3 +13,4 @@ yarn-error.log*
 *.njsproj
 *.sln
 service/app/data/api/notepad/notepad/notepad.json
+src/.umi/.cache/*
