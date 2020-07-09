@@ -1,12 +1,12 @@
 // @ts-nocheck
-import { Plugin } from '/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/@umijs/runtime';
+import { Plugin } from '/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/_@umijs_runtime@3.2.9@@umijs/runtime';
 
 const plugin = new Plugin({
   validKeys: ['patchRoutes','rootContainer','render','onRouteChange','getInitialState','locale','locale','request',],
 });
 plugin.register({
-  apply: require('/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/umi-plugin-antd-icon-config/lib/app.js'),
-  path: '/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/umi-plugin-antd-icon-config/lib/app.js',
+  apply: require('/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/_umi-plugin-antd-icon-config@2.0.3@umi-plugin-antd-icon-config/lib/app.js'),
+  path: '/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/_umi-plugin-antd-icon-config@2.0.3@umi-plugin-antd-icon-config/lib/app.js',
 });
 plugin.register({
   apply: require('../plugin-initial-state/runtime'),
