@@ -1,19 +1,22 @@
-import { Button, message, notification } from 'antd';
-
-import React from 'react';
-import { formatMessage } from 'umi';
-import defaultSettings from '../config/defaultSettings';
-
+import { Button, message, notification } from "antd";
+import React from "react";
+import { formatMessage } from "umi";
+import defaultSettings from "../config/defaultSettings";
+/**
+ * 下面这样写在其他文件就可已自动导入...
+ */
+import {} from "lodash-es";
+import {} from "@ant-design/icons";
 const { pwa } = defaultSettings;
 // if pwa is true
 if (pwa) {
   // Notify user if offline now
-  window.addEventListener('sw.offline', () => {
-    message.warning(formatMessage({ id: 'app.pwa.offline' }));
+  window.addEventListener("sw.offline", () => {
+    message.warning(formatMessage({ id: "app.pwa.offline" }));
   });
 
   // Pop up a prompt on the page asking the user if they want to use the latest version
-  window.addEventListener('sw.updated', (event: Event) => {
+  window.addEventListener("sw.updated", (event: Event) => {
     const e = event as CustomEvent;
     const reloadSW = async () => {
       // Check if there is sw whose state is waiting in ServiceWorkerRegistration
@@ -32,7 +35,7 @@ if (pwa) {
             resolve(msgEvent.data);
           }
         };
-        worker.postMessage({ type: 'skip-waiting' }, [channel.port2]);
+        worker.postMessage({ type: "skip-waiting" }, [channel.port2]);
       });
       // Refresh current page to use the updated HTML and other assets after SW has skiped waiting
       window.location.reload(true);
@@ -47,18 +50,18 @@ if (pwa) {
           reloadSW();
         }}
       >
-        {formatMessage({ id: 'app.pwa.serviceworker.updated.ok' })}
+        {formatMessage({ id: "app.pwa.serviceworker.updated.ok" })}
       </Button>
     );
     notification.open({
-      message: formatMessage({ id: 'app.pwa.serviceworker.updated' }),
-      description: formatMessage({ id: 'app.pwa.serviceworker.updated.hint' }),
+      message: formatMessage({ id: "app.pwa.serviceworker.updated" }),
+      description: formatMessage({ id: "app.pwa.serviceworker.updated.hint" }),
       btn,
       key,
       onClose: async () => {},
     });
   });
-} else if ('serviceWorker' in navigator) {
+} else if ("serviceWorker" in navigator) {
   // unregister service worker
   const { serviceWorker } = navigator;
   if (serviceWorker.getRegistrations) {
