@@ -3,8 +3,8 @@ import './core/polyfill';
 import '../global.tsx';
 import { plugin } from './core/plugin';
 import { createHistory } from './core/history';
-import { ApplyPluginsType } from '/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/_@umijs_runtime@3.2.9@@umijs/runtime';
-import { renderClient } from '/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/_@umijs_renderer-react@3.2.9@@umijs/renderer-react/dist/index.js';
+import { ApplyPluginsType } from 'D:/github/sf-pc-web/node_modules/_@umijs_runtime@3.2.9@@umijs/runtime';
+import { renderClient } from 'D:/github/sf-pc-web/node_modules/_@umijs_renderer-react@3.2.9@@umijs/renderer-react/dist/index.js';
 
 
 require('../global.less');

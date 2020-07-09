@@ -5,7 +5,7 @@ import defaultSettings from "../config/defaultSettings";
 /**
  * 下面这样写在其他文件就可已自动导入...
  */
-import {} from "lodash-es";
+import {} from "lodash";
 import {} from "@ant-design/icons";
 const { pwa } = defaultSettings;
 // if pwa is true
