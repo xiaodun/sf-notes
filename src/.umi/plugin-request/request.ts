@@ -1,6 +1,6 @@
 // @ts-nocheck
 /**
- * Base on https://github.com/umijs//Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/_umi-request@1.3.5@umi-request
+ * Base on https://github.com/umijs/D:/github/sf-pc-web/node_modules/_umi-request@1.3.5@umi-request
  */
 import {
   extend,
@@ -13,14 +13,14 @@ import {
   RequestResponse,
   RequestInterceptor,
   ResponseInterceptor,
-} from '/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/_umi-request@1.3.5@umi-request';
+} from 'D:/github/sf-pc-web/node_modules/_umi-request@1.3.5@umi-request';
 // @ts-ignore
 
 import { ApplyPluginsType } from 'umi';
 import { history, plugin } from '../core/umiExports';
             
 import { message, notification } from 'antd';
-import useUmiRequest, { UseRequestProvider } from '/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/_@ahooksjs_use-request@2.0.2@@ahooksjs/use-request';
+import useUmiRequest, { UseRequestProvider } from 'D:/github/sf-pc-web/node_modules/_@ahooksjs_use-request@2.0.2@@ahooksjs/use-request';
 import {
   BaseOptions,
   BasePaginatedOptions,
@@ -36,7 +36,7 @@ import {
   PaginatedOptionsWithFormat,
   PaginatedParams,
   PaginatedResult,
-} from '/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/_@ahooksjs_use-request@2.0.2@@ahooksjs/use-request/lib/types';
+} from 'D:/github/sf-pc-web/node_modules/_@ahooksjs_use-request@2.0.2@@ahooksjs/use-request/lib/types';
 
 type ResultWithData<T = any> = { data: T; [key: string]: any };
 

@@ -3,15 +3,15 @@ import {
   createIntl,
   IntlShape,
   MessageDescriptor,
-} from '/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/_react-intl@3.12.0@react-intl';
+} from 'D:/github/sf-pc-web/node_modules/_react-intl@3.12.0@react-intl';
 import { ApplyPluginsType } from 'umi';
 import { event, LANG_CHANGE_EVENT } from './locale';
 // @ts-ignore
-import warning from '/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/_warning@4.0.3@warning/warning.js';
+import warning from 'D:/github/sf-pc-web/node_modules/_warning@4.0.3@warning/warning.js';
 
 import { plugin } from '../core/umiExports';
 
-export * from '/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/_react-intl@3.12.0@react-intl';
+export * from 'D:/github/sf-pc-web/node_modules/_react-intl@3.12.0@react-intl';
 
 let g_intl: IntlShape;
 
