@@ -82,6 +82,7 @@
     "@types/express": "^4.17.0",
     "@types/history": "^4.7.2",
     "@types/jest": "^25.1.0",
+    "@types/lodash-decorators": "^4.0.0",
     "@types/lodash-es": "^4.17.3",
     "@types/qs": "^6.5.3",
     "@types/react": "^16.9.17",
