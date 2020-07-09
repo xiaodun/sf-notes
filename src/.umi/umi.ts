@@ -4,15 +4,15 @@ import '@@/core/devScripts';
 import '../global.tsx';
 import { plugin } from './core/plugin';
 import { createHistory } from './core/history';
-import { ApplyPluginsType } from '/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/@umijs/runtime';
-import { renderClient } from '/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/@umijs/renderer-react/dist/index.js';
+import { ApplyPluginsType } from '/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/_@umijs_runtime@3.2.9@@umijs/runtime';
+import { renderClient } from '/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/_@umijs_renderer-react@3.2.9@@umijs/renderer-react/dist/index.js';
 
 
 require('../global.less');
 require('./plugin-locale/locale')._onCreate();
 (() => {
   // Runtime block add component
-  window.GUmiUIFlag = require('/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/@umijs/plugin-ui-blocks/lib/sdk/flagBabelPlugin/GUmiUIFlag.js').default;
+  window.GUmiUIFlag = require('/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/_@umijs_plugin-ui-blocks@2.2.1@@umijs/plugin-ui-blocks/lib/sdk/flagBabelPlugin/GUmiUIFlag.js').default;
 
   // Enable/Disable block add edit mode
   window.addEventListener(
@@ -67,7 +67,7 @@ export default clientRender();
 
 
     window.g_umi = {
-      version: '3.2.8',
+      version: '3.2.9',
     };
   
 
@@ -78,7 +78,7 @@ export default clientRender();
         if (isIE) return;
 
         // Umi UI Bubble
-        require('/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/@umijs/preset-ui/lib/bubble').default({
+        require('/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/_@umijs_preset-ui@2.2.1@@umijs/preset-ui/lib/bubble').default({
           port: 3000,
           path: '/Users/wangxu/Documents/GitHub/sf-pc-web',
           currentProject: '',

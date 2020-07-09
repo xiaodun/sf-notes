@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { ApplyPluginsType } from '/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/@umijs/runtime';
+import { ApplyPluginsType } from '/Users/wangxu/Documents/GitHub/sf-pc-web/node_modules/_@umijs_runtime@3.2.9@@umijs/runtime';
 import { plugin } from './plugin';
 
 const routes = [
