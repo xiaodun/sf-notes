@@ -1,20 +1,51 @@
-import React from "react";
-import { isEqual } from "lodash";
-import { Button } from "antd";
+import React, { useState, useEffect } from "react";
 import request from "@/utils/request";
-console.log("wx", 12);
+import InfiniteScroll from "react-infinite-scroll-component";
+import { Button } from "antd";
 export default () => {
-  const requestList = async () => {
-    const response = await request.get("/api/notes/list", {
-      params: {
-        name: 12,
-      },
-    });
-    console.log("wx", response);
+  const [list, setList] = useState([]);
+  const requestList = (seeds?: number) => {
+    setTimeout(async () => {
+      const response = await request.get("/api/notes/list", {
+        params: {
+          name: 12,
+        },
+      });
+      setList(list.concat(response.list));
+    }, seeds || 150000);
   };
+  useEffect(() => {
+    requestList(10);
+  }, []);
   return (
     <div>
-      <Button onClick={requestList}>测试</Button>
+      <Button onClick={() => requestList()}>开始</Button>
+      <InfiniteScroll
+        dataLength={list.length} //This is important field to render the next data
+        next={requestList}
+        hasMore={true}
+        loader={
+          <h4
+            style={{
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              position: "fixed",
+              width: "100%",
+              height: "100%",
+            }}
+          >
+            Loading...
+          </h4>
+        }
+      >
+        {list.map((item, index) => (
+          <div style={{ height: 100 }} key={index}>
+            {item.id}
+          </div>
+        ))}
+      </InfiniteScroll>
     </div>
   );
 };
