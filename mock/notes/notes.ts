@@ -8,7 +8,7 @@ function getList(
 ) {
   return response.json(
     Mock.mock({
-      "list|1-10": [
+      "list|10": [
         {
           "id|+1": 1,
         },
