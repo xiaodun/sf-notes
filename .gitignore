@@ -4,7 +4,7 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
+src/.umi/
 # Editor directories and files
 .idea
 .vscode
@@ -12,5 +12,4 @@ yarn-error.log*
 *.ntvs*
 *.njsproj
 *.sln
-service/app/data/api/notepad/notepad/notepad.json
-src/.umi/.cache/*
+

@@ -1,8 +1,0 @@
-// @ts-nocheck
-
-
-
-export default {
-  
-}
-    
