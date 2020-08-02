@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1.0,user-scalable=no"
+    />
     <title>sf-notes</title>
     <link rel="icon" href="/favicon.png" type="image/x-icon" />
   </head>
@@ -45,30 +48,30 @@
           display: none;
 
           -webkit-box-sizing: border-box;
-                  box-sizing: border-box;
+          box-sizing: border-box;
           margin: 0;
           padding: 0;
 
           list-style: none;
 
-          -webkit-transition: -webkit-transform .3s
-          cubic-bezier(.78, .14, .15, .86);
-                  transition: -webkit-transform .3s
-          cubic-bezier(.78, .14, .15, .86);
-                  transition:         transform .3s
-          cubic-bezier(.78, .14, .15, .86);
-                  transition:         transform .3s
-          cubic-bezier(.78, .14, .15, .86),
-          -webkit-transform .3s cubic-bezier(.78, .14, .15, .86);
+          -webkit-transition: -webkit-transform 0.3s
+            cubic-bezier(0.78, 0.14, 0.15, 0.86);
+          transition: -webkit-transform 0.3s
+            cubic-bezier(0.78, 0.14, 0.15, 0.86);
+          transition: transform 0.3s
+            cubic-bezier(0.78, 0.14, 0.15, 0.86);
+          transition: transform 0.3s
+              cubic-bezier(0.78, 0.14, 0.15, 0.86),
+            -webkit-transform 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86);
           text-align: center;
           vertical-align: middle;
 
           opacity: 0;
-          color: rgba(0, 0, 0, .65);
+          color: rgba(0, 0, 0, 0.65);
           color: #1890ff;
 
           -webkit-font-feature-settings: 'tnum';
-                  font-feature-settings: 'tnum';
+          font-feature-settings: 'tnum';
         }
 
         .ant-spin-spinning {
@@ -98,16 +101,16 @@
           width: 9px;
           height: 9px;
 
-          -webkit-transform: scale(.75);
-              -ms-transform: scale(.75);
-                  transform: scale(.75);
+          -webkit-transform: scale(0.75);
+          -ms-transform: scale(0.75);
+          transform: scale(0.75);
           -webkit-transform-origin: 50% 50%;
-              -ms-transform-origin: 50% 50%;
-                  transform-origin: 50% 50%;
+          -ms-transform-origin: 50% 50%;
+          transform-origin: 50% 50%;
           -webkit-animation: antSpinMove 1s infinite linear alternate;
-                  animation: antSpinMove 1s infinite linear alternate;
+          animation: antSpinMove 1s infinite linear alternate;
 
-          opacity: .3;
+          opacity: 0.3;
           border-radius: 100%;
           background-color: #1890ff;
         }
@@ -121,16 +124,16 @@
           top: 0;
           right: 0;
 
-          -webkit-animation-delay: .4s;
-                  animation-delay: .4s;
+          -webkit-animation-delay: 0.4s;
+          animation-delay: 0.4s;
         }
 
         .ant-spin-dot-item:nth-child(3) {
           right: 0;
           bottom: 0;
 
-          -webkit-animation-delay: .8s;
-                  animation-delay: .8s;
+          -webkit-animation-delay: 0.8s;
+          animation-delay: 0.8s;
         }
 
         .ant-spin-dot-item:nth-child(4) {
@@ -138,15 +141,15 @@
           left: 0;
 
           -webkit-animation-delay: 1.2s;
-                  animation-delay: 1.2s;
+          animation-delay: 1.2s;
         }
 
         .ant-spin-dot-spin {
           -webkit-transform: rotate(45deg);
-              -ms-transform: rotate(45deg);
-                  transform: rotate(45deg);
+          -ms-transform: rotate(45deg);
+          transform: rotate(45deg);
           -webkit-animation: antRotate 1.2s infinite linear;
-                  animation: antRotate 1.2s infinite linear;
+          animation: antRotate 1.2s infinite linear;
         }
 
         .ant-spin-lg .ant-spin-dot {
@@ -162,9 +165,9 @@
         }
 
         @media all and (-ms-high-contrast: none),
-                  (-ms-high-contrast: active) {
+          (-ms-high-contrast: active) {
           .ant-spin-blur {
-            opacity: .5;
+            opacity: 0.5;
             background: #fff;
           }
         }
@@ -184,17 +187,16 @@
         @-webkit-keyframes antRotate {
           to {
             -webkit-transform: rotate(405deg);
-                    transform: rotate(405deg);
+            transform: rotate(405deg);
           }
         }
 
         @keyframes antRotate {
           to {
             -webkit-transform: rotate(405deg);
-                    transform: rotate(405deg);
+            transform: rotate(405deg);
           }
         }
-
       </style>
       <div
         style="
