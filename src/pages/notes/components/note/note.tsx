@@ -7,9 +7,18 @@ import {
   CloseOutlined,
   EllipsisOutlined,
 } from '@ant-design/icons';
-import note from './notes.json';
 import SyntaxHighlighter from 'react-syntax-highlighter';
-const Note = () => {
+import { TypeNotes } from '../../TypeNotes';
+import moment from 'moment';
+import { YYYY_MM_DD } from '@/common/ConstantCommon';
+
+export interface INote {
+  data: TypeNotes.Item;
+}
+const Note = (props: INote) => {
+  const { data } = props;
+  let title =
+    data.title || moment(data.createTime).format(YYYY_MM_DD);
   const menu = (
     <Menu>
       <Menu.Item key="noitce_top">置顶</Menu.Item>
@@ -19,8 +28,9 @@ const Note = () => {
   );
   return (
     <Card
-      title={note.title}
-      className={SelfStyle.codeWrapper}
+      size="small"
+      title={title}
+      className={SelfStyle.noteWrapper}
       extra={<Button icon={<CloseOutlined></CloseOutlined>}></Button>}
       actions={[
         <CopyOutlined />,
@@ -32,7 +42,7 @@ const Note = () => {
         </Dropdown>,
       ]}
     >
-      {parseContent(note.content, note.base64)}
+      {parseContent(data.content, data.base64)}
     </Card>
   );
 };
