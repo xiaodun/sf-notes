@@ -1,7 +1,43 @@
-.codeWrapper {
+.noteWrapper {
+  &:hover {
+    :global {
+      .ant-card-actions {
+        li {
+          opacity: 1;
+        }
+      }
+
+      .ant-card-extra {
+        opacity: 1;
+      }
+    }
+  }
+
   :global {
     .ant-card-body {
+      padding: 2em 6px 1.5em 36px;
+
       white-space: pre-wrap;
+    }
+
+    .ant-card-extra {
+      transition: opacity .35s linear;
+
+      opacity: 0;
+    }
+
+    .ant-card-actions {
+      display: flex;
+
+      align-items: center;
+
+      li {
+        margin: 4px 0 3px 0 !important;
+
+        transition: opacity .35s linear;
+
+        opacity: 0;
+      }
     }
   }
 
