@@ -8,12 +8,12 @@ import {
   EllipsisOutlined,
 } from '@ant-design/icons';
 import SyntaxHighlighter from 'react-syntax-highlighter';
-import { TypeNotes } from '../../TypeNotes';
+import { TNotes } from '../../TNotes';
 import moment from 'moment';
 import { YYYY_MM_DD } from '@/common/ConstantCommon';
 
 export interface INote {
-  data: TypeNotes.Item;
+  data: TNotes.Item;
 }
 const Note = (props: INote) => {
   const { data } = props;
