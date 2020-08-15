@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import Note from './components/note/note';
-import { ServiceNotes } from './ServiceNotes';
-import { PageList } from '@/common/type/TypeCommon';
-import { TypeNotes } from './TypeNotes';
-import SelfStyle from './PageNotes.less';
+import { TNotes } from './TNotes';
+import SelfStyle from './LNotes.less';
+import SNotes from './SNotes';
+import TRes from '@/common/type/TResponse';
 export default () => {
-  const [pageList, setPageList] = useState<
-    PageList<ServiceNotes.Item>
-  >(new PageList());
+  const [pageList, setPageList] = useState<TRes.List<TNotes.Item>>(
+    new TRes.List(),
+  );
   useEffect(() => {
-    ServiceNotes.getList().then((res) => {
+    SNotes.getList().then((res) => {
       if (res.success) {
         setPageList(res.data);
       }

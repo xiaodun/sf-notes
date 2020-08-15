@@ -1,2 +1,2 @@
-import PageNotes from './PageNotes';
+import PageNotes from './PNotes';
 export default PageNotes;

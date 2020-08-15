@@ -1,4 +1,4 @@
-export namespace TypeNotes {
+export namespace TNotes {
   export interface Item {
     content: string;
     loadCount: number;

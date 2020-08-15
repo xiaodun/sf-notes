@@ -12,7 +12,8 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "suppressImplicitAnyIndexErrors": true,
-    "noUnusedLocals": true,
+    // 未使用变量不做标红处理
+    "noUnusedLocals": false,
     "allowJs": true,
     "skipLibCheck": true,
     "experimentalDecorators": true,

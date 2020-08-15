@@ -21,11 +21,11 @@ for (let key in network) {
 }
 export default {
   dev: {
-    '/mock/api/': {
-      target: 'localhost',
-      changeOrigin: true,
-      pathRewrite: { '^': '' },
-    },
+    // '/mock/api/': {
+    //   target: 'localhost',
+    //   changeOrigin: true,
+    //   pathRewrite: { '^': '' },
+    // },
     [`/${serviceJson.prefix}/`]: {
       target: `http://${IPv4}:${serviceJson.port}/`,
       changeOrigin: true,

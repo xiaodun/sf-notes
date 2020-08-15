@@ -17,5 +17,5 @@ function getList(
   );
 }
 export default {
-  'GET /api/notes/list': getList,
+  'GET mock/api/notes/list': getList,
 };
