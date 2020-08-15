@@ -60,6 +60,7 @@
     "gg-editor": "^2.0.2",
     "lodash": "^4.17.11",
     "lodash-decorators": "^6.0.0",
+    "memoize-one": "^5.1.1",
     "mockjs": "^1.0.1-beta3",
     "moment": "^2.24.0",
     "number-precision": "^1.5.0",
