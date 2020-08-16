@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactNode, useEffect, useRef } from 'react';
 import { Affix, Space } from 'antd';
 import SelfStyle from './PageFooter.less';
 export interface IPageFooterProps {
@@ -6,9 +6,12 @@ export interface IPageFooterProps {
 }
 export default (props: IPageFooterProps) => {
   const { children } = props;
-  useEffect(() => {}, []);
+  const ref = useRef<Affix>();
+  useEffect(() => {
+    ref.current.updatePosition();
+  });
   return (
-    <Affix offsetBottom={0}>
+    <Affix ref={ref} offsetBottom={0}>
       <Space className={SelfStyle.contentWrapper}>
         {React.Children.map(children, (child) => child)}
       </Space>
