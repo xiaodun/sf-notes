@@ -1,10 +1,11 @@
 export interface TRes<T> {
   success: boolean;
-  message: string;
-  data: T[];
-  no: number;
-  size: number;
-  total: number;
+  message?: string;
+  list?: T[];
+  data?: T;
+  no?: number;
+  size?: number;
+  total?: number;
 }
 export namespace TRes {
   export class Lists<T> {
@@ -27,7 +28,7 @@ export namespace TRes {
   }
   export function asLists<T>(res: TRes<T>) {
     let list = new Lists<T>();
-    list.data = res.data;
+    list.data = res.list;
     list.pageNo = res.no;
     list.pageSize = res.size;
     list.total = res.total;
@@ -38,7 +39,7 @@ export namespace TRes {
       total: res.total,
     };
     list.tables = {
-      dataSource: res.data,
+      dataSource: res.list,
       loading: false,
     };
 
@@ -55,7 +56,7 @@ export namespace TRes {
       let res: TRes<T> = {
         success: true,
         message: '',
-        data: newData,
+        list: newData,
         no: lists.pageNo,
         size: lists.pageSize,
         total: lists.total - 1,

@@ -9,7 +9,7 @@
         code: 200,
         data: {
           success: true,
-          data: argData,
+          list: argData,
           no: 1,
           size: 30,
           total: 12,
