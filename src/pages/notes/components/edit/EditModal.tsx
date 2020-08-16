@@ -17,6 +17,9 @@ export interface IEditModalState {
   data: TNotes;
   added: boolean;
 }
+export interface IEditModalRef {
+  showModal: (visible: boolean, data?: TNotes) => void;
+}
 const defaultState: IEditModalState = {
   added: false,
   visible: false,
@@ -30,9 +33,6 @@ const defaultState: IEditModalState = {
   },
 };
 
-export interface IEditModalRef {
-  showModal: (visible: boolean, data?: TNotes) => void;
-}
 export const EditModal: ForwardRefRenderFunction<
   IEditModalRef,
   IEditModalProps
