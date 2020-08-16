@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import Note from './components/note/PNote';
-import { TNotes } from './TNotes';
+import TNotes from './TNotes';
 import SelfStyle from './LNotes.less';
 import SNotes from './SNotes';
 import TRes from '@/common/type/TResponse';
 export default () => {
-  const [pageList, setPageList] = useState<TRes.List<TNotes.Item>>(
-    new TRes.List(),
+  const [lists, setLists] = useState<TRes.Lists<TNotes>>(
+    new TRes.Lists(),
   );
   useEffect(() => {
     SNotes.getList().then((res) => {
       if (res.success) {
-        setPageList(res.data);
+        setLists(TRes.asLists(res));
       }
     });
   }, []);
   return (
     <div>
-      {pageList.dataSource.map((note) => (
+      {lists.data.map((note) => (
         <div key={note.id} className={SelfStyle.noteWrapper}>
           <Note data={note}></Note>
         </div>
