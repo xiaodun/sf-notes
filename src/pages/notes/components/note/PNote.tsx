@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import SelfStyle from './note.less';
+import SelfStyle from './LNote.less';
 import { Card, Button, Menu, Dropdown } from 'antd';
 import {
   CopyOutlined,
@@ -10,12 +10,12 @@ import {
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { TNotes } from '../../TNotes';
 import moment from 'moment';
-import { YYYY_MM_DD } from '@/common/ConstantCommon';
+import { YYYY_MM_DD } from '@/common/constant/DateConstant';
 
-export interface INote {
+export interface INoteProps {
   data: TNotes.Item;
 }
-const Note = (props: INote) => {
+const Note = (props: INoteProps) => {
   const { data } = props;
   let title =
     data.title || moment(data.createTime).format(YYYY_MM_DD);
