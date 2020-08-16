@@ -3,7 +3,7 @@ export interface TNotes {
   loadCount: number;
   base64: Object;
   createTime: number;
-  id: string;
+  id?: string;
   updateTime: string;
   title: string;
 }

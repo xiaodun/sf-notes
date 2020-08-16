@@ -1,10 +1,13 @@
-import React, { ReactNode, useEffect, useRef } from 'react';
+import React, {
+  ReactNode,
+  useEffect,
+  useRef,
+  PropsWithChildren,
+} from 'react';
 import { Affix, Space } from 'antd';
 import SelfStyle from './PageFooter.less';
-export interface IPageFooterProps {
-  children: ReactNode;
-}
-export default (props: IPageFooterProps) => {
+export interface IPageFooterProps {}
+export default (props: PropsWithChildren<IPageFooterProps>) => {
   const { children } = props;
   const ref = useRef<Affix>();
   useEffect(() => {

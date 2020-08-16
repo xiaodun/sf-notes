@@ -1,4 +1,4 @@
-import NotesPage from '@/pages/notes';
+import PNotes from '@/pages/notes';
 import React from 'react';
 import SelfStyle from './Welcome.less';
 import { Layout } from 'antd';
@@ -7,7 +7,7 @@ export default () => {
     <Layout className={SelfStyle.layput}>
       <Layout.Header className={SelfStyle.header}></Layout.Header>
       <Layout.Content className={SelfStyle.content}>
-        <NotesPage></NotesPage>
+        <PNotes></PNotes>
       </Layout.Content>
     </Layout>
   );

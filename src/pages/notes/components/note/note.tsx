@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import SelfStyle from './LNote.less';
+import SelfStyle from './note.less';
 import { Card, Button, Menu, Dropdown } from 'antd';
 import {
   CopyOutlined,
@@ -16,8 +16,7 @@ export interface INoteProps {
   data: TNotes;
   onDelItem: (id: string) => void;
 }
-const Note = (props: INoteProps) => {
-  const { data, onDelItem } = props;
+const Note = ({ data, onDelItem }: INoteProps) => {
   let title =
     data.title || moment(data.createTime).format(YYYY_MM_DD);
   const menu = (
