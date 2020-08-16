@@ -4,6 +4,8 @@ import TNotes from './TNotes';
 import SelfStyle from './LNotes.less';
 import SNotes from './SNotes';
 import TRes from '@/common/type/TRes';
+import { PageFooter } from '@/common/components';
+import { Button } from 'antd';
 export default () => {
   const [lists, setLists] = useState<TRes.Lists<TNotes>>(
     new TRes.Lists(),
@@ -33,6 +35,9 @@ export default () => {
           <Note data={note} onDelItem={onDelItem}></Note>
         </div>
       ))}
+      <PageFooter>
+        <Button>新建笔记</Button>
+      </PageFooter>
     </div>
   );
 };
