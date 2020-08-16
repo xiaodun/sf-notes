@@ -9,12 +9,10 @@
         code: 200,
         data: {
           success: true,
-          data: {
-            dataSource: argData,
-            current: 1,
-            pageSize: 30,
-            total: 12,
-          },
+          data: argData,
+          no: 1,
+          size: 30,
+          total: 12,
         },
       },
     };
