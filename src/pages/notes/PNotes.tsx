@@ -9,11 +9,7 @@ export default () => {
     new TRes.Lists(),
   );
   useEffect(() => {
-    SNotes.getList().then((res) => {
-      if (res.success) {
-        setLists(TRes.asLists(res));
-      }
-    });
+    reqGetList();
   }, []);
   function onDelItem(id: string) {
     reqDelItem(id);
@@ -22,6 +18,12 @@ export default () => {
     const res = await SNotes.delItem(id);
     if (res.success) {
       setLists(TRes.delItem(lists, (item) => item.id === id));
+    }
+  }
+  async function reqGetList() {
+    const res = await SNotes.getList();
+    if (res.success) {
+      setLists(TRes.asLists(res));
     }
   }
   return (
