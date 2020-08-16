@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Note from './components/note/note';
+import Note from './components/note/PNote';
 import { TNotes } from './TNotes';
 import SelfStyle from './LNotes.less';
 import SNotes from './SNotes';
