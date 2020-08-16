@@ -14,9 +14,10 @@ import { YYYY_MM_DD } from '@/common/constant/DateConstant';
 
 export interface INoteProps {
   data: TNotes;
+  onDelItem: (id: string) => void;
 }
 const Note = (props: INoteProps) => {
-  const { data } = props;
+  const { data, onDelItem } = props;
   let title =
     data.title || moment(data.createTime).format(YYYY_MM_DD);
   const menu = (
@@ -31,7 +32,15 @@ const Note = (props: INoteProps) => {
       size="small"
       title={title}
       className={SelfStyle.noteWrapper}
-      extra={<Button icon={<CloseOutlined></CloseOutlined>}></Button>}
+      extra={
+        <Button
+          icon={
+            <CloseOutlined
+              onClick={() => onDelItem(data.id)}
+            ></CloseOutlined>
+          }
+        ></Button>
+      }
       actions={[
         <CopyOutlined />,
         <EditOutlined key="edit" />,

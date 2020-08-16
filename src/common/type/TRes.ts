@@ -44,5 +44,27 @@ export namespace TRes {
 
     return list;
   }
+  export function delItem<T>(
+    lists: Lists<T>,
+    del: (item: T) => boolean,
+  ) {
+    let newData = [...lists.data];
+    const index = newData.findIndex(del);
+    if (index !== -1) {
+      newData.splice(index, 1);
+      let res: TRes<T> = {
+        success: true,
+        message: '',
+        data: newData,
+        no: lists.pageNo,
+        size: lists.pageSize,
+        total: lists.total - 1,
+      };
+
+      return asLists(res);
+    }
+
+    return lists;
+  }
 }
 export default TRes;
