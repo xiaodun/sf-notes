@@ -49,14 +49,14 @@ export namespace TRes {
     lists: Lists<T>,
     del: (item: T) => boolean,
   ) {
-    let newData = [...lists.data];
-    const index = newData.findIndex(del);
+    let newDataList = [...lists.data];
+    const index = newDataList.findIndex(del);
     if (index !== -1) {
-      newData.splice(index, 1);
+      newDataList.splice(index, 1);
       let res: TRes<T> = {
         success: true,
         message: '',
-        list: newData,
+        list: newDataList,
         no: lists.pageNo,
         size: lists.pageSize,
         total: lists.total - 1,
@@ -64,6 +64,25 @@ export namespace TRes {
 
       return asLists(res);
     }
+
+    return lists;
+  }
+  export function addItem<T>(
+    lists: Lists<T>,
+    onAdd: (dataList: T[]) => T[],
+  ) {
+    let newDataList = [...lists.data];
+    newDataList = onAdd(newDataList);
+    let res: TRes<T> = {
+      success: true,
+      message: '',
+      list: newDataList,
+      no: lists.pageNo,
+      size: lists.pageSize,
+      total: lists.total + 1,
+    };
+
+    return asLists(res);
 
     return lists;
   }

@@ -9,5 +9,16 @@ export namespace SNotes {
   export async function delItem(id: string): Promise<TRes<null>> {
     return request.get('/notes/delItem', { params: { id } });
   }
+  export async function addItem(
+    notes: TNotes,
+    index: number = 0,
+  ): Promise<TRes<null>> {
+    return request.post('/notes/addItem', {
+      data: {
+        notes,
+        index,
+      },
+    });
+  }
 }
 export default SNotes;
