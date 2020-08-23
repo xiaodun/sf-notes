@@ -50,13 +50,24 @@ export default () => {
       setLists(TRes.asLists(res));
     }
   }
+  async function reqTopItem(data: TNotes, index: number) {
+    const res = await SNotes.topItem(data);
+    if (res.success) {
+      const newLists = TRes.switchItem(lists, data, () => ({
+        currentIndex: index,
+        targetIndex: 0,
+      }));
+      setLists(newLists);
+    }
+  }
   return (
     <div>
-      {lists.data.map((note) => (
+      {lists.data.map((note, index) => (
         <div key={note.id} className={SelfStyle.noteWrapper}>
           <Note
-            onEdit={onEditNote}
             data={note}
+            onTop={() => reqTopItem(note, index)}
+            onEdit={onEditNote}
             onDel={onDelItem}
           ></Note>
         </div>

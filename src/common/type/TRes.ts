@@ -102,5 +102,26 @@ export namespace TRes {
     };
     return asLists(res);
   }
+  export function switchItem<T>(
+    lists: Lists<T>,
+    data: T,
+    onPos: () => { currentIndex: number; targetIndex: number },
+  ) {
+    let newDataList = [...lists.data];
+    const { currentIndex, targetIndex } = onPos();
+    const targetData = newDataList[targetIndex];
+
+    newDataList.splice(currentIndex, 1, targetData);
+    newDataList.splice(targetIndex, 1, data);
+    let res: TRes<T> = {
+      success: true,
+      message: '',
+      list: newDataList,
+      no: lists.pageNo,
+      size: lists.pageSize,
+      total: lists.total,
+    };
+    return asLists(res);
+  }
 }
 export default TRes;
