@@ -61,23 +61,24 @@ export const EditModal: ForwardRefRenderFunction<
     },
   }));
   function onDataChange(notes: Partial<TNotes>) {
-    setState((preData) => {
-      preData.data = { ...preData, ...notes } as TNotes;
+    setState((preState) => {
+      preState.data = { ...preState.data, ...notes } as TNotes;
       return {
-        ...preData,
+        ...preState,
       };
     });
   }
   async function onOk() {
     const res = await SNotes.addItem(state.data);
     if (res.success) {
+      props.onSuccess(res.data);
       onCancel();
-      props.onSuccess(state.data);
     }
   }
   function onCancel() {
     setState((preState) => {
       preState.visible = false;
+      preState.data = defaultState.data;
       return {
         ...preState,
       };

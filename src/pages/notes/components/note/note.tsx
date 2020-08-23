@@ -18,7 +18,8 @@ export interface INoteProps {
 }
 const Note = ({ data, onDelItem }: INoteProps) => {
   let title =
-    data.title || moment(data.createTime).format(YYYY_MM_DD);
+    data.title ||
+    moment(data.createTime || undefined).format(YYYY_MM_DD);
   const menu = (
     <Menu>
       <Menu.Item key="noitce_top">置顶</Menu.Item>
