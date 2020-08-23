@@ -1,6 +1,6 @@
 import React, { ReactNode, useRef } from 'react';
 import SelfStyle from './note.less';
-import { Card, Button, Menu, Dropdown } from 'antd';
+import { Card, Button, Menu, Dropdown, message } from 'antd';
 import {
   CopyOutlined,
   EditOutlined,
@@ -13,6 +13,7 @@ import moment from 'moment';
 import { YYYY_MM_DD } from '@/common/constant/DateConstant';
 import PNotes from '../../PNotes';
 import Modal from 'antd/lib/modal/Modal';
+import UCopy from '@/common/utils/copy';
 
 export interface INoteProps {
   onEdit: (data?: TNotes) => void;
@@ -30,6 +31,11 @@ const Note = ({ data, onDel, onEdit }: INoteProps) => {
       <Menu.Item key="add_down">向下添加</Menu.Item>
     </Menu>
   );
+  async function onCopy() {
+    UCopy.copy(data.content).then(() => {
+      message.success('复制成功');
+    });
+  }
   return (
     <Card
       size="small"
@@ -45,7 +51,7 @@ const Note = ({ data, onDel, onEdit }: INoteProps) => {
         ></Button>
       }
       actions={[
-        <CopyOutlined />,
+        <CopyOutlined onClick={onCopy} />,
         <EditOutlined key="edit" onClick={() => onEdit(data)} />,
         <Dropdown overlay={menu} placement="topCenter">
           <Button>
