@@ -1,5 +1,3 @@
-import { List } from 'lodash';
-
 export interface TRes<T> {
   success: boolean;
   message?: string;
