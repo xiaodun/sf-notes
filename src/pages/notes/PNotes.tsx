@@ -7,7 +7,6 @@ import TRes from '@/common/type/TRes';
 import { PageFooter } from '@/common/components';
 import { Button } from 'antd';
 import EditModal, {
-  EditModal as EditModalDef,
   IEditModalRef,
 } from './components/edit/EditModal';
 export default () => {
@@ -21,8 +20,15 @@ export default () => {
   function onDelItem(id: string) {
     reqDelItem(id);
   }
+  function onAddNoteSuccess(notes: TNotes) {
+    const newLists = TRes.addItem(lists, (newDataList) => [
+      notes,
+      ...newDataList,
+    ]);
+    setLists(newLists);
+  }
   function onAddNote() {
-    editModalRef.current.showModal(true);
+    editModalRef.current.showModal();
   }
   async function reqDelItem(id: string) {
     const res = await SNotes.delItem(id);
@@ -43,7 +49,10 @@ export default () => {
           <Note data={note} onDelItem={onDelItem}></Note>
         </div>
       ))}
-      <EditModal ref={editModalRef}></EditModal>
+      <EditModal
+        ref={editModalRef}
+        onSuccess={onAddNoteSuccess}
+      ></EditModal>
       <PageFooter>
         <Button onClick={onAddNote}>新建笔记</Button>
       </PageFooter>
