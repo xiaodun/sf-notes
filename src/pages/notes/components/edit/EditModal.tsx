@@ -109,6 +109,7 @@ export const EditModal: ForwardRefRenderFunction<
     <Modal
       visible={state.visible}
       title={title}
+      maskClosable={false}
       onOk={() => onOk()}
       centered
       onCancel={onCancel}

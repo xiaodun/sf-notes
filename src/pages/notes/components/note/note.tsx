@@ -19,18 +19,23 @@ export interface INoteProps {
   onEdit: (data?: TNotes) => void;
   data: TNotes;
   onDel: (id: string) => void;
+  onTop: (data: TNotes) => void;
 }
-const Note = ({ data, onDel, onEdit }: INoteProps) => {
+const Note = (props: INoteProps) => {
+  const { data } = props;
   let title =
     data.title ||
     moment(data.createTime || undefined).format(YYYY_MM_DD);
   const menu = (
     <Menu>
-      <Menu.Item key="noitce_top">置顶</Menu.Item>
+      <Menu.Item key="noitce_top" onClick={() => props.onTop(data)}>
+        置顶
+      </Menu.Item>
       <Menu.Item key="add_up">向上添加</Menu.Item>
       <Menu.Item key="add_down">向下添加</Menu.Item>
     </Menu>
   );
+
   async function onCopy() {
     UCopy.copy(data.content).then(() => {
       message.success('复制成功');
@@ -45,14 +50,17 @@ const Note = ({ data, onDel, onEdit }: INoteProps) => {
         <Button
           icon={
             <CloseOutlined
-              onClick={() => onDel(data.id)}
+              onClick={() => props.onDel(data.id)}
             ></CloseOutlined>
           }
         ></Button>
       }
       actions={[
         <CopyOutlined onClick={onCopy} />,
-        <EditOutlined key="edit" onClick={() => onEdit(data)} />,
+        <EditOutlined
+          key="edit"
+          onClick={() => props.onEdit(data)}
+        />,
         <Dropdown overlay={menu} placement="topCenter">
           <Button>
             <EllipsisOutlined key="ellipsis" />
