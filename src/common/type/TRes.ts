@@ -1,3 +1,5 @@
+import { List } from 'lodash';
+
 export interface TRes<T> {
   success: boolean;
   message?: string;
@@ -83,8 +85,24 @@ export namespace TRes {
     };
 
     return asLists(res);
-
-    return lists;
+  }
+  export function updateItem<T>(
+    lists: Lists<T>,
+    data: T,
+    onUpdate: (data: T) => boolean,
+  ) {
+    let newDataList = [...lists.data];
+    const index = newDataList.findIndex(onUpdate);
+    newDataList.splice(index, 1, data);
+    let res: TRes<T> = {
+      success: true,
+      message: '',
+      list: newDataList,
+      no: lists.pageNo,
+      size: lists.pageSize,
+      total: lists.total,
+    };
+    return asLists(res);
   }
 }
 export default TRes;
