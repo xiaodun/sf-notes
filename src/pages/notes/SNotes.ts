@@ -20,5 +20,10 @@ export namespace SNotes {
       },
     });
   }
+  export async function editItem(notes: TNotes): Promise<TRes<null>> {
+    return request.post('/notes/editItem', {
+      data: notes,
+    });
+  }
 }
 export default SNotes;

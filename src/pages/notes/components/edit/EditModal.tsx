@@ -5,6 +5,7 @@ import {
   forwardRef,
   ForwardRefRenderFunction,
   useRef,
+  useEffect,
 } from 'react';
 import { Modal, Input, Space } from 'antd';
 import SelfStyle from './EditModal.less';
@@ -13,9 +14,11 @@ import TextArea from 'antd/lib/input/TextArea';
 import { YYYY_MM_DD } from '@/common/constant/DateConstant';
 import moment from 'moment';
 import SNotes from '../../SNotes';
+import { cloneDeep } from 'lodash';
 
 export interface IEditModalProps {
-  onSuccess: (notes: TNotes) => void;
+  onAddSuccess: (notes: TNotes) => void;
+  onEditSuccess: (notes: TNotes) => void;
 }
 
 export interface IEditModalState {
@@ -47,11 +50,15 @@ export const EditModal: ForwardRefRenderFunction<
     defaultState,
   );
   const textAreaRef = useRef<TextArea>();
+
   useImperativeHandle(ref, () => ({
     showModal: (data) => {
       setState((preState) => {
         preState.visible = true;
         if (data) {
+          preState.added = false;
+          preState.data = cloneDeep(data);
+        } else {
           preState.added = true;
         }
         return {
@@ -60,6 +67,11 @@ export const EditModal: ForwardRefRenderFunction<
       });
     },
   }));
+  useEffect(() => {
+    if (state.visible) {
+      textAreaRef.current && textAreaRef.current.focus();
+    }
+  }, [state.visible]);
   function onDataChange(notes: Partial<TNotes>) {
     setState((preState) => {
       preState.data = { ...preState.data, ...notes } as TNotes;
@@ -69,10 +81,18 @@ export const EditModal: ForwardRefRenderFunction<
     });
   }
   async function onOk() {
-    const res = await SNotes.addItem(state.data);
-    if (res.success) {
-      props.onSuccess(res.data);
-      onCancel();
+    if (state.added) {
+      const res = await SNotes.addItem(state.data);
+      if (res.success) {
+        props.onAddSuccess(res.data);
+        onCancel();
+      }
+    } else {
+      const res = await SNotes.editItem(state.data);
+      if (res.success) {
+        props.onEditSuccess(res.data);
+        onCancel();
+      }
     }
   }
   function onCancel() {
@@ -90,6 +110,7 @@ export const EditModal: ForwardRefRenderFunction<
       visible={state.visible}
       title={title}
       onOk={() => onOk()}
+      centered
       onCancel={onCancel}
     >
       <Space

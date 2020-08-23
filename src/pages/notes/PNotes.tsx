@@ -27,8 +27,16 @@ export default () => {
     ]);
     setLists(newLists);
   }
-  function onAddNote() {
-    editModalRef.current.showModal();
+  function onEditNoteSuccess(notes: TNotes) {
+    const newLists = TRes.updateItem(
+      lists,
+      notes,
+      (data) => data.id === notes.id,
+    );
+    setLists(newLists);
+  }
+  function onEditNote(data?: TNotes) {
+    editModalRef.current.showModal(data);
   }
   async function reqDelItem(id: string) {
     const res = await SNotes.delItem(id);
@@ -46,15 +54,20 @@ export default () => {
     <div>
       {lists.data.map((note) => (
         <div key={note.id} className={SelfStyle.noteWrapper}>
-          <Note data={note} onDelItem={onDelItem}></Note>
+          <Note
+            onEdit={onEditNote}
+            data={note}
+            onDel={onDelItem}
+          ></Note>
         </div>
       ))}
       <EditModal
         ref={editModalRef}
-        onSuccess={onAddNoteSuccess}
+        onAddSuccess={onAddNoteSuccess}
+        onEditSuccess={onEditNoteSuccess}
       ></EditModal>
       <PageFooter>
-        <Button onClick={onAddNote}>新建笔记</Button>
+        <Button onClick={() => onEditNote()}>新建笔记</Button>
       </PageFooter>
     </div>
   );

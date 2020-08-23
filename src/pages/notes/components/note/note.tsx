@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useRef } from 'react';
 import SelfStyle from './note.less';
 import { Card, Button, Menu, Dropdown } from 'antd';
 import {
@@ -11,12 +11,15 @@ import SyntaxHighlighter from 'react-syntax-highlighter';
 import TNotes from '../../TNotes';
 import moment from 'moment';
 import { YYYY_MM_DD } from '@/common/constant/DateConstant';
+import PNotes from '../../PNotes';
+import Modal from 'antd/lib/modal/Modal';
 
 export interface INoteProps {
+  onEdit: (data?: TNotes) => void;
   data: TNotes;
-  onDelItem: (id: string) => void;
+  onDel: (id: string) => void;
 }
-const Note = ({ data, onDelItem }: INoteProps) => {
+const Note = ({ data, onDel, onEdit }: INoteProps) => {
   let title =
     data.title ||
     moment(data.createTime || undefined).format(YYYY_MM_DD);
@@ -36,14 +39,14 @@ const Note = ({ data, onDelItem }: INoteProps) => {
         <Button
           icon={
             <CloseOutlined
-              onClick={() => onDelItem(data.id)}
+              onClick={() => onDel(data.id)}
             ></CloseOutlined>
           }
         ></Button>
       }
       actions={[
         <CopyOutlined />,
-        <EditOutlined key="edit" />,
+        <EditOutlined key="edit" onClick={() => onEdit(data)} />,
         <Dropdown overlay={menu} placement="topCenter">
           <Button>
             <EllipsisOutlined key="ellipsis" />
