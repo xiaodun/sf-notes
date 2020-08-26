@@ -18,8 +18,9 @@ import SNotes from '../../SNotes';
 import TRes from '@/common/type/TRes';
 
 export interface INoteProps {
-  onEdit: (data?: TNotes) => void;
+  onEdit: (data?: TNotes, index?: number) => void;
   data: TNotes;
+  index: number;
   lists: TRes.Lists<TNotes>;
   setLists: React.Dispatch<React.SetStateAction<TRes.Lists<TNotes>>>;
 }
@@ -33,8 +34,18 @@ const Note = (props: INoteProps) => {
       <Menu.Item key="noitce_top" onClick={() => reqTopItem(data)}>
         置顶
       </Menu.Item>
-      <Menu.Item key="add_up">向上添加</Menu.Item>
-      <Menu.Item key="add_down">向下添加</Menu.Item>
+      <Menu.Item
+        key="add_up"
+        onClick={() => props.onEdit(null, props.index)}
+      >
+        向上添加
+      </Menu.Item>
+      <Menu.Item
+        key="add_down"
+        onClick={() => props.onEdit(null, props.index + 1)}
+      >
+        向下添加
+      </Menu.Item>
     </Menu>
   );
   async function reqDelItem(id: string) {
@@ -57,6 +68,7 @@ const Note = (props: INoteProps) => {
       props.setLists(newLists);
     }
   }
+
   return (
     <Card
       size="small"

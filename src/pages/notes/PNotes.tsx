@@ -13,16 +13,17 @@ export default () => {
   const [lists, setLists] = useState<TRes.Lists<TNotes>>(
     new TRes.Lists(),
   );
+  const [addPos, setAddPos] = useState<number>(null);
   const editModalRef = useRef<IEditModalRef>();
   useEffect(() => {
     reqGetList();
   }, []);
 
   function onAddNoteSuccess(notes: TNotes) {
-    const newLists = TRes.addItem(lists, (newDataList) => [
-      notes,
-      ...newDataList,
-    ]);
+    const newLists = TRes.addItem(lists, (newDataList) => {
+      newDataList.splice(addPos, 0, notes);
+      return newDataList;
+    });
     setLists(newLists);
   }
   function onEditNoteSuccess(notes: TNotes) {
@@ -33,7 +34,8 @@ export default () => {
     );
     setLists(newLists);
   }
-  function onEditNote(data?: TNotes) {
+  function onEditNote(data?: TNotes, index = 0) {
+    setAddPos(index);
     editModalRef.current.showModal(data);
   }
 
@@ -50,6 +52,7 @@ export default () => {
         <div key={note.id} className={SelfStyle.noteWrapper}>
           <Note
             data={note}
+            index={index}
             lists={lists}
             setLists={setLists}
             onEdit={onEditNote}
