@@ -23,6 +23,7 @@ export interface IEditModalProps {
 
 export interface IEditModalState {
   visible: boolean;
+  index: number;
   data: TNotes;
   added: boolean;
 }
@@ -32,6 +33,7 @@ export interface IEditModalRef {
 const defaultState: IEditModalState = {
   added: false,
   visible: false,
+  index: 0,
   data: {
     content: '',
     loadCount: 0,
@@ -61,6 +63,7 @@ export const EditModal: ForwardRefRenderFunction<
         } else {
           preState.added = true;
         }
+
         return {
           ...preState,
         };
