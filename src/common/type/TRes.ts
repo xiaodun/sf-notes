@@ -123,5 +123,26 @@ export namespace TRes {
     };
     return asLists(res);
   }
+  export function changePos<T>(
+    lists: Lists<T>,
+    data: T,
+    pos: number,
+  ) {
+    let newDataList = [...lists.data];
+
+    const index = newDataList.indexOf(data);
+
+    newDataList.splice(index, 1);
+    newDataList.splice(pos, 0, data);
+    let res: TRes<T> = {
+      success: true,
+      message: '',
+      list: newDataList,
+      no: lists.pageNo,
+      size: lists.pageSize,
+      total: lists.total,
+    };
+    return asLists(res);
+  }
 }
 export default TRes;
