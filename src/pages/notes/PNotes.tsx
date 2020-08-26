@@ -17,9 +17,7 @@ export default () => {
   useEffect(() => {
     reqGetList();
   }, []);
-  function onDelItem(id: string) {
-    reqDelItem(id);
-  }
+
   function onAddNoteSuccess(notes: TNotes) {
     const newLists = TRes.addItem(lists, (newDataList) => [
       notes,
@@ -38,34 +36,23 @@ export default () => {
   function onEditNote(data?: TNotes) {
     editModalRef.current.showModal(data);
   }
-  async function reqDelItem(id: string) {
-    const res = await SNotes.delItem(id);
-    if (res.success) {
-      setLists(TRes.delItem(lists, (item) => item.id === id));
-    }
-  }
+
   async function reqGetList() {
     const res = await SNotes.getList();
     if (res.success) {
       setLists(TRes.asLists(res));
     }
   }
-  async function reqTopItem(data: TNotes) {
-    const res = await SNotes.topItem(data);
-    if (res.success) {
-      const newLists = TRes.changePos(lists, data, 0);
-      setLists(newLists);
-    }
-  }
+
   return (
     <div>
       {lists.data.map((note, index) => (
         <div key={note.id} className={SelfStyle.noteWrapper}>
           <Note
             data={note}
-            onTop={() => reqTopItem(note)}
+            lists={lists}
+            setLists={setLists}
             onEdit={onEditNote}
-            onDel={onDelItem}
           ></Note>
         </div>
       ))}

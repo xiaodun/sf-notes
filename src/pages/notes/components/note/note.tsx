@@ -14,12 +14,14 @@ import { YYYY_MM_DD } from '@/common/constant/DateConstant';
 import PNotes from '../../PNotes';
 import Modal from 'antd/lib/modal/Modal';
 import UCopy from '@/common/utils/copy';
+import SNotes from '../../SNotes';
+import TRes from '@/common/type/TRes';
 
 export interface INoteProps {
   onEdit: (data?: TNotes) => void;
   data: TNotes;
-  onDel: (id: string) => void;
-  onTop: (data: TNotes) => void;
+  lists: TRes.Lists<TNotes>;
+  setLists: React.Dispatch<React.SetStateAction<TRes.Lists<TNotes>>>;
 }
 const Note = (props: INoteProps) => {
   const { data } = props;
@@ -28,18 +30,32 @@ const Note = (props: INoteProps) => {
     moment(data.createTime || undefined).format(YYYY_MM_DD);
   const menu = (
     <Menu>
-      <Menu.Item key="noitce_top" onClick={() => props.onTop(data)}>
+      <Menu.Item key="noitce_top" onClick={() => reqTopItem(data)}>
         置顶
       </Menu.Item>
       <Menu.Item key="add_up">向上添加</Menu.Item>
       <Menu.Item key="add_down">向下添加</Menu.Item>
     </Menu>
   );
-
+  async function reqDelItem(id: string) {
+    const res = await SNotes.delItem(id);
+    if (res.success) {
+      props.setLists(
+        TRes.delItem(props.lists, (item) => item.id === id),
+      );
+    }
+  }
   async function onCopy() {
     UCopy.copy(data.content).then(() => {
       message.success('复制成功');
     });
+  }
+  async function reqTopItem(data: TNotes) {
+    const res = await SNotes.topItem(data);
+    if (res.success) {
+      const newLists = TRes.changePos(props.lists, data, 0);
+      props.setLists(newLists);
+    }
   }
   return (
     <Card
@@ -50,7 +66,7 @@ const Note = (props: INoteProps) => {
         <Button
           icon={
             <CloseOutlined
-              onClick={() => props.onDel(data.id)}
+              onClick={() => reqDelItem(data.id)}
             ></CloseOutlined>
           }
         ></Button>
