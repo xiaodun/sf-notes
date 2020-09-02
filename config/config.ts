@@ -34,8 +34,12 @@ export default defineConfig({
   // umi routes: https://umijs.org/docs/routing
   routes: [
     {
-      paht: '/',
+      path: '/',
       component: 'Welcome',
+    },
+    {
+      path: '/test',
+      component: './test',
     },
   ],
   // Theme for antd: https://ant.design/docs/react/customize-theme-cn
