@@ -1,2 +1,2 @@
-import NotesPage from './PNotes';
-export default NotesPage;
+import PNotes from './PNotes';
+export default PNotes;
