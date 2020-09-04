@@ -17,6 +17,9 @@ export default () => {
   const editModalRef = useRef<IEditModalRef>();
   useEffect(() => {
     reqGetList();
+    setTimeout(() => {
+      document.title = '日记本';
+    });
   }, []);
 
   function onAddNoteSuccess(notes: TNotes) {
