@@ -1,4 +1,4 @@
-import React, { ReactNode, useRef } from 'react';
+import React, { ReactNode } from 'react';
 import SelfStyle from './note.less';
 import { Card, Button, Menu, Dropdown, message } from 'antd';
 import {
@@ -11,8 +11,6 @@ import SyntaxHighlighter from 'react-syntax-highlighter';
 import TNotes from '../../TNotes';
 import moment from 'moment';
 import { YYYY_MM_DD } from '@/common/constant/DateConstant';
-import PNotes from '../../PNotes';
-import Modal from 'antd/lib/modal/Modal';
 import UCopy from '@/common/utils/copy';
 import SNotes from '../../SNotes';
 import TRes from '@/common/type/TRes';
