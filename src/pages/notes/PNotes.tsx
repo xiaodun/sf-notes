@@ -5,13 +5,20 @@ import SelfStyle from './LNotes.less';
 import SNotes from './SNotes';
 import TRes from '@/common/type/TRes';
 import { PageFooter } from '@/common/components';
-import { Button } from 'antd';
+import { Button, Tabs } from 'antd';
 import EditModal, {
   IEditModalRef,
 } from './components/edit/EditModal';
+const tabKeys = {
+  notes: 'notes',
+  fileManage: 'fileManage',
+};
 export default () => {
   const [lists, setLists] = useState<TRes.Lists<TNotes>>(
     new TRes.Lists(),
+  );
+  const [activeTabkey, setActiveTabKey] = useState<string>(
+    tabKeys.notes,
   );
   const [addPos, setAddPos] = useState<number>(null);
   const editModalRef = useRef<IEditModalRef>();
@@ -54,6 +61,9 @@ export default () => {
     setAddPos(index);
     editModalRef.current.showModal(data);
   }
+  function onTabChange(activeKey: string) {
+    setActiveTabKey(activeKey);
+  }
 
   async function reqGetList() {
     const res = await SNotes.getList();
@@ -64,25 +74,37 @@ export default () => {
 
   return (
     <div>
-      {lists.data.map((note, index) => (
-        <div key={note.id} className={SelfStyle.noteWrapper}>
-          <Note
-            data={note}
-            index={index}
-            lists={lists}
-            setLists={setLists}
-            onEdit={onEditNote}
-          ></Note>
-        </div>
-      ))}
-      <EditModal
-        ref={editModalRef}
-        onAddSuccess={onAddNoteSuccess}
-        onEditSuccess={onEditNoteSuccess}
-      ></EditModal>
-      <PageFooter>
-        <Button onClick={() => onEditNote()}>新建笔记</Button>
-      </PageFooter>
+      <Tabs
+        type="card"
+        size="large"
+        activeKey={activeTabkey}
+        onChange={onTabChange}
+      >
+        <Tabs.TabPane tab="日记本" key={tabKeys.notes}>
+          {lists.data.map((note, index) => (
+            <div key={note.id} className={SelfStyle.noteWrapper}>
+              <Note
+                data={note}
+                index={index}
+                lists={lists}
+                setLists={setLists}
+                onEdit={onEditNote}
+              ></Note>
+            </div>
+          ))}
+          <EditModal
+            ref={editModalRef}
+            onAddSuccess={onAddNoteSuccess}
+            onEditSuccess={onEditNoteSuccess}
+          ></EditModal>
+          <PageFooter>
+            <Button onClick={() => onEditNote()}>新建笔记</Button>
+          </PageFooter>
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="文件管理" key={tabKeys.fileManage}>
+          1
+        </Tabs.TabPane>
+      </Tabs>
     </div>
   );
 };
