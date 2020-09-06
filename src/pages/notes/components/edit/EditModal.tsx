@@ -94,10 +94,7 @@ export const EditModal: ForwardRefRenderFunction<
     }
   }
   function onCancel() {
-    const newState = produce(state, (drafState) => {
-      drafState.visible = false;
-    });
-    setState(newState);
+    setState(defaultState);
   }
   function onDragOver(event: React.DragEvent<HTMLDivElement>) {
     const dataTransfer = event.dataTransfer;
@@ -155,6 +152,31 @@ export const EditModal: ForwardRefRenderFunction<
     };
     reader.readAsDataURL(file);
   }
+  function onPaste(event: React.ClipboardEvent<HTMLTextAreaElement>) {
+    var clipboardItems =
+      event.clipboardData && event.clipboardData.items;
+    const notes: Partial<TNotes> = {
+      base64: { ...state.data.base64 },
+      content: state.data.content,
+    };
+    if (clipboardItems && clipboardItems.length) {
+      for (let i = 0; i < clipboardItems.length; i++) {
+        if (
+          clipboardItems[i].kind === 'file' &&
+          clipboardItems[i].type.indexOf('image') !== -1
+        ) {
+          /**
+           * 确认为一个图片类型 只靠type或kind不行
+            有道黏贴可能会出现  kind: "string", type: "text/yne-image-json"
+           */
+          const file = clipboardItems[i].getAsFile();
+          loadCountRef.current++;
+          convertFile(file, notes);
+          break;
+        }
+      }
+    }
+  }
   const title = state.added ? '添加记事' : '编辑记事';
   return (
     <Modal
@@ -180,6 +202,7 @@ export const EditModal: ForwardRefRenderFunction<
             autoSize={{
               minRows: 8,
             }}
+            onPaste={onPaste}
             autoFocus
             ref={textAreaRef}
             placeholder={`支持普通链接\n图片链接\n黏贴图片\n拖拽桌面图片\n\`\`\`\n格式代码\n\`\`\`\n`}
