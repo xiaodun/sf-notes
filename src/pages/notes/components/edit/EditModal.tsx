@@ -7,14 +7,15 @@ import {
   useRef,
   useEffect,
 } from 'react';
-import { Modal, Input, Space } from 'antd';
+import { Modal, Input, Space, message } from 'antd';
 import SelfStyle from './EditModal.less';
 import React from 'react';
 import TextArea from 'antd/lib/input/TextArea';
 import { YYYY_MM_DD } from '@/common/constant/DateConstant';
 import moment from 'moment';
 import SNotes from '../../SNotes';
-import { cloneDeep } from 'lodash';
+import { IMG_PROTOCOL_KEY } from '../..';
+import produce from 'immer';
 
 export interface IEditModalProps {
   onAddSuccess: (notes: TNotes) => void;
@@ -36,7 +37,6 @@ const defaultState: IEditModalState = {
   index: 0,
   data: {
     content: '',
-    loadCount: 0,
     base64: {},
     createTime: null,
     updateTime: null,
@@ -52,22 +52,19 @@ export const EditModal: ForwardRefRenderFunction<
     defaultState,
   );
   const textAreaRef = useRef<TextArea>();
-
+  const loadCountRef = useRef<number>(0);
   useImperativeHandle(ref, () => ({
     showModal: (data) => {
-      setState((preState) => {
-        preState.visible = true;
+      const newState = produce(state, (drafState) => {
+        drafState.visible = true;
         if (data) {
-          preState.added = false;
-          preState.data = cloneDeep(data);
+          drafState.added = false;
+          drafState.data = data;
         } else {
-          preState.added = true;
+          drafState.added = true;
         }
-
-        return {
-          ...preState,
-        };
       });
+      setState(newState);
     },
   }));
   useEffect(() => {
@@ -76,12 +73,10 @@ export const EditModal: ForwardRefRenderFunction<
     }
   }, [state.visible]);
   function onDataChange(notes: Partial<TNotes>) {
-    setState((preState) => {
-      preState.data = { ...preState.data, ...notes } as TNotes;
-      return {
-        ...preState,
-      };
+    const newState = produce(state, (drafState) => {
+      Object.assign(drafState.data, notes);
     });
+    setState(newState);
   }
   async function onOk() {
     if (state.added) {
@@ -99,13 +94,66 @@ export const EditModal: ForwardRefRenderFunction<
     }
   }
   function onCancel() {
-    setState((preState) => {
-      preState.visible = false;
-      preState.data = defaultState.data;
-      return {
-        ...preState,
-      };
+    const newState = produce(state, (drafState) => {
+      drafState.visible = false;
     });
+    setState(newState);
+  }
+  function onDragOver(event: React.DragEvent<HTMLDivElement>) {
+    const dataTransfer = event.dataTransfer;
+    event.preventDefault();
+    event.stopPropagation();
+    if (dataTransfer) {
+      dataTransfer.dropEffect = 'copy';
+    }
+  }
+  function onDrop(event: React.DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    const dataTransfer = event.dataTransfer;
+    const notes: Partial<TNotes> = {
+      base64: { ...state.data.base64 },
+      content: state.data.content,
+    };
+
+    if (dataTransfer.types.includes('Files')) {
+      for (let i = 0; i < dataTransfer.files.length; i++) {
+        const file = dataTransfer.files[i];
+        loadCountRef.current++;
+
+        convertFile(file, notes);
+      }
+    }
+  }
+  function convertFile(file: File, notes: Partial<TNotes>) {
+    const { type } = file;
+    if (type.includes('image')) {
+      convertImgFile(file, notes);
+    } else {
+      message.warning('只支持图片文件!');
+    }
+  }
+  function convertImgFile(file: File, notes: Partial<TNotes>) {
+    let reader = new FileReader();
+
+    reader.onload = function (event) {
+      //转换为自定义图片
+      let fileName =
+        IMG_PROTOCOL_KEY +
+        '://' +
+        ((Math.random() * 1000000) | 0) +
+        '.' +
+        file.type.split('/')[1];
+      loadCountRef.current--;
+      notes.base64[fileName] = event.target.result;
+      notes.content += '\n' + fileName + '\n';
+      if (loadCountRef.current == 0) {
+        const newState = produce(state, (drafState) => {
+          Object.assign(drafState.data, notes);
+        });
+        setState(newState);
+      }
+    };
+    reader.readAsDataURL(file);
   }
   const title = state.added ? '添加记事' : '编辑记事';
   return (
@@ -116,27 +164,32 @@ export const EditModal: ForwardRefRenderFunction<
       onOk={() => onOk()}
       centered
       onCancel={onCancel}
+      okButtonProps={{
+        loading: loadCountRef.current > 0,
+      }}
     >
       <Space
         style={{ width: '100%' }}
         direction="vertical"
         size="middle"
       >
-        <Input.TextArea
-          value={state.data.content}
-          onChange={(e) =>
-            onDataChange({
-              content: e.target.value,
-            })
-          }
-          className={SelfStyle.contentContainer}
-          autoSize={{
-            minRows: 8,
-          }}
-          autoFocus
-          ref={textAreaRef}
-          placeholder={`支持普通链接\n图片链接\n黏贴图片\n拖拽桌面图片\n\`\`\`\n格式代码\n\`\`\`\n`}
-        ></Input.TextArea>
+        <div onDragOver={onDragOver} onDrop={onDrop}>
+          <Input.TextArea
+            value={state.data.content}
+            className={SelfStyle.contentContainer}
+            autoSize={{
+              minRows: 8,
+            }}
+            autoFocus
+            ref={textAreaRef}
+            placeholder={`支持普通链接\n图片链接\n黏贴图片\n拖拽桌面图片\n\`\`\`\n格式代码\n\`\`\`\n`}
+            onChange={(e) =>
+              onDataChange({
+                content: e.target.value,
+              })
+            }
+          ></Input.TextArea>
+        </div>
         <Input
           value={state.data.title}
           onChange={(e) =>

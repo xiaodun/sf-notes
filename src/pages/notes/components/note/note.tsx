@@ -14,6 +14,7 @@ import { YYYY_MM_DD } from '@/common/constant/DateConstant';
 import UCopy from '@/common/utils/copy';
 import SNotes from '../../SNotes';
 import TRes from '@/common/type/TRes';
+import { IMG_PROTOCOL_KEY } from '../..';
 
 export interface INoteProps {
   onEdit: (data?: TNotes, index?: number) => void;
@@ -138,13 +139,12 @@ function dealCode(content: string) {
 }
 function dealLink(list: ReactNode[], base64imgs: Object) {
   //处理链接
-  const base64img_key = 'base64img';
   let prefix = 'link',
     key = 0;
 
   const imgStuffixList = ['.jpg', '.jpeg', '.gif', '.png', '.svg'];
   const linkPattern = RegExp(
-    `(https?|ftp|file|${base64img_key})://[-A-Za-z0-9+&@#/%?=~_|!:,.;\u4e00-\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]`,
+    `(https?|ftp|file|${IMG_PROTOCOL_KEY})://[-A-Za-z0-9+&@#/%?=~_|!:,.;\u4e00-\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]`,
     'g',
   );
   const newList: ReactNode[] = [];
@@ -167,7 +167,7 @@ function dealLink(list: ReactNode[], base64imgs: Object) {
             );
             if (isImg) {
               //图片
-              const isPaste = link.indexOf(base64img_key) === 0;
+              const isPaste = link.indexOf(IMG_PROTOCOL_KEY) === 0;
               if (isPaste) {
                 //黏贴图片
                 const src = base64imgs[link];

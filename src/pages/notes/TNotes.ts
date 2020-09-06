@@ -1,6 +1,5 @@
 export interface TNotes {
   content: string;
-  loadCount: number;
   base64: Object;
   createTime: number;
   id?: string;
