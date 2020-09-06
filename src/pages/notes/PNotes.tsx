@@ -20,6 +20,19 @@ export default () => {
     setTimeout(() => {
       document.title = '日记本';
     });
+
+    function onDragOver(event: DragEvent) {
+      const dataTransfer = event.dataTransfer;
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.dataTransfer) {
+        dataTransfer.dropEffect = 'none';
+      }
+    }
+    document.addEventListener('dragover', onDragOver);
+    return () => {
+      document.removeEventListener('dragover', onDragOver);
+    };
   }, []);
 
   function onAddNoteSuccess(notes: TNotes) {
