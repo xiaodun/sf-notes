@@ -9,6 +9,9 @@ import { Button, Tabs } from 'antd';
 import EditModal, {
   IEditModalRef,
 } from './components/edit/EditModal';
+import ZoomImgModal, {
+  IZoomImgModalRef,
+} from './components/zoom/ZoomImgModal';
 const tabKeys = {
   notes: 'notes',
   fileManage: 'fileManage',
@@ -22,6 +25,7 @@ export default () => {
   );
   const [addPos, setAddPos] = useState<number>(null);
   const editModalRef = useRef<IEditModalRef>();
+  const zoomModalRef = useRef<IZoomImgModalRef>();
   useEffect(() => {
     reqGetList();
     setTimeout(() => {
@@ -41,7 +45,9 @@ export default () => {
       document.removeEventListener('dragover', onDragOver);
     };
   }, []);
-
+  function showZoomModal(src: string) {
+    zoomModalRef.current.showModal(src);
+  }
   function onAddNoteSuccess(notes: TNotes) {
     const newLists = TRes.addItem(lists, (newDataList) => {
       newDataList.splice(addPos, 0, notes);
@@ -89,6 +95,7 @@ export default () => {
                 lists={lists}
                 setLists={setLists}
                 onEdit={onEditNote}
+                showZoomModal={showZoomModal}
               ></Note>
             </div>
           ))}
@@ -105,6 +112,7 @@ export default () => {
           1
         </Tabs.TabPane>
       </Tabs>
+      <ZoomImgModal ref={zoomModalRef}></ZoomImgModal>
     </div>
   );
 };
