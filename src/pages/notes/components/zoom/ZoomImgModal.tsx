@@ -1,11 +1,10 @@
 import React, {
-  FC,
   forwardRef,
   ForwardRefRenderFunction,
   useImperativeHandle,
   useState,
 } from 'react';
-import Modal from 'antd/lib/modal/Modal';
+import { Modal, Button } from 'antd';
 import produce from 'immer';
 export interface IZoomImgModalRef {
   showModal: (src: string) => void;
@@ -48,6 +47,11 @@ const ZoomImgModal: ForwardRefRenderFunction<IZoomImgModalRef> = (
       title="放大图片"
       bodyStyle={{ maxHeight: '100%' }}
       visible={state.visible}
+      footer={
+        <Button type="primary" onClick={onCancel}>
+          关闭
+        </Button>
+      }
       onCancel={onCancel}
       centered
     >
