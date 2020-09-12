@@ -23,10 +23,14 @@ export interface INoteProps {
   lists: TRes.Lists<TNotes>;
   setLists: React.Dispatch<React.SetStateAction<TRes.Lists<TNotes>>>;
   showZoomModal: (src: string) => void;
+  onEditSuccess: (notes: TNotes) => void;
 }
 export interface INoteAction {
   content: ReactNode;
   copyStr?: string;
+  //第一个式起始位置  第二个是个数
+  start: number;
+  count: number;
 }
 const Note = (props: INoteProps) => {
   const { data } = props;
@@ -79,20 +83,27 @@ const Note = (props: INoteProps) => {
     //处理代码块
     let prefix = 'code',
       key = 0;
-
-    const codePattern = /```([\s\S]*?)```/g;
+    const codeSign = '```';
+    const codePattern = RegExp(
+      `${codeSign}([\\s\\S]*?)${codeSign}`,
+      'g',
+    );
     let list: INoteAction[] = [];
-
     let result: RegExpExecArray | null,
       lastIndex = 0;
     while ((result = codePattern.exec(content)) !== null) {
       if (result.index !== lastIndex) {
+        const value = content.substring(lastIndex, result.index);
         list.push({
-          content: content.substring(lastIndex, result.index),
+          start: lastIndex,
+          count: value.length,
+          content: value,
         });
       }
       if (result[1]) {
         list.push({
+          start: result.index,
+          count: result[0].length,
           content: (
             <div
               key={prefix + key++}
@@ -111,6 +122,8 @@ const Note = (props: INoteProps) => {
     }
     if (lastIndex !== content.length)
       list.push({
+        start: lastIndex,
+        count: content.length,
         content: content.substring(lastIndex, content.length),
       });
     return list;
@@ -128,9 +141,24 @@ const Note = (props: INoteProps) => {
     const newList: INoteAction[] = [];
     list.forEach((item) => {
       if (typeof item.content === 'string') {
-        let strList = item.content.split(/\n/);
-
-        strList.forEach((str) => {
+        /*
+          "a\n\n\n1".split("\n") => ["a", "", "", "1"] 
+          单独的"" 可以被看做\n
+          与原始字符串相比 是少了一个\n
+        */
+        let strList: string[] = [];
+        for (let i = 0, start = 0; i < item.content.length; i++) {
+          const str = item.content[i];
+          if (str === '\n') {
+            if (i !== start) {
+              strList.push(item.content.substring(start, i));
+            }
+            strList.push('\n');
+            start = i + 1;
+          }
+        }
+        let initalCount = item.start;
+        strList.forEach((str, index) => {
           let result: RegExpExecArray | null,
             lastIndex = 0;
 
@@ -142,6 +170,8 @@ const Note = (props: INoteProps) => {
                   result.index,
                 );
                 newList.push({
+                  start: initalCount + lastIndex,
+                  count: content.length,
                   content,
                   copyStr: content,
                 });
@@ -162,6 +192,8 @@ const Note = (props: INoteProps) => {
                 }
                 newList.push({
                   copyStr: src,
+                  start: initalCount + result.index,
+                  count: link.length,
                   content: (
                     <div
                       className={SelfStyle.imgWrapper}
@@ -174,6 +206,8 @@ const Note = (props: INoteProps) => {
               } else {
                 //普通链接
                 newList.push({
+                  start: initalCount + result.index,
+                  count: link.length,
                   copyStr: link,
                   content: (
                     <a
@@ -191,16 +225,22 @@ const Note = (props: INoteProps) => {
             if (lastIndex !== str.length) {
               const content = str.slice(lastIndex);
               newList.push({
+                start: initalCount + lastIndex,
+                count: str.length,
                 content,
                 copyStr: content,
               });
             }
           } else {
             newList.push({
+              start: initalCount + lastIndex,
+              count: str.length,
               copyStr: str,
               content: str,
             });
           }
+
+          initalCount += str.length;
         });
       } else {
         newList.push(item);
@@ -208,7 +248,22 @@ const Note = (props: INoteProps) => {
     });
     return newList;
   }
+  async function reqDelPart(start: number, count: number) {
+    const content = props.data.content;
+    const end = start + count;
+    const newContent =
+      content.substring(0, start) +
+      content.substring(end, content.length);
 
+    const newNote: TNotes = {
+      ...props.data,
+      content: newContent,
+    };
+    const res = await SNotes.editItem(newNote);
+    if (res.success) {
+      props.onEditSuccess(newNote);
+    }
+  }
   function withAble(list: INoteAction[]) {
     //对每一个特殊元素块或一行赋予一些能力
     let prefix = 'line',
@@ -226,7 +281,12 @@ const Note = (props: INoteProps) => {
               >
                 复制
               </a>
-              <a type="link">删除</a>
+              <a
+                type="link"
+                onClick={() => reqDelPart(item.start, item.count)}
+              >
+                删除
+              </a>
             </Space>
           </div>
           <div className="contents">
