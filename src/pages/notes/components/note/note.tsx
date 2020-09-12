@@ -245,11 +245,8 @@ const Note = (props: INoteProps) => {
       className={SelfStyle.noteWrapper}
       extra={
         <Button
-          icon={
-            <CloseOutlined
-              onClick={() => reqDelItem(data.id)}
-            ></CloseOutlined>
-          }
+          onClick={() => reqDelItem(data.id)}
+          icon={<CloseOutlined></CloseOutlined>}
         ></Button>
       }
       actions={[
