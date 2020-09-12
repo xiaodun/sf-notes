@@ -42,18 +42,50 @@
   }
 
   img {
-    width: 100%;
+    max-width: 100%;
   }
 }
 
 .lineWrapper {
   line-height: 32px;
 
+  display: flex;
+
   margin: 2px 0;
 
   white-space: pre-wrap;
   word-wrap: break-word;
   word-break: break-all;
+
+  :global {
+    .actions {
+      margin-right: 10px;
+
+      transition: opacity ease-in .35s;
+
+      opacity: 0;
+
+      flex-shrink: 0;
+    }
+
+    .contents {
+      transition: background-color .25s linear;
+
+      flex-grow: 1;
+    }
+  }
+
+  &:hover {
+    :global {
+      .actions {
+        opacity: 1;
+      }
+
+      .contents {
+        background-color: #fff6f6;
+      }
+    }
+  }
 }
 
 .imgWrapper {

@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import SelfStyle from './note.less';
-import { Card, Button, Menu, Dropdown, message } from 'antd';
+import { Card, Button, Menu, Dropdown, message, Space } from 'antd';
 import {
   CopyOutlined,
   EditOutlined,
@@ -23,6 +23,10 @@ export interface INoteProps {
   lists: TRes.Lists<TNotes>;
   setLists: React.Dispatch<React.SetStateAction<TRes.Lists<TNotes>>>;
   showZoomModal: (src: string) => void;
+}
+export interface INoteAction {
+  content: ReactNode;
+  copyStr?: string;
 }
 const Note = (props: INoteProps) => {
   const { data } = props;
@@ -57,9 +61,7 @@ const Note = (props: INoteProps) => {
     }
   }
   async function onCopy() {
-    UCopy.copy(data.content).then(() => {
-      message.success('复制成功');
-    });
+    UCopy.copyStr(data.content);
   }
   async function reqTopItem(data: TNotes) {
     const res = await SNotes.topItem(data);
@@ -71,8 +73,7 @@ const Note = (props: INoteProps) => {
   function parseContent(content: string = '', base64imgs: Object) {
     let list = dealCode(content);
     list = dealLink(list, base64imgs);
-    list = withAble(list);
-    return list;
+    return withAble(list);
   }
   function dealCode(content: string) {
     //处理代码块
@@ -80,31 +81,41 @@ const Note = (props: INoteProps) => {
       key = 0;
 
     const codePattern = /```([\s\S]*?)```/g;
-    let list: ReactNode[] = [];
+    let list: INoteAction[] = [];
 
     let result: RegExpExecArray | null,
       lastIndex = 0;
     while ((result = codePattern.exec(content)) !== null) {
       if (result.index !== lastIndex) {
-        list.push(content.substring(lastIndex, result.index));
+        list.push({
+          content: content.substring(lastIndex, result.index),
+        });
       }
       if (result[1]) {
-        list.push(
-          <div key={prefix + key++} className={SelfStyle.codeWrapper}>
-            <SyntaxHighlighter showLineNumbers>
-              {result[1]}
-            </SyntaxHighlighter>
-          </div>,
-        );
+        list.push({
+          content: (
+            <div
+              key={prefix + key++}
+              className={SelfStyle.codeWrapper}
+            >
+              <SyntaxHighlighter showLineNumbers>
+                {result[1]}
+              </SyntaxHighlighter>
+            </div>
+          ),
+          copyStr: result[1],
+        });
       }
 
       lastIndex = result.index + result[0].length;
     }
     if (lastIndex !== content.length)
-      list.push(content.substring(lastIndex, content.length));
+      list.push({
+        content: content.substring(lastIndex, content.length),
+      });
     return list;
   }
-  function dealLink(list: ReactNode[], base64imgs: Object) {
+  function dealLink(list: INoteAction[], base64imgs: Object) {
     //处理链接
     let prefix = 'link',
       key = 0;
@@ -114,10 +125,10 @@ const Note = (props: INoteProps) => {
       `(https?|ftp|file|${IMG_PROTOCOL_KEY})://[-A-Za-z0-9+&@#/%?=~_|!:,.;\u4e00-\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]`,
       'g',
     );
-    const newList: ReactNode[] = [];
+    const newList: INoteAction[] = [];
     list.forEach((item) => {
-      if (typeof item === 'string') {
-        let strList = item.split(/\n/);
+      if (typeof item.content === 'string') {
+        let strList = item.content.split(/\n/);
 
         strList.forEach((str) => {
           let result: RegExpExecArray | null,
@@ -126,7 +137,14 @@ const Note = (props: INoteProps) => {
           if (str.match(linkPattern)) {
             while ((result = linkPattern.exec(str)) !== null) {
               if (result.index !== lastIndex) {
-                newList.push(str.substring(lastIndex, result.index));
+                const content = str.substring(
+                  lastIndex,
+                  result.index,
+                );
+                newList.push({
+                  content,
+                  copyStr: content,
+                });
               }
               const link = result[0];
               const isImg = imgStuffixList.some(
@@ -142,29 +160,46 @@ const Note = (props: INoteProps) => {
                 } else {
                   src = link;
                 }
-                newList.push(
-                  <div
-                    className={SelfStyle.imgWrapper}
-                    onClick={() => props.showZoomModal(src)}
-                  >
-                    <img key={prefix + key++} src={src} alt="" />
-                  </div>,
-                );
+                newList.push({
+                  copyStr: src,
+                  content: (
+                    <div
+                      className={SelfStyle.imgWrapper}
+                      onClick={() => props.showZoomModal(src)}
+                    >
+                      <img key={prefix + key++} src={src} alt="" />
+                    </div>
+                  ),
+                });
               } else {
                 //普通链接
-                newList.push(
-                  <a target="_blank" key={prefix + key++} href={link}>
-                    {link}
-                  </a>,
-                );
+                newList.push({
+                  copyStr: link,
+                  content: (
+                    <a
+                      target="_blank"
+                      key={prefix + key++}
+                      href={link}
+                    >
+                      {link}
+                    </a>
+                  ),
+                });
               }
               lastIndex = result.index + link.length;
             }
             if (lastIndex !== str.length) {
-              newList.push(lastIndex);
+              const content = str.slice(lastIndex);
+              newList.push({
+                content,
+                copyStr: content,
+              });
             }
           } else {
-            newList.push(str);
+            newList.push({
+              copyStr: str,
+              content: str,
+            });
           }
         });
       } else {
@@ -174,7 +209,7 @@ const Note = (props: INoteProps) => {
     return newList;
   }
 
-  function withAble(list: ReactNode[]) {
+  function withAble(list: INoteAction[]) {
     //对每一个特殊元素块或一行赋予一些能力
     let prefix = 'line',
       key = 0;
@@ -183,7 +218,20 @@ const Note = (props: INoteProps) => {
     list.forEach((item) => {
       newList.push(
         <div key={prefix + key++} className={SelfStyle.lineWrapper}>
-          {item}
+          <div className="actions">
+            <Space size="large">
+              <a
+                type="link"
+                onClick={() => UCopy.copyStr(item.copyStr)}
+              >
+                复制
+              </a>
+              <a type="link">删除</a>
+            </Space>
+          </div>
+          <div className="contents">
+            {item.content || <span>&nbsp;</span>}
+          </div>
         </div>,
       );
     });
