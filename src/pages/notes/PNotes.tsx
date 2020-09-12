@@ -37,7 +37,7 @@ export default () => {
       event.preventDefault();
       event.stopPropagation();
       if (event.dataTransfer) {
-        dataTransfer.dropEffect = 'none';
+        // dataTransfer.dropEffect = 'none';
       }
     }
     document.addEventListener('dragover', onDragOver);
@@ -96,6 +96,7 @@ export default () => {
                 setLists={setLists}
                 onEdit={onEditNote}
                 showZoomModal={showZoomModal}
+                onEditSuccess={onEditNoteSuccess}
               ></Note>
             </div>
           ))}
