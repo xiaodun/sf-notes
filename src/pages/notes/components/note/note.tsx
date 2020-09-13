@@ -145,20 +145,17 @@ const Note = (props: INoteProps) => {
           "a\n\n\n1".split("\n") => ["a", "", "", "1"] 
           单独的"" 可以被看做\n
           与原始字符串相比 是少了一个\n
+          1\n2\n3 少了二个
         */
-        let strList: string[] = [];
-        for (let i = 0, start = 0; i < item.content.length; i++) {
-          const str = item.content[i];
-          if (str === '\n') {
-            if (i !== start) {
-              strList.push(item.content.substring(start, i));
-            }
-            strList.push('\n');
-            start = i + 1;
-          }
+        let strList = item.content.split(/\n/);
+        if (strList[strList.length - 1] === '') {
+          //1\n2\n => ["1","2",""]  在下面的算法中会统一加\n 所以最后面这个会被多算
+          strList.pop();
         }
+        strList = strList.map((str) => str + '\n');
+
         let initalCount = item.start;
-        strList.forEach((str, index) => {
+        strList.forEach((str) => {
           let result: RegExpExecArray | null,
             lastIndex = 0;
 
@@ -254,7 +251,6 @@ const Note = (props: INoteProps) => {
     const newContent =
       content.substring(0, start) +
       content.substring(end, content.length);
-
     const newNote: TNotes = {
       ...props.data,
       content: newContent,
