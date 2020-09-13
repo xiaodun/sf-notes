@@ -12,6 +12,3 @@ src/.umi/
 *.ntvs*
 *.njsproj
 *.sln
-
-service/app/data/api/notes/notes/notes.json
-service/app/data/api/notes/notes/notes.json
