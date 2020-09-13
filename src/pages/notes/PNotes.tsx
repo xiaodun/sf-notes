@@ -26,25 +26,25 @@ export default () => {
   const [addPos, setAddPos] = useState<number>(null);
   const editModalRef = useRef<IEditModalRef>();
   const zoomModalRef = useRef<IZoomImgModalRef>();
+
   useEffect(() => {
     reqGetList();
     setTimeout(() => {
-      document.title = '日记本';
+      document.title = '日记本2';
     });
 
-    function onDragOver(event: DragEvent) {
-      const dataTransfer = event.dataTransfer;
-      event.preventDefault();
-      event.stopPropagation();
-      if (event.dataTransfer) {
-        // dataTransfer.dropEffect = 'none';
-      }
-    }
     document.addEventListener('dragover', onDragOver);
     return () => {
       document.removeEventListener('dragover', onDragOver);
     };
   }, []);
+  function onDragOver(event: DragEvent) {
+    const dataTransfer = event.dataTransfer;
+    event.preventDefault();
+    if (event.dataTransfer) {
+      dataTransfer.dropEffect = 'none';
+    }
+  }
   function showZoomModal(src: string) {
     zoomModalRef.current.showModal(src);
   }

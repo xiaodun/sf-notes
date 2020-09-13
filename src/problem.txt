@@ -1,9 +1,21 @@
-"a\n" 应该看作一行并被一起删除
-
-PNotes.tsx 
-document.addEventListener('dragover', onDragOver);
-会导致记事本无法拖拽
 
 Welcome.tsx
     // timeRef.current = window.setInterval(() => {
 会导致页面不断的被刷新
+
+test html可以之前同localhost的形式访问
+
+
+react 事件合成
+document 在热更新之后执行顺序会发生变化
+  useEffect(() => {
+    reqGetList();
+    setTimeout(() => {
+      document.title = '日记本2';
+    });
+
+    document.addEventListener('dragover', onDragOver);
+    return () => {
+      document.removeEventListener('dragover', onDragOver);
+    };
+  }, []);
