@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Document</title>
+  </head>
+  <body>
+    <div style="height: 100px; border: 1px solid #000;"></div>
+  </body>
+  <script>
+    document.body.addEventListener('dragover', (event) => {
+      console.log('body');
+      event.stopPropagation();
+    });
+    document.addEventListener('dragover', () => {
+      console.log('document');
+    });
+    window.addEventListener('dragover', () => {
+      console.log('window');
+    });
+  </script>
+</html>
