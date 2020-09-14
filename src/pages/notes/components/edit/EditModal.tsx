@@ -98,8 +98,8 @@ export const EditModal: ForwardRefRenderFunction<
   }
   function onDragOver(event: React.DragEvent<HTMLDivElement>) {
     const dataTransfer = event.dataTransfer;
-    event.preventDefault();
     event.stopPropagation();
+    event.preventDefault();
     if (dataTransfer) {
       dataTransfer.dropEffect = 'copy';
     }

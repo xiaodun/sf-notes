@@ -45,7 +45,7 @@ const ZoomImgModal: ForwardRefRenderFunction<IZoomImgModalRef> = (
     <Modal
       width="100%"
       title="放大图片"
-      bodyStyle={{ maxHeight: '100%' }}
+      bodyStyle={{ maxHeight: '100%', textAlign: 'center' }}
       visible={state.visible}
       footer={
         <Button type="primary" onClick={onCancel}>
@@ -55,7 +55,7 @@ const ZoomImgModal: ForwardRefRenderFunction<IZoomImgModalRef> = (
       onCancel={onCancel}
       centered
     >
-      <img width="100%" src={state.src} alt="" />
+      <img src={state.src} alt="" />
     </Modal>
   );
 };

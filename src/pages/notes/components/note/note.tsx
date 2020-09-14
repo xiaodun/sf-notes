@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import SelfStyle from './note.less';
-import { Card, Button, Menu, Dropdown, message } from 'antd';
+import { Card, Button, Menu, Dropdown, message, Space } from 'antd';
 import {
   CopyOutlined,
   EditOutlined,
@@ -23,6 +23,14 @@ export interface INoteProps {
   lists: TRes.Lists<TNotes>;
   setLists: React.Dispatch<React.SetStateAction<TRes.Lists<TNotes>>>;
   showZoomModal: (src: string) => void;
+  onEditSuccess: (notes: TNotes) => void;
+}
+export interface INoteAction {
+  content: ReactNode;
+  copyStr?: string;
+  //第一个式起始位置  第二个是个数
+  start: number;
+  count: number;
 }
 const Note = (props: INoteProps) => {
   const { data } = props;
@@ -57,9 +65,7 @@ const Note = (props: INoteProps) => {
     }
   }
   async function onCopy() {
-    UCopy.copy(data.content).then(() => {
-      message.success('复制成功');
-    });
+    UCopy.copyStr(data.content);
   }
   async function reqTopItem(data: TNotes) {
     const res = await SNotes.topItem(data);
@@ -71,40 +77,58 @@ const Note = (props: INoteProps) => {
   function parseContent(content: string = '', base64imgs: Object) {
     let list = dealCode(content);
     list = dealLink(list, base64imgs);
-    list = withAble(list);
-    return list;
+    return withAble(list);
   }
   function dealCode(content: string) {
     //处理代码块
     let prefix = 'code',
       key = 0;
-
-    const codePattern = /```([\s\S]*?)```/g;
-    let list: ReactNode[] = [];
-
+    const codeSign = '```';
+    const codePattern = RegExp(
+      `${codeSign}([\\s\\S]*?)${codeSign}`,
+      'g',
+    );
+    let list: INoteAction[] = [];
     let result: RegExpExecArray | null,
       lastIndex = 0;
     while ((result = codePattern.exec(content)) !== null) {
       if (result.index !== lastIndex) {
-        list.push(content.substring(lastIndex, result.index));
+        const value = content.substring(lastIndex, result.index);
+        list.push({
+          start: lastIndex,
+          count: value.length,
+          content: value,
+        });
       }
       if (result[1]) {
-        list.push(
-          <div key={prefix + key++} className={SelfStyle.codeWrapper}>
-            <SyntaxHighlighter showLineNumbers>
-              {result[1]}
-            </SyntaxHighlighter>
-          </div>,
-        );
+        list.push({
+          start: result.index,
+          count: result[0].length,
+          content: (
+            <div
+              key={prefix + key++}
+              className={SelfStyle.codeWrapper}
+            >
+              <SyntaxHighlighter showLineNumbers>
+                {result[1]}
+              </SyntaxHighlighter>
+            </div>
+          ),
+          copyStr: result[1],
+        });
       }
 
       lastIndex = result.index + result[0].length;
     }
     if (lastIndex !== content.length)
-      list.push(content.substring(lastIndex, content.length));
+      list.push({
+        start: lastIndex,
+        count: content.length,
+        content: content.substring(lastIndex, content.length),
+      });
     return list;
   }
-  function dealLink(list: ReactNode[], base64imgs: Object) {
+  function dealLink(list: INoteAction[], base64imgs: Object) {
     //处理链接
     let prefix = 'link',
       key = 0;
@@ -114,11 +138,23 @@ const Note = (props: INoteProps) => {
       `(https?|ftp|file|${IMG_PROTOCOL_KEY})://[-A-Za-z0-9+&@#/%?=~_|!:,.;\u4e00-\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]`,
       'g',
     );
-    const newList: ReactNode[] = [];
+    const newList: INoteAction[] = [];
     list.forEach((item) => {
-      if (typeof item === 'string') {
-        let strList = item.split(/\n/);
+      if (typeof item.content === 'string') {
+        /*
+          "a\n\n\n1".split("\n") => ["a", "", "", "1"] 
+          单独的"" 可以被看做\n
+          与原始字符串相比 是少了一个\n
+          1\n2\n3 少了二个
+        */
+        let strList = item.content.split(/\n/);
+        if (strList[strList.length - 1] === '') {
+          //1\n2\n => ["1","2",""]  在下面的算法中会统一加\n 所以最后面这个会被多算
+          strList.pop();
+        }
+        strList = strList.map((str) => str + '\n');
 
+        let initalCount = item.start;
         strList.forEach((str) => {
           let result: RegExpExecArray | null,
             lastIndex = 0;
@@ -126,7 +162,16 @@ const Note = (props: INoteProps) => {
           if (str.match(linkPattern)) {
             while ((result = linkPattern.exec(str)) !== null) {
               if (result.index !== lastIndex) {
-                newList.push(str.substring(lastIndex, result.index));
+                const content = str.substring(
+                  lastIndex,
+                  result.index,
+                );
+                newList.push({
+                  start: initalCount + lastIndex,
+                  count: content.length,
+                  content,
+                  copyStr: content,
+                });
               }
               const link = result[0];
               const isImg = imgStuffixList.some(
@@ -142,30 +187,57 @@ const Note = (props: INoteProps) => {
                 } else {
                   src = link;
                 }
-                newList.push(
-                  <div
-                    className={SelfStyle.imgWrapper}
-                    onClick={() => props.showZoomModal(src)}
-                  >
-                    <img key={prefix + key++} src={src} alt="" />
-                  </div>,
-                );
+                newList.push({
+                  copyStr: src,
+                  start: initalCount + result.index,
+                  count: link.length,
+                  content: (
+                    <div
+                      className={SelfStyle.imgWrapper}
+                      onClick={() => props.showZoomModal(src)}
+                    >
+                      <img key={prefix + key++} src={src} alt="" />
+                    </div>
+                  ),
+                });
               } else {
                 //普通链接
-                newList.push(
-                  <a target="_blank" key={prefix + key++} href={link}>
-                    {link}
-                  </a>,
-                );
+                newList.push({
+                  start: initalCount + result.index,
+                  count: link.length,
+                  copyStr: link,
+                  content: (
+                    <a
+                      target="_blank"
+                      key={prefix + key++}
+                      href={link}
+                    >
+                      {link}
+                    </a>
+                  ),
+                });
               }
               lastIndex = result.index + link.length;
             }
             if (lastIndex !== str.length) {
-              newList.push(lastIndex);
+              const content = str.slice(lastIndex);
+              newList.push({
+                start: initalCount + lastIndex,
+                count: str.length,
+                content,
+                copyStr: content,
+              });
             }
           } else {
-            newList.push(str);
+            newList.push({
+              start: initalCount + lastIndex,
+              count: str.length,
+              copyStr: str,
+              content: str,
+            });
           }
+
+          initalCount += str.length;
         });
       } else {
         newList.push(item);
@@ -173,8 +245,22 @@ const Note = (props: INoteProps) => {
     });
     return newList;
   }
-
-  function withAble(list: ReactNode[]) {
+  async function reqDelPart(start: number, count: number) {
+    const content = props.data.content;
+    const end = start + count;
+    const newContent =
+      content.substring(0, start) +
+      content.substring(end, content.length);
+    const newNote: TNotes = {
+      ...props.data,
+      content: newContent,
+    };
+    const res = await SNotes.editItem(newNote);
+    if (res.success) {
+      props.onEditSuccess(newNote);
+    }
+  }
+  function withAble(list: INoteAction[]) {
     //对每一个特殊元素块或一行赋予一些能力
     let prefix = 'line',
       key = 0;
@@ -183,7 +269,25 @@ const Note = (props: INoteProps) => {
     list.forEach((item) => {
       newList.push(
         <div key={prefix + key++} className={SelfStyle.lineWrapper}>
-          {item}
+          <div className="actions">
+            <Space size="large">
+              <a
+                type="link"
+                onClick={() => UCopy.copyStr(item.copyStr)}
+              >
+                复制
+              </a>
+              <a
+                type="link"
+                onClick={() => reqDelPart(item.start, item.count)}
+              >
+                删除
+              </a>
+            </Space>
+          </div>
+          <div className="contents">
+            {item.content || <span>&nbsp;</span>}
+          </div>
         </div>,
       );
     });
@@ -197,11 +301,8 @@ const Note = (props: INoteProps) => {
       className={SelfStyle.noteWrapper}
       extra={
         <Button
-          icon={
-            <CloseOutlined
-              onClick={() => reqDelItem(data.id)}
-            ></CloseOutlined>
-          }
+          onClick={() => reqDelItem(data.id)}
+          icon={<CloseOutlined></CloseOutlined>}
         ></Button>
       }
       actions={[
