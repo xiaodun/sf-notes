@@ -12,16 +12,9 @@ import EditModal, {
 import ZoomImgModal, {
   IZoomImgModalRef,
 } from './components/zoom/ZoomImgModal';
-const tabKeys = {
-  notes: 'notes',
-  fileManage: 'fileManage',
-};
 export default () => {
   const [lists, setLists] = useState<TRes.Lists<TNotes>>(
     new TRes.Lists(),
-  );
-  const [activeTabkey, setActiveTabKey] = useState<string>(
-    tabKeys.notes,
   );
   const [addPos, setAddPos] = useState<number>(null);
   const editModalRef = useRef<IEditModalRef>();
@@ -67,10 +60,6 @@ export default () => {
     setAddPos(index);
     editModalRef.current.showModal(data);
   }
-  function onTabChange(activeKey: string) {
-    setActiveTabKey(activeKey);
-  }
-
   async function reqGetList() {
     const res = await SNotes.getList();
     if (res.success) {
@@ -80,39 +69,27 @@ export default () => {
 
   return (
     <div>
-      <Tabs
-        type="card"
-        size="large"
-        activeKey={activeTabkey}
-        onChange={onTabChange}
-      >
-        <Tabs.TabPane tab="日记本" key={tabKeys.notes}>
-          {lists.data.map((note, index) => (
-            <div key={note.id} className={SelfStyle.noteWrapper}>
-              <Note
-                data={note}
-                index={index}
-                lists={lists}
-                setLists={setLists}
-                onEdit={onEditNote}
-                showZoomModal={showZoomModal}
-                onEditSuccess={onEditNoteSuccess}
-              ></Note>
-            </div>
-          ))}
-          <EditModal
-            ref={editModalRef}
-            onAddSuccess={onAddNoteSuccess}
+      {lists.data.map((note, index) => (
+        <div key={note.id} className={SelfStyle.noteWrapper}>
+          <Note
+            data={note}
+            index={index}
+            lists={lists}
+            setLists={setLists}
+            onEdit={onEditNote}
+            showZoomModal={showZoomModal}
             onEditSuccess={onEditNoteSuccess}
-          ></EditModal>
-          <PageFooter>
-            <Button onClick={() => onEditNote()}>新建笔记</Button>
-          </PageFooter>
-        </Tabs.TabPane>
-        <Tabs.TabPane tab="文件管理" key={tabKeys.fileManage}>
-          1
-        </Tabs.TabPane>
-      </Tabs>
+          ></Note>
+        </div>
+      ))}
+      <EditModal
+        ref={editModalRef}
+        onAddSuccess={onAddNoteSuccess}
+        onEditSuccess={onEditNoteSuccess}
+      ></EditModal>
+      <PageFooter>
+        <Button onClick={() => onEditNote()}>新建笔记</Button>
+      </PageFooter>
       <ZoomImgModal ref={zoomModalRef}></ZoomImgModal>
     </div>
   );
