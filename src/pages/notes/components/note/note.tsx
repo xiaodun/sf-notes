@@ -220,7 +220,6 @@ const Note = (props: INoteProps) => {
             copyStr = str;
             partList.push(str);
           }
-          console.log('wx', partList);
           newList.push({
             copyStr,
             start: initalCount,
