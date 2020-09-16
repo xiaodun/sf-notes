@@ -30,7 +30,7 @@ export default () => {
   useEffect(() => {
     reqGetList();
     setTimeout(() => {
-      document.title = '日记本2';
+      document.title = '日记本';
     });
 
     document.addEventListener('dragover', onDragOver);

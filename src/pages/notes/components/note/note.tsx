@@ -152,26 +152,28 @@ const Note = (props: INoteProps) => {
           //1\n2\n => ["1","2",""]  在下面的算法中会统一加\n 所以最后面这个会被多算
           strList.pop();
         }
-        strList = strList.map((str) => str + '\n');
+        if (strList.length > 1) {
+          //如果只有一行 加换行符不好处理
+          strList = strList.map((str) => str + '\n');
+        }
 
         let initalCount = item.start;
         strList.forEach((str) => {
           let result: RegExpExecArray | null,
             lastIndex = 0;
 
+          let partList: ReactNode[] = [];
+          let copyStr = '';
           if (str.match(linkPattern)) {
+            //里面的元素应该被渲染为一行
             while ((result = linkPattern.exec(str)) !== null) {
               if (result.index !== lastIndex) {
                 const content = str.substring(
                   lastIndex,
                   result.index,
                 );
-                newList.push({
-                  start: initalCount + lastIndex,
-                  count: content.length,
-                  content,
-                  copyStr: content,
-                });
+                partList.push(content);
+                copyStr += content;
               }
               const link = result[0];
               const isImg = imgStuffixList.some(
@@ -187,55 +189,59 @@ const Note = (props: INoteProps) => {
                 } else {
                   src = link;
                 }
-                newList.push({
-                  copyStr: src,
-                  start: initalCount + result.index,
-                  count: link.length,
-                  content: (
-                    <div
-                      className={SelfStyle.imgWrapper}
-                      onClick={() => props.showZoomModal(src)}
-                    >
-                      <img key={prefix + key++} src={src} alt="" />
-                    </div>
-                  ),
-                });
+                copyStr += src;
+                partList.push(
+                  <div
+                    className={SelfStyle.imgWrapper}
+                    onClick={() => props.showZoomModal(src)}
+                  >
+                    <img key={prefix + key++} src={src} alt="" />
+                  </div>,
+                );
               } else {
                 //普通链接
-                newList.push({
-                  start: initalCount + result.index,
-                  count: link.length,
-                  copyStr: link,
-                  content: (
-                    <a
-                      target="_blank"
-                      key={prefix + key++}
-                      href={link}
-                    >
-                      {link}
-                    </a>
-                  ),
-                });
+                copyStr += link;
+                partList.push(
+                  <a target="_blank" key={prefix + key++} href={link}>
+                    {link}
+                  </a>,
+                );
               }
               lastIndex = result.index + link.length;
             }
             if (lastIndex !== str.length) {
               const content = str.slice(lastIndex);
-              newList.push({
-                start: initalCount + lastIndex,
-                count: str.length,
-                content,
-                copyStr: content,
-              });
+              if (content !== '\n') {
+                copyStr += '\n';
+              }
+              partList.push(content);
             }
           } else {
-            newList.push({
-              start: initalCount + lastIndex,
-              count: str.length,
-              copyStr: str,
-              content: str,
-            });
+            copyStr = str;
+            partList.push(str);
           }
+          console.log('wx', partList);
+          newList.push({
+            copyStr,
+            start: initalCount,
+            count: str.length,
+            content: (
+              <div className={SelfStyle.linkWrapper}>
+                {partList.map((item, index) => {
+                  let newItem = item;
+                  if (typeof item === 'string') {
+                    newItem = <span>{item}</span>;
+                  }
+
+                  return (
+                    <React.Fragment key={index}>
+                      {newItem}
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+            ),
+          });
 
           initalCount += str.length;
         });
