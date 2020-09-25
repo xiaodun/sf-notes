@@ -55,7 +55,7 @@ const ZoomImgModal: ForwardRefRenderFunction<IZoomImgModalRef> = (
       onCancel={onCancel}
       centered
     >
-      <img src={state.src} alt="" />
+      <img src={state.src} style={{ maxWidth: '100%' }} alt="" />
     </Modal>
   );
 };
