@@ -1,9 +1,4 @@
-import React, {
-  ReactNode,
-  useEffect,
-  useRef,
-  PropsWithChildren,
-} from 'react';
+import React, { useEffect, useRef, PropsWithChildren } from 'react';
 import { Affix, Space } from 'antd';
 import SelfStyle from './PageFooter.less';
 export interface IPageFooterProps {}

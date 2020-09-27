@@ -1,103 +1,67 @@
+import { initial } from 'lodash';
 import { produce } from '..';
 
 export interface TRes<T> {
-  success: boolean;
+  success?: boolean;
   message?: string;
   list?: T[];
   data?: T;
 }
 export namespace TRes {
-  export class Lists<T> {
-    public loading = true;
-    public data: T[] = [];
-    public pageNo = 0;
-    public pageSize = 0;
-    public total = 0;
-  }
   export function delItem<T>(
-    lists: Lists<T>,
+    res: TRes<T>,
     del: (item: T) => boolean,
   ) {
-    let newDataList = [...lists.data];
-    const index = newDataList.findIndex(del);
+    let newRes = { ...res };
+    const index = newRes.list.findIndex(del);
     if (index !== -1) {
-      newDataList.splice(index, 1);
+      newRes.list.splice(index, 1);
     }
-    let newLists: Lists<T> = produce(lists, (drafState) => {});
 
-    return newLists;
+    return newRes;
   }
   export function addItem<T>(
-    lists: Lists<T>,
+    res: TRes<T>,
     onAdd: (dataList: T[]) => T[],
   ) {
-    let newDataList = [...lists.data];
-    newDataList = onAdd(newDataList);
-    let res: TRes<T> = {
-      success: true,
-      message: '',
-      list: newDataList,
-      no: lists.pageNo,
-      size: lists.pageSize,
-      total: lists.total + 1,
-    };
+    let newRes = { ...res };
+    newRes.list = onAdd(newRes.list);
+    return newRes;
   }
   export function updateItem<T>(
-    lists: Lists<T>,
+    res: TRes<T>,
     data: T,
     onUpdate: (data: T) => boolean,
   ) {
-    let newDataList = [...lists.data];
-    const index = newDataList.findIndex(onUpdate);
-    newDataList.splice(index, 1, data);
-    let res: TRes<T> = {
-      success: true,
-      message: '',
-      list: newDataList,
-      no: lists.pageNo,
-      size: lists.pageSize,
-      total: lists.total,
-    };
+    let newRes = { ...res };
+    const index = newRes.list.findIndex(onUpdate);
+    newRes.list.splice(index, 1, data);
+
+    return newRes;
   }
   export function switchItem<T>(
-    lists: Lists<T>,
+    res: TRes<T>,
     data: T,
     onPos: () => { currentIndex: number; targetIndex: number },
   ) {
-    let newDataList = [...lists.data];
+    let newRes = { ...res };
     const { currentIndex, targetIndex } = onPos();
-    const targetData = newDataList[targetIndex];
+    const targetData = newRes.list[targetIndex];
 
-    newDataList.splice(currentIndex, 1, targetData);
-    newDataList.splice(targetIndex, 1, data);
-    let res: TRes<T> = {
-      success: true,
-      message: '',
-      list: newDataList,
-      no: lists.pageNo,
-      size: lists.pageSize,
-      total: lists.total,
-    };
+    newRes.list.splice(currentIndex, 1, targetData);
+    newRes.list.splice(targetIndex, 1, data);
+
+    return newRes;
   }
-  export function changePos<T>(
-    lists: Lists<T>,
-    data: T,
-    pos: number,
-  ) {
-    let newDataList = [...lists.data];
+  export function changePos<T>(res: TRes<T>, data: T, pos: number) {
+    let newRes = { ...res };
 
-    const index = newDataList.indexOf(data);
+    const index = newRes.list.indexOf(data);
 
-    newDataList.splice(index, 1);
-    newDataList.splice(pos, 0, data);
-    let res: TRes<T> = {
-      success: true,
-      message: '',
-      list: newDataList,
-      no: lists.pageNo,
-      size: lists.pageSize,
-      total: lists.total,
-    };
+    newRes.list.splice(index, 1);
+    newRes.list.splice(pos, 0, data);
+
+    return newRes;
   }
 }
 export default TRes;
