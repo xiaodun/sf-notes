@@ -19,7 +19,7 @@ export default () => {
   const [addPos, setAddPos] = useState<number>(null);
   const editModalRef = useRef<IEditModalRef>();
   const zoomModalRef = useRef<IZoomImgModalRef>();
-
+  console.log('wx', 12);
   useEffect(() => {
     reqGetList();
     setTimeout(() => {
