@@ -10,9 +10,6 @@
         data: {
           success: true,
           list: argData,
-          no: 1,
-          size: 30,
-          total: 12,
         },
       },
     };

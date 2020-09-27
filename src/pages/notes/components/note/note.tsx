@@ -20,8 +20,8 @@ export interface INoteProps {
   onEdit: (data?: TNotes, index?: number) => void;
   data: TNotes;
   index: number;
-  lists: TRes.Lists<TNotes>;
-  setLists: React.Dispatch<React.SetStateAction<TRes.Lists<TNotes>>>;
+  noteRes: TRes<TNotes>;
+  setNoteRes: React.Dispatch<React.SetStateAction<TRes<TNotes>>>;
   showZoomModal: (src: string) => void;
   onEditSuccess: (notes: TNotes) => void;
 }
@@ -42,7 +42,10 @@ const Note = (props: INoteProps) => {
       <Menu.Item key="noitce_top" onClick={() => reqTopItem(data)}>
         置顶
       </Menu.Item>
-      <Menu.Item key="noitce_top" onClick={() => reqBottomItem(data)}>
+      <Menu.Item
+        key="noitce_bottom"
+        onClick={() => reqBottomItem(data)}
+      >
         置后
       </Menu.Item>
       <Menu.Divider />
@@ -91,8 +94,8 @@ const Note = (props: INoteProps) => {
   async function reqDelItem(id: string) {
     const res = await SNotes.delItem(id);
     if (res.success) {
-      props.setLists(
-        TRes.delItem(props.lists, (item) => item.id === id),
+      props.setNoteRes(
+        TRes.delItem(props.noteRes, (item) => item.id === id),
       );
     }
   }
@@ -102,19 +105,19 @@ const Note = (props: INoteProps) => {
   async function reqTopItem(data: TNotes) {
     const res = await SNotes.topItem(data);
     if (res.success) {
-      const newLists = TRes.changePos(props.lists, data, 0);
-      props.setLists(newLists);
+      const newNoteRes = TRes.changePos(props.noteRes, data, 0);
+      props.setNoteRes(newNoteRes);
     }
   }
   async function reqBottomItem(data: TNotes) {
     const res = await SNotes.bottomItem(data);
     if (res.success) {
-      const newLists = TRes.changePos(
-        props.lists,
+      const newNoteRes = TRes.changePos(
+        props.noteRes,
         data,
-        props.lists.data.length - 1,
+        props.noteRes.list.length - 1,
       );
-      props.setLists(newLists);
+      props.setNoteRes(newNoteRes);
     }
   }
   function parseContent(content: string = '', base64imgs: Object) {
