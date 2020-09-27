@@ -30,5 +30,12 @@ export namespace SNotes {
       data: notes,
     });
   }
+  export async function bottomItem(
+    notes: TNotes,
+  ): Promise<TRes<null>> {
+    return request.post('/notes/bottomNote', {
+      data: notes,
+    });
+  }
 }
 export default SNotes;

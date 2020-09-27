@@ -42,6 +42,10 @@ const Note = (props: INoteProps) => {
       <Menu.Item key="noitce_top" onClick={() => reqTopItem(data)}>
         置顶
       </Menu.Item>
+      <Menu.Item key="noitce_top" onClick={() => reqBottomItem(data)}>
+        置后
+      </Menu.Item>
+      <Menu.Divider />
       <Menu.Item
         key="add_up"
         onClick={() => props.onEdit(null, props.index)}
@@ -55,6 +59,34 @@ const Note = (props: INoteProps) => {
         向下添加
       </Menu.Item>
     </Menu>
+  );
+
+  return (
+    <Card
+      size="small"
+      title={title}
+      className={SelfStyle.noteWrapper}
+      extra={
+        <Button
+          onClick={() => reqDelItem(data.id)}
+          icon={<CloseOutlined></CloseOutlined>}
+        ></Button>
+      }
+      actions={[
+        <CopyOutlined onClick={onCopy} />,
+        <EditOutlined
+          key="edit"
+          onClick={() => props.onEdit(data)}
+        />,
+        <Dropdown overlay={menu} placement="topCenter">
+          <Button>
+            <EllipsisOutlined key="ellipsis" />
+          </Button>
+        </Dropdown>,
+      ]}
+    >
+      {parseContent(data.content, data.base64)}
+    </Card>
   );
   async function reqDelItem(id: string) {
     const res = await SNotes.delItem(id);
@@ -71,6 +103,17 @@ const Note = (props: INoteProps) => {
     const res = await SNotes.topItem(data);
     if (res.success) {
       const newLists = TRes.changePos(props.lists, data, 0);
+      props.setLists(newLists);
+    }
+  }
+  async function reqBottomItem(data: TNotes) {
+    const res = await SNotes.bottomItem(data);
+    if (res.success) {
+      const newLists = TRes.changePos(
+        props.lists,
+        data,
+        props.lists.data.length - 1,
+      );
       props.setLists(newLists);
     }
   }
@@ -298,34 +341,6 @@ const Note = (props: INoteProps) => {
     });
     return newList;
   }
-
-  return (
-    <Card
-      size="small"
-      title={title}
-      className={SelfStyle.noteWrapper}
-      extra={
-        <Button
-          onClick={() => reqDelItem(data.id)}
-          icon={<CloseOutlined></CloseOutlined>}
-        ></Button>
-      }
-      actions={[
-        <CopyOutlined onClick={onCopy} />,
-        <EditOutlined
-          key="edit"
-          onClick={() => props.onEdit(data)}
-        />,
-        <Dropdown overlay={menu} placement="topCenter">
-          <Button>
-            <EllipsisOutlined key="ellipsis" />
-          </Button>
-        </Dropdown>,
-      ]}
-    >
-      {parseContent(data.content, data.base64)}
-    </Card>
-  );
 };
 
 export default Note;
