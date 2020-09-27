@@ -13,9 +13,7 @@ import ZoomImgModal, {
   IZoomImgModalRef,
 } from './components/zoom/ZoomImgModal';
 export default () => {
-  const [lists, setLists] = useState<TRes.Lists<TNotes>>(
-    new TRes.Lists(),
-  );
+  const [lists, setLists] = useState<TNotes[]>([]);
   const [addPos, setAddPos] = useState<number>(null);
   const editModalRef = useRef<IEditModalRef>();
   const zoomModalRef = useRef<IZoomImgModalRef>();
@@ -63,7 +61,7 @@ export default () => {
   async function reqGetList() {
     const res = await SNotes.getList();
     if (res.success) {
-      setLists(TRes.asLists(res));
+      setLists(res.list);
     }
   }
 
