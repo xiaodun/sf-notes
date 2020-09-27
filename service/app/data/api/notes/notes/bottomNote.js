@@ -9,7 +9,7 @@
     });
     let note = argData[index];
     argData.splice(index, 1);
-    argData.unshift(note);
+    argData.push(note);
     return {
       isWrite: true, //是否覆盖数据
       data: argData, //需要存储的新数据
