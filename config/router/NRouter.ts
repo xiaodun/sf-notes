@@ -29,11 +29,4 @@ export namespace NRouter {
   ];
 }
 
-interface NewPricePageState {
-  test: {
-    name: 1;
-  };
-}
-
-declare let _foo: NewPricePageState;
-let bar: typeof _foo.test;
+export default NRouter;
