@@ -12,3 +12,4 @@ src/.umi/
 *.ntvs*
 *.njsproj
 *.sln
+service/app/data/
