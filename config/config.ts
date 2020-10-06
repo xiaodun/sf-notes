@@ -41,6 +41,10 @@ export default defineConfig({
       path: '/test',
       component: './test',
     },
+    {
+      path: '/notes',
+      component: './notes',
+    },
   ],
   // Theme for antd: https://ant.design/docs/react/customize-theme-cn
   theme: {

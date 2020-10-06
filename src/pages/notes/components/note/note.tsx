@@ -13,8 +13,8 @@ import moment from 'moment';
 import UCopy from '@/common/utils/UCopy';
 import SNotes from '../../SNotes';
 import TRes from '@/common/type/TRes';
-import { IMG_PROTOCOL_KEY } from '../..';
-import { UDate } from '@/common/utils/UDate';
+import UDate from '@/common/utils/UDate';
+import UNotes from '../../UNotes';
 
 export interface INoteProps {
   onEdit: (data?: TNotes, index?: number) => void;
@@ -181,7 +181,7 @@ const Note = (props: INoteProps) => {
 
     const imgStuffixList = ['.jpg', '.jpeg', '.gif', '.png', '.svg'];
     const linkPattern = RegExp(
-      `(https?|ftp|file|${IMG_PROTOCOL_KEY})://[-A-Za-z0-9+&@#/%?=~_|!:,.;\u4e00-\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]`,
+      `(https?|ftp|file|${UNotes.imgProtocolKey})://[-A-Za-z0-9+&@#/%?=~_|!:,.;\u4e00-\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]`,
       'g',
     );
     const newList: INoteAction[] = [];
@@ -227,7 +227,8 @@ const Note = (props: INoteProps) => {
               );
               if (isImg) {
                 //图片
-                const isPaste = link.indexOf(IMG_PROTOCOL_KEY) === 0;
+                const isPaste =
+                  link.indexOf(UNotes.imgProtocolKey) === 0;
                 let src: string;
                 if (isPaste) {
                   //黏贴图片

@@ -13,9 +13,9 @@ import React from 'react';
 import TextArea from 'antd/lib/input/TextArea';
 import moment from 'moment';
 import SNotes from '../../SNotes';
-import { IMG_PROTOCOL_KEY } from '../..';
 import produce from 'immer';
-import { UDate } from '@/common/utils/UDate';
+import UDate from '@/common/utils/UDate';
+import UNotes from '../../UNotes';
 
 export interface IEditModalProps {
   onAddSuccess: (notes: TNotes) => void;
@@ -135,7 +135,7 @@ export const EditModal: ForwardRefRenderFunction<
     reader.onload = function (event) {
       //转换为自定义图片
       let fileName =
-        IMG_PROTOCOL_KEY +
+        UNotes.imgProtocolKey +
         '://' +
         ((Math.random() * 1000000) | 0) +
         '.' +

@@ -3,7 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import SelfStyle from './Welcome.less';
 import { Layout } from 'antd';
 import moment from 'moment';
-import { UDate } from '@/common/utils/UDate';
+import UDate from '@/common/utils/UDate';
+import PApp from './app/PApp';
 export default () => {
   return (
     <Layout className={SelfStyle.layput}>
@@ -13,7 +14,7 @@ export default () => {
         </div>
       </Layout.Header>
       <Layout.Content className={SelfStyle.content}>
-        <PNotes></PNotes>
+        <PApp></PApp>
       </Layout.Content>
     </Layout>
   );
