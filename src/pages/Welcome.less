@@ -5,30 +5,46 @@
   background-color: #fff;
 }
 
-.header {
-  position: fixed;
-  z-index: 1;
-
-  width: 100%;
-
-  background-color: #fff;
-  box-shadow: @shadow-1-down;
-}
-
-.headerRight {
-  float: right;
-
-  .timeWrapper {
-    font-size: 28px;
-    font-weight: bold;
-
-    color: #695a5a;
-  }
-}
-
 .content {
   width: 85%;
   max-width: 960px;
   margin: @layout-header-height auto;
   padding-top: 5vh;
+}
+
+.header {
+  position: fixed;
+  z-index: 1;
+
+  display: flex;
+
+  width: 100%;
+
+  background-color: #fff;
+  box-shadow: @shadow-1-down;
+
+  .backs {
+    font-size: 24px;
+    font-weight: bold;
+
+    padding: 0 1em;
+
+    cursor: pointer;
+    transition: background-color .25s linear;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, .3);
+    }
+  }
+
+  .words {
+    flex-grow: 1;
+  }
+}
+
+.timeWrapper {
+  font-size: 28px;
+  font-weight: bold;
+
+  color: #695a5a;
 }
