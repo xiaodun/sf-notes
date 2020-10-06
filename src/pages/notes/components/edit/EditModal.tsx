@@ -1,4 +1,4 @@
-import TNotes from '../../TNotes';
+import NNotes from '../../NNotes';
 import {
   useState,
   useImperativeHandle,
@@ -15,21 +15,20 @@ import moment from 'moment';
 import SNotes from '../../SNotes';
 import produce from 'immer';
 import UDate from '@/common/utils/UDate';
-import UNotes from '../../UNotes';
 
 export interface IEditModalProps {
-  onAddSuccess: (notes: TNotes) => void;
-  onEditSuccess: (notes: TNotes) => void;
+  onAddSuccess: (notes: NNotes) => void;
+  onEditSuccess: (notes: NNotes) => void;
 }
 
 export interface IEditModalState {
   visible: boolean;
   index: number;
-  data: TNotes;
+  data: NNotes;
   added: boolean;
 }
 export interface IEditModalRef {
-  showModal: (data?: TNotes) => void;
+  showModal: (data?: NNotes) => void;
 }
 const defaultState: IEditModalState = {
   added: false,
@@ -72,7 +71,7 @@ export const EditModal: ForwardRefRenderFunction<
       textAreaRef.current && textAreaRef.current.focus();
     }
   }, [state.visible]);
-  function onDataChange(notes: Partial<TNotes>) {
+  function onDataChange(notes: Partial<NNotes>) {
     const newState = produce(state, (drafState) => {
       Object.assign(drafState.data, notes);
     });
@@ -107,7 +106,7 @@ export const EditModal: ForwardRefRenderFunction<
   function onDrop(event: React.DragEvent<HTMLDivElement>) {
     event.preventDefault();
     const dataTransfer = event.dataTransfer;
-    const notes: Partial<TNotes> = {
+    const notes: Partial<NNotes> = {
       base64: { ...state.data.base64 },
       content: state.data.content,
     };
@@ -121,7 +120,7 @@ export const EditModal: ForwardRefRenderFunction<
       }
     }
   }
-  function convertFile(file: File, notes: Partial<TNotes>) {
+  function convertFile(file: File, notes: Partial<NNotes>) {
     const { type } = file;
     if (type.includes('image')) {
       convertImgFile(file, notes);
@@ -129,13 +128,13 @@ export const EditModal: ForwardRefRenderFunction<
       message.warning('只支持图片文件!');
     }
   }
-  function convertImgFile(file: File, notes: Partial<TNotes>) {
+  function convertImgFile(file: File, notes: Partial<NNotes>) {
     let reader = new FileReader();
 
     reader.onload = function (event) {
       //转换为自定义图片
       let fileName =
-        UNotes.imgProtocolKey +
+        NNotes.imgProtocolKey +
         '://' +
         ((Math.random() * 1000000) | 0) +
         '.' +
@@ -155,7 +154,7 @@ export const EditModal: ForwardRefRenderFunction<
   function onPaste(event: React.ClipboardEvent<HTMLTextAreaElement>) {
     var clipboardItems =
       event.clipboardData && event.clipboardData.items;
-    const notes: Partial<TNotes> = {
+    const notes: Partial<NNotes> = {
       base64: { ...state.data.base64 },
       content: state.data.content,
     };

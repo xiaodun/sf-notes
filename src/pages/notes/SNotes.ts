@@ -1,18 +1,18 @@
-import TNotes from './TNotes';
+import NNotes from './NNotes';
 
 import request from '@/utils/request';
-import TRes from '@/common/type/TRes';
+import NRes from '@/common/type/NRes';
 export namespace SNotes {
-  export async function getList(): Promise<TRes<TNotes>> {
+  export async function getList(): Promise<NRes<NNotes>> {
     return request.get('/notes/getNoteList');
   }
-  export async function delItem(id: string): Promise<TRes<null>> {
+  export async function delItem(id: string): Promise<NRes<null>> {
     return request.get('/notes/delNote', { params: { id } });
   }
   export async function addItem(
-    notes: TNotes,
+    notes: NNotes,
     index: number = 0,
-  ): Promise<TRes<null>> {
+  ): Promise<NRes<null>> {
     return request.post('/notes/addNote', {
       data: {
         notes,
@@ -20,19 +20,19 @@ export namespace SNotes {
       },
     });
   }
-  export async function editItem(notes: TNotes): Promise<TRes<null>> {
+  export async function editItem(notes: NNotes): Promise<NRes<null>> {
     return request.post('/notes/editNote', {
       data: notes,
     });
   }
-  export async function topItem(notes: TNotes): Promise<TRes<null>> {
+  export async function topItem(notes: NNotes): Promise<NRes<null>> {
     return request.post('/notes/topNote', {
       data: notes,
     });
   }
   export async function bottomItem(
-    notes: TNotes,
-  ): Promise<TRes<null>> {
+    notes: NNotes,
+  ): Promise<NRes<null>> {
     return request.post('/notes/bottomNote', {
       data: notes,
     });

@@ -1,12 +1,9 @@
-import { IConfigFromPlugins } from '@/.umi/core/pluginConfig';
-import { RouterOptions } from 'express';
-import { IRoute, Router } from 'umi';
-declare let UmiConfig: IConfigFromPlugins;
-
+import { IRoute } from 'umi';
 export namespace NRouter {
   export const appPath = '/app';
   export const testPath = '/test';
   export const notesPath = '/notes';
+  export const filePath = '/file';
   export const routes: IRoute[] = [
     {
       path: '/',
@@ -17,12 +14,16 @@ export namespace NRouter {
           component: '.' + appPath,
         },
         {
-          path: '/test',
+          path: notesPath,
+          component: '.' + notesPath,
+        },
+        {
+          path: testPath,
           component: '.' + testPath,
         },
         {
-          path: '/notes',
-          component: '.' + notesPath,
+          path: filePath,
+          component: '.' + filePath,
         },
       ],
     },
