@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import SelfStyle from './Welcome.less';
 import { Layout } from 'antd';
 import moment from 'moment';
-import { hh_mm_ss } from '@/common/constant/DateConstant';
+import { UDate } from '@/common/utils/UDate';
 export default () => {
   return (
     <Layout className={SelfStyle.layput}>
@@ -23,7 +23,7 @@ const DateTimeArea = () => {
   const timeRef = useRef<number>();
   useEffect(() => {
     timeRef.current = window.setInterval(() => {
-      const timeStr = moment().format(hh_mm_ss);
+      const timeStr = moment().format(UDate.hh_mm_ss);
       setTime(timeStr);
     }, 1000);
     return () => {
