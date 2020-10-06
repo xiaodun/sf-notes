@@ -1,16 +1,16 @@
-import PNotes from '@/pages/notes';
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  FC,
-  PropsWithChildren,
-} from 'react';
+import React, { useState, useEffect, useRef, FC } from 'react';
 import SelfStyle from './Welcome.less';
 import { Layout } from 'antd';
 import moment from 'moment';
 import UDate from '@/common/utils/UDate';
-export const Welcome: FC = (props) => {
+import { IRouteComponentProps } from 'umi';
+import NRouter from '@/../config/router/NRouter';
+export const Welcome: FC<IRouteComponentProps> = (props) => {
+  useEffect(() => {
+    if (props.match.path === '/') {
+      props.history.push(NRouter.appPath);
+    }
+  }, []);
   return (
     <Layout className={SelfStyle.layput}>
       <Layout.Header className={SelfStyle.header}>
