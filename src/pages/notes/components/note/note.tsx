@@ -10,11 +10,11 @@ import {
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import TNotes from '../../TNotes';
 import moment from 'moment';
-import { YYYY_MM_DD } from '@/common/constant/DateConstant';
-import UCopy from '@/common/utils/copy';
+import UCopy from '@/common/utils/UCopy';
 import SNotes from '../../SNotes';
 import TRes from '@/common/type/TRes';
 import { IMG_PROTOCOL_KEY } from '../..';
+import { UDate } from '@/common/utils/UDate';
 
 export interface INoteProps {
   onEdit: (data?: TNotes, index?: number) => void;
@@ -36,7 +36,7 @@ const Note = (props: INoteProps) => {
   const { data } = props;
   let title =
     data.title ||
-    moment(data.createTime || undefined).format(YYYY_MM_DD);
+    moment(data.createTime || undefined).format(UDate.YYYY_MM_DD);
   const menu = (
     <Menu>
       <Menu.Item key="noitce_top" onClick={() => reqTopItem(data)}>

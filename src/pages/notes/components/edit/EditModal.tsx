@@ -11,11 +11,11 @@ import { Modal, Input, Space, message } from 'antd';
 import SelfStyle from './EditModal.less';
 import React from 'react';
 import TextArea from 'antd/lib/input/TextArea';
-import { YYYY_MM_DD } from '@/common/constant/DateConstant';
 import moment from 'moment';
 import SNotes from '../../SNotes';
 import { IMG_PROTOCOL_KEY } from '../..';
 import produce from 'immer';
+import { UDate } from '@/common/utils/UDate';
 
 export interface IEditModalProps {
   onAddSuccess: (notes: TNotes) => void;
@@ -220,7 +220,9 @@ export const EditModal: ForwardRefRenderFunction<
               title: e.target.value,
             })
           }
-          placeholder={`标题 默认为${moment().format(YYYY_MM_DD)}`}
+          placeholder={`标题 默认为${moment().format(
+            UDate.YYYY_MM_DD,
+          )}`}
         ></Input>
       </Space>
     </Modal>
