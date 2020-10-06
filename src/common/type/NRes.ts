@@ -1,15 +1,12 @@
-import { initial } from 'lodash';
-import { produce } from '..';
-
-export interface TRes<T> {
+export interface NRes<T> {
   success?: boolean;
   message?: string;
   list?: T[];
   data?: T;
 }
-export namespace TRes {
+export namespace NRes {
   export function delItem<T>(
-    res: TRes<T>,
+    res: NRes<T>,
     del: (item: T) => boolean,
   ) {
     let newRes = { ...res };
@@ -21,7 +18,7 @@ export namespace TRes {
     return newRes;
   }
   export function addItem<T>(
-    res: TRes<T>,
+    res: NRes<T>,
     onAdd: (dataList: T[]) => T[],
   ) {
     let newRes = { ...res };
@@ -29,7 +26,7 @@ export namespace TRes {
     return newRes;
   }
   export function updateItem<T>(
-    res: TRes<T>,
+    res: NRes<T>,
     data: T,
     onUpdate: (data: T) => boolean,
   ) {
@@ -40,7 +37,7 @@ export namespace TRes {
     return newRes;
   }
   export function switchItem<T>(
-    res: TRes<T>,
+    res: NRes<T>,
     data: T,
     onPos: () => { currentIndex: number; targetIndex: number },
   ) {
@@ -53,7 +50,7 @@ export namespace TRes {
 
     return newRes;
   }
-  export function changePos<T>(res: TRes<T>, data: T, pos: number) {
+  export function changePos<T>(res: NRes<T>, data: T, pos: number) {
     let newRes = { ...res };
 
     const index = newRes.list.indexOf(data);
@@ -64,4 +61,4 @@ export namespace TRes {
     return newRes;
   }
 }
-export default TRes;
+export default NRes;

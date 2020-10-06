@@ -8,22 +8,21 @@ import {
   EllipsisOutlined,
 } from '@ant-design/icons';
 import SyntaxHighlighter from 'react-syntax-highlighter';
-import TNotes from '../../TNotes';
+import NNotes from '../../NNotes';
 import moment from 'moment';
 import UCopy from '@/common/utils/UCopy';
 import SNotes from '../../SNotes';
-import TRes from '@/common/type/TRes';
+import NRes from '@/common/type/NRes';
 import UDate from '@/common/utils/UDate';
-import UNotes from '../../UNotes';
 
 export interface INoteProps {
-  onEdit: (data?: TNotes, index?: number) => void;
-  data: TNotes;
+  onEdit: (data?: NNotes, index?: number) => void;
+  data: NNotes;
   index: number;
-  noteRes: TRes<TNotes>;
-  setNoteRes: React.Dispatch<React.SetStateAction<TRes<TNotes>>>;
+  noteRes: NRes<NNotes>;
+  setNoteRes: React.Dispatch<React.SetStateAction<NRes<NNotes>>>;
   showZoomModal: (src: string) => void;
-  onEditSuccess: (notes: TNotes) => void;
+  onEditSuccess: (notes: NNotes) => void;
 }
 export interface INoteAction {
   content: ReactNode;
@@ -95,24 +94,24 @@ const Note = (props: INoteProps) => {
     const res = await SNotes.delItem(id);
     if (res.success) {
       props.setNoteRes(
-        TRes.delItem(props.noteRes, (item) => item.id === id),
+        NRes.delItem(props.noteRes, (item) => item.id === id),
       );
     }
   }
   async function onCopy() {
     UCopy.copyStr(data.content);
   }
-  async function reqTopItem(data: TNotes) {
+  async function reqTopItem(data: NNotes) {
     const res = await SNotes.topItem(data);
     if (res.success) {
-      const newNoteRes = TRes.changePos(props.noteRes, data, 0);
+      const newNoteRes = NRes.changePos(props.noteRes, data, 0);
       props.setNoteRes(newNoteRes);
     }
   }
-  async function reqBottomItem(data: TNotes) {
+  async function reqBottomItem(data: NNotes) {
     const res = await SNotes.bottomItem(data);
     if (res.success) {
-      const newNoteRes = TRes.changePos(
+      const newNoteRes = NRes.changePos(
         props.noteRes,
         data,
         props.noteRes.list.length - 1,
@@ -181,7 +180,7 @@ const Note = (props: INoteProps) => {
 
     const imgStuffixList = ['.jpg', '.jpeg', '.gif', '.png', '.svg'];
     const linkPattern = RegExp(
-      `(https?|ftp|file|${UNotes.imgProtocolKey})://[-A-Za-z0-9+&@#/%?=~_|!:,.;\u4e00-\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]`,
+      `(https?|ftp|file|${NNotes.imgProtocolKey})://[-A-Za-z0-9+&@#/%?=~_|!:,.;\u4e00-\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]`,
       'g',
     );
     const newList: INoteAction[] = [];
@@ -228,7 +227,7 @@ const Note = (props: INoteProps) => {
               if (isImg) {
                 //图片
                 const isPaste =
-                  link.indexOf(UNotes.imgProtocolKey) === 0;
+                  link.indexOf(NNotes.imgProtocolKey) === 0;
                 let src: string;
                 if (isPaste) {
                   //黏贴图片
@@ -303,7 +302,7 @@ const Note = (props: INoteProps) => {
     const newContent =
       content.substring(0, start) +
       content.substring(end, content.length);
-    const newNote: TNotes = {
+    const newNote: NNotes = {
       ...props.data,
       content: newContent,
     };

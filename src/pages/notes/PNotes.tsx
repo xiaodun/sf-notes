@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Note from './components/note/note';
-import TNotes from './TNotes';
+import NNotes from './NNotes';
 import SelfStyle from './LNotes.less';
 import SNotes from './SNotes';
-import TRes from '@/common/type/TRes';
+import NRes from '@/common/type/NRes';
 import { PageFooter } from '@/common/components';
 import { Button } from 'antd';
 import EditModal, {
@@ -13,7 +13,7 @@ import ZoomImgModal, {
   IZoomImgModalRef,
 } from './components/zoom/ZoomImgModal';
 export default () => {
-  const [noteTes, setNoteRes] = useState<TRes<TNotes>>({ list: [] });
+  const [noteTes, setNoteRes] = useState<NRes<NNotes>>({ list: [] });
   const [addPos, setAddPos] = useState<number>(null);
   const editModalRef = useRef<IEditModalRef>();
   const zoomModalRef = useRef<IZoomImgModalRef>();
@@ -38,22 +38,22 @@ export default () => {
   function showZoomModal(src: string) {
     zoomModalRef.current.showModal(src);
   }
-  function onAddNoteSuccess(notes: TNotes) {
-    const newLists = TRes.addItem(noteTes, (newDataList) => {
+  function onAddNoteSuccess(notes: NNotes) {
+    const newLists = NRes.addItem(noteTes, (newDataList) => {
       newDataList.splice(addPos, 0, notes);
       return newDataList;
     });
     setNoteRes(newLists);
   }
-  function onEditNoteSuccess(notes: TNotes) {
-    const newLists = TRes.updateItem(
+  function onEditNoteSuccess(notes: NNotes) {
+    const newLists = NRes.updateItem(
       noteTes,
       notes,
       (data) => data.id === notes.id,
     );
     setNoteRes(newLists);
   }
-  function onEditNote(data?: TNotes, index = 0) {
+  function onEditNote(data?: NNotes, index = 0) {
     setAddPos(index);
     editModalRef.current.showModal(data);
   }
