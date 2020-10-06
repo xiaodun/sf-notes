@@ -3,6 +3,7 @@ import { defineConfig, utils } from 'umi';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 import webpackPlugin from './plugin.config';
+import { NRouter } from './router/NRouter';
 const { winPath } = utils; // preview.pro.ant.design only do not use in your production ;
 // preview.pro.ant.design 专用环境变量，请不要在你的项目中使用它。
 
@@ -11,6 +12,7 @@ const {
   REACT_APP_ENV,
   GA_KEY,
 } = process.env;
+
 export default defineConfig({
   hash: true,
   antd: {},
@@ -32,20 +34,7 @@ export default defineConfig({
     ie: 11,
   },
   // umi routes: https://umijs.org/docs/routing
-  routes: [
-    {
-      path: '/',
-      component: 'Welcome',
-    },
-    {
-      path: '/test',
-      component: './test',
-    },
-    {
-      path: '/notes',
-      component: './notes',
-    },
-  ],
+  routes: NRouter.routes as any,
   // Theme for antd: https://ant.design/docs/react/customize-theme-cn
   theme: {
     // ...darkTheme,

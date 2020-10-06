@@ -1,11 +1,16 @@
 import PNotes from '@/pages/notes';
-import React, { useState, useEffect, useRef } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  FC,
+  PropsWithChildren,
+} from 'react';
 import SelfStyle from './Welcome.less';
 import { Layout } from 'antd';
 import moment from 'moment';
 import UDate from '@/common/utils/UDate';
-import PApp from './app/PApp';
-export default () => {
+export const Welcome: FC = (props) => {
   return (
     <Layout className={SelfStyle.layput}>
       <Layout.Header className={SelfStyle.header}>
@@ -14,7 +19,7 @@ export default () => {
         </div>
       </Layout.Header>
       <Layout.Content className={SelfStyle.content}>
-        <PApp></PApp>
+        {props.children}
       </Layout.Content>
     </Layout>
   );
@@ -33,3 +38,4 @@ const DateTimeArea = () => {
   }, []);
   return <div className={SelfStyle.timeWrapper}>{time}</div>;
 };
+export default Welcome;
