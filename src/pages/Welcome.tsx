@@ -5,16 +5,21 @@ import moment from 'moment';
 import UDate from '@/common/utils/UDate';
 import { IRouteComponentProps } from 'umi';
 import NRouter from '@/../config/router/NRouter';
+import { LeftCircleFilled } from '@ant-design/icons';
 export const Welcome: FC<IRouteComponentProps> = (props) => {
-  useEffect(() => {
-    if (props.match.path === '/') {
-      props.history.push(NRouter.appPath);
-    }
-  }, []);
   return (
     <Layout className={SelfStyle.layput}>
       <Layout.Header className={SelfStyle.header}>
-        <div className={SelfStyle.headerRight}>
+        {!NRouter.isHomePage(props.match.path) && (
+          <div
+            className={SelfStyle.backs}
+            onClick={NRouter.toHomePage}
+          >
+            <LeftCircleFilled />
+          </div>
+        )}
+        <div className={SelfStyle.words}></div>
+        <div className={SelfStyle.times}>
           <DateTimeArea></DateTimeArea>
         </div>
       </Layout.Header>

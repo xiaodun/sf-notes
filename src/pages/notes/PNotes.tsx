@@ -4,7 +4,6 @@ import NNotes from './NNotes';
 import SelfStyle from './LNotes.less';
 import SNotes from './SNotes';
 import NRes from '@/common/type/NRes';
-import { PageFooter } from '@/common/components';
 import { Button } from 'antd';
 import EditModal, {
   IEditModalRef,
@@ -12,6 +11,7 @@ import EditModal, {
 import ZoomImgModal, {
   IZoomImgModalRef,
 } from './components/zoom/ZoomImgModal';
+import { PageFooter } from '@/common/components/page';
 export default () => {
   const [noteTes, setNoteRes] = useState<NRes<NNotes>>({ list: [] });
   const [addPos, setAddPos] = useState<number>(null);
