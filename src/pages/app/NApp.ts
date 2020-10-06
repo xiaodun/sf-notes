@@ -10,6 +10,10 @@ namespace TApp {
       path: NRouter.notesPath,
     },
     {
+      name: '文件管理',
+      path: NRouter.filePath,
+    },
+    {
       name: '测试用例',
       path: NRouter.testPath,
     },
