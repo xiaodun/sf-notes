@@ -6,7 +6,16 @@ import UDate from '@/common/utils/UDate';
 import { IRouteComponentProps } from 'umi';
 import NRouter from '@/../config/router/NRouter';
 import { LeftCircleFilled } from '@ant-design/icons';
+import NApp from './app/NApp';
 export const Welcome: FC<IRouteComponentProps> = (props) => {
+  useEffect(() => {
+    if (!NRouter.isHomePage(props.match.path)) {
+      setTimeout(() => {
+        const app = NApp.getAppInfoByPath(props.match.path);
+        document.title = app.name;
+      });
+    }
+  }, []);
   return (
     <Layout className={SelfStyle.layput}>
       <Layout.Header className={SelfStyle.header}>
