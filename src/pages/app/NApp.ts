@@ -1,10 +1,10 @@
 import NRouter from '@/../config/router/NRouter';
-interface TApp {
+interface NApp {
   name: string;
   path: string;
 }
-namespace TApp {
-  export const list: TApp[] = [
+namespace NApp {
+  export const list: NApp[] = [
     {
       name: '日记本',
       path: NRouter.notesPath,
@@ -18,5 +18,9 @@ namespace TApp {
       path: NRouter.testPath,
     },
   ];
+  export function getAppInfoByPath(path: string) {
+    const app = list.find((item) => item.path === path);
+    return app || ({} as NApp);
+  }
 }
-export default TApp;
+export default NApp;
