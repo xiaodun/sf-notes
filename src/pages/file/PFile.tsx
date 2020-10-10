@@ -70,7 +70,6 @@ const PFile: FC<IPFileProps> = (props) => {
   }
   async function addItem(file: File) {
     const res = await SFile.addItem(file);
-    console.log('wx', res);
     if (res.success) {
       // setList(res.list);
     }
