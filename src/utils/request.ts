@@ -53,7 +53,9 @@ const errorHandler = (error: { response: Response }): Response => {
 
 export default function request(config: AxiosRequestConfig) {
   return instance(config).then((res) => {
-    let data = res.data as NRes;
+    const data = res.data as NRes;
+    data.list || (data.list = []);
+    data.data || (data.data = {} as any);
     return {
       list: [],
       data: {},
