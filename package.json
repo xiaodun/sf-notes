@@ -53,6 +53,7 @@
     "@antv/l7-maps": "^2.0.0",
     "@types/react-syntax-highlighter": "^11.0.4",
     "antd": "^4.0.0",
+    "axios": "^0.20.0",
     "bizcharts": "^3.5.3-beta.0",
     "bizcharts-plugin-slider": "^2.1.1-beta.1",
     "classnames": "^2.2.6",
@@ -77,7 +78,6 @@
     "react-router": "^4.3.1",
     "react-syntax-highlighter": "^13.3.1",
     "umi": "^3.0.14",
-    "umi-request": "^1.0.8",
     "use-merge-value": "^1.0.1"
   },
   "devDependencies": {
