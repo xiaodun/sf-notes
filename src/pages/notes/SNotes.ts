@@ -6,7 +6,7 @@ export namespace SNotes {
   export async function getList(): Promise<NRes<NNotes>> {
     return request.get('/notes/getNoteList');
   }
-  export async function delItem(id: string): Promise<NRes<null>> {
+  export async function delItem(id: string): Promise<NRes> {
     return request.get('/notes/delNote', { params: { id } });
   }
   export async function addItem(

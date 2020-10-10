@@ -1,4 +1,4 @@
-export interface NRes<T> {
+export interface NRes<T = null> {
   success?: boolean;
   message?: string;
   list?: T[];
