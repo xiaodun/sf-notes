@@ -10,7 +10,7 @@ namespace SFile {
   }
   export async function addItem(file: File): Promise<NRes> {
     const formData = new FormData();
-    formData.append('file1', file);
+    formData.append('file', file);
     return request({
       url: '/upload/addFile',
       method: 'post',
