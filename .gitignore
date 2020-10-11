@@ -12,4 +12,5 @@ src/.umi/
 *.ntvs*
 *.njsproj
 *.sln
-service/app/data/
+service/app/data/**/*.json
+
