@@ -1,4 +1,3 @@
-import { extend } from 'umi-request';
 import axios, { AxiosRequestConfig } from 'axios';
 
 import { notification } from 'antd';
