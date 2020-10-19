@@ -11,8 +11,8 @@ export default () => {
   }, []);
   return (
     <div>
-      {/* <TestHook num={1}></TestHook> */}
-      <TestClass></TestClass>
+      <TestHook num={1}></TestHook>
+      {/* <TestClass></TestClass> */}
     </div>
   );
 };

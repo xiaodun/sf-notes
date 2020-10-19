@@ -1,4 +1,4 @@
-import { IRoute, history } from 'umi';
+import { IRoute } from 'umi';
 export namespace NRouter {
   export const rootPath = '/';
   export const rootComponentPath = 'Welcome';
@@ -32,17 +32,12 @@ export namespace NRouter {
       component: '.' + filePath,
       wrappers: [rootComponentPath],
     },
-    {
-      path: filePath,
-      component: '.' + filePath,
-      wrappers: [rootComponentPath],
-    },
   ];
   export function isHomePage(path: string) {
     return path === rootPath || path === appPath;
   }
   export function toHomePage() {
-    history.push(rootPath);
+    window.umiHistory.push(rootPath);
   }
 }
 

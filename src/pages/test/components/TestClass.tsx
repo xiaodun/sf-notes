@@ -1,7 +1,9 @@
 import React from 'react';
+import { connect } from 'dva';
 interface TestClassProps {}
 interface TestClassState {}
-export default class TestClass extends React.PureComponent<
+
+class TestClass extends React.PureComponent<
   TestClassProps,
   TestClassState
 > {
@@ -9,3 +11,4 @@ export default class TestClass extends React.PureComponent<
     return <div>1</div>;
   }
 }
+export default connect(({}) => ({}))(TestClass);

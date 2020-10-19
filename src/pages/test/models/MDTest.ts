@@ -1,29 +1,32 @@
-import { Model } from 'dva';
-export interface MDTestState {
-  name: string;
+import NModel from '@/common/type/NModel';
+
+export namespace MDTest {
+  export interface IState {
+    name: string;
+  }
+  export class AEQuery extends NModel.IAction<{ name: string }> {
+    type = 'query';
+    namespace = NModel.ENames.MDTest;
+  }
+  export class ARSave extends NModel.IAction<{ name: string }> {
+    type = 'save';
+    namespace = NModel.ENames.MDTest;
+  }
 }
-const defaultState: MDTestState = {
-  name: '',
-};
+
 export default {
-  state: defaultState,
+  namespace: NModel.ENames.MDTest,
+  state: {
+    name,
+  },
   effects: {
-    *query({ payload }, { call, put }) {},
+    *query({ payload }: MDTest.AEQuery) {
+      NModel.dispatch(new MDTest.ARSave({ name: 'oop' }));
+    },
   },
   reducers: {
-    save(state, action) {
-      state.name = action.payload;
+    save(state, { payload }: MDTest.ARSave) {
+      state.name = payload.name;
     },
   },
-  subscriptions: {
-    setup({ dispatch, history }) {
-      return history.listen(({ pathname }) => {
-        if (pathname === '/') {
-          dispatch({
-            type: 'query',
-          });
-        }
-      });
-    },
-  },
-} as Partial<Model>;
+} as NModel<MDTest.IState>;
