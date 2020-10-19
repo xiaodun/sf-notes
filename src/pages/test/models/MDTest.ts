@@ -4,13 +4,14 @@ export namespace MDTest {
   export interface IState {
     name: string;
   }
-  export class AEQuery extends NModel.IAction<{ name: string }> {
-    type = 'query';
+  class Action<P> extends NModel.IAction<P> {
     namespace = NModel.ENames.MDTest;
   }
-  export class ARSave extends NModel.IAction<{ name: string }> {
+  export class AEQuery extends Action<{ name: string }> {
+    type = 'query';
+  }
+  export class ARSave extends Action<{ name: string }> {
     type = 'save';
-    namespace = NModel.ENames.MDTest;
   }
 }
 
