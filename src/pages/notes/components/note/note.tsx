@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import SelfStyle from './note.less';
-import { Card, Button, Menu, Dropdown, message, Space } from 'antd';
+import { Card, Button, Menu, Dropdown, Space } from 'antd';
 import {
   CopyOutlined,
   EditOutlined,
@@ -14,6 +14,7 @@ import UCopy from '@/common/utils/UCopy';
 import SNotes from '../../SNotes';
 import NRsp from '@/common/type/NRsp';
 import UDate from '@/common/utils/UDate';
+import classNames from 'classnames';
 
 export interface INoteProps {
   onEdit: (data?: NNotes, index?: number) => void;
@@ -64,32 +65,46 @@ const Note = (props: INoteProps) => {
   );
 
   return (
-    <Card
-      size="small"
-      title={title}
-      className={SelfStyle.noteWrapper}
-      extra={
-        <Button
-          onClick={() => reqDelItem(data.id)}
-          icon={<CloseOutlined></CloseOutlined>}
-        ></Button>
-      }
-      actions={[
-        <CopyOutlined onClick={onCopy} />,
-        <EditOutlined
-          key="edit"
-          onClick={() => props.onEdit(data)}
-        />,
-        <Dropdown overlay={menu} placement="topCenter">
-          <Button>
-            <EllipsisOutlined key="ellipsis" />
-          </Button>
-        </Dropdown>,
-      ]}
-    >
-      {parseContent(data.content, data.base64)}
-    </Card>
+    <div>
+      {renderActionWrap(SelfStyle.top)}
+      <Card
+        size="small"
+        title={title}
+        className={SelfStyle.noteWrapper}
+        extra={
+          <Button
+            onClick={() => reqDelItem(data.id)}
+            icon={<CloseOutlined></CloseOutlined>}
+          ></Button>
+        }
+      >
+        {parseContent(data.content, data.base64)}
+      </Card>
+      {renderActionWrap(SelfStyle.bottom)}
+    </div>
   );
+  function renderActionWrap(className: any) {
+    return (
+      <div className={classNames(SelfStyle.actionWrap, className)}>
+        <div className={SelfStyle.item}>
+          <CopyOutlined onClick={onCopy} />
+        </div>
+        <div className={SelfStyle.item}>
+          <EditOutlined
+            key="edit"
+            onClick={() => props.onEdit(data)}
+          />
+        </div>
+        <div className={SelfStyle.item}>
+          <Dropdown overlay={menu} placement="topCenter">
+            <Button>
+              <EllipsisOutlined key="ellipsis" />
+            </Button>
+          </Dropdown>
+        </div>
+      </div>
+    );
+  }
   async function reqDelItem(id: string) {
     const rsp = await SNotes.delItem(id);
     if (rsp.success) {
