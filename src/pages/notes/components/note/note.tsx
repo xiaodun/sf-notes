@@ -12,15 +12,15 @@ import NNotes from '../../NNotes';
 import moment from 'moment';
 import UCopy from '@/common/utils/UCopy';
 import SNotes from '../../SNotes';
-import NRes from '@/common/type/NRes';
+import NRsp from '@/common/type/NRsp';
 import UDate from '@/common/utils/UDate';
 
 export interface INoteProps {
   onEdit: (data?: NNotes, index?: number) => void;
   data: NNotes;
   index: number;
-  noteRes: NRes<NNotes>;
-  setNoteRes: React.Dispatch<React.SetStateAction<NRes<NNotes>>>;
+  noteRsp: NRsp<NNotes>;
+  setNoteRsp: React.Dispatch<React.SetStateAction<NRsp<NNotes>>>;
   showZoomModal: (src: string) => void;
   onEditSuccess: (notes: NNotes) => void;
 }
@@ -91,10 +91,10 @@ const Note = (props: INoteProps) => {
     </Card>
   );
   async function reqDelItem(id: string) {
-    const res = await SNotes.delItem(id);
-    if (res.success) {
-      props.setNoteRes(
-        NRes.delItem(props.noteRes, (item) => item.id === id),
+    const rsp = await SNotes.delItem(id);
+    if (rsp.success) {
+      props.setNoteRsp(
+        NRsp.delItem(props.noteRsp, (item) => item.id === id),
       );
     }
   }
@@ -102,21 +102,21 @@ const Note = (props: INoteProps) => {
     UCopy.copyStr(data.content);
   }
   async function reqTopItem(data: NNotes) {
-    const res = await SNotes.topItem(data);
-    if (res.success) {
-      const newNoteRes = NRes.changePos(props.noteRes, data, 0);
-      props.setNoteRes(newNoteRes);
+    const rsp = await SNotes.topItem(data);
+    if (rsp.success) {
+      const newNoteRsp = NRsp.changePos(props.noteRsp, data, 0);
+      props.setNoteRsp(newNoteRsp);
     }
   }
   async function reqBottomItem(data: NNotes) {
-    const res = await SNotes.bottomItem(data);
-    if (res.success) {
-      const newNoteRes = NRes.changePos(
-        props.noteRes,
+    const rsp = await SNotes.bottomItem(data);
+    if (rsp.success) {
+      const newNoteRsp = NRsp.changePos(
+        props.noteRsp,
         data,
-        props.noteRes.list.length - 1,
+        props.noteRsp.list.length - 1,
       );
-      props.setNoteRes(newNoteRes);
+      props.setNoteRsp(newNoteRsp);
     }
   }
   function parseContent(content: string = '', base64imgs: Object) {
