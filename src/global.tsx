@@ -3,7 +3,13 @@
  */
 import {} from 'lodash';
 import {} from '@ant-design/icons';
-
+import { History, Dispatch } from 'umi';
+declare global {
+  interface Window {
+    umiHistory: History;
+    umiDispatch: Dispatch;
+  }
+}
 if ('serviceWorker' in navigator) {
   // unregister service worker
   const { serviceWorker } = navigator;
