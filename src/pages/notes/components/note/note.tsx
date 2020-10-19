@@ -14,7 +14,7 @@ import UCopy from '@/common/utils/UCopy';
 import SNotes from '../../SNotes';
 import NRsp from '@/common/type/NRsp';
 import UDate from '@/common/utils/UDate';
-import classNames from 'classnames';
+import { classNames } from '@/common';
 
 export interface INoteProps {
   onEdit: (data?: NNotes, index?: number) => void;
