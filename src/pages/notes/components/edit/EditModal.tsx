@@ -79,15 +79,15 @@ export const EditModal: ForwardRefRenderFunction<
   }
   async function onOk() {
     if (state.added) {
-      const res = await SNotes.addItem(state.data);
-      if (res.success) {
-        props.onAddSuccess(res.data);
+      const rsp = await SNotes.addItem(state.data);
+      if (rsp.success) {
+        props.onAddSuccess(rsp.data);
         onCancel();
       }
     } else {
-      const res = await SNotes.editItem(state.data);
-      if (res.success) {
-        props.onEditSuccess(res.data);
+      const rsp = await SNotes.editItem(state.data);
+      if (rsp.success) {
+        props.onEditSuccess(rsp.data);
         onCancel();
       }
     }

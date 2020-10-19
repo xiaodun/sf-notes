@@ -3,7 +3,7 @@ import Note from './components/note/note';
 import NNotes from './NNotes';
 import SelfStyle from './LNotes.less';
 import SNotes from './SNotes';
-import NRes from '@/common/type/NRes';
+import NRsp from '@/common/type/NRsp';
 import { Button } from 'antd';
 import EditModal, {
   IEditModalRef,
@@ -13,7 +13,7 @@ import ZoomImgModal, {
 } from './components/zoom/ZoomImgModal';
 import { PageFooter } from '@/common/components/page';
 export default () => {
-  const [noteTes, setNoteRes] = useState<NRes<NNotes>>({ list: [] });
+  const [noteTsp, setNoteRsp] = useState<NRsp<NNotes>>({ list: [] });
   const [addPos, setAddPos] = useState<number>(null);
   const editModalRef = useRef<IEditModalRef>();
   const zoomModalRef = useRef<IZoomImgModalRef>();
@@ -39,40 +39,40 @@ export default () => {
     zoomModalRef.current.showModal(src);
   }
   function onAddNoteSuccess(notes: NNotes) {
-    const newLists = NRes.addItem(noteTes, (newDataList) => {
+    const newLists = NRsp.addItem(noteTsp, (newDataList) => {
       newDataList.splice(addPos, 0, notes);
       return newDataList;
     });
-    setNoteRes(newLists);
+    setNoteRsp(newLists);
   }
   function onEditNoteSuccess(notes: NNotes) {
-    const newLists = NRes.updateItem(
-      noteTes,
+    const newLists = NRsp.updateItem(
+      noteTsp,
       notes,
       (data) => data.id === notes.id,
     );
-    setNoteRes(newLists);
+    setNoteRsp(newLists);
   }
   function onEditNote(data?: NNotes, index = 0) {
     setAddPos(index);
     editModalRef.current.showModal(data);
   }
   async function reqGetList() {
-    const res = await SNotes.getList();
-    if (res.success) {
-      setNoteRes(res);
+    const rsp = await SNotes.getList();
+    if (rsp.success) {
+      setNoteRsp(rsp);
     }
   }
 
   return (
     <div>
-      {noteTes.list.map((note, index) => (
+      {noteTsp.list.map((note, index) => (
         <div key={note.id} className={SelfStyle.noteWrapper}>
           <Note
             data={note}
             index={index}
-            noteRes={noteTes}
-            setNoteRes={setNoteRes}
+            noteRsp={noteTsp}
+            setNoteRsp={setNoteRsp}
             onEdit={onEditNote}
             showZoomModal={showZoomModal}
             onEditSuccess={onEditNoteSuccess}

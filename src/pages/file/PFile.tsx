@@ -63,15 +63,15 @@ const PFile: FC<IPFileProps> = (props) => {
     addItem(file);
   }
   async function getList() {
-    const res = await SFile.getList();
-    if (res.success) {
-      setList(res.list);
+    const rsp = await SFile.getList();
+    if (rsp.success) {
+      setList(rsp.list);
     }
   }
   async function addItem(file: File) {
-    const res = await SFile.addItem(file);
-    if (res.success) {
-      // setList(res.list);
+    const rsp = await SFile.addItem(file);
+    if (rsp.success) {
+      // setList(rsp.list);
     }
   }
 };

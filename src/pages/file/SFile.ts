@@ -1,14 +1,14 @@
-import NRes from '@/common/type/NRes';
+import NRsp from '@/common/type/NRsp';
 import NFile from './NFile';
 import request from '@/utils/request';
 
 namespace SFile {
-  export async function getList(): Promise<NRes<NFile>> {
+  export async function getList(): Promise<NRsp<NFile>> {
     return request({
       url: '/upload/getFileList',
     });
   }
-  export async function addItem(file: File): Promise<NRes> {
+  export async function addItem(file: File): Promise<NRsp> {
     const formData = new FormData();
     formData.append('file', file);
     return request({
@@ -17,7 +17,7 @@ namespace SFile {
       data: formData,
     });
   }
-  export async function delItem(id: string): Promise<NRes> {
+  export async function delItem(id: string): Promise<NRsp> {
     return request({
       url: '/upload/delFile',
       params: { id },
