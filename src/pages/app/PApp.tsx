@@ -1,5 +1,5 @@
 import { Card } from 'antd';
-import React, from 'react';
+import React from 'react';
 import { ConnectRC } from 'umi';
 import SelfStyle from './LApp.less';
 import NApp from './NApp';
