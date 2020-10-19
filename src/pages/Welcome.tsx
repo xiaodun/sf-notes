@@ -1,13 +1,15 @@
-import React, { useState, useEffect, useRef, FC } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import SelfStyle from './Welcome.less';
 import { Layout, Space, Button, Modal } from 'antd';
 import moment from 'moment';
 import UDate from '@/common/utils/UDate';
-import { IRouteComponentProps } from 'umi';
+import { IRouteComponentProps, ConnectRC, connect } from 'umi';
 import NRouter from '@/../config/router/NRouter';
 import { LeftCircleFilled, QrcodeOutlined } from '@ant-design/icons';
 import NApp from './app/NApp';
-export const Welcome: FC<IRouteComponentProps> = (props) => {
+export const Welcome: ConnectRC<IRouteComponentProps> = (props) => {
+  window.umiHistory = props.history;
+  window.umiDispatch = props.dispatch;
   useEffect(() => {
     if (!NRouter.isHomePage(props.match.path)) {
       setTimeout(() => {
@@ -78,4 +80,4 @@ const QRCodeBtn = () => {
     });
   }
 };
-export default Welcome;
+export default connect(() => ({}))(Welcome);

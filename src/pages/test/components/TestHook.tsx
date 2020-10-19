@@ -1,8 +1,18 @@
 import React, { FC } from 'react';
+import { connect } from 'dva';
+import NModel from '@/common/type/NModel';
+import { ConnectRC, MDTest } from 'umi';
 interface TestHookProps {
   num: number;
+  name: string;
+  MDTest: MDTest.IState;
 }
-const TestHook: FC<TestHookProps> = (props) => {
-  return <div>{props.num}</div>;
+const TestHook: ConnectRC<TestHookProps> = (props) => {
+  return <div onClick={onClick}>点击{props.MDTest.name}</div>;
+  function onClick() {
+    NModel.dispatch(new MDTest.AEQuery({ name: 'klo' }));
+  }
 };
-export default TestHook;
+export default connect(({ MDTest }: NModel.IState) => ({
+  MDTest,
+}))(TestHook);

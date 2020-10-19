@@ -1,10 +1,10 @@
 import { Card } from 'antd';
-import React, { FC } from 'react';
-import { IRouteComponentProps } from 'umi';
+import React, from 'react';
+import { ConnectRC } from 'umi';
 import SelfStyle from './LApp.less';
 import NApp from './NApp';
-export interface IPAppProps extends IRouteComponentProps {}
-const PApp: FC<IPAppProps> = (props) => {
+export interface IPAppProps {}
+const PApp: ConnectRC<IPAppProps> = (props) => {
   return (
     <div className={SelfStyle.main}>
       <Card>
