@@ -24,8 +24,8 @@ export interface INoteProps {
   data: NNotes;
   index: number;
   MDNotes: NMDNotes.IState;
-  editModal: IEditModal;
-  zoomModal: IZoomImgModal;
+  editModalRef: React.MutableRefObject<IEditModal>;
+  zoomModalRef: React.MutableRefObject<IZoomImgModal>;
 }
 export interface INoteAction {
   content: ReactNode;
@@ -83,10 +83,10 @@ const Note: ConnectRC<INoteProps> = (props) => {
     </div>
   );
   function onUpdateNote(data: NNotes) {
-    props.editModal.showModal(data);
+    props.editModalRef.current.showModal(data);
   }
   function onAddNote(index: number) {
-    props.editModal.showModal(null, index);
+    props.editModalRef.current.showModal(null, index);
   }
   function renderActionWrap(className: any) {
     return (
@@ -265,7 +265,9 @@ const Note: ConnectRC<INoteProps> = (props) => {
                 partList.push(
                   <div
                     className={SelfStyle.imgWrapper}
-                    onClick={() => props.zoomModal.showModal(src)}
+                    onClick={() =>
+                      props.zoomModalRef.current.showModal(src)
+                    }
                   >
                     <img key={prefix + key++} src={src} alt="" />
                   </div>,
