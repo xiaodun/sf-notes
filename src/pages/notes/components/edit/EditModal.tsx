@@ -15,10 +15,12 @@ import moment from 'moment';
 import SNotes from '../../SNotes';
 import produce from 'immer';
 import UDate from '@/common/utils/UDate';
+import NModel from '@/common/type/NModel';
+import { NMDNotes } from 'umi';
+import NRsp from '@/common/type/NRsp';
 
 export interface IEditModalProps {
-  onAddSuccess: (notes: NNotes) => void;
-  onEditSuccess: (notes: NNotes) => void;
+  rsp: NRsp<NNotes>;
 }
 
 export interface IEditModalState {
@@ -27,8 +29,8 @@ export interface IEditModalState {
   data: NNotes;
   added: boolean;
 }
-export interface IEditModalRef {
-  showModal: (data?: NNotes) => void;
+export interface IEditModal {
+  showModal: (data?: NNotes, index?: number) => void;
 }
 const defaultState: IEditModalState = {
   added: false,
@@ -44,7 +46,7 @@ const defaultState: IEditModalState = {
 };
 
 export const EditModal: ForwardRefRenderFunction<
-  IEditModalRef,
+  IEditModal,
   IEditModalProps
 > = (props, ref) => {
   const [state, setState] = useState<Partial<IEditModalState>>(
@@ -53,9 +55,10 @@ export const EditModal: ForwardRefRenderFunction<
   const textAreaRef = useRef<TextArea>();
   const loadCountRef = useRef<number>(0);
   useImperativeHandle(ref, () => ({
-    showModal: (data) => {
+    showModal: (data, index) => {
       const newState = produce(state, (drafState) => {
         drafState.visible = true;
+        drafState.index = index;
         if (data) {
           drafState.added = false;
           drafState.data = data;
@@ -79,21 +82,32 @@ export const EditModal: ForwardRefRenderFunction<
   }
   async function onOk() {
     if (state.added) {
-      const rsp = await SNotes.addItem(state.data);
-      if (rsp.success) {
-        props.onAddSuccess(rsp.data);
-        onCancel();
+      const addRsp = await SNotes.addItem(state.data);
+      if (addRsp.success) {
+        const newNotesRsp = NRsp.addItem(props.rsp, (newDataList) => {
+          newDataList.splice(state.index, 0, addRsp.data);
+          return newDataList;
+        });
+        NModel.dispatch(new NMDNotes.ARSetRsp(newNotesRsp));
+
+        onClose();
       }
     } else {
-      const rsp = await SNotes.editItem(state.data);
-      if (rsp.success) {
-        props.onEditSuccess(rsp.data);
-        onCancel();
+      const editRsp = await SNotes.editItem(state.data);
+      if (editRsp.success) {
+        const newNotesRsp = NRsp.updateItem(
+          props.rsp,
+          state.data,
+          (data) => data.id === state.data.id,
+        );
+        NModel.dispatch(new NMDNotes.ARSetRsp(newNotesRsp));
+
+        onClose();
       }
     }
   }
-  function onCancel() {
-    setState(defaultState);
+  function onClose() {
+    setState({ ...defaultState });
   }
   function onDragOver(event: React.DragEvent<HTMLDivElement>) {
     const dataTransfer = event.dataTransfer;
@@ -184,7 +198,7 @@ export const EditModal: ForwardRefRenderFunction<
       maskClosable={false}
       onOk={() => onOk()}
       centered
-      onCancel={onCancel}
+      onCancel={onClose}
       okButtonProps={{
         loading: loadCountRef.current > 0,
       }}

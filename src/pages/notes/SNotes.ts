@@ -19,7 +19,7 @@ export namespace SNotes {
   export async function addItem(
     notes: NNotes,
     index: number = 0,
-  ): Promise<NRsp<null>> {
+  ): Promise<NRsp<NNotes>> {
     return request({
       url: '/notes/addNote',
       method: 'post',
