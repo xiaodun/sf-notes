@@ -15,15 +15,17 @@ import SNotes from '../../SNotes';
 import NRsp from '@/common/type/NRsp';
 import UDate from '@/common/utils/UDate';
 import { classNames } from '@/common';
+import { NMDNotes, ConnectRC, connect } from 'umi';
+import NModel from '@/common/type/NModel';
+import { IEditModal } from '../edit/EditModal';
+import { IZoomImgModal } from '../zoom/ZoomImgModal';
 
 export interface INoteProps {
-  onEdit: (data?: NNotes, index?: number) => void;
   data: NNotes;
   index: number;
-  noteRsp: NRsp<NNotes>;
-  setNoteRsp: React.Dispatch<React.SetStateAction<NRsp<NNotes>>>;
-  showZoomModal: (src: string) => void;
-  onEditSuccess: (notes: NNotes) => void;
+  MDNotes: NMDNotes.IState;
+  editModal: IEditModal;
+  zoomModal: IZoomImgModal;
 }
 export interface INoteAction {
   content: ReactNode;
@@ -32,8 +34,8 @@ export interface INoteAction {
   start: number;
   count: number;
 }
-const Note = (props: INoteProps) => {
-  const { data } = props;
+const Note: ConnectRC<INoteProps> = (props) => {
+  const { data, MDNotes } = props;
   let title =
     data.title ||
     moment(data.createTime || undefined).format(UDate.YYYY_MM_DD);
@@ -49,15 +51,12 @@ const Note = (props: INoteProps) => {
         置后
       </Menu.Item>
       <Menu.Divider />
-      <Menu.Item
-        key="add_up"
-        onClick={() => props.onEdit(null, props.index)}
-      >
+      <Menu.Item key="add_up" onClick={() => onAddNote(props.index)}>
         向上添加
       </Menu.Item>
       <Menu.Item
         key="add_down"
-        onClick={() => props.onEdit(null, props.index + 1)}
+        onClick={() => onAddNote(props.index + 1)}
       >
         向下添加
       </Menu.Item>
@@ -83,6 +82,12 @@ const Note = (props: INoteProps) => {
       {renderActionWrap(SelfStyle.bottom)}
     </div>
   );
+  function onUpdateNote(data: NNotes) {
+    props.editModal.showModal(data);
+  }
+  function onAddNote(index: number) {
+    props.editModal.showModal(null, index);
+  }
   function renderActionWrap(className: any) {
     return (
       <div className={classNames(SelfStyle.actionWrap, className)}>
@@ -92,7 +97,7 @@ const Note = (props: INoteProps) => {
         <div className={SelfStyle.item}>
           <EditOutlined
             key="edit"
-            onClick={() => props.onEdit(data)}
+            onClick={() => onUpdateNote(data)}
           />
         </div>
         <div className={SelfStyle.item}>
@@ -108,8 +113,10 @@ const Note = (props: INoteProps) => {
   async function reqDelItem(id: string) {
     const rsp = await SNotes.delItem(id);
     if (rsp.success) {
-      props.setNoteRsp(
-        NRsp.delItem(props.noteRsp, (item) => item.id === id),
+      NModel.dispatch(
+        new NMDNotes.ARSetRsp(
+          NRsp.delItem(MDNotes.rsp, (item) => item.id === id),
+        ),
       );
     }
   }
@@ -119,19 +126,23 @@ const Note = (props: INoteProps) => {
   async function reqTopItem(data: NNotes) {
     const rsp = await SNotes.topItem(data);
     if (rsp.success) {
-      const newNoteRsp = NRsp.changePos(props.noteRsp, data, 0);
-      props.setNoteRsp(newNoteRsp);
+      NModel.dispatch(
+        new NMDNotes.ARSetRsp(NRsp.changePos(MDNotes.rsp, data, 0)),
+      );
     }
   }
   async function reqBottomItem(data: NNotes) {
     const rsp = await SNotes.bottomItem(data);
     if (rsp.success) {
-      const newNoteRsp = NRsp.changePos(
-        props.noteRsp,
-        data,
-        props.noteRsp.list.length - 1,
+      NModel.dispatch(
+        new NMDNotes.ARSetRsp(
+          NRsp.changePos(
+            MDNotes.rsp,
+            data,
+            MDNotes.rsp.list.length - 1,
+          ),
+        ),
       );
-      props.setNoteRsp(newNoteRsp);
     }
   }
   function parseContent(content: string = '', base64imgs: Object) {
@@ -254,7 +265,7 @@ const Note = (props: INoteProps) => {
                 partList.push(
                   <div
                     className={SelfStyle.imgWrapper}
-                    onClick={() => props.showZoomModal(src)}
+                    onClick={() => props.zoomModal.showModal(src)}
                   >
                     <img key={prefix + key++} src={src} alt="" />
                   </div>,
@@ -323,7 +334,15 @@ const Note = (props: INoteProps) => {
     };
     const res = await SNotes.editItem(newNote);
     if (res.success) {
-      props.onEditSuccess(newNote);
+      NModel.dispatch(
+        new NMDNotes.ARSetRsp(
+          NRsp.updateItem(
+            MDNotes.rsp,
+            newNote,
+            (data) => data.id === newNote.id,
+          ),
+        ),
+      );
     }
   }
   function withAble(list: INoteAction[]) {
@@ -361,4 +380,6 @@ const Note = (props: INoteProps) => {
   }
 };
 
-export default Note;
+export default connect(({ MDNotes }: NModel.IState) => ({ MDNotes }))(
+  Note,
+);

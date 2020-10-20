@@ -1,22 +1,23 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Note from './components/note/note';
-import NNotes from './NNotes';
 import SelfStyle from './LNotes.less';
 import SNotes from './SNotes';
-import NRsp from '@/common/type/NRsp';
 import { Button } from 'antd';
-import EditModal, {
-  IEditModalRef,
-} from './components/edit/EditModal';
+import EditModal, { IEditModal } from './components/edit/EditModal';
 import ZoomImgModal, {
-  IZoomImgModalRef,
+  IZoomImgModal,
 } from './components/zoom/ZoomImgModal';
 import { PageFooter } from '@/common/components/page';
-export default () => {
-  const [noteTsp, setNoteRsp] = useState<NRsp<NNotes>>({ list: [] });
-  const [addPos, setAddPos] = useState<number>(null);
-  const editModalRef = useRef<IEditModalRef>();
-  const zoomModalRef = useRef<IZoomImgModalRef>();
+import { connect } from 'dva';
+import NModel from '@/common/type/NModel';
+import { ConnectRC, NMDNotes } from 'umi';
+export interface PNotesProps {
+  MDNotes: NMDNotes.IState;
+}
+const PNotes: ConnectRC<PNotesProps> = (props) => {
+  const { MDNotes } = props;
+  const editModalRef = useRef<IEditModal>();
+  const zoomModalRef = useRef<IZoomImgModal>();
   useEffect(() => {
     reqGetList();
     setTimeout(() => {
@@ -35,59 +36,37 @@ export default () => {
       dataTransfer.dropEffect = 'none';
     }
   }
-  function showZoomModal(src: string) {
-    zoomModalRef.current.showModal(src);
-  }
-  function onAddNoteSuccess(notes: NNotes) {
-    const newLists = NRsp.addItem(noteTsp, (newDataList) => {
-      newDataList.splice(addPos, 0, notes);
-      return newDataList;
-    });
-    setNoteRsp(newLists);
-  }
-  function onEditNoteSuccess(notes: NNotes) {
-    const newLists = NRsp.updateItem(
-      noteTsp,
-      notes,
-      (data) => data.id === notes.id,
-    );
-    setNoteRsp(newLists);
-  }
-  function onEditNote(data?: NNotes, index = 0) {
-    setAddPos(index);
-    editModalRef.current.showModal(data);
+  function onAddNote() {
+    editModalRef.current.showModal(null, 0);
   }
   async function reqGetList() {
     const rsp = await SNotes.getList();
     if (rsp.success) {
-      setNoteRsp(rsp);
+      NModel.dispatch(new NMDNotes.ARSetRsp(rsp));
     }
   }
 
   return (
     <div>
-      {noteTsp.list.map((note, index) => (
+      {MDNotes.rsp.list.map((note, index) => (
         <div key={note.id} className={SelfStyle.noteWrapper}>
           <Note
             data={note}
             index={index}
-            noteRsp={noteTsp}
-            setNoteRsp={setNoteRsp}
-            onEdit={onEditNote}
-            showZoomModal={showZoomModal}
-            onEditSuccess={onEditNoteSuccess}
+            editModal={editModalRef.current}
+            zoomModal={zoomModalRef.current}
           ></Note>
         </div>
       ))}
-      <EditModal
-        ref={editModalRef}
-        onAddSuccess={onAddNoteSuccess}
-        onEditSuccess={onEditNoteSuccess}
-      ></EditModal>
+      <EditModal ref={editModalRef} rsp={MDNotes.rsp}></EditModal>
       <PageFooter>
-        <Button onClick={() => onEditNote()}>新建笔记</Button>
+        <Button onClick={() => onAddNote()}>新建笔记</Button>
       </PageFooter>
       <ZoomImgModal ref={zoomModalRef}></ZoomImgModal>
     </div>
   );
 };
+
+export default connect(({ MDNotes }: NModel.IState) => ({
+  MDNotes,
+}))(PNotes);
