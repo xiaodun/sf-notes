@@ -53,8 +53,8 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
           <Note
             data={note}
             index={index}
-            editModal={editModalRef.current}
-            zoomModal={zoomModalRef.current}
+            editModalRef={editModalRef}
+            zoomModalRef={zoomModalRef}
           ></Note>
         </div>
       ))}
