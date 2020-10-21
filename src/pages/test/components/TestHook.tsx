@@ -1,7 +1,6 @@
-import React, { FC } from 'react';
-import { connect } from 'dva';
+import React from 'react';
 import NModel from '@/common/type/NModel';
-import { ConnectRC, NMDTest } from 'umi';
+import { ConnectRC, NMDTest,connect } from 'umi';
 interface TestHookProps {
   num: number;
   name: string;

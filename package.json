@@ -79,7 +79,7 @@
     "react-router": "^4.3.1",
     "react-syntax-highlighter": "^13.3.1",
     "react-transition-group": "^4.4.1",
-    "umi": "^3.2.23",
+    "umi": "^3.0.14",
     "use-merge-value": "^1.0.1"
   },
   "devDependencies": {
