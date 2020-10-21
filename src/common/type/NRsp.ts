@@ -1,3 +1,5 @@
+import { produce } from '..';
+
 export interface NRsp<T = null> {
   success?: boolean;
   message?: string;
@@ -9,11 +11,12 @@ export namespace NRsp {
     rsp: NRsp<T>,
     del: (item: T) => boolean,
   ) {
-    let newRsp = { ...rsp };
-    const index = newRsp.list.findIndex(del);
-    if (index !== -1) {
-      newRsp.list.splice(index, 1);
-    }
+    const newRsp = produce(rsp, (drafState) => {
+      const index = drafState.list.findIndex(del);
+      if (index !== -1) {
+        drafState.list.splice(index, 1);
+      }
+    });
 
     return newRsp;
   }
@@ -21,8 +24,9 @@ export namespace NRsp {
     rsp: NRsp<T>,
     onAdd: (dataList: T[]) => T[],
   ) {
-    let newRsp = { ...rsp };
-    newRsp.list = onAdd(newRsp.list);
+    const newRsp = produce(rsp, (drafState) => {
+      drafState.list = onAdd(drafState.list);
+    });
     return newRsp;
   }
   export function updateItem<T>(
@@ -30,10 +34,10 @@ export namespace NRsp {
     data: T,
     onUpdate: (data: T) => boolean,
   ) {
-    let newRsp = { ...rsp };
-    const index = newRsp.list.findIndex(onUpdate);
-    newRsp.list.splice(index, 1, data);
-
+    const newRsp = produce(rsp, (drafState) => {
+      const index = drafState.list.findIndex(onUpdate);
+      drafState.list.splice(index, 1, data);
+    });
     return newRsp;
   }
   export function switchItem<T>(
@@ -41,22 +45,23 @@ export namespace NRsp {
     data: T,
     onPos: () => { currentIndex: number; targetIndex: number },
   ) {
-    let newRsp = { ...rsp };
-    const { currentIndex, targetIndex } = onPos();
-    const targetData = newRsp.list[targetIndex];
+    const newRsp = produce(rsp, (drafState) => {
+      const { currentIndex, targetIndex } = onPos();
+      const targetData = drafState.list[targetIndex];
 
-    newRsp.list.splice(currentIndex, 1, targetData);
-    newRsp.list.splice(targetIndex, 1, data);
+      drafState.list.splice(currentIndex, 1, targetData);
+      drafState.list.splice(targetIndex, 1, data);
+    });
 
     return newRsp;
   }
   export function changePos<T>(rsp: NRsp<T>, data: T, pos: number) {
-    let newRsp = { ...rsp };
+    const newRsp = produce(rsp, (drafState) => {
+      const index = rsp.list.indexOf(data);
 
-    const index = newRsp.list.indexOf(data);
-
-    newRsp.list.splice(index, 1);
-    newRsp.list.splice(pos, 0, data);
+      drafState.list.splice(index, 1);
+      drafState.list.splice(pos, 0, data);
+    });
 
     return newRsp;
   }
