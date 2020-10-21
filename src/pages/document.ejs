@@ -12,7 +12,7 @@
     <script>
       (() => {
         //过滤掉一些无用的警告、没有价值的报错
-        //覆盖原生的console.warn方法
+        //代理console.warn方法
         const _consoleWarn = console.warn;
         console.warn = (...rest) => {
           if (
