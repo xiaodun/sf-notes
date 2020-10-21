@@ -11,7 +11,7 @@ export namespace NRsp {
     rsp: NRsp<T>,
     del: (item: T) => boolean,
   ) {
-    const newRsp = produce(rsp, (drafState) => {
+    const newRsp = produce(rsp, (drafState: NRsp<T>) => {
       const index = drafState.list.findIndex(del);
       if (index !== -1) {
         drafState.list.splice(index, 1);
@@ -24,7 +24,7 @@ export namespace NRsp {
     rsp: NRsp<T>,
     onAdd: (dataList: T[]) => T[],
   ) {
-    const newRsp = produce(rsp, (drafState) => {
+    const newRsp = produce(rsp, (drafState: NRsp<T>) => {
       drafState.list = onAdd(drafState.list);
     });
     return newRsp;
@@ -34,7 +34,7 @@ export namespace NRsp {
     data: T,
     onUpdate: (data: T) => boolean,
   ) {
-    const newRsp = produce(rsp, (drafState) => {
+    const newRsp = produce(rsp, (drafState: NRsp<T>) => {
       const index = drafState.list.findIndex(onUpdate);
       drafState.list.splice(index, 1, data);
     });
@@ -45,7 +45,7 @@ export namespace NRsp {
     data: T,
     onPos: () => { currentIndex: number; targetIndex: number },
   ) {
-    const newRsp = produce(rsp, (drafState) => {
+    const newRsp = produce(rsp, (drafState: NRsp<T>) => {
       const { currentIndex, targetIndex } = onPos();
       const targetData = drafState.list[targetIndex];
 
@@ -56,7 +56,7 @@ export namespace NRsp {
     return newRsp;
   }
   export function changePos<T>(rsp: NRsp<T>, data: T, pos: number) {
-    const newRsp = produce(rsp, (drafState) => {
+    const newRsp = produce(rsp, (drafState: NRsp<T>) => {
       const index = rsp.list.indexOf(data);
 
       drafState.list.splice(index, 1);
