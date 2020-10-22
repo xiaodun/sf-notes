@@ -70,9 +70,11 @@ export const EditModal: ForwardRefRenderFunction<
     },
   }));
   useEffect(() => {
-    if (state.visible) {
-      textAreaRef.current && textAreaRef.current.focus();
-    }
+    setTimeout(() => {
+      if (state.visible) {
+        textAreaRef.current && textAreaRef.current.focus();
+      }
+    });
   }, [state.visible]);
   function onDataChange(notes: Partial<NNotes>) {
     const newState = produce(state, (drafState) => {
