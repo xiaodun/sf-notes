@@ -92,13 +92,17 @@ const Note: ConnectRC<INoteProps> = (props) => {
     return (
       <div className={classNames(SelfStyle.actionWrap, className)}>
         <div className={SelfStyle.item}>
-          <CopyOutlined onClick={onCopy} />
+          <Button icon={<CopyOutlined onClick={onCopy} />}></Button>
         </div>
         <div className={SelfStyle.item}>
-          <EditOutlined
-            key="edit"
-            onClick={() => onUpdateNote(data)}
-          />
+          <Button
+            icon={
+              <EditOutlined
+                key="edit"
+                onClick={() => onUpdateNote(data)}
+              />
+            }
+          ></Button>
         </div>
         <div className={SelfStyle.item}>
           <Dropdown overlay={menu} placement="topCenter">
