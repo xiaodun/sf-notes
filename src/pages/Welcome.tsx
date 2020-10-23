@@ -43,7 +43,7 @@ const DateTimeArea = () => {
   const timeRef = useRef<number>();
   useEffect(() => {
     timeRef.current = window.setInterval(() => {
-      const timeStr = moment().format(UDate.hh_mm_ss);
+      const timeStr = moment().format(UDate.hms);
       setTime(timeStr);
     }, 1000);
     return () => {
