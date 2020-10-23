@@ -9,6 +9,36 @@
     />
     <title>sf-notes</title>
     <link rel="icon" href="/favicon.png" type="image/x-icon" />
+    <script>
+      (() => {
+        //过滤掉一些无用的警告、没有价值的报错
+        //代理console.warn方法
+        const _consoleWarn = console.warn;
+        console.warn = (...rest) => {
+          if (
+            ![
+              'react-error-overlay is not meant for use in production. You should ensure it is not included in your build to reduce bundle size.',
+              'Warning: componentWillReceiveProps has been renamed',
+              'Warning: componentWillUpdate has been renamed',
+            ].some((item) => rest[0].indexOf(item) !== -1)
+          ) {
+            _consoleWarn(...rest);
+          }
+        };
+        //代理console.error
+        const _consoleError = console.error;
+        console.error = (...rest) => {
+          if (
+            ![
+              `Warning: Please use \`require("history").createHashHistory\` instead of \`require("history/createHashHistory")\`. Support for the latter will be removed in the next major release.`,
+              'ui socket init',
+            ].includes(rest[0].toString())
+          ) {
+            _consoleError(...rest);
+          }
+        };
+      })();
+    </script>
   </head>
   <body>
     <noscript>
@@ -16,188 +46,187 @@
     </noscript>
     <div id="root">
       <style>
-html,
-body,
-#root {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
+        html,
+        body,
+        #root {
+          height: 100%;
+          margin: 0;
+          padding: 0;
+        }
 
-#root {
-  background-repeat: no-repeat;
-  background-size: 100% auto;
-}
+        #root {
+          background-repeat: no-repeat;
+          background-size: 100% auto;
+        }
 
-.page-loading-warp {
-  display: flex;
+        .page-loading-warp {
+          display: flex;
 
-  padding: 98px;
+          padding: 98px;
 
-  justify-content: center;
-  align-items: center;
-}
+          justify-content: center;
+          align-items: center;
+        }
 
-.ant-spin {
-  font-size: 14px;
-  font-variant: tabular-nums;
-  line-height: 1.5;
+        .ant-spin {
+          font-size: 14px;
+          font-variant: tabular-nums;
+          line-height: 1.5;
 
-  position: absolute;
+          position: absolute;
 
-  display: none;
+          display: none;
 
-  -webkit-box-sizing: border-box;
+          -webkit-box-sizing: border-box;
           box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+          margin: 0;
+          padding: 0;
 
-  list-style: none;
+          list-style: none;
 
-  -webkit-transition: -webkit-transform .3s
-  cubic-bezier(.78, .14, .15, .86);
-          transition: -webkit-transform .3s
-  cubic-bezier(.78, .14, .15, .86);
-          transition:         transform .3s
-  cubic-bezier(.78, .14, .15, .86);
-          transition:         transform .3s
-  cubic-bezier(.78, .14, .15, .86),
-  -webkit-transform .3s cubic-bezier(.78, .14, .15, .86);
-  text-align: center;
-  vertical-align: middle;
+          -webkit-transition: -webkit-transform 0.3s
+            cubic-bezier(0.78, 0.14, 0.15, 0.86);
+          transition: -webkit-transform 0.3s
+            cubic-bezier(0.78, 0.14, 0.15, 0.86);
+          transition: transform 0.3s
+            cubic-bezier(0.78, 0.14, 0.15, 0.86);
+          transition: transform 0.3s
+              cubic-bezier(0.78, 0.14, 0.15, 0.86),
+            -webkit-transform 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86);
+          text-align: center;
+          vertical-align: middle;
 
-  opacity: 0;
-  color: rgba(0, 0, 0, .65);
-  color: #1890ff;
+          opacity: 0;
+          color: rgba(0, 0, 0, 0.65);
+          color: #1890ff;
 
-  -webkit-font-feature-settings: 'tnum';
+          -webkit-font-feature-settings: 'tnum';
           font-feature-settings: 'tnum';
-}
+        }
 
-.ant-spin-spinning {
-  position: static;
+        .ant-spin-spinning {
+          position: static;
 
-  display: inline-block;
+          display: inline-block;
 
-  opacity: 1;
-}
+          opacity: 1;
+        }
 
-.ant-spin-dot {
-  font-size: 20px;
+        .ant-spin-dot {
+          font-size: 20px;
 
-  position: relative;
+          position: relative;
 
-  display: inline-block;
+          display: inline-block;
 
-  width: 20px;
-  height: 20px;
-}
+          width: 20px;
+          height: 20px;
+        }
 
-.ant-spin-dot-item {
-  position: absolute;
+        .ant-spin-dot-item {
+          position: absolute;
 
-  display: block;
+          display: block;
 
-  width: 9px;
-  height: 9px;
+          width: 9px;
+          height: 9px;
 
-  -webkit-transform: scale(.75);
-      -ms-transform: scale(.75);
-          transform: scale(.75);
-  -webkit-transform-origin: 50% 50%;
-      -ms-transform-origin: 50% 50%;
+          -webkit-transform: scale(0.75);
+          -ms-transform: scale(0.75);
+          transform: scale(0.75);
+          -webkit-transform-origin: 50% 50%;
+          -ms-transform-origin: 50% 50%;
           transform-origin: 50% 50%;
-  -webkit-animation: antSpinMove 1s infinite linear alternate;
+          -webkit-animation: antSpinMove 1s infinite linear alternate;
           animation: antSpinMove 1s infinite linear alternate;
 
-  opacity: .3;
-  border-radius: 100%;
-  background-color: #1890ff;
-}
+          opacity: 0.3;
+          border-radius: 100%;
+          background-color: #1890ff;
+        }
 
-.ant-spin-dot-item:nth-child(1) {
-  top: 0;
-  left: 0;
-}
+        .ant-spin-dot-item:nth-child(1) {
+          top: 0;
+          left: 0;
+        }
 
-.ant-spin-dot-item:nth-child(2) {
-  top: 0;
-  right: 0;
+        .ant-spin-dot-item:nth-child(2) {
+          top: 0;
+          right: 0;
 
-  -webkit-animation-delay: .4s;
-          animation-delay: .4s;
-}
+          -webkit-animation-delay: 0.4s;
+          animation-delay: 0.4s;
+        }
 
-.ant-spin-dot-item:nth-child(3) {
-  right: 0;
-  bottom: 0;
+        .ant-spin-dot-item:nth-child(3) {
+          right: 0;
+          bottom: 0;
 
-  -webkit-animation-delay: .8s;
-          animation-delay: .8s;
-}
+          -webkit-animation-delay: 0.8s;
+          animation-delay: 0.8s;
+        }
 
-.ant-spin-dot-item:nth-child(4) {
-  bottom: 0;
-  left: 0;
+        .ant-spin-dot-item:nth-child(4) {
+          bottom: 0;
+          left: 0;
 
-  -webkit-animation-delay: 1.2s;
+          -webkit-animation-delay: 1.2s;
           animation-delay: 1.2s;
-}
+        }
 
-.ant-spin-dot-spin {
-  -webkit-transform: rotate(45deg);
-      -ms-transform: rotate(45deg);
+        .ant-spin-dot-spin {
+          -webkit-transform: rotate(45deg);
+          -ms-transform: rotate(45deg);
           transform: rotate(45deg);
-  -webkit-animation: antRotate 1.2s infinite linear;
+          -webkit-animation: antRotate 1.2s infinite linear;
           animation: antRotate 1.2s infinite linear;
-}
+        }
 
-.ant-spin-lg .ant-spin-dot {
-  font-size: 32px;
+        .ant-spin-lg .ant-spin-dot {
+          font-size: 32px;
 
-  width: 32px;
-  height: 32px;
-}
+          width: 32px;
+          height: 32px;
+        }
 
-.ant-spin-lg .ant-spin-dot i {
-  width: 14px;
-  height: 14px;
-}
+        .ant-spin-lg .ant-spin-dot i {
+          width: 14px;
+          height: 14px;
+        }
 
-@media all and (-ms-high-contrast: none),
+        @media all and (-ms-high-contrast: none),
           (-ms-high-contrast: active) {
-  .ant-spin-blur {
-    opacity: .5;
-    background: #fff;
-  }
-}
+          .ant-spin-blur {
+            opacity: 0.5;
+            background: #fff;
+          }
+        }
 
-@-webkit-keyframes antSpinMove {
-  to {
-    opacity: 1;
-  }
-}
+        @-webkit-keyframes antSpinMove {
+          to {
+            opacity: 1;
+          }
+        }
 
-@keyframes antSpinMove {
-  to {
-    opacity: 1;
-  }
-}
+        @keyframes antSpinMove {
+          to {
+            opacity: 1;
+          }
+        }
 
-@-webkit-keyframes antRotate {
-  to {
-    -webkit-transform: rotate(405deg);
+        @-webkit-keyframes antRotate {
+          to {
+            -webkit-transform: rotate(405deg);
             transform: rotate(405deg);
-  }
-}
+          }
+        }
 
-@keyframes antRotate {
-  to {
-    -webkit-transform: rotate(405deg);
+        @keyframes antRotate {
+          to {
+            -webkit-transform: rotate(405deg);
             transform: rotate(405deg);
-  }
-}
-
+          }
+        }
       </style>
       <div
         style="
@@ -229,7 +258,7 @@ body,
           <img
             src="/favicon.png"
             width="32"
-            style="margin-right: 8px;"
+            style="margin-right: 8px"
           />
           sf-notes
         </div>

@@ -1,14 +1,14 @@
 import NNotes from './NNotes';
 
 import request from '@/utils/request';
-import NRes from '@/common/type/NRes';
+import NRsp from '@/common/type/NRsp';
 export namespace SNotes {
-  export async function getList(): Promise<NRes<NNotes>> {
+  export async function getList(): Promise<NRsp<NNotes>> {
     return request({
       url: '/notes/getNoteList',
     });
   }
-  export async function delItem(id: string): Promise<NRes> {
+  export async function delItem(id: string): Promise<NRsp> {
     return request({
       url: '/notes/delNote',
       params: {
@@ -19,7 +19,7 @@ export namespace SNotes {
   export async function addItem(
     notes: NNotes,
     index: number = 0,
-  ): Promise<NRes<null>> {
+  ): Promise<NRsp<NNotes>> {
     return request({
       url: '/notes/addNote',
       method: 'post',
@@ -29,21 +29,21 @@ export namespace SNotes {
       },
     });
   }
-  export async function editItem(notes: NNotes): Promise<NRes> {
+  export async function editItem(notes: NNotes): Promise<NRsp> {
     return request({
       url: '/notes/editNote',
       method: 'post',
       data: notes,
     });
   }
-  export async function topItem(notes: NNotes): Promise<NRes> {
+  export async function topItem(notes: NNotes): Promise<NRsp> {
     return request({
       url: '/notes/topNote',
       method: 'post',
       data: notes,
     });
   }
-  export async function bottomItem(notes: NNotes): Promise<NRes> {
+  export async function bottomItem(notes: NNotes): Promise<NRsp> {
     return request({
       url: '/notes/bottomNote',
       method: 'post',

@@ -19,30 +19,44 @@
 
       white-space: pre-wrap;
     }
-
-    .ant-card-extra {
-      transition: opacity .35s linear;
-
-      // opacity: 0;
-    }
-
-    .ant-card-actions {
-      display: flex;
-
-      align-items: center;
-
-      li {
-        margin: 4px 0 3px 0 !important;
-
-        transition: opacity .35s linear;
-
-        opacity: 0;
-      }
-    }
   }
 
   img {
     max-width: 100%;
+  }
+}
+
+.actionWrap {
+  display: flex;
+
+  height: 40px;
+
+  border: 1px solid #f0f0f0;
+  background-color: #fafafa;
+
+  align-items: center;
+
+  &.top {
+    border-bottom: none;
+  }
+
+  &.bottom {
+    border-top: none;
+  }
+
+  &:hover {
+    .item {
+      opacity: 1;
+    }
+  }
+
+  .item {
+    transition: opacity .35s linear;
+    text-align: center;
+
+    opacity: 0;
+
+    flex-grow: 1;
   }
 }
 
