@@ -35,7 +35,7 @@ const Note = (props: INoteProps) => {
   const { data } = props;
   let title =
     data.title ||
-    moment(data.createTime || undefined).format(UDate.YYYY_MM_DD);
+    moment(data.createTime || undefined).format(UDate.ymd);
   const menu = (
     <Menu>
       <Menu.Item key="noitce_top" onClick={() => reqTopItem(data)}>

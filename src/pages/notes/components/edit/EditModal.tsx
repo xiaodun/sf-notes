@@ -219,9 +219,7 @@ export const EditModal: ForwardRefRenderFunction<
               title: e.target.value,
             })
           }
-          placeholder={`标题 默认为${moment().format(
-            UDate.YYYY_MM_DD,
-          )}`}
+          placeholder={`标题 默认为${moment().format(UDate.ymd)}`}
         ></Input>
       </Space>
     </Modal>
