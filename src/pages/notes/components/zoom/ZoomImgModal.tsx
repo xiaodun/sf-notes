@@ -6,7 +6,7 @@ import React, {
 } from 'react';
 import { Modal, Button } from 'antd';
 import produce from 'immer';
-export interface IZoomImgModalRef {
+export interface IZoomImgModal {
   showModal: (src: string) => void;
 }
 export interface IZoomImgModalState {
@@ -17,7 +17,7 @@ const defaultState: IZoomImgModalState = {
   visible: false,
   src: null,
 };
-const ZoomImgModal: ForwardRefRenderFunction<IZoomImgModalRef> = (
+const ZoomImgModal: ForwardRefRenderFunction<IZoomImgModal> = (
   props,
   ref,
 ) => {

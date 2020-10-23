@@ -1,5 +1,14 @@
-import React, { StaticLifecycle } from 'react';
+import React from 'react';
+import { connect } from 'umi';
 interface TestClassProps {}
 interface TestClassState {}
-export default class TestClass
-  implements StaticLifecycle<TestClassProps, TestClassState> {}
+
+class TestClass extends React.PureComponent<
+  TestClassProps,
+  TestClassState
+> {
+  public render() {
+    return <div>1</div>;
+  }
+}
+export default connect(({}) => ({}))(TestClass);

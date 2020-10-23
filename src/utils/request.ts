@@ -2,7 +2,7 @@ import axios, { AxiosRequestConfig } from 'axios';
 
 import { notification } from 'antd';
 import serviceConfig from '@/../service/app/config.json';
-import NRes from '@/common/type/NRes';
+import NRsp from '@/common/type/NRsp';
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
   201: '新建或修改数据成功。',
@@ -52,7 +52,7 @@ const errorHandler = (error: { response: Response }): Response => {
 export default function request(config: AxiosRequestConfig) {
   return instance(config)
     .then((res) => {
-      const data = res.data as NRes;
+      const data = res.data as NRsp;
       data.list || (data.list = []);
       data.data || (data.data = {} as any);
       return {

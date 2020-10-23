@@ -1,13 +1,15 @@
-import React, { useState, useEffect, useRef, FC } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import SelfStyle from './Welcome.less';
-import { Layout } from 'antd';
+import { Layout, Space, Button, Modal } from 'antd';
 import moment from 'moment';
 import UDate from '@/common/utils/UDate';
-import { IRouteComponentProps } from 'umi';
+import { IRouteComponentProps, ConnectRC, connect } from 'umi';
 import NRouter from '@/../config/router/NRouter';
-import { LeftCircleFilled } from '@ant-design/icons';
+import { LeftCircleFilled, QrcodeOutlined } from '@ant-design/icons';
 import NApp from './app/NApp';
-export const Welcome: FC<IRouteComponentProps> = (props) => {
+export const Welcome: ConnectRC<IRouteComponentProps> = (props) => {
+  window.umiHistory = props.history;
+  window.umiDispatch = props.dispatch;
   useEffect(() => {
     if (!NRouter.isHomePage(props.match.path)) {
       setTimeout(() => {
@@ -16,6 +18,7 @@ export const Welcome: FC<IRouteComponentProps> = (props) => {
       });
     }
   }, []);
+  const actionBtnList = [<QRCodeBtn></QRCodeBtn>];
   return (
     <Layout className={SelfStyle.layput}>
       <Layout.Header className={SelfStyle.header}>
@@ -27,7 +30,15 @@ export const Welcome: FC<IRouteComponentProps> = (props) => {
             <LeftCircleFilled />
           </div>
         )}
-        <div className={SelfStyle.words}></div>
+        <div className={SelfStyle.actions}>
+          <Space size={24}>
+            {actionBtnList.map((item, index) => (
+              <div key={index} className={SelfStyle.item}>
+                {item}
+              </div>
+            ))}
+          </Space>
+        </div>
         <div className={SelfStyle.times}>
           <DateTimeArea></DateTimeArea>
         </div>
@@ -52,4 +63,21 @@ const DateTimeArea = () => {
   }, []);
   return <div className={SelfStyle.timeWrapper}>{time}</div>;
 };
-export default Welcome;
+const QRCodeBtn = () => {
+  const QRCode = require('qrcode.react');
+  return (
+    <Button icon={<QrcodeOutlined />} onClick={showQRcode}></Button>
+  );
+  function showQRcode() {
+    Modal.info({
+      icon: null,
+      content: (
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <QRCode size={256} value={window.location.href} />
+        </div>
+      ),
+      okText: '关闭',
+    });
+  }
+};
+export default connect(() => ({}))(Welcome);
