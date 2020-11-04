@@ -8,13 +8,14 @@ namespace SFile {
       url: '/upload/getFileList',
     });
   }
-  export async function addItem(file: File): Promise<NRsp> {
+  export async function addItem(file: File,onUploadProgress:(progressEvent: ProgressEvent<EventTarget>)=>void): Promise<NRsp> {
     const formData = new FormData();
     formData.append('file', file);
     return request({
       url: '/upload/addFile',
       method: 'post',
       data: formData,
+      onUploadProgress,
     });
   }
   export async function delItem(id: string): Promise<NRsp> {
