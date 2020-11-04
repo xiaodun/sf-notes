@@ -75,7 +75,6 @@ const PFile: FC<IPFileProps> = (props) => {
       key: any;
     } & Partial<NFile.IConfig>,
   ) {
-    console.log('wx', params);
     return (
       <div key={params.key} className={SelfStyle.itemWrap}>
         <Typography.Text className={SelfStyle.name} ellipsis>
