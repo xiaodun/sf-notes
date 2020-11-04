@@ -11,7 +11,10 @@
       response: {
         //返回的数据
         code: 200,
-        data: file,
+        data: {
+          success: true,
+          list: argData,
+        },
       },
     };
   };

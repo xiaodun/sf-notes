@@ -7,6 +7,8 @@ import { IRouteComponentProps, ConnectRC, connect } from 'umi';
 import NRouter from '@/../config/router/NRouter';
 import { LeftCircleFilled, QrcodeOutlined } from '@ant-design/icons';
 import NApp from './app/NApp';
+import { enableMapSet } from 'immer';
+enableMapSet();
 export const Welcome: ConnectRC<IRouteComponentProps> = (props) => {
   window.umiHistory = props.history;
   window.umiDispatch = props.dispatch;
