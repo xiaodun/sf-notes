@@ -25,9 +25,7 @@ const PFile: FC<IPFileProps> = (props) => {
   const fileConfigMapRef = useRef<Map<File, NFile.IConfig>>(
     new Map(),
   );
-  const [fileConfigMap, setFileConfigMap] = useState<
-    Map<File, NFile.IConfig>
-  >(new Map());
+  const [radomKey, setRadomkey] = useState<number>();
   useEffect(() => {
     getList();
   }, []);
@@ -58,7 +56,7 @@ const PFile: FC<IPFileProps> = (props) => {
   );
   function renderLoadingFile() {
     const list: ReactNode[] = [];
-    fileConfigMap.forEach((fileConfig, file) => {
+    fileConfigMapRef.current.forEach((fileConfig, file) => {
       if (fileConfig.uploadLoading) {
         list.push(
           renderFileList({
@@ -109,16 +107,18 @@ const PFile: FC<IPFileProps> = (props) => {
     );
   }
   function customRequest({ file }: RcCustomRequestOptions) {
-    const map = produce(fileConfigMapRef.current, (drafData) => {
-      drafData.set(file, {
-        uploadLoading: true,
-        loaded: 0,
-        total: file.size,
-        name: file.name,
-      });
-    });
-    fileConfigMapRef.current = map;
-    setFileConfigMap(map);
+    fileConfigMapRef.current = produce(
+      fileConfigMapRef.current,
+      (drafData) => {
+        drafData.set(file, {
+          uploadLoading: true,
+          loaded: 0,
+          total: file.size,
+          name: file.name,
+        });
+      },
+    );
+    setRadomkey(Math.random());
     addItem(file);
   }
   async function getList() {
@@ -130,24 +130,28 @@ const PFile: FC<IPFileProps> = (props) => {
   async function addItem(file: File) {
     const rsp = await SFile.addItem(file, (event) => {
       if (event.loaded !== event.total) {
-        const map = produce(fileConfigMapRef.current, (drafData) => {
-          const fileConfig = drafData.get(file);
-          fileConfig.loaded = event.loaded;
-          fileConfig.total = event.total;
-        });
-        setFileConfigMap(map);
-        fileConfigMapRef.current = map;
+        fileConfigMapRef.current = produce(
+          fileConfigMapRef.current,
+          (drafData) => {
+            const fileConfig = drafData.get(file);
+            fileConfig.loaded = event.loaded;
+            fileConfig.total = event.total;
+          },
+        );
+        setRadomkey(Math.random());
       } else {
-        const map = produce(fileConfigMapRef.current, (drafData) => {
-          const fileConfig = drafData.get(file);
-          fileConfig.loaded = event.loaded;
-          fileConfig.total = event.total;
-          fileConfig.uploadLoading = false;
-        });
-        fileConfigMapRef.current = map;
+        fileConfigMapRef.current = produce(
+          fileConfigMapRef.current,
+          (drafData) => {
+            const fileConfig = drafData.get(file);
+            fileConfig.loaded = event.loaded;
+            fileConfig.total = event.total;
+            fileConfig.uploadLoading = false;
+          },
+        );
         setTimeout(() => {
-          setFileConfigMap(map);
-        }, 200);
+          setRadomkey(Math.random());
+        }, 400);
       }
     });
     if (rsp.success) {
