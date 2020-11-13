@@ -5,11 +5,14 @@ export interface NFile {
   id: string;
 }
 export namespace NFile{
-  export interface IConfig{
+  export interface IUploadConfig{
     uploadLoading:boolean
     name:string,
     loaded?:number,
     total?:number,
+  }
+  export interface IOptioncConfig{
+    delLoading:boolean
   }
 }
 export default NFile;

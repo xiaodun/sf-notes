@@ -1,10 +1,11 @@
+import { NRsp } from '@/common/type/NRsp';
 import {
   DeleteOutlined,
   DownloadOutlined,
   EyeOutlined,
   InboxOutlined,
 } from '@ant-design/icons';
-import { Button, Row, Space, Typography, Upload } from 'antd';
+import { Button, Space, Typography, Upload } from 'antd';
 import { RcCustomRequestOptions } from 'antd/lib/upload/interface';
 import produce from 'immer';
 import { floor } from 'lodash';
@@ -21,10 +22,15 @@ import NFile from './NFile';
 import SFile from './SFile';
 export interface IPFileProps {}
 const PFile: FC<IPFileProps> = (props) => {
-  const [list, setList] = useState<NFile[]>([]);
-  const fileConfigMapRef = useRef<Map<File, NFile.IConfig>>(
+  const [fileRsp, setFileRsp] = useState<NRsp<NFile>>({
+    list: [],
+  });
+  const uploadConfigMapRef = useRef<Map<File, NFile.IUploadConfig>>(
     new Map(),
   );
+  const optionConfigMapRef = useRef<
+    Map<string, NFile.IOptioncConfig>
+  >(new Map());
   const [radomKey, setRadomkey] = useState<number>();
   useEffect(() => {
     getList();
@@ -43,20 +49,21 @@ const PFile: FC<IPFileProps> = (props) => {
         <p className="ant-upload-text">点击或拖拽上传</p>
       </Upload.Dragger>
       <div className={SelfStyle.fileListWrap}>
-        {renderLoadingFile()}
-        {list.map((item) =>
+        {renderUploadFileList()}
+        {fileRsp.list.map((item) =>
           renderFileList({
             key: item.id,
             name: item.name,
+            item,
             uploadLoading: false,
           }),
         )}
       </div>
     </div>
   );
-  function renderLoadingFile() {
+  function renderUploadFileList() {
     const list: ReactNode[] = [];
-    fileConfigMapRef.current.forEach((fileConfig, file) => {
+    uploadConfigMapRef.current.forEach((fileConfig, file) => {
       if (fileConfig.uploadLoading) {
         list.push(
           renderFileList({
@@ -71,8 +78,10 @@ const PFile: FC<IPFileProps> = (props) => {
   function renderFileList(
     params: {
       key: any;
-    } & Partial<NFile.IConfig>,
+      item?: NFile;
+    } & Partial<NFile.IUploadConfig>,
   ) {
+    const optionConfig = optionConfigMapRef.current.get(params.key);
     return (
       <div key={params.key} className={SelfStyle.itemWrap}>
         <Typography.Text className={SelfStyle.name} ellipsis>
@@ -97,6 +106,8 @@ const PFile: FC<IPFileProps> = (props) => {
               shape="circle"
             ></Button>
             <Button
+              loading={optionConfig?.delLoading}
+              onClick={() => onDelFile(params.item)}
               danger
               icon={<DeleteOutlined />}
               shape="circle"
@@ -106,9 +117,22 @@ const PFile: FC<IPFileProps> = (props) => {
       </div>
     );
   }
+  function onDelFile(file: NFile) {
+    optionConfigMapRef.current.set(file.id, { delLoading: true });
+    setRadomkey(Math.random());
+    SFile.delItem(file.id).then((rsp) => {
+      if (rsp.success) {
+        const optionConfig = optionConfigMapRef.current.get(file.id);
+        optionConfig.delLoading = true;
+        setFileRsp(
+          NRsp.delItem(fileRsp, (item) => item.id === file.id),
+        );
+      }
+    });
+  }
   function customRequest({ file }: RcCustomRequestOptions) {
-    fileConfigMapRef.current = produce(
-      fileConfigMapRef.current,
+    uploadConfigMapRef.current = produce(
+      uploadConfigMapRef.current,
       (drafData) => {
         drafData.set(file, {
           uploadLoading: true,
@@ -124,14 +148,14 @@ const PFile: FC<IPFileProps> = (props) => {
   async function getList() {
     const rsp = await SFile.getList();
     if (rsp.success) {
-      setList(rsp.list);
+      setFileRsp(rsp);
     }
   }
   async function addItem(file: File) {
     const rsp = await SFile.addItem(file, (event) => {
       if (event.loaded !== event.total) {
-        fileConfigMapRef.current = produce(
-          fileConfigMapRef.current,
+        uploadConfigMapRef.current = produce(
+          uploadConfigMapRef.current,
           (drafData) => {
             const fileConfig = drafData.get(file);
             fileConfig.loaded = event.loaded;
@@ -140,8 +164,8 @@ const PFile: FC<IPFileProps> = (props) => {
         );
         setRadomkey(Math.random());
       } else {
-        fileConfigMapRef.current = produce(
-          fileConfigMapRef.current,
+        uploadConfigMapRef.current = produce(
+          uploadConfigMapRef.current,
           (drafData) => {
             const fileConfig = drafData.get(file);
             fileConfig.loaded = event.loaded;
@@ -155,7 +179,7 @@ const PFile: FC<IPFileProps> = (props) => {
       }
     });
     if (rsp.success) {
-      setList(rsp.list);
+      setFileRsp(rsp);
     }
   }
 };
