@@ -12,7 +12,8 @@ export namespace NFile{
     total?:number,
   }
   export interface IOptioncConfig{
-    delLoading:boolean
+    delLoading?:boolean;
+    downloadLoading?:boolean;
   }
 }
 export default NFile;

@@ -51,15 +51,19 @@ const errorHandler = (error: { response: Response }): Response => {
 
 export default function request(config: AxiosRequestConfig) {
   return instance(config)
-    .then((res) => {
-      const data = res.data as NRsp;
-      data.list || (data.list = []);
-      data.data || (data.data = {} as any);
-      return {
-        list: [],
-        data: {},
-        ...data,
-      } as any;
+    .then((rsp) => {
+      if (config.responseType === 'blob') {
+        return rsp.data;
+      } else {
+        const data = rsp.data as NRsp;
+        data.list || (data.list = []);
+        data.data || (data.data = {} as any);
+        return {
+          list: [],
+          data: {},
+          ...data,
+        } as any;
+      }
     })
     .catch((error) => {
       const { response } = error;

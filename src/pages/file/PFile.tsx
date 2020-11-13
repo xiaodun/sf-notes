@@ -1,4 +1,5 @@
 import { NRsp } from '@/common/type/NRsp';
+import { UDownload } from '@/common/utils/UDownload';
 import {
   DeleteOutlined,
   DownloadOutlined,
@@ -102,6 +103,8 @@ const PFile: FC<IPFileProps> = (props) => {
             <Button icon={<EyeOutlined />} shape="circle"></Button>
             <Button
               type="primary"
+              loading={optionConfig?.downloadLoading}
+              onClick={() => onDownloadFile(params.item)}
               icon={<DownloadOutlined />}
               shape="circle"
             ></Button>
@@ -117,13 +120,25 @@ const PFile: FC<IPFileProps> = (props) => {
       </div>
     );
   }
+  function onDownloadFile(file: NFile) {
+    optionConfigMapRef.current.set(file.id, {
+      downloadLoading: true,
+    });
+    setRadomkey(Math.random());
+    SFile.downloadItem(file.id).then((rsp) => {
+      const optionConfig = optionConfigMapRef.current.get(file.id);
+      optionConfig.downloadLoading = false;
+      setRadomkey(Math.random());
+      UDownload.download({ name: file.name, blob: rsp });
+    });
+  }
   function onDelFile(file: NFile) {
     optionConfigMapRef.current.set(file.id, { delLoading: true });
     setRadomkey(Math.random());
     SFile.delItem(file.id).then((rsp) => {
       if (rsp.success) {
         const optionConfig = optionConfigMapRef.current.get(file.id);
-        optionConfig.delLoading = true;
+        optionConfig.delLoading = false;
         setFileRsp(
           NRsp.delItem(fileRsp, (item) => item.id === file.id),
         );
