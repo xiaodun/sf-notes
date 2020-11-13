@@ -1,5 +1,5 @@
-import NModel from '@/common/type/NModel';
-import NRsp from '@/common/type/NRsp';
+import NModel from '@/common/namespace/NModel';
+import NRsp from '@/common/namespace/NRsp';
 import NNotes from '../NNotes';
 
 export namespace NMDNotes {

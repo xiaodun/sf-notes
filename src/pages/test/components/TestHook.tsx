@@ -1,6 +1,6 @@
 import React from 'react';
-import NModel from '@/common/type/NModel';
-import { ConnectRC, NMDTest,connect } from 'umi';
+import NModel from '@/common/namespace/NModel';
+import { ConnectRC, NMDTest, connect } from 'umi';
 interface TestHookProps {
   num: number;
   name: string;

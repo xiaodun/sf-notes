@@ -1,7 +1,7 @@
 import NNotes from './NNotes';
 
 import request from '@/utils/request';
-import NRsp from '@/common/type/NRsp';
+import NRsp from '@/common/namespace/NRsp';
 export namespace SNotes {
   export async function getList(): Promise<NRsp<NNotes>> {
     return request({

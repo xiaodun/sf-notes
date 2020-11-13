@@ -15,9 +15,9 @@ import moment from 'moment';
 import SNotes from '../../SNotes';
 import produce from 'immer';
 import UDate from '@/common/utils/UDate';
-import NModel from '@/common/type/NModel';
+import NModel from '@/common/namespace/NModel';
 import { NMDNotes } from 'umi';
-import NRsp from '@/common/type/NRsp';
+import NRsp from '@/common/namespace/NRsp';
 
 export interface IEditModalProps {
   rsp: NRsp<NNotes>;
