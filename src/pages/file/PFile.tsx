@@ -1,9 +1,9 @@
+import useRefreshView from '@/common/hooks/useRefreshView';
 import { NRsp } from '@/common/namespace/NRsp';
 import { UDownload } from '@/common/utils/UDownload';
 import {
   DeleteOutlined,
   DownloadOutlined,
-  EyeOutlined,
   InboxOutlined,
 } from '@ant-design/icons';
 import { Button, Space, Typography, Upload } from 'antd';
@@ -32,7 +32,8 @@ const PFile: FC<IPFileProps> = (props) => {
   const optionConfigMapRef = useRef<
     Map<string, NFile.IOptioncConfig>
   >(new Map());
-  const [radomKey, setRadomkey] = useState<number>();
+  // const [radomKey, setRadomkey] = useState<number>();
+  const refreshView = useRefreshView();
   useEffect(() => {
     getList();
   }, []);
@@ -124,17 +125,17 @@ const PFile: FC<IPFileProps> = (props) => {
     optionConfigMapRef.current.set(file.id, {
       downloadLoading: true,
     });
-    setRadomkey(Math.random());
+    refreshView();
     SFile.downloadItem(file.id).then((rsp) => {
       const optionConfig = optionConfigMapRef.current.get(file.id);
       optionConfig.downloadLoading = false;
-      setRadomkey(Math.random());
+      refreshView();
       UDownload.download({ name: file.name, blob: rsp });
     });
   }
   function onDelFile(file: NFile) {
     optionConfigMapRef.current.set(file.id, { delLoading: true });
-    setRadomkey(Math.random());
+    refreshView();
     SFile.delItem(file.id).then((rsp) => {
       if (rsp.success) {
         const optionConfig = optionConfigMapRef.current.get(file.id);
@@ -157,7 +158,7 @@ const PFile: FC<IPFileProps> = (props) => {
         });
       },
     );
-    setRadomkey(Math.random());
+    refreshView();
     addItem(file);
   }
   async function getList() {
@@ -177,7 +178,7 @@ const PFile: FC<IPFileProps> = (props) => {
             fileConfig.total = event.total;
           },
         );
-        setRadomkey(Math.random());
+        refreshView();
       } else {
         uploadConfigMapRef.current = produce(
           uploadConfigMapRef.current,
@@ -189,7 +190,7 @@ const PFile: FC<IPFileProps> = (props) => {
           },
         );
         setTimeout(() => {
-          setRadomkey(Math.random());
+          refreshView();
         }, 400);
       }
     });
