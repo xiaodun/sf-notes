@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { FC, ReactNode } from 'react';
 import SelfStyle from './note.less';
 import { Card, Button, Menu, Dropdown, Space } from 'antd';
 import {
@@ -15,10 +15,11 @@ import SNotes from '../../SNotes';
 import NRsp from '@/common/type/NRsp';
 import UDate from '@/common/utils/UDate';
 import { classNames } from '@/common';
-import { NMDNotes, ConnectRC, connect } from 'umi';
+import { NMDNotes } from 'umi';
 import NModel from '@/common/type/NModel';
 import { IEditModal } from '../edit/EditModal';
 import { IZoomImgModal } from '../zoom/ZoomImgModal';
+import { NConnect } from '@/common/type/NConnect';
 
 export interface INoteProps {
   data: NNotes;
@@ -34,7 +35,7 @@ export interface INoteAction {
   start: number;
   count: number;
 }
-const Note: ConnectRC<INoteProps> = (props) => {
+const Note: FC<INoteProps> = (props) => {
   const { data, MDNotes } = props;
   let title =
     data.title ||
@@ -386,6 +387,6 @@ const Note: ConnectRC<INoteProps> = (props) => {
   }
 };
 
-export default connect(({ MDNotes }: NModel.IState) => ({ MDNotes }))(
-  Note,
-);
+export default NConnect.connect(({ MDNotes }: NModel.IState) => ({
+  MDNotes,
+}))(Note);
