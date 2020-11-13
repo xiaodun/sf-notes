@@ -1,1 +1,1 @@
-umi dev
+cnpm run dev
