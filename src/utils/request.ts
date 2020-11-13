@@ -2,7 +2,7 @@ import axios, { AxiosRequestConfig } from 'axios';
 
 import { notification } from 'antd';
 import serviceConfig from '@/../service/app/config.json';
-import NRsp from '@/common/type/NRsp';
+import NRsp from '@/common/namespace/NRsp';
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
   201: '新建或修改数据成功。',

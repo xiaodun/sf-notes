@@ -1,4 +1,4 @@
-import { NRsp } from '@/common/type/NRsp';
+import { NRsp } from '@/common/namespace/NRsp';
 import { UDownload } from '@/common/utils/UDownload';
 import {
   DeleteOutlined,
@@ -100,7 +100,7 @@ const PFile: FC<IPFileProps> = (props) => {
             </div>
           )}
           <Space size={26}>
-            <Button icon={<EyeOutlined />} shape="circle"></Button>
+            {/* <Button icon={<EyeOutlined />} shape="circle"></Button> */}
             <Button
               type="primary"
               loading={optionConfig?.downloadLoading}

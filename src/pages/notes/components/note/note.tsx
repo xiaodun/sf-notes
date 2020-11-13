@@ -12,14 +12,14 @@ import NNotes from '../../NNotes';
 import moment from 'moment';
 import UCopy from '@/common/utils/UCopy';
 import SNotes from '../../SNotes';
-import NRsp from '@/common/type/NRsp';
+import NRsp from '@/common/namespace/NRsp';
 import UDate from '@/common/utils/UDate';
 import { classNames } from '@/common';
 import { NMDNotes } from 'umi';
-import NModel from '@/common/type/NModel';
+import NModel from '@/common/namespace/NModel';
 import { IEditModal } from '../edit/EditModal';
 import { IZoomImgModal } from '../zoom/ZoomImgModal';
-import { NConnect } from '@/common/type/NConnect';
+import { NConnect } from '@/common/namespace/NConnect';
 
 export interface INoteProps {
   data: NNotes;

@@ -9,7 +9,7 @@ import ZoomImgModal, {
 } from './components/zoom/ZoomImgModal';
 import { PageFooter } from '@/common/components/page';
 import { connect } from 'dva';
-import NModel from '@/common/type/NModel';
+import NModel from '@/common/namespace/NModel';
 import { ConnectRC, NMDNotes } from 'umi';
 export interface PNotesProps {
   MDNotes: NMDNotes.IState;

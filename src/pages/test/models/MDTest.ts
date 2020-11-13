@@ -1,4 +1,4 @@
-import NModel from '@/common/type/NModel';
+import NModel from '@/common/namespace/NModel';
 
 export namespace NMDTest {
   export interface IState {
