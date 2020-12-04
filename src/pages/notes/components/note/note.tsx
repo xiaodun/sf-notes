@@ -93,16 +93,12 @@ const Note: FC<INoteProps> = (props) => {
     return (
       <div className={classNames(SelfStyle.actionWrap, className)}>
         <div className={SelfStyle.item}>
-          <Button icon={<CopyOutlined onClick={onCopy} />}></Button>
+          <Button onClick={onCopy} icon={<CopyOutlined />}></Button>
         </div>
         <div className={SelfStyle.item}>
           <Button
-            icon={
-              <EditOutlined
-                key="edit"
-                onClick={() => onUpdateNote(data)}
-              />
-            }
+            onClick={() => onUpdateNote(data)}
+            icon={<EditOutlined key="edit" />}
           ></Button>
         </div>
         <div className={SelfStyle.item}>
