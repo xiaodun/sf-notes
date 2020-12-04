@@ -14,15 +14,16 @@
     </div>
   </body>
   <script>
-    document.body.addEventListener('dragover', (event) => {
-      console.log('body');
-      event.stopPropagation();
-    });
-    document.addEventListener('dragover', () => {
-      console.log('document');
-    });
-    window.addEventListener('dragover', () => {
-      console.log('window');
-    });
+    var Foo = function () {
+      this.foo = 21;
+    };
+    {
+      class Foo {
+        constructor() {
+          this.foo = 7;
+        }
+      }
+      const foo = new Foo();
+    }
   </script>
 </html>
