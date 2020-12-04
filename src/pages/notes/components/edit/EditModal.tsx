@@ -18,6 +18,7 @@ import UDate from '@/common/utils/UDate';
 import NModel from '@/common/namespace/NModel';
 import { NMDNotes } from 'umi';
 import NRsp from '@/common/namespace/NRsp';
+import { USelection } from '@/common/utils/USelection';
 
 export interface IEditModalProps {
   rsp: NRsp<NNotes>;
@@ -54,6 +55,7 @@ export const EditModal: ForwardRefRenderFunction<
   );
   const textAreaRef = useRef<TextArea>();
   const loadCountRef = useRef<number>(0);
+  const noteContentId = 'noteContentId';
   useImperativeHandle(ref, () => ({
     showModal: (data, index) => {
       const newState = produce(state, (drafState) => {
@@ -70,12 +72,66 @@ export const EditModal: ForwardRefRenderFunction<
     },
   }));
   useEffect(() => {
-    setTimeout(() => {
-      if (state.visible) {
-        textAreaRef.current && textAreaRef.current.focus();
-      }
-    });
+    if (state.visible) {
+      setTimeout(() => {
+        USelection.end(
+          document.getElementById(
+            noteContentId,
+          ) as HTMLTextAreaElement,
+        );
+      });
+    }
   }, [state.visible]);
+
+  const title = state.added ? '添加记事' : '编辑记事';
+  return (
+    <Modal
+      visible={state.visible}
+      title={title}
+      maskClosable={false}
+      onOk={() => onOk()}
+      centered
+      onCancel={onClose}
+      okButtonProps={{
+        loading: loadCountRef.current > 0,
+      }}
+    >
+      <Space
+        style={{ width: '100%' }}
+        direction="vertical"
+        size="middle"
+      >
+        <div onDragOver={onDragOver} onDrop={onDrop}>
+          <Input.TextArea
+            id={noteContentId}
+            value={state.data.content}
+            className={SelfStyle.contentContainer}
+            autoSize={{
+              minRows: 8,
+            }}
+            onPaste={onPaste}
+            autoFocus
+            ref={textAreaRef}
+            placeholder={`支持普通链接\n图片链接\n黏贴图片\n拖拽桌面图片\n\`\`\`\n格式代码\n\`\`\`\n`}
+            onChange={(e) =>
+              onDataChange({
+                content: e.target.value,
+              })
+            }
+          ></Input.TextArea>
+        </div>
+        <Input
+          value={state.data.title}
+          onChange={(e) =>
+            onDataChange({
+              title: e.target.value,
+            })
+          }
+          placeholder={`标题 默认为${moment().format(UDate.ymd)}`}
+        ></Input>
+      </Space>
+    </Modal>
+  );
   function onDataChange(notes: Partial<NNotes>) {
     const newState = produce(state, (drafState) => {
       Object.assign(drafState.data, notes);
@@ -192,53 +248,5 @@ export const EditModal: ForwardRefRenderFunction<
       }
     }
   }
-  const title = state.added ? '添加记事' : '编辑记事';
-  return (
-    <Modal
-      visible={state.visible}
-      title={title}
-      maskClosable={false}
-      onOk={() => onOk()}
-      centered
-      onCancel={onClose}
-      okButtonProps={{
-        loading: loadCountRef.current > 0,
-      }}
-    >
-      <Space
-        style={{ width: '100%' }}
-        direction="vertical"
-        size="middle"
-      >
-        <div onDragOver={onDragOver} onDrop={onDrop}>
-          <Input.TextArea
-            value={state.data.content}
-            className={SelfStyle.contentContainer}
-            autoSize={{
-              minRows: 8,
-            }}
-            onPaste={onPaste}
-            autoFocus
-            ref={textAreaRef}
-            placeholder={`支持普通链接\n图片链接\n黏贴图片\n拖拽桌面图片\n\`\`\`\n格式代码\n\`\`\`\n`}
-            onChange={(e) =>
-              onDataChange({
-                content: e.target.value,
-              })
-            }
-          ></Input.TextArea>
-        </div>
-        <Input
-          value={state.data.title}
-          onChange={(e) =>
-            onDataChange({
-              title: e.target.value,
-            })
-          }
-          placeholder={`标题 默认为${moment().format(UDate.ymd)}`}
-        ></Input>
-      </Space>
-    </Modal>
-  );
 };
 export default forwardRef(EditModal);
