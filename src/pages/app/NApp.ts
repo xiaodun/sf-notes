@@ -6,7 +6,7 @@ interface NApp {
 namespace NApp {
   export const list: NApp[] = [
     {
-      name: '日记本',
+      name: '记事本',
       path: NRouter.notesPath,
     },
     {
