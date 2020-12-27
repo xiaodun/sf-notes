@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SelfStyle from './Welcome.less';
-import { Layout, Space, Button, Modal } from 'antd';
+import { Layout, Space, Button, Modal, BackTop } from 'antd';
 import moment from 'moment';
 import UDate from '@/common/utils/UDate';
 import { IRouteComponentProps, ConnectRC, connect } from 'umi';
@@ -48,6 +48,7 @@ export const Welcome: ConnectRC<IRouteComponentProps> = (props) => {
       <Layout.Content className={SelfStyle.content}>
         {props.children}
       </Layout.Content>
+      <BackTop visibilityHeight={800}></BackTop>
     </Layout>
   );
 };
