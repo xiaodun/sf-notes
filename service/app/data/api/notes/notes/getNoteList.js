@@ -9,7 +9,7 @@
         code: 200,
         data: {
           success: true,
-          list: argData.filter((item) => !item.deleted),
+          list: (argData || []).filter((item) => !item.deleted),
         },
       },
     };
