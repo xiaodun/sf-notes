@@ -14,6 +14,10 @@ namespace NApp {
       path: NRouter.filePath,
     },
     {
+      name: '写书籍',
+      path: NRouter.bookPath,
+    },
+    {
       name: '测试用例',
       path: NRouter.testPath,
     },
