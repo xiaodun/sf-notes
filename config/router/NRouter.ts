@@ -6,6 +6,7 @@ export namespace NRouter {
   export const testPath = '/test';
   export const notesPath = '/notes';
   export const filePath = '/file';
+  export const bookPath = '/book';
   export const routes: IRoute[] = [
     {
       path: rootPath,
@@ -25,6 +26,11 @@ export namespace NRouter {
     {
       path: testPath,
       component: '.' + testPath,
+      wrappers: [rootComponentPath],
+    },
+    {
+      path: bookPath,
+      component: '.' + bookPath,
       wrappers: [rootComponentPath],
     },
     {
