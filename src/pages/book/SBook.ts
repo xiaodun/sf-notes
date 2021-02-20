@@ -1,5 +1,12 @@
 import NRsp from '@/common/namespace/NRsp';
-import NFile from './NFile';
+import NBook from './NBook';
 import request from '@/utils/request';
 
-namespace SFile {}
+namespace SBook {
+  export async function getList(): Promise<NRsp<NBook>> {
+    return request({
+      url: '/book/getBookList',
+    });
+  }
+}
+export default SBook;
