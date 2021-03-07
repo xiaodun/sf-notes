@@ -25,10 +25,7 @@ export const Welcome: ConnectRC<IRouteComponentProps> = (props) => {
     <Layout className={SelfStyle.layput}>
       <Layout.Header className={SelfStyle.header}>
         {!NRouter.isHomePage(props.match.path) && (
-          <div
-            className={SelfStyle.backs}
-            onClick={NRouter.toHomePage}
-          >
+          <div className={SelfStyle.backs} onClick={NRouter.toBackPage}>
             <LeftCircleFilled />
           </div>
         )}
@@ -68,9 +65,7 @@ const DateTimeArea = () => {
 };
 const QRCodeBtn = () => {
   const QRCode = require('qrcode.react');
-  return (
-    <Button icon={<QrcodeOutlined />} onClick={showQRcode}></Button>
-  );
+  return <Button icon={<QrcodeOutlined />} onClick={showQRcode}></Button>;
   function showQRcode() {
     Modal.info({
       icon: null,
