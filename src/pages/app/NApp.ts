@@ -1,4 +1,4 @@
-import NRouter from '@/../config/router/NRouter';
+import NRouter from "@/../config/router/NRouter";
 interface NApp {
   name: string;
   path: string;
@@ -6,19 +6,19 @@ interface NApp {
 namespace NApp {
   export const list: NApp[] = [
     {
-      name: '记事本',
+      name: "记事本",
       path: NRouter.notesPath,
     },
     {
-      name: '文件管理',
+      name: "文件管理",
       path: NRouter.filePath,
     },
     {
-      name: '写书籍',
+      name: "写书籍",
       path: NRouter.bookPath,
     },
     {
-      name: '测试用例',
+      name: "测试用例",
       path: NRouter.testPath,
     },
   ];
