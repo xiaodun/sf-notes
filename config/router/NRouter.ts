@@ -51,6 +51,13 @@ export namespace NRouter {
   export function toHomePage() {
     window.umiHistory.push(rootPath);
   }
+  export function toBackPage() {
+    if (document.referrer === "") {
+      toHomePage();
+    } else {
+      window.umiHistory.goBack();
+    }
+  }
 }
 
 export default NRouter;
