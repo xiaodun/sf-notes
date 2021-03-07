@@ -1,41 +1,47 @@
-import { IRoute } from 'umi';
+import { IRoute } from "umi";
 export namespace NRouter {
-  export const rootPath = '/';
-  export const rootComponentPath = 'Welcome';
-  export const appPath = '/app';
-  export const testPath = '/test';
-  export const notesPath = '/notes';
-  export const filePath = '/file';
-  export const bookPath = '/book';
+  export const rootPath = "/";
+  export const rootComponentPath = "Welcome";
+  export const appPath = "/app";
+  export const testPath = "/test";
+  export const notesPath = "/notes";
+  export const filePath = "/file";
+  export const bookPath = "/book";
+  export const bookEditPath = bookPath + "/edit";
   export const routes: IRoute[] = [
     {
       path: rootPath,
-      component: '.' + appPath,
+      component: "." + appPath,
       wrappers: [rootComponentPath],
     },
     {
       path: appPath,
-      component: '.' + appPath,
+      component: "." + appPath,
       wrappers: [rootComponentPath],
     },
     {
       path: notesPath,
       wrappers: [rootComponentPath],
-      component: '.' + notesPath,
+      component: "." + notesPath,
     },
     {
       path: testPath,
-      component: '.' + testPath,
+      component: "." + testPath,
       wrappers: [rootComponentPath],
     },
     {
       path: bookPath,
-      component: '.' + bookPath,
+      component: "." + bookPath,
+      wrappers: [rootComponentPath],
+    },
+    {
+      path: bookEditPath,
+      component: "." + bookEditPath,
       wrappers: [rootComponentPath],
     },
     {
       path: filePath,
-      component: '.' + filePath,
+      component: "." + filePath,
       wrappers: [rootComponentPath],
     },
   ];
