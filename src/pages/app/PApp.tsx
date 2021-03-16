@@ -1,4 +1,4 @@
-import { Card } from 'antd';
+import { Card, Input } from 'antd';
 import React from 'react';
 import { ConnectRC } from 'umi';
 import SelfStyle from './LApp.less';
@@ -10,10 +10,7 @@ const PApp: ConnectRC<IPAppProps> = (props) => {
       <Card>
         {NApp.list.map((item) => (
           <Card.Grid className={SelfStyle.gird} key={item.path}>
-            <div
-              className={SelfStyle.app}
-              onClick={() => onApp(item.path)}
-            >
+            <div className={SelfStyle.app} onClick={() => onApp(item.path)}>
               <h2>{item.name}</h2>
             </div>
           </Card.Grid>
