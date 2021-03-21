@@ -28,7 +28,7 @@ namespace NApp {
   ];
   export function getAppInfoByPath(path: string) {
     const app = list.find((item) => item.path === path);
-    return app || ({} as NApp);
+    return app;
   }
 }
 export default NApp;

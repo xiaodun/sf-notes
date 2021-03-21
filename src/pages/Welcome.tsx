@@ -16,7 +16,9 @@ export const Welcome: ConnectRC<IRouteComponentProps> = (props) => {
     if (!NRouter.isHomePage(props.match.path)) {
       setTimeout(() => {
         const app = NApp.getAppInfoByPath(props.match.path);
-        document.title = app.name;
+        if (app) {
+          document.title = app.name;
+        }
       });
     }
   }, []);
@@ -24,11 +26,6 @@ export const Welcome: ConnectRC<IRouteComponentProps> = (props) => {
   return (
     <Layout className={SelfStyle.layput}>
       <Layout.Header className={SelfStyle.header}>
-        {!NRouter.isHomePage(props.match.path) && (
-          <div className={SelfStyle.backs} onClick={NRouter.toBackPage}>
-            <LeftCircleFilled />
-          </div>
-        )}
         <div className={SelfStyle.actions}>
           <Space size={24}>
             {actionBtnList.map((item, index) => (
