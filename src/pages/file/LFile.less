@@ -1,0 +1,62 @@
+.uploadWrapper {
+  width: 60% !important;
+  min-height: 154px !important;
+  margin: 0 auto;
+  margin-top: 25px;
+  padding: 24px !important;
+
+  :global {
+    .ant-upload-text {
+      margin-top: 30px !important;
+    }
+  }
+
+  @media screen and (max-width: 1000px) {
+    width: 100% !important;
+  }
+}
+
+.fileListWrap {
+  width: 80%;
+  margin: 125px auto;
+
+  .itemWrap {
+    display: flex;
+
+    margin-bottom: 35px;
+
+    justify-content: center;
+
+    .name {
+      font-size: 14px;
+      font-weight: 500;
+
+      max-width: 560px;
+
+      text-indent: 6px;
+
+      color: #333;
+      border-bottom: 1px solid #dcdcdc;
+
+      flex-grow: 1;
+    }
+
+    .actions {
+      font-size: 18px;
+
+      position: relative;
+
+      padding-left: 45px;
+
+      .loadingWrap {
+        font-weight: bold;
+
+        position: absolute;
+
+        visibility: visible;
+
+        color: #349540;
+      }
+    }
+  }
+}

@@ -1,0 +1,32 @@
+.main {
+  :global {
+    .fade-enter .btn {
+      transform: translateX(-100%);
+
+      opacity: 0;
+    }
+
+    .fade-enter-active .btn {
+      transform: translateX(0%);
+
+      opacity: 1;
+    }
+
+    .fade-exit .btn {
+      transform: translateX(0%);
+
+      opacity: 1;
+    }
+
+    .fade-exit-active .btn {
+      transform: translateX(100%);
+
+      opacity: 0;
+    }
+
+    .fade-enter-active .btn,
+    .fade-exit-active .btn {
+      transition: opacity 500ms, transform 500ms;
+    }
+  }
+}

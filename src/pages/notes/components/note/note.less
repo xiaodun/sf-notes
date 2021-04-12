@@ -1,0 +1,118 @@
+.noteWrapper {
+  &:hover {
+    :global {
+      .ant-card-actions {
+        li {
+          opacity: 1;
+        }
+      }
+
+      .ant-card-extra {
+        opacity: 1;
+      }
+    }
+  }
+
+  :global {
+    .ant-card-body {
+      padding: 2em 6px 1.5em 36px;
+
+      white-space: pre-wrap;
+    }
+  }
+
+  img {
+    max-width: 100%;
+  }
+}
+
+.actionWrap {
+  display: flex;
+
+  height: 40px;
+
+  border: 1px solid #f0f0f0;
+  background-color: #fafafa;
+
+  align-items: center;
+
+  &.top {
+    border-bottom: none;
+  }
+
+  &.bottom {
+    border-top: none;
+  }
+
+  &:hover {
+    .item {
+      opacity: 1;
+    }
+  }
+
+  .item {
+    transition: opacity .35s linear;
+    text-align: center;
+
+    opacity: 0;
+
+    flex-grow: 1;
+  }
+}
+
+.linkWrapper {
+  display: flex;
+
+  white-space: pre-wrap;
+}
+
+.lineWrapper {
+  line-height: 32px;
+
+  display: flex;
+
+  margin: 2px 0;
+
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-all;
+
+  :global {
+    .actions {
+      margin-right: 10px;
+
+      transition: opacity ease-in .35s;
+
+      opacity: 0;
+
+      flex-shrink: 0;
+    }
+
+    .contents {
+      transition: background-color .25s linear;
+
+      flex-grow: 1;
+    }
+  }
+
+  &:hover {
+    :global {
+      .actions {
+        opacity: 1;
+      }
+
+      .contents {
+        background-color: #fff6f6;
+      }
+    }
+  }
+}
+
+.imgWrapper {
+  overflow: hidden;
+
+  max-height: 300px;
+  margin: 1em;
+
+  flex-grow: 1;
+}
