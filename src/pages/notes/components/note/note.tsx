@@ -286,8 +286,10 @@ const Note: FC<INoteProps> = (props) => {
             }
             if (lastIndex !== str.length) {
               const content = str.slice(lastIndex);
+              
               if (content !== '\n') {
-                copyStr += '\n';
+                copyStr += content + '\n';
+              
               }
               partList.push(content);
             }
