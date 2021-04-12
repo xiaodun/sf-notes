@@ -1,0 +1,5 @@
+{
+  "prefix": "api",
+  "port": 8880,
+  "dataFloderName": "data"
+}
