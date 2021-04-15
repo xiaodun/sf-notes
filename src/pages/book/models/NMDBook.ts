@@ -1,6 +1,6 @@
-import NModel from '@/common/namespace/NModel';
-import NRsp from '@/common/namespace/NRsp';
-import NBook from '../NBook';
+import NModel from "@/common/namespace/NModel";
+import NRsp from "@/common/namespace/NRsp";
+import NBook from "../NBook";
 
 export namespace NMDBook {
   export interface IState {
@@ -10,7 +10,7 @@ export namespace NMDBook {
     namespace = NModel.ENames.MDBook;
   }
   export class ARSetRsp extends Action<NRsp<NBook>> {
-    type = 'setRsp';
+    type = "setRsp";
   }
 }
 
