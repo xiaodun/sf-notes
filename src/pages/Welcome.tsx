@@ -9,6 +9,7 @@ import { QrcodeOutlined } from "@ant-design/icons";
 import NApp from "./app/NApp";
 import { enableMapSet } from "immer";
 import NModel from "@/common/namespace/NModel";
+import classNames from "classnames";
 enableMapSet();
 export interface IWelcomeProps extends IRouteComponentProps {
   MDGlobal: NMDGlobal.IState;
@@ -17,6 +18,15 @@ export const Welcome: ConnectRC<IWelcomeProps> = (props) => {
   window.umiHistory = props.history;
   window.umiDispatch = props.dispatch;
   useEffect(() => {
+    let showHeader = true;
+    if ([NRouter.bookEditPath].includes(props.match.path)) {
+      showHeader = false;
+    }
+    NModel.dispatch(
+      new NMDGlobal.ARChangeSetting({
+        showHeader,
+      })
+    );
     if (!NRouter.isHomePage(props.match.path)) {
       setTimeout(() => {
         const app = NApp.getAppInfoByPath(props.match.path);
@@ -28,8 +38,13 @@ export const Welcome: ConnectRC<IWelcomeProps> = (props) => {
   }, []);
   const actionBtnList = [<QRCodeBtn></QRCodeBtn>];
   return (
-    <Layout className={SelfStyle.layput}>
-      <Layout.Header className={SelfStyle.header}>
+    <Layout
+      className={classNames([
+        SelfStyle.layout,
+        { [SelfStyle.showHeader]: props.MDGlobal.showHeader },
+      ])}
+    >
+      <Layout.Header className={classNames([SelfStyle.header])}>
         <div className={SelfStyle.actions}>
           <Space size={24}>
             {actionBtnList.map((item, index) => (
