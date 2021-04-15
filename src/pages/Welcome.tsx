@@ -18,13 +18,22 @@ export const Welcome: ConnectRC<IWelcomeProps> = (props) => {
   window.umiHistory = props.history;
   window.umiDispatch = props.dispatch;
   useEffect(() => {
-    let showHeader = true;
+    let showHeader = props.MDGlobal.showHeader,
+      controlLayout = props.MDGlobal.controlLayout;
     if ([NRouter.bookEditPath].includes(props.match.path)) {
       showHeader = false;
+    } else {
+      showHeader = true;
+    }
+    if ([NRouter.bookEditPath].includes(props.match.path)) {
+      controlLayout = false;
+    } else {
+      controlLayout = true;
     }
     NModel.dispatch(
       new NMDGlobal.ARChangeSetting({
         showHeader,
+        controlLayout,
       })
     );
     if (!NRouter.isHomePage(props.match.path)) {
@@ -42,6 +51,7 @@ export const Welcome: ConnectRC<IWelcomeProps> = (props) => {
       className={classNames([
         SelfStyle.layout,
         { [SelfStyle.showHeader]: props.MDGlobal.showHeader },
+        { [SelfStyle.controlLayout]: props.MDGlobal.controlLayout },
       ])}
     >
       <Layout.Header className={classNames([SelfStyle.header])}>
