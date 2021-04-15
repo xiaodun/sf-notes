@@ -3,7 +3,7 @@ import NModel from "@/common/namespace/NModel";
 export namespace NMDGlobal {
   export interface IState {
     showHeader: boolean;
-    controlWidth: boolean;
+    controlLayout: boolean;
   }
   class Action<P> extends NModel.IAction<P> {
     namespace = NModel.ENames.MDGlobal;
@@ -17,7 +17,7 @@ export default {
   namespace: NModel.ENames.MDGlobal,
   state: {
     showHeader: true,
-    controlWidth: true,
+    controlLayout: true,
   },
   effects: {},
   reducers: {
