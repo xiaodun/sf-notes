@@ -1,15 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
-import SelfStyle from './Welcome.less';
-import { Layout, Space, Button, Modal, BackTop } from 'antd';
-import moment from 'moment';
-import UDate from '@/common/utils/UDate';
-import { IRouteComponentProps, ConnectRC, connect } from 'umi';
-import NRouter from '@/../config/router/NRouter';
-import { LeftCircleFilled, QrcodeOutlined } from '@ant-design/icons';
-import NApp from './app/NApp';
-import { enableMapSet } from 'immer';
+import React, { useState, useEffect, useRef } from "react";
+import SelfStyle from "./Welcome.less";
+import { Layout, Space, Button, Modal, BackTop } from "antd";
+import moment from "moment";
+import UDate from "@/common/utils/UDate";
+import { IRouteComponentProps, ConnectRC, connect, NMDGlobal } from "umi";
+import NRouter from "@/../config/router/NRouter";
+import { QrcodeOutlined } from "@ant-design/icons";
+import NApp from "./app/NApp";
+import { enableMapSet } from "immer";
+import NModel from "@/common/namespace/NModel";
 enableMapSet();
-export const Welcome: ConnectRC<IRouteComponentProps> = (props) => {
+export interface IWelcomeProps extends IRouteComponentProps {
+  MDGlobal: NMDGlobal.IState;
+}
+export const Welcome: ConnectRC<IWelcomeProps> = (props) => {
   window.umiHistory = props.history;
   window.umiDispatch = props.dispatch;
   useEffect(() => {
@@ -47,7 +51,7 @@ export const Welcome: ConnectRC<IRouteComponentProps> = (props) => {
   );
 };
 const DateTimeArea = () => {
-  const [time, setTime] = useState('');
+  const [time, setTime] = useState("");
   const timeRef = useRef<number>();
   useEffect(() => {
     timeRef.current = window.setInterval(() => {
@@ -61,18 +65,20 @@ const DateTimeArea = () => {
   return <div className={SelfStyle.timeWrapper}>{time}</div>;
 };
 const QRCodeBtn = () => {
-  const QRCode = require('qrcode.react');
+  const QRCode = require("qrcode.react");
   return <Button icon={<QrcodeOutlined />} onClick={showQRcode}></Button>;
   function showQRcode() {
     Modal.info({
       icon: null,
       content: (
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div style={{ display: "flex", justifyContent: "center" }}>
           <QRCode size={256} value={window.location.href} />
         </div>
       ),
-      okText: '关闭',
+      okText: "关闭",
     });
   }
 };
-export default connect(() => ({}))(Welcome);
+export default connect(({ MDGlobal }: NModel.IState) => ({ MDGlobal }))(
+  Welcome
+);
