@@ -8,13 +8,29 @@ namespace SBook {
       url: "/book/getBookList",
     });
   }
-  export async function addBook(name: string): Promise<NRsp> {
+  export async function addBook(title: string): Promise<NRsp> {
     return request({
       url: "/book/createBook",
       method: "post",
       data: {
-        name,
+        title,
       },
+    });
+  }
+  export async function updateBookContent(data: NBook.IContent): Promise<NRsp> {
+    return request({
+      url: "/book/updateBookContent",
+      method: "post",
+      data,
+    });
+  }
+  export async function getBook(
+    data: NBook.IBasicQueryParams
+  ): Promise<NRsp<NBook>> {
+    return request({
+      url: "/book/getBook",
+      method: "post",
+      data,
     });
   }
 }

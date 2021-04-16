@@ -1,0 +1,25 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 1vh;
+}
+.header {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: space-between;
+  padding: 10px 0;
+}
+.titleBlock {
+  flex-shrink: 0;
+  margin-bottom: 10px;
+}
+.chapterBlock {
+  flex-grow: 1;
+  padding: 10px;
+  box-shadow: 0px 0px 2px 0px #cccccc;
+  resize: none;
+  &:focus {
+    outline: none;
+  }
+}
