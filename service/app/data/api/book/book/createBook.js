@@ -1,4 +1,5 @@
 (function () {
+  const fs = require("fs");
   return function (argData, argParams) {
     argData = argData || [];
     argData.introduce = "";
@@ -8,6 +9,7 @@
     argParams.chapterList = [];
     argParams.epilogList = [];
     argData.push(argParams);
+    fs.mkdirSync("./" + argParams.id);
     return {
       isWrite: true,
       data: argData,
