@@ -30,8 +30,8 @@ const PBook: ConnectRC<IPBookProps> = (props) => {
         columns={[
           {
             title: "书籍名",
-            key: "name",
-            dataIndex: "name",
+            key: "title",
+            dataIndex: "title",
           },
           {
             title: "创建时间",
