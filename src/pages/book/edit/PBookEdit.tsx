@@ -8,6 +8,7 @@ import NBook from "../NBook";
 import { debounce } from "lodash";
 import SBook from "../SBook";
 import useRefreshView from "@/common/hooks/useRefreshView";
+import BookTitleDrawer from "../components/list/BookTitleDrawer";
 export interface IPBookEditProps {
   MDGlobal: NMDGlobal.IState;
   MDBook: NMDBook.IState;
@@ -35,8 +36,11 @@ const PBookEdit: ConnectRC<IPBookEditProps> = (props) => {
   ).current;
   return (
     <div className={SelfStyle.main}>
+      <BookTitleDrawer />
       <div className={SelfStyle.header}>
-        <Button type="primary">内容列表</Button>
+        <Button type="primary" onClick={onOpenTitleDrawer}>
+          内容列表
+        </Button>
         <Button>设置界面</Button>
       </div>
       <Input
@@ -78,7 +82,13 @@ const PBookEdit: ConnectRC<IPBookEditProps> = (props) => {
     refreshView();
     reqUpdateBookContent();
   }
-
+  function onOpenTitleDrawer() {
+    NModel.dispatch(
+      new NMDBook.ARSetTitleDrawer({
+        visible: true,
+      })
+    );
+  }
   function getEditInfos() {
     let infos: {
       updateType: NBook.TUpdaeType;

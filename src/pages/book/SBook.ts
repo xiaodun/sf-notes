@@ -33,5 +33,14 @@ namespace SBook {
       data,
     });
   }
+  export async function creatBookPiece(
+    data: NBook.IPieceAddParams
+  ): Promise<NRsp<string>> {
+    return request({
+      url: "/book/creatBookPiece",
+      method: "post",
+      data,
+    });
+  }
 }
 export default SBook;
