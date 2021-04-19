@@ -9,6 +9,7 @@ import useRefreshView from "@/common/hooks/useRefreshView";
 
 import SubMenu from "_antd@4.15.1@antd/lib/menu/SubMenu";
 import qs from "qs";
+import NRouter from "@/../config/router/NRouter";
 export interface IBookTitleDrawerProps {
   MDGlobal: NMDGlobal.IState;
   MDBook: NMDBook.IState;
@@ -32,10 +33,10 @@ const BookTitleDrawer: ConnectRC<IBookTitleDrawerProps> = (props) => {
           {renderPieceList(props.MDBook.book.prefaceList, "preface")}
         </SubMenu>
         <SubMenu title="章节">
-          {renderPieceList(props.MDBook.book.prefaceList, "chapter")}
+          {renderPieceList(props.MDBook.book.chapterList, "chapter")}
         </SubMenu>
         <SubMenu title="结语">
-          {renderPieceList(props.MDBook.book.prefaceList, "epilog")}
+          {renderPieceList(props.MDBook.book.epilogList, "epilog")}
         </SubMenu>
       </Menu>
     </Drawer>
@@ -46,8 +47,12 @@ const BookTitleDrawer: ConnectRC<IBookTitleDrawerProps> = (props) => {
       updateType,
       pos,
     });
+    goEdit(rsp.data, updateType);
   }
-  function renderPieceList(list: NBook.IPiece[], updateType: NBook.TUpdaeType) {
+  function renderPieceList(
+    list: NBook.IPieceMenuItem[],
+    updateType: NBook.TUpdaeType
+  ) {
     const renderAddMenuItem = (pos: number) => (
       <Menu.Item>
         <Button block onClick={() => reqCreatBookPiece(updateType, pos)}>
@@ -56,9 +61,34 @@ const BookTitleDrawer: ConnectRC<IBookTitleDrawerProps> = (props) => {
       </Menu.Item>
     );
     if (list.length) {
+      return (
+        <>
+          {renderAddMenuItem(0)}
+          {list.map((item) => (
+            <Menu.Item
+              onClick={() => {
+                goEdit(item.id, updateType);
+              }}
+              key={item.id}
+            >
+              {item.title || "暂无标题"}
+            </Menu.Item>
+          ))}
+          {renderAddMenuItem(list.length)}
+        </>
+      );
     } else {
       return renderAddMenuItem(0);
     }
+  }
+  function goEdit(piececId: string, updateType: NBook.TUpdaeType) {
+    window.location.href =
+      NRouter.bookEditPath +
+      "?" +
+      qs.stringify({
+        id: urlQuery.id,
+        [updateType + "Id"]: piececId,
+      });
   }
   function onClose() {
     NModel.dispatch(

@@ -3,9 +3,9 @@ export interface NBook {
   title: string;
   content: string;
   createTime: number;
-  prefaceList: NBook.IPiece[];
-  chapterList: NBook.IPiece[];
-  epilogList: NBook.IPiece[];
+  prefaceList: NBook.IPieceMenuItem[];
+  chapterList: NBook.IPieceMenuItem[];
+  epilogList: NBook.IPieceMenuItem[];
 }
 export namespace NBook {
   export type TUpdaeType = "preface" | "chapter" | "book" | "epilog";
@@ -31,6 +31,17 @@ export namespace NBook {
 
   export interface IPieceAddParams extends IBasicQueryParams {
     pos: number;
+  }
+
+  export interface IPieceQueryParams extends IBasicQueryParams {
+    prefaceId?: string;
+    chapterId?: string;
+    epilogId?: string;
+  }
+
+  export interface IPieceMenuItem {
+    id: string;
+    title: string;
   }
 
   export interface IContent extends IBasicQueryParams, IBasicContent {}

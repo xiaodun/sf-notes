@@ -27,11 +27,15 @@ const PBookEdit: ConnectRC<IPBookEditProps> = (props) => {
   }).current;
   useEffect(() => {
     reqGetBook();
+    if (infos.updateType !== "book") {
+      reqGetPiece();
+    }
     document.getElementById("editTextArea").focus();
   }, []);
   const reqUpdateBookContent = useRef(
     debounce(async function () {
       await SBook.updateBookContent(contentParams);
+      NModel.dispatch(new NMDBook.ARSetBookPiece(contentParams));
     }, 500)
   ).current;
   return (
@@ -72,9 +76,22 @@ const PBookEdit: ConnectRC<IPBookEditProps> = (props) => {
       updateType: infos.updateType,
     });
     NModel.dispatch(new NMDBook.ARSetBook(rsp.data));
-
+    if (infos.updateType === "book") {
+      contentParams.title = rsp.data.title;
+      contentParams.content = rsp.data.content;
+      refreshView();
+    }
+  }
+  async function reqGetPiece() {
+    const queryKeyName = infos.updateType + "Id";
+    const rsp = await SBook.getBookPiece({
+      id: urlQuery.id,
+      updateType: infos.updateType,
+      [queryKeyName]: urlQuery[queryKeyName],
+    });
     contentParams.title = rsp.data.title;
     contentParams.content = rsp.data.content;
+    contentParams[queryKeyName] = urlQuery[queryKeyName];
     refreshView();
   }
   function onUpdateBookContent(data: Partial<NBook.IContent>) {
