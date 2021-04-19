@@ -20,6 +20,9 @@ export namespace NMDBook {
   export class ARSetTitleDrawer extends Action<Partial<NBook.ITitleDrawer>> {
     type = "setTitleDrawer";
   }
+  export class ARSetBookPiece extends Action<Partial<NBook.IContent>> {
+    type = "setBookPiece";
+  }
 }
 
 export default {
@@ -38,7 +41,7 @@ export default {
       epilogList: [],
     },
     titleDrawer: {
-      visible: true,
+      visible: false,
     },
   },
   effects: {},
@@ -48,6 +51,17 @@ export default {
     },
     setBook(state, { payload }: NMDBook.ARSetBook) {
       state.book = payload;
+    },
+    setBookPiece(state, { payload }: NMDBook.ARSetBookPiece) {
+      state.book[payload.updateType + "List"].some(
+        (item: NBook.IPieceMenuItem) => {
+          if (item.id === payload[payload.updateType + "Id"]) {
+            item.title = payload.title;
+            return true;
+          }
+          return false;
+        }
+      );
     },
 
     setTitleDrawer(state, { payload }: NMDBook.ARSetTitleDrawer) {

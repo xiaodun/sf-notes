@@ -1,13 +1,25 @@
 (function () {
   return function (argData, argParams) {
-    //argData 数据的副本
+    const fs = require("fs");
     const book = argData.find((item) => item.id === argParams.id);
-
+    addContent(book.prefaceList);
+    addContent(book.chapterList);
+    addContent(book.epilogList);
+    //填充id和title
+    function addContent(list) {
+      list.forEach((pieceId, i, arr) => {
+        const { id, title } = JSON.parse(
+          fs.readFileSync(`./${argParams.id}/${pieceId}.json`)
+        );
+        arr[i] = {
+          id,
+          title,
+        };
+      });
+    }
     return {
-      isWrite: false, //是否覆盖数据
-      //data:argData,//需要存储的新数据
+      isWrite: false,
       response: {
-        //返回的数据
         code: 200,
         data: {
           success: true,
