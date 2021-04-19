@@ -5,8 +5,6 @@ import SelfStyle from "./BookTitleDrawer.less";
 import NModel from "@/common/namespace/NModel";
 import NBook from "../../NBook";
 import SBook from "../../SBook";
-import useRefreshView from "@/common/hooks/useRefreshView";
-
 import SubMenu from "_antd@4.15.1@antd/lib/menu/SubMenu";
 import qs from "qs";
 import NRouter from "@/../config/router/NRouter";
@@ -14,8 +12,10 @@ export interface IBookTitleDrawerProps {
   MDGlobal: NMDGlobal.IState;
   MDBook: NMDBook.IState;
 }
+export interface IBookTitleDrawerState {
+  selectedKeys: string[];
+}
 const BookTitleDrawer: ConnectRC<IBookTitleDrawerProps> = (props) => {
-  const refreshView = useRefreshView();
   const urlQuery = qs.parse(window.location.search, {
     ignoreQueryPrefix: true,
   }) as NBook.IUrlQuery;
@@ -27,7 +27,7 @@ const BookTitleDrawer: ConnectRC<IBookTitleDrawerProps> = (props) => {
       onClose={onClose}
       visible={props.MDBook.titleDrawer.visible}
     >
-      <Menu mode="inline">
+      <Menu mode="inline" defaultSelectedKeys={getDefaultSelectedKeys()}>
         <Menu.Item>基本信息</Menu.Item>
         <SubMenu title="序言">
           {renderPieceList(props.MDBook.book.prefaceList, "preface")}
@@ -41,6 +41,14 @@ const BookTitleDrawer: ConnectRC<IBookTitleDrawerProps> = (props) => {
       </Menu>
     </Drawer>
   );
+  function getDefaultSelectedKeys() {
+    return [
+      urlQuery.chapterId ||
+        urlQuery.epilogId ||
+        urlQuery.prefaceId ||
+        urlQuery.id,
+    ];
+  }
   async function reqCreatBookPiece(updateType: NBook.TUpdaeType, pos: number) {
     const rsp = await SBook.creatBookPiece({
       id: urlQuery.id,
