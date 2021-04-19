@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { connect, ConnectRC, NMDBook, NMDGlobal } from "umi";
 import { Button, Drawer, Input, Menu } from "antd";
 import SelfStyle from "./BookTitleDrawer.less";
@@ -19,6 +19,7 @@ const BookTitleDrawer: ConnectRC<IBookTitleDrawerProps> = (props) => {
   const urlQuery = qs.parse(window.location.search, {
     ignoreQueryPrefix: true,
   }) as NBook.IUrlQuery;
+  const menuDefaults = getMenuDefaults();
   return (
     <Drawer
       placement="left"
@@ -27,27 +28,48 @@ const BookTitleDrawer: ConnectRC<IBookTitleDrawerProps> = (props) => {
       onClose={onClose}
       visible={props.MDBook.titleDrawer.visible}
     >
-      <Menu mode="inline" defaultSelectedKeys={getDefaultSelectedKeys()}>
-        <Menu.Item>基本信息</Menu.Item>
-        <SubMenu title="序言">
+      <Menu
+        mode="inline"
+        defaultOpenKeys={menuDefaults.openKeys}
+        defaultSelectedKeys={menuDefaults.selectedKeys}
+      >
+        <Menu.Item key={urlQuery.id} onClick={() => goEdit(null, "book")}>
+          基本信息
+        </Menu.Item>
+        <SubMenu key="preface" title="序言">
           {renderPieceList(props.MDBook.book.prefaceList, "preface")}
         </SubMenu>
-        <SubMenu title="章节">
+        <SubMenu key="chapter" title="章节">
           {renderPieceList(props.MDBook.book.chapterList, "chapter")}
         </SubMenu>
-        <SubMenu title="结语">
+        <SubMenu key="epilog" title="结语">
           {renderPieceList(props.MDBook.book.epilogList, "epilog")}
         </SubMenu>
       </Menu>
     </Drawer>
   );
-  function getDefaultSelectedKeys() {
-    return [
-      urlQuery.chapterId ||
-        urlQuery.epilogId ||
-        urlQuery.prefaceId ||
-        urlQuery.id,
-    ];
+  function getMenuDefaults() {
+    if (urlQuery.chapterId) {
+      return {
+        selectedKeys: [urlQuery.chapterId],
+        openKeys: ["chapter"],
+      };
+    } else if (urlQuery.prefaceId) {
+      return {
+        selectedKeys: [urlQuery.prefaceId],
+        openKeys: ["preface"],
+      };
+    } else if (urlQuery.epilogId) {
+      return {
+        selectedKeys: [urlQuery.epilogId],
+        openKeys: ["epilog"],
+      };
+    } else {
+      return {
+        selectedKeys: [urlQuery.id],
+        openKeys: ["book"],
+      };
+    }
   }
   async function reqCreatBookPiece(updateType: NBook.TUpdaeType, pos: number) {
     const rsp = await SBook.creatBookPiece({
@@ -90,12 +112,16 @@ const BookTitleDrawer: ConnectRC<IBookTitleDrawerProps> = (props) => {
     }
   }
   function goEdit(piececId: string, updateType: NBook.TUpdaeType) {
+    let params = {
+      id: urlQuery.id,
+    };
+    if (updateType !== "book") {
+      params[updateType + "Id"] = piececId;
+    }
     window.location.href =
       NRouter.bookEditPath +
-      "?" +
-      qs.stringify({
-        id: urlQuery.id,
-        [updateType + "Id"]: piececId,
+      qs.stringify(params, {
+        addQueryPrefix: true,
       });
   }
   function onClose() {
