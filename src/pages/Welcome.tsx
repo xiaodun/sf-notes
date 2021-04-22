@@ -5,7 +5,7 @@ import moment from "moment";
 import UDate from "@/common/utils/UDate";
 import { IRouteComponentProps, ConnectRC, connect, NMDGlobal } from "umi";
 import NRouter from "@/../config/router/NRouter";
-import { QrcodeOutlined } from "@ant-design/icons";
+import { HomeFilled, QrcodeOutlined } from "@ant-design/icons";
 import NApp from "./app/NApp";
 import { enableMapSet } from "immer";
 import NModel from "@/common/namespace/NModel";
@@ -55,6 +55,11 @@ export const Welcome: ConnectRC<IWelcomeProps> = (props) => {
       ])}
     >
       <Layout.Header className={classNames([SelfStyle.header])}>
+        {!NRouter.isHomePage(props.match.path) && (
+          <div onClick={NRouter.toHomePage} className={SelfStyle.home}>
+            <HomeFilled />
+          </div>
+        )}
         <div className={SelfStyle.actions}>
           <Space size={24}>
             {actionBtnList.map((item, index) => (
