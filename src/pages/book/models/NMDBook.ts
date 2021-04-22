@@ -53,15 +53,19 @@ export default {
       state.book = payload;
     },
     setBookPiece(state, { payload }: NMDBook.ARSetBookPiece) {
-      state.book[payload.updateType + "List"].some(
-        (item: NBook.IPieceMenuItem) => {
-          if (item.id === payload[payload.updateType + "Id"]) {
-            item.title = payload.title;
-            return true;
+      if (payload.updateType === "book") {
+        state.book.title = payload.title;
+      } else {
+        state.book[payload.updateType + "List"].some(
+          (item: NBook.IPieceMenuItem) => {
+            if (item.id === payload[payload.updateType + "Id"]) {
+              item.title = payload.title;
+              return true;
+            }
+            return false;
           }
-          return false;
-        }
-      );
+        );
+      }
     },
 
     setTitleDrawer(state, { payload }: NMDBook.ARSetTitleDrawer) {
