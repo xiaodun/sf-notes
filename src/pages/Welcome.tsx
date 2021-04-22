@@ -10,7 +10,13 @@ import NApp from "./app/NApp";
 import { enableMapSet } from "immer";
 import NModel from "@/common/namespace/NModel";
 import classNames from "classnames";
+import { Browser } from "@/utils/browser";
 enableMapSet();
+if (Browser.isMobile()) {
+  const VConsole = require("vconsole");
+  new VConsole();
+}
+
 export interface IWelcomeProps extends IRouteComponentProps {
   MDGlobal: NMDGlobal.IState;
 }
