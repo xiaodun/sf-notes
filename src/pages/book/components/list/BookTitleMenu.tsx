@@ -1,52 +1,45 @@
 import React from "react";
 import { connect, ConnectRC, NMDBook, NMDGlobal } from "umi";
 import { Button, Drawer, Dropdown, Menu } from "antd";
-import SelfStyle from "./BookTitleDrawer.less";
+import SelfStyle from "./BookTitleMenu.less";
 import NModel from "@/common/namespace/NModel";
 import NBook from "../../NBook";
 import SBook from "../../SBook";
 import qs from "qs";
 import NRouter from "@/../config/router/NRouter";
 import { EllipsisOutlined } from "@ant-design/icons";
-export interface IBookTitleDrawerProps {
+export interface IBookTitleMenuProps {
   MDGlobal: NMDGlobal.IState;
   MDBook: NMDBook.IState;
 }
-export interface IBookTitleDrawerState {
+export interface IBookTitleMenuState {
   selectedKeys: string[];
 }
-const BookTitleDrawer: ConnectRC<IBookTitleDrawerProps> = (props) => {
+const BookTitleMenu: ConnectRC<IBookTitleMenuProps> = (props) => {
   const urlQuery = qs.parse(window.location.search, {
     ignoreQueryPrefix: true,
   }) as NBook.IUrlQuery;
   const menuDefaults = getMenuDefaults();
   return (
-    <Drawer
-      placement="left"
+    <Menu
+      mode="inline"
+      defaultOpenKeys={menuDefaults.openKeys}
+      defaultSelectedKeys={menuDefaults.selectedKeys}
       className={SelfStyle.main}
-      closable={false}
-      onClose={onClose}
-      visible={props.MDBook.titleDrawer.visible}
     >
-      <Menu
-        mode="inline"
-        defaultOpenKeys={menuDefaults.openKeys}
-        defaultSelectedKeys={menuDefaults.selectedKeys}
-      >
-        <Menu.Item key={urlQuery.id} onClick={() => goEdit(null, "book")}>
-          基本信息
-        </Menu.Item>
-        <Menu.SubMenu key="preface" title="序言">
-          {renderPieceList(props.MDBook.book.prefaceList, "preface")}
-        </Menu.SubMenu>
-        <Menu.SubMenu key="chapter" title="章节">
-          {renderPieceList(props.MDBook.book.chapterList, "chapter")}
-        </Menu.SubMenu>
-        <Menu.SubMenu key="epilog" title="结语">
-          {renderPieceList(props.MDBook.book.epilogList, "epilog")}
-        </Menu.SubMenu>
-      </Menu>
-    </Drawer>
+      <Menu.Item key={urlQuery.id} onClick={() => goEdit(null, "book")}>
+        基本信息
+      </Menu.Item>
+      <Menu.SubMenu key="preface" title="序言">
+        {renderPieceList(props.MDBook.book.prefaceList, "preface")}
+      </Menu.SubMenu>
+      <Menu.SubMenu key="chapter" title="章节">
+        {renderPieceList(props.MDBook.book.chapterList, "chapter")}
+      </Menu.SubMenu>
+      <Menu.SubMenu key="epilog" title="结语">
+        {renderPieceList(props.MDBook.book.epilogList, "epilog")}
+      </Menu.SubMenu>
+    </Menu>
   );
   function getMenuDefaults() {
     if (urlQuery.chapterId) {
@@ -148,15 +141,8 @@ const BookTitleDrawer: ConnectRC<IBookTitleDrawerProps> = (props) => {
         addQueryPrefix: true,
       });
   }
-  function onClose() {
-    NModel.dispatch(
-      new NMDBook.ARSetTitleDrawer({
-        visible: false,
-      })
-    );
-  }
 };
 export default connect(({ MDGlobal, MDBook }: NModel.IState) => ({
   MDGlobal,
   MDBook,
-}))(BookTitleDrawer);
+}))(BookTitleMenu);
