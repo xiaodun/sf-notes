@@ -27,7 +27,7 @@ export const Welcome: ConnectRC<IWelcomeProps> = (props) => {
     let showHeader = props.MDGlobal.showHeader,
       controlLayout = props.MDGlobal.controlLayout;
     if ([NRouter.bookEditPath].includes(props.match.path)) {
-      showHeader = false;
+      // showHeader = false;
     } else {
       showHeader = true;
     }
