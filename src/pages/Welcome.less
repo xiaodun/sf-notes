@@ -8,13 +8,19 @@
       display: flex;
     }
     .content {
-      margin: @layout-header-height auto;
+      margin-top: @topDistance;
+      @topDistance: @layout-header-height + 20px;
+      > * {
+        height: ~"calc(100vh - @{topDistance})";
+      }
     }
   }
   &.controlLayout {
     .content {
       width: 85%;
       max-width: 960px;
+      margin-right: auto;
+      margin-left: auto;
 
       padding-top: 5vh;
     }
