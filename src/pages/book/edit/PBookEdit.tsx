@@ -8,7 +8,7 @@ import NBook from "../NBook";
 import { debounce } from "lodash";
 import SBook from "../SBook";
 import useRefreshView from "@/common/hooks/useRefreshView";
-import BookTitleDrawer from "../components/list/BookTitleDrawer";
+import BookTitleDrawer from "../components/list/BookTitleMenu";
 export interface IPBookEditProps {
   MDGlobal: NMDGlobal.IState;
   MDBook: NMDBook.IState;
@@ -40,34 +40,38 @@ const PBookEdit: ConnectRC<IPBookEditProps> = (props) => {
   ).current;
   return (
     <div className={SelfStyle.main}>
-      <BookTitleDrawer />
-      <div className={SelfStyle.header}>
-        <Button type="primary" onClick={onOpenTitleDrawer}>
-          内容列表
-        </Button>
-        <Button>设置界面</Button>
+      <div className={SelfStyle.leftWrap}>
+        <BookTitleDrawer />
       </div>
-      <Input
-        value={contentParams.title}
-        onChange={(e) =>
-          onUpdateBookContent({
-            title: e.target.value,
-          })
-        }
-        className={SelfStyle.titleBlock}
-        placeholder={infos.titlePlaceholder}
-      />
-      <Input.TextArea
-        value={contentParams.content}
-        id="editTextArea"
-        onChange={(e) =>
-          onUpdateBookContent({
-            content: e.target.value,
-          })
-        }
-        placeholder={infos.contentPlaceholder}
-        className={SelfStyle.chapterBlock}
-      ></Input.TextArea>
+      <div className={SelfStyle.rightWrap}>
+        <div className={SelfStyle.header}>
+          <Button type="primary" onClick={onOpenTitleDrawer}>
+            内容列表
+          </Button>
+          <Button>设置界面</Button>
+        </div>
+        <Input
+          value={contentParams.title}
+          onChange={(e) =>
+            onUpdateBookContent({
+              title: e.target.value,
+            })
+          }
+          className={SelfStyle.titleBlock}
+          placeholder={infos.titlePlaceholder}
+        />
+        <Input.TextArea
+          value={contentParams.content}
+          id="editTextArea"
+          onChange={(e) =>
+            onUpdateBookContent({
+              content: e.target.value,
+            })
+          }
+          placeholder={infos.contentPlaceholder}
+          className={SelfStyle.chapterBlock}
+        ></Input.TextArea>
+      </div>
     </div>
   );
   async function reqGetBook() {
