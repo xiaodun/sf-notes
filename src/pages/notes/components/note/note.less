@@ -29,12 +29,12 @@
 .actionWrap {
   display: flex;
 
-  height: 40px;
+  align-items: center;
 
-  border: 1px solid #f0f0f0;
+  height: 40px;
   background-color: #fafafa;
 
-  align-items: center;
+  border: 1px solid #f0f0f0;
 
   &.top {
     border-bottom: none;
@@ -51,12 +51,11 @@
   }
 
   .item {
-    transition: opacity .35s linear;
+    flex-grow: 1;
     text-align: center;
 
     opacity: 0;
-
-    flex-grow: 1;
+    transition: opacity 0.35s linear;
   }
 }
 
@@ -67,11 +66,10 @@
 }
 
 .lineWrapper {
-  line-height: 32px;
-
   display: flex;
 
   margin: 2px 0;
+  line-height: 32px;
 
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -79,19 +77,22 @@
 
   :global {
     .actions {
+      flex-shrink: 0;
       margin-right: 10px;
-
-      transition: opacity ease-in .35s;
 
       opacity: 0;
 
-      flex-shrink: 0;
+      transition: opacity ease-in 0.35s;
     }
 
     .contents {
-      transition: background-color .25s linear;
-
       flex-grow: 1;
+      overflow-y: auto;
+      /*
+       防止代码块又过长的行，导致宽度溢出父容器
+      */
+
+      transition: background-color 0.25s linear;
     }
   }
 
@@ -109,10 +110,9 @@
 }
 
 .imgWrapper {
-  overflow: hidden;
+  flex-grow: 1;
 
   max-height: 300px;
   margin: 1em;
-
-  flex-grow: 1;
+  overflow: hidden;
 }
