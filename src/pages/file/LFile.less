@@ -1,5 +1,6 @@
 .uploadWrapper {
   width: 60% !important;
+  height: auto !important;
   min-height: 154px !important;
   margin: 0 auto;
   margin-top: 25px;
@@ -23,39 +24,36 @@
   .itemWrap {
     display: flex;
 
-    margin-bottom: 35px;
-
     justify-content: center;
 
+    margin-bottom: 35px;
+
     .name {
-      font-size: 14px;
-      font-weight: 500;
+      flex-grow: 1;
 
       max-width: 560px;
 
-      text-indent: 6px;
-
       color: #333;
-      border-bottom: 1px solid #dcdcdc;
+      font-weight: 500;
+      font-size: 14px;
 
-      flex-grow: 1;
+      text-indent: 6px;
+      border-bottom: 1px solid #dcdcdc;
     }
 
     .actions {
-      font-size: 18px;
-
       position: relative;
 
       padding-left: 45px;
+      font-size: 18px;
 
       .loadingWrap {
-        font-weight: bold;
-
         position: absolute;
 
-        visibility: visible;
-
         color: #349540;
+        font-weight: bold;
+
+        visibility: visible;
       }
     }
   }
