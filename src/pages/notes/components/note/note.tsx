@@ -20,7 +20,7 @@ import NModel from "@/common/namespace/NModel";
 import { IEditModal } from "../edit/EditModal";
 import { IZoomImgModal } from "../zoom/ZoomImgModal";
 import { NConnect } from "@/common/namespace/NConnect";
-
+import { cloneDeep, isEqual } from "lodash";
 export interface INoteProps {
   data: NNotes;
   index: number;
@@ -37,6 +37,7 @@ export interface INoteAction {
 }
 const Note: FC<INoteProps> = (props) => {
   const { data, MDNotes } = props;
+  const cloneData = cloneDeep(data);
   let title =
     data.title || moment(data.createTime || undefined).format(UDate.ymd);
   const menu = (
@@ -138,6 +139,18 @@ const Note: FC<INoteProps> = (props) => {
   function parseContent(content: string = "", base64imgs: Object) {
     let list = dealCode(content);
     list = dealLink(list, base64imgs);
+    if (!isEqual(data, cloneData)) {
+      SNotes.editItem(cloneData).then((rsp) => {
+        if (rsp.success) {
+          const newNotesRsp = NRsp.updateItem(
+            MDNotes.rsp,
+            cloneData,
+            (data) => data.id === cloneData.id
+          );
+          NModel.dispatch(new NMDNotes.ARSetRsp(newNotesRsp));
+        }
+      });
+    }
     return withAble(list);
   }
   function dealCode(content: string) {
@@ -242,6 +255,7 @@ const Note: FC<INoteProps> = (props) => {
                     for (let i = 0; i < noteList.length; i++) {
                       src = noteList[i].base64[link];
                       if (src) {
+                        cloneData.base64[link] = src;
                         break;
                       }
                     }
