@@ -1,8 +1,8 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Note from "./components/note/note";
 import SelfStyle from "./LNotes.less";
 import SNotes from "./SNotes";
-import { Button } from "antd";
+import { Button, Radio } from "antd";
 import EditModal, { IEditModal } from "./components/edit/EditModal";
 import ZoomImgModal, { IZoomImgModal } from "./components/zoom/ZoomImgModal";
 import { PageFooter } from "@/common/components/page";
@@ -59,10 +59,24 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
       <EditModal ref={editModalRef} rsp={MDNotes.rsp}></EditModal>
       <PageFooter>
         <Button onClick={() => onAddNote()}>新建笔记</Button>
+        <Radio.Group value={MDNotes.isTitleModel} buttonStyle="solid">
+          <Radio.Button value={true} onClick={onToggleShowModel}>
+            标题模式
+          </Radio.Button>
+        </Radio.Group>
       </PageFooter>
       <ZoomImgModal ref={zoomModalRef}></ZoomImgModal>
     </div>
   );
+
+  function onToggleShowModel() {
+    if (MDNotes.isTitleModel) {
+      NModel.dispatch(new NMDNotes.ARSetTitleModel(false));
+      NModel.dispatch(new NMDNotes.ArChangeAllNoteExpand(false));
+    } else {
+      NModel.dispatch(new NMDNotes.ARSetTitleModel(true));
+    }
+  }
 };
 
 export default connect(({ MDNotes }: NModel.IState) => ({

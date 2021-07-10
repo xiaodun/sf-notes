@@ -21,6 +21,7 @@ import { IEditModal } from "../edit/EditModal";
 import { IZoomImgModal } from "../zoom/ZoomImgModal";
 import { NConnect } from "@/common/namespace/NConnect";
 import { cloneDeep, isEqual } from "lodash";
+import useRefreshView from "@/common/hooks/useRefreshView";
 export interface INoteProps {
   data: NNotes;
   index: number;
@@ -57,24 +58,48 @@ const Note: FC<INoteProps> = (props) => {
       </Menu.Item>
     </Menu>
   );
-
+  const { isExpand } = MDNotes.noteSettingMap.get(data.id);
   return (
     <div>
-      {renderActionWrap(SelfStyle.top)}
-      <Card
-        size="small"
-        title={title}
-        className={SelfStyle.noteWrapper}
-        extra={
-          <Button
-            onClick={() => reqDelItem(data.id)}
-            icon={<CloseOutlined></CloseOutlined>}
-          ></Button>
-        }
-      >
-        {parseContent(data.content, data.base64)}
-      </Card>
-      {renderActionWrap(SelfStyle.bottom)}
+      {MDNotes.isTitleModel && !isExpand ? (
+        <Card
+          size="small"
+          title={title}
+          className={classNames(SelfStyle.noteWrapper, SelfStyle.titleModel)}
+          extra={
+            <Button
+              onClick={() => {
+                NModel.dispatch(
+                  new NMDNotes.ArChangeNoteExpand({
+                    id: data.id,
+                    isExpand: true,
+                  })
+                );
+              }}
+            >
+              展开
+            </Button>
+          }
+        ></Card>
+      ) : (
+        <>
+          {renderActionWrap(SelfStyle.top)}
+          <Card
+            size="small"
+            title={title}
+            className={SelfStyle.noteWrapper}
+            extra={
+              <Button
+                onClick={() => reqDelItem(data.id)}
+                icon={<CloseOutlined></CloseOutlined>}
+              ></Button>
+            }
+          >
+            {parseContent(data.content, data.base64)}
+          </Card>
+          {renderActionWrap(SelfStyle.bottom)}
+        </>
+      )}
     </div>
   );
   function onUpdateNote(data: NNotes) {
