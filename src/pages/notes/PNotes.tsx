@@ -1,16 +1,14 @@
-import React, { useEffect, useRef } from 'react';
-import Note from './components/note/note';
-import SelfStyle from './LNotes.less';
-import SNotes from './SNotes';
-import { Button } from 'antd';
-import EditModal, { IEditModal } from './components/edit/EditModal';
-import ZoomImgModal, {
-  IZoomImgModal,
-} from './components/zoom/ZoomImgModal';
-import { PageFooter } from '@/common/components/page';
-import { connect } from 'dva';
-import NModel from '@/common/namespace/NModel';
-import { ConnectRC, NMDNotes } from 'umi';
+import React, { useEffect, useRef } from "react";
+import Note from "./components/note/note";
+import SelfStyle from "./LNotes.less";
+import SNotes from "./SNotes";
+import { Button } from "antd";
+import EditModal, { IEditModal } from "./components/edit/EditModal";
+import ZoomImgModal, { IZoomImgModal } from "./components/zoom/ZoomImgModal";
+import { PageFooter } from "@/common/components/page";
+import { connect } from "dva";
+import NModel from "@/common/namespace/NModel";
+import { ConnectRC, NMDNotes } from "umi";
 export interface PNotesProps {
   MDNotes: NMDNotes.IState;
 }
@@ -21,19 +19,19 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
   useEffect(() => {
     reqGetList();
     setTimeout(() => {
-      document.title = '日记本';
+      document.title = "日记本";
     });
 
-    document.addEventListener('dragover', onDragOver);
+    document.addEventListener("dragover", onDragOver);
     return () => {
-      document.removeEventListener('dragover', onDragOver);
+      document.removeEventListener("dragover", onDragOver);
     };
   }, []);
   function onDragOver(event: DragEvent) {
     const dataTransfer = event.dataTransfer;
     event.preventDefault();
     if (event.dataTransfer) {
-      dataTransfer.dropEffect = 'none';
+      dataTransfer.dropEffect = "none";
     }
   }
   function onAddNote() {
