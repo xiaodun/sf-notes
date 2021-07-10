@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, PropsWithChildren } from 'react';
-import { Affix, Space } from 'antd';
-import SelfStyle from './PageFooter.less';
+import React, { useEffect, useRef, PropsWithChildren } from "react";
+import { Affix, Space } from "antd";
+import SelfStyle from "./PageFooter.less";
 export interface IPageFooterProps {}
 export default (props: PropsWithChildren<IPageFooterProps>) => {
   const { children } = props;
@@ -10,7 +10,7 @@ export default (props: PropsWithChildren<IPageFooterProps>) => {
   });
   return (
     <Affix ref={ref} offsetBottom={0}>
-      <Space className={SelfStyle.contentWrapper}>
+      <Space className={SelfStyle.contentWrapper} size={30}>
         {React.Children.map(children, (child) => child)}
       </Space>
     </Affix>
