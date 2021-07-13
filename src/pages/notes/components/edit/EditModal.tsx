@@ -165,10 +165,10 @@ export const EditModal: ForwardRefRenderFunction<
     return titleOptions.filter((item) => item.value.indexOf(title) !== -1);
   }
   function onSelectTitle(title: string) {
-    const notes = props.rsp.list.find((item) => item.title == title);
+    const notes = props.rsp.list.find((item) => item.title == title) || {};
     onDataChange({
       title,
-      content: notes?.content,
+      ...notes,
     });
   }
   function onDataChange(notes: Partial<NNotes>) {
@@ -178,7 +178,12 @@ export const EditModal: ForwardRefRenderFunction<
     setState(newState);
   }
   async function onOk() {
-    if (state.added) {
+    let added = state.added;
+    if (state.data.id) {
+      //同步编辑算编辑
+      added = false;
+    }
+    if (added) {
       const addRsp = await SNotes.addItem(state.data);
       if (addRsp.success) {
         const newNotesRsp = NRsp.addItem(props.rsp, (newDataList) => {
