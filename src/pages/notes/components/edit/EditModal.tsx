@@ -54,9 +54,11 @@ export const EditModal: ForwardRefRenderFunction<
   const textAreaRef = useRef<TextArea>();
   const loadCountRef = useRef<number>(0);
   const noteTitleId = "noteTitleId";
-  const titleOptions = props.rsp.list.map((item) => ({
-    value: item.title,
-  }));
+  const titleOptions = props.rsp.list
+    .map((item) => ({
+      value: item.title,
+    }))
+    .filter((item) => item.value);
   useImperativeHandle(ref, () => ({
     showModal: (data, index) => {
       const newState = produce(state, (drafState) => {
