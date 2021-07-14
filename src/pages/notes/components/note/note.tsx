@@ -39,8 +39,7 @@ export interface INoteAction {
 const Note: FC<INoteProps> = (props) => {
   const { data, MDNotes } = props;
   const cloneData = cloneDeep(data);
-  let title =
-    data.title || moment(data.createTime || undefined).format(UDate.ymd);
+
   const menu = (
     <Menu>
       <Menu.Item key="noitce_top" onClick={() => reqTopItem(data)}>
@@ -64,7 +63,7 @@ const Note: FC<INoteProps> = (props) => {
       {MDNotes.isTitleModel && !isExpand ? (
         <Card
           size="small"
-          title={title}
+          title={data.title}
           className={classNames(SelfStyle.noteWrapper, SelfStyle.titleModel)}
           extra={
             <Button
@@ -86,7 +85,7 @@ const Note: FC<INoteProps> = (props) => {
           {renderActionWrap(SelfStyle.top)}
           <Card
             size="small"
-            title={title}
+            title={data.title}
             className={SelfStyle.noteWrapper}
             extra={
               <Button
