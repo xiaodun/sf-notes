@@ -178,13 +178,12 @@ export const EditModal: ForwardRefRenderFunction<
     setState(newState);
   }
   async function onOk() {
-    let added = state.added;
-    if (state.data.id) {
-      //同步编辑算编辑
-      added = false;
-    }
-    if (added) {
-      const addRsp = await SNotes.addItem(state.data);
+    if (state.added) {
+      const params = { ...state.data };
+      if (!state.data.title) {
+        params.title = moment().format(UDate.ymd);
+      }
+      const addRsp = await SNotes.addItem(params);
       if (addRsp.success) {
         const newNotesRsp = NRsp.addItem(props.rsp, (newDataList) => {
           newDataList.splice(state.index, 0, addRsp.data);
