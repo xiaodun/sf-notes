@@ -256,7 +256,17 @@ export const EditModal: ForwardRefRenderFunction<
         file.type.split("/")[1];
       loadCountRef.current--;
       notes.base64[fileName] = event.target.result;
-      notes.content += "\n" + fileName + "\n";
+      const cursorPos = USelection.getCursorPos();
+      if (cursorPos > 0 && notes.content[cursorPos - 1] !== "\n") {
+        fileName = "\n" + fileName;
+      }
+      if (notes.content[cursorPos + 1] !== "\n") {
+        fileName += "\n";
+      }
+      notes.content =
+        notes.content.substring(0, cursorPos) +
+        fileName +
+        notes.content.substring(cursorPos + 1);
       if (loadCountRef.current == 0) {
         const newState = produce(state, (drafState) => {
           Object.assign(drafState.data, notes);
