@@ -5,6 +5,10 @@ export namespace USelection {
     dom.value = "";
     dom.value = val;
   }
+  export function setCursorPos(pos: number) {
+    // @ts-ignore
+    document.activeElement.setSelectionRange(pos, pos);
+  }
   export function getCursorPos() {
     // @ts-ignore
     return document.activeElement.selectionStart || 0;
