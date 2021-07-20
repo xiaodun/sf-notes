@@ -9,11 +9,9 @@ import {
 } from "@ant-design/icons";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import NNotes from "../../NNotes";
-import moment from "moment";
 import UCopy from "@/common/utils/UCopy";
 import SNotes from "../../SNotes";
 import NRsp from "@/common/namespace/NRsp";
-import UDate from "@/common/utils/UDate";
 import { classNames } from "@/common";
 import { NMDNotes } from "umi";
 import NModel from "@/common/namespace/NModel";
@@ -21,7 +19,8 @@ import { IEditModal } from "../edit/EditModal";
 import { IZoomImgModal } from "../zoom/ZoomImgModal";
 import { NConnect } from "@/common/namespace/NConnect";
 import { cloneDeep, isEqual } from "lodash";
-import useRefreshView from "@/common/hooks/useRefreshView";
+
+type TCopyType = "img" | "str";
 export interface INoteProps {
   data: NNotes;
   index: number;
@@ -35,6 +34,8 @@ export interface INoteAction {
   //第一个式起始位置  第二个是个数
   start: number;
   count: number;
+  type: TCopyType;
+  copyId?: string;
 }
 const Note: FC<INoteProps> = (props) => {
   const { data, MDNotes } = props;
@@ -193,12 +194,14 @@ const Note: FC<INoteProps> = (props) => {
           start: lastIndex,
           count: value.length,
           content: value,
+          type: "str",
         });
       }
       if (result[1]) {
         list.push({
           start: result.index,
           count: result[0].length,
+          type: "str",
           content: (
             <div key={prefix + key++} className={SelfStyle.codeWrapper}>
               <SyntaxHighlighter showLineNumbers>{result[1]}</SyntaxHighlighter>
@@ -215,6 +218,7 @@ const Note: FC<INoteProps> = (props) => {
         start: lastIndex,
         count: content.length,
         content: content.substring(lastIndex, content.length),
+        type: "str",
       });
     return list;
   }
@@ -222,12 +226,13 @@ const Note: FC<INoteProps> = (props) => {
     //处理链接
     let prefix = "link",
       key = 0;
-
+    const id = props.data.id + "-" + prefix + "-" + key++;
     const imgStuffixList = [".jpg", ".jpeg", ".gif", ".png", ".svg"];
     const linkPattern = RegExp(
       `(https?|ftp|file|${NNotes.imgProtocolKey})://[-A-Za-z0-9+&@#/%?=~_|!:,.;\u4e00-\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]`,
       "g"
     );
+    let type: TCopyType = "str";
     const newList: INoteAction[] = [];
     list.forEach((item) => {
       if (typeof item.content === "string") {
@@ -288,12 +293,13 @@ const Note: FC<INoteProps> = (props) => {
                   src = link;
                 }
                 copyStr += src;
+                type = "img";
                 partList.push(
                   <div
                     className={SelfStyle.imgWrapper}
                     onClick={() => props.zoomModalRef.current.showModal(src)}
                   >
-                    <img key={prefix + key++} src={src} alt="" />
+                    <img id={id} key={id} src={src} alt="" />
                   </div>
                 );
               } else {
@@ -320,6 +326,8 @@ const Note: FC<INoteProps> = (props) => {
             partList.push(str);
           }
           newList.push({
+            type,
+            copyId: id,
             copyStr,
             start: initalCount,
             count: str.length,
@@ -367,6 +375,15 @@ const Note: FC<INoteProps> = (props) => {
       );
     }
   }
+  function copyNoteContent(copyInfos: INoteAction) {
+    if (copyInfos.type === "str") {
+      UCopy.copyStr(copyInfos.copyStr);
+    } else if (copyInfos.type === "img") {
+      UCopy.copyImg(
+        document.getElementById(copyInfos.copyId) as HTMLImageElement
+      );
+    }
+  }
   function withAble(list: INoteAction[]) {
     //对每一个特殊元素块或一行赋予一些能力
     let prefix = "line",
@@ -378,7 +395,7 @@ const Note: FC<INoteProps> = (props) => {
         <div key={prefix + key++} className={SelfStyle.lineWrapper}>
           <div className="actions">
             <Space size="large">
-              <a type="link" onClick={() => UCopy.copyStr(item.copyStr)}>
+              <a type="link" onClick={() => copyNoteContent(item)}>
                 复制
               </a>
               <a type="link" onClick={() => reqDelPart(item.start, item.count)}>
