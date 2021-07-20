@@ -54,6 +54,7 @@ export const EditModal: ForwardRefRenderFunction<
   const textAreaRef = useRef<TextArea>();
   const loadCountRef = useRef<number>(0);
   const noteTitleId = "noteTitleId";
+  const noteEditId = "noteEditId";
   const titleOptions = props.rsp.list
     .map((item) => ({
       value: item.title,
@@ -77,9 +78,15 @@ export const EditModal: ForwardRefRenderFunction<
   useEffect(() => {
     if (state.visible) {
       setTimeout(() => {
-        USelection.end(
-          document.getElementById(noteTitleId) as HTMLTextAreaElement
-        );
+        if (state.added) {
+          USelection.end(
+            document.getElementById(noteTitleId) as HTMLTextAreaElement
+          );
+        } else {
+          USelection.end(
+            document.getElementById(noteEditId) as HTMLTextAreaElement
+          );
+        }
       });
     }
   }, [state.visible]);
@@ -131,6 +138,7 @@ export const EditModal: ForwardRefRenderFunction<
         )}
         <div onDragOver={onDragOver} onDrop={onDrop}>
           <Input.TextArea
+            id={noteEditId}
             value={state.data.content}
             className={SelfStyle.contentContainer}
             autoSize={{
