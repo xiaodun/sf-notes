@@ -1,4 +1,5 @@
 import { message } from "antd";
+import SBase from "../service/SBase";
 
 export namespace UCopy {
   export interface ICopyOptions {
@@ -34,14 +35,20 @@ export namespace UCopy {
     options = {} as ICopyOptions
   ) {
     const finalOptions = { ...defaultCopyOptions, ...options };
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
-      const newImg = new Image();
       canvas.width = copyImg.naturalWidth;
       canvas.height = copyImg.naturalHeight;
+      const newImg = new Image();
+
       newImg.crossOrigin = "Anonymous";
-      newImg.src = copyImg.src;
+      if (copyImg.src.includes("http")) {
+        const imgRsp = await (await SBase.getBase64(copyImg.src)).data;
+        newImg.src = "data:image/png;base64," + imgRsp;
+      } else {
+        newImg.src = copyImg.src;
+      }
       newImg.onload = () => {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         ctx.drawImage(newImg, 0, 0);
