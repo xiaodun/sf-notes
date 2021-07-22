@@ -326,6 +326,7 @@ const Note: FC<INoteProps> = (props) => {
             copyStr = str;
             partList.push(str);
           }
+
           newList.push({
             type,
             copyId: id,
@@ -378,7 +379,7 @@ const Note: FC<INoteProps> = (props) => {
   }
   function copyNoteContent(copyInfos: INoteAction) {
     if (copyInfos.type === "str") {
-      UCopy.copyStr(copyInfos.copyStr);
+      UCopy.copyStr(copyInfos.copyStr.trim());
     } else if (copyInfos.type === "img") {
       UCopy.copyImg(
         document.getElementById(copyInfos.copyId) as HTMLImageElement
