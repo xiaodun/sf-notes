@@ -226,13 +226,12 @@ const Note: FC<INoteProps> = (props) => {
     //处理链接
     let prefix = "link",
       key = 0;
-    const id = props.data.id + "-" + prefix + "-" + key++;
     const imgStuffixList = [".jpg", ".jpeg", ".gif", ".png", ".svg"];
     const linkPattern = RegExp(
       `(https?|ftp|file|${NNotes.imgProtocolKey})://[-A-Za-z0-9+&@#/%?=~_|!:,.;\u4e00-\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]`,
       "g"
     );
-    let type: TCopyType = "str";
+
     const newList: INoteAction[] = [];
     list.forEach((item) => {
       if (typeof item.content === "string") {
@@ -254,6 +253,8 @@ const Note: FC<INoteProps> = (props) => {
 
         let initalCount = item.start;
         strList.forEach((str) => {
+          let type: TCopyType = "str";
+          const id = props.data.id + "-" + prefix + "-" + key++;
           let result: RegExpExecArray | null,
             lastIndex = 0;
 
