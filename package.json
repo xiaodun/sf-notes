@@ -82,7 +82,8 @@
     "redux": "^4.0.5",
     "sync-request": "^6.1.0",
     "umi": "^3.0.14",
-    "use-merge-value": "^1.0.1"
+    "use-merge-value": "^1.0.1",
+    "vconsole": "^3.9.0"
   },
   "devDependencies": {
     "@types/react-transition-group": "^4.4.0",
@@ -129,5 +130,6 @@
     "src/**/*.less",
     "config/**/*.js*",
     "scripts/**/*.js"
-  ]
+  ],
+  "__npminstall_done": false
 }
