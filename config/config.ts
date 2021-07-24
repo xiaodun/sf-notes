@@ -8,19 +8,13 @@ const fs = require("fs");
 const path = require("path");
 const { winPath } = utils; // preview.pro.ant.design only do not use in your production ;
 // preview.pro.ant.design 专用环境变量，请不要在你的项目中使用它。
+
 const {
   ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION,
   REACT_APP_ENV,
   GA_KEY,
 } = process.env;
-let devServer = {};
-if (process.env.https === "open") {
-  devServer = {
-    https: true,
-    key: fs.readFileSync(path.resolve(__dirname, "./https/key.pem")),
-    cert: fs.readFileSync(path.resolve(__dirname, "./https/cert.pem")),
-  };
-}
+
 export default defineConfig({
   hash: true,
   antd: {},
@@ -95,5 +89,9 @@ export default defineConfig({
   },
   proxy: proxy[REACT_APP_ENV || "dev"],
   chainWebpack: webpackPlugin,
-  devServer,
+  devServer: {
+    https: true,
+    key: fs.readFileSync(path.resolve(__dirname, "./https/key.pem")),
+    cert: fs.readFileSync(path.resolve(__dirname, "./https/cert.pem")),
+  },
 });
