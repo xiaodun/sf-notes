@@ -4,6 +4,8 @@
   "private": true,
   "description": "",
   "scripts": {
+    "https": "npm run start:https",
+    "start:https": "cross-env REACT_APP_ENV=dev UMI_UI=none https=open MOCK=none umi dev",
     "analyze": "cross-env ANALYZE=1 umi build",
     "build": "umi build",
     "deploy": "npm run site && npm run gh-pages",
