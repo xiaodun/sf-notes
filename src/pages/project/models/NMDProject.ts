@@ -3,15 +3,33 @@ import NRsp from "@/common/namespace/NRsp";
 import NProject from "../NProject";
 
 export namespace NMDProject {
-  export interface IState {}
+  export interface IState {
+    rsp: NRsp<NProject>;
+    project: NProject;
+  }
   class Action<P> extends NModel.IAction<P> {
     namespace = NModel.ENames.MDProject;
+  }
+  export class ARSetRsp extends Action<NRsp<NProject>> {
+    type = "setRsp";
   }
 }
 
 export default {
   namespace: NModel.ENames.MDProject,
-  state: {},
+  state: {
+    rsp: {
+      list: [],
+    },
+    project: {
+      name: "",
+      rootPath: "",
+    },
+  },
   effects: {},
-  reducers: {},
+  reducers: {
+    setRsp(state, { payload }: NMDProject.ARSetRsp) {
+      state.rsp = payload;
+    },
+  },
 } as NModel<NMDProject.IState>;
