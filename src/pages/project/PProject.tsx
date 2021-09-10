@@ -70,7 +70,6 @@ const PBook: ConnectRC<IPBookProps> = (props) => {
   async function reqGetList() {
     const rsp = await SProject.getList();
     if (rsp.success) {
-      console.log("wx", rsp);
       NModel.dispatch(new NMDProject.ARSetRsp(rsp));
     }
   }

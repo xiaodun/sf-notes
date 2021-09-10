@@ -23,7 +23,6 @@ const PProjectOverview: ConnectRC<IPProjectOverviewProps> = (props) => {
   }) as {}) as NProject.IUrlQuery;
   return (
     <div>
-      {MDProject.project.rootPath}
       {MDProject.project.rootPath && (
         <PageDirectory startPath={MDProject.project.rootPath}></PageDirectory>
       )}
@@ -31,9 +30,9 @@ const PProjectOverview: ConnectRC<IPProjectOverviewProps> = (props) => {
   );
   async function pageSetup() {
     const rsp = await SProject.getProject(urlQuery.id);
-    console.log("wx", rsp);
     if (rsp.success) {
       NModel.dispatch(new NMDProject.ARSetProject(rsp.data));
+      document.title = rsp.data.name;
     }
   }
 };
