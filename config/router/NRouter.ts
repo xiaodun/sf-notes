@@ -7,9 +7,10 @@ export namespace NRouter {
   export const notesPath = "/notes";
   export const filePath = "/file";
   export const bookPath = "/book";
+  export const bookEditPath = bookPath + "/edit";
   export const qrCodePath = "/qrCode";
   export const projectPath = "/project";
-  export const bookEditPath = bookPath + "/edit";
+  export const projectOverviewPath = projectPath + "/overview";
   export const routes: IRoute[] = [
     {
       path: rootPath,
@@ -54,6 +55,11 @@ export namespace NRouter {
     {
       path: projectPath,
       component: "." + "/project",
+      wrappers: [rootComponentPath],
+    },
+    {
+      path: projectOverviewPath,
+      component: "." + projectOverviewPath,
       wrappers: [rootComponentPath],
     },
   ];
