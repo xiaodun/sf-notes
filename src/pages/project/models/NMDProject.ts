@@ -13,6 +13,9 @@ export namespace NMDProject {
   export class ARSetRsp extends Action<NRsp<NProject>> {
     type = "setRsp";
   }
+  export class ARSetProject extends Action<NProject> {
+    type = "setProject";
+  }
 }
 
 export default {
@@ -30,6 +33,9 @@ export default {
   reducers: {
     setRsp(state, { payload }: NMDProject.ARSetRsp) {
       state.rsp = payload;
+    },
+    setProject(state, { payload }: NMDProject.ARSetProject) {
+      state.project = payload;
     },
   },
 } as NModel<NMDProject.IState>;

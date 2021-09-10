@@ -11,11 +11,13 @@ import SProject from "./SProject";
 import AddProjectModal, {
   IAddProjectModalRef,
 } from "./components/add/AddProjectModal";
+import qs from "qs";
 export interface IPBookProps {
   MDProject: NMDProject.IState;
 }
 
 const PBook: ConnectRC<IPBookProps> = (props) => {
+  const { MDProject } = props;
   useEffect(() => {
     reqGetList();
   }, []);
@@ -27,14 +29,48 @@ const PBook: ConnectRC<IPBookProps> = (props) => {
         ref={addProjectModalRef}
         onOk={reqGetList}
       ></AddProjectModal>
+      <Table
+        rowKey="id"
+        columns={[
+          {
+            title: "项目名",
+            key: "name",
+            dataIndex: "name",
+          },
+
+          {
+            title: "操作",
+            key: "_option",
+            render: renderOption,
+          },
+        ]}
+        dataSource={MDProject.rsp.list}
+        pagination={null}
+      ></Table>
       <PageFooter>
         <Button onClick={onShowAddModal}>添加项目</Button>
       </PageFooter>
     </div>
   );
+  function onGoOverview(project = {} as NProject) {
+    props.history.push({
+      pathname: NRouter.projectOverviewPath,
+      search: qs.stringify({ id: project.id }),
+    });
+  }
+  function renderOption(project: NProject) {
+    return (
+      <Space align="start">
+        <Button type="link" onClick={() => onGoOverview(project)}>
+          进入总览
+        </Button>
+      </Space>
+    );
+  }
   async function reqGetList() {
     const rsp = await SProject.getList();
     if (rsp.success) {
+      console.log("wx", rsp);
       NModel.dispatch(new NMDProject.ARSetRsp(rsp));
     }
   }
