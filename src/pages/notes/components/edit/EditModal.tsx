@@ -98,7 +98,7 @@ export const EditModal: ForwardRefRenderFunction<
       visible={state.visible}
       title={title}
       maskClosable={false}
-      onOk={() => onOk()}
+      onOk={onOk}
       centered
       onCancel={onClose}
       okButtonProps={{
@@ -147,6 +147,7 @@ export const EditModal: ForwardRefRenderFunction<
             onPaste={onPaste}
             ref={textAreaRef}
             placeholder={`支持普通链接\n图片链接\n黏贴图片\n拖拽桌面图片\n\`\`\`\n格式代码\n\`\`\`\n`}
+            onKeyUp={onContentKeyUp}
             onChange={(e) =>
               onDataChange({
                 content: e.target.value,
@@ -157,6 +158,11 @@ export const EditModal: ForwardRefRenderFunction<
       </Space>
     </Modal>
   );
+  function onContentKeyUp(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.ctrlKey && event.key === "Enter") {
+      onOk();
+    }
+  }
   function onBlurTitle() {
     const notes = props.rsp.list.find((item) => item.title == state.data.title);
     if (notes) {
