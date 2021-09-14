@@ -38,6 +38,11 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
   async function reqGetList() {
     const rsp = await SNotes.getList();
     if (rsp.success) {
+      rsp.list.forEach((item) => {
+        if (!item.titleColor) {
+          item.titleColor = "";
+        }
+      });
       NModel.dispatch(new NMDNotes.ARSetRsp(rsp));
     }
   }

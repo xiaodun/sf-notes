@@ -7,7 +7,7 @@ import {
   useRef,
   useEffect,
 } from "react";
-import { Modal, Input, Space, message, AutoComplete } from "antd";
+import { Modal, Input, Space, message, AutoComplete, Radio } from "antd";
 import SelfStyle from "./EditModal.less";
 import React from "react";
 import TextArea from "antd/lib/input/TextArea";
@@ -43,6 +43,7 @@ const defaultState: IEditModalState = {
     createTime: null,
     updateTime: null,
     title: "",
+    titleColor: "",
   },
 };
 
@@ -106,6 +107,18 @@ export const EditModal: ForwardRefRenderFunction<
       }}
     >
       <Space style={{ width: "100%" }} direction="vertical" size="middle">
+        <Radio.Group
+          onChange={(event) =>
+            onDataChange({
+              titleColor: event.target.value,
+            })
+          }
+          value={state.data.titleColor}
+        >
+          <Radio value="">默认</Radio>
+          <Radio value="#e41749">红色</Radio>
+          <Radio value="#08ffc8">绿色</Radio>
+        </Radio.Group>
         {state.added ? (
           <AutoComplete
             id={noteTitleId}
