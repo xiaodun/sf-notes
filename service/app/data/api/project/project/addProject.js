@@ -1,5 +1,8 @@
 (function () {
   return function (argData, argParams) {
+    if (!argData) {
+      argData = [];
+    }
     const isExist = argData.some((item) => item.name === argParams.name);
     if (isExist) {
       return {
