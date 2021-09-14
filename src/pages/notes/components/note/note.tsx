@@ -65,6 +65,7 @@ const Note: FC<INoteProps> = (props) => {
         <Card
           size="small"
           title={data.title}
+          style={{ backgroundColor: data.titleColor }}
           className={classNames(SelfStyle.noteWrapper, SelfStyle.titleModel)}
           extra={
             <Button
@@ -83,7 +84,7 @@ const Note: FC<INoteProps> = (props) => {
         ></Card>
       ) : (
         <>
-          {renderActionWrap(SelfStyle.top)}
+          {renderActionWrap(SelfStyle.top, data.titleColor)}
           <Card
             size="small"
             title={data.title}
@@ -108,9 +109,12 @@ const Note: FC<INoteProps> = (props) => {
   function onAddNote(index: number) {
     props.editModalRef.current.showModal(null, index);
   }
-  function renderActionWrap(className: any) {
+  function renderActionWrap(className: any, titleColor?: string) {
     return (
-      <div className={classNames(SelfStyle.actionWrap, className)}>
+      <div
+        style={{ backgroundColor: titleColor }}
+        className={classNames(SelfStyle.actionWrap, className)}
+      >
         <div className={SelfStyle.item}>
           <Button onClick={onCopy} icon={<CopyOutlined />}></Button>
         </div>
