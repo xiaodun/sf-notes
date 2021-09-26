@@ -11,6 +11,7 @@ export namespace NRouter {
   export const qrCodePath = "/qrCode";
   export const projectPath = "/project";
   export const projectOverviewPath = projectPath + "/overview";
+  export const projectCommandPath = projectPath + "/command";
   export const routes: IRoute[] = [
     {
       path: rootPath,
@@ -60,6 +61,11 @@ export namespace NRouter {
     {
       path: projectOverviewPath,
       component: "." + projectOverviewPath,
+      wrappers: [rootComponentPath],
+    },
+    {
+      path: projectCommandPath,
+      component: "." + projectCommandPath,
       wrappers: [rootComponentPath],
     },
   ];

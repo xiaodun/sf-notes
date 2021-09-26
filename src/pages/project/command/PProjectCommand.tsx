@@ -22,26 +22,15 @@ const PProjectOverview: ConnectRC<IPProjectOverviewProps> = (props) => {
         controlLayout: false,
       })
     );
+
     pageSetup();
   }, []);
-  const urlQuery = (qs.parse(window.location.search, {
-    ignoreQueryPrefix: true,
-  }) as {}) as NProject.IUrlQuery;
-  return (
-    <div>
-      {MDProject.project.rootPath && (
-        <PageDirectory
-          className={SelfStyle.directoryModal}
-          startPath={MDProject.project.rootPath}
-        ></PageDirectory>
-      )}
-    </div>
-  );
+
+  return <div></div>;
   async function pageSetup() {
-    const rsp = await SProject.getProject(urlQuery.id);
+    const rsp = await SProject.getList();
     if (rsp.success) {
       NModel.dispatch(new NMDProject.ARSetProject(rsp.data));
-      document.title = rsp.data.name;
     }
   }
 };

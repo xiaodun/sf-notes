@@ -50,6 +50,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       ></DirectoryModal>
       <PageFooter>
         <Button onClick={onShowAddModal}>添加项目</Button>
+        <Button onClick={onGoCommand}>命令管理</Button>
       </PageFooter>
     </div>
   );
@@ -75,6 +76,11 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         </Button>
       </Space>
     );
+  }
+  function onGoCommand() {
+    props.history.push({
+      pathname: NRouter.projectCommandPath,
+    });
   }
   async function reqGetList() {
     const rsp = await SProject.getList();
