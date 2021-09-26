@@ -10,6 +10,7 @@ export interface IPageDirectoryProps {
   startPath?: string;
   height?: number;
   onSelect?: (pathInfos: NSystem.IDirectory) => void;
+  className?: string;
 }
 export interface IPageDirectoryDataNode extends DataNode {
   metaInfo: NSystem.IDirectory;
@@ -23,7 +24,7 @@ export default (props: PropsWithChildren<IPageDirectoryProps>) => {
   }, []);
   const onSelect = (keys: React.Key[], info: any) => {
     const metaInfo = info.node.metaInfo as NSystem.IDirectory;
-    props.onSelect(metaInfo);
+    props.onSelect && props.onSelect(metaInfo);
   };
 
   const onExpand = (
@@ -84,6 +85,7 @@ export default (props: PropsWithChildren<IPageDirectoryProps>) => {
   }
   return (
     <Tree.DirectoryTree
+      className={props.className}
       multiple
       height={treeHeight}
       defaultExpandAll
