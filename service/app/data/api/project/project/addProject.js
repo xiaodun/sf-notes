@@ -3,7 +3,9 @@
     if (!argData) {
       argData = [];
     }
-    const isExist = argData.some((item) => item.name === argParams.name);
+    const isExist = argData.some(
+      (item) => item.rootPath === argParams.rootPath
+    );
     if (isExist) {
       return {
         isWrite: false,
@@ -16,6 +18,7 @@
         },
       };
     } else {
+      argParams.name = argParams.rootPath.split("\\").pop();
       argParams.id = Date.now();
       argData.push(argParams);
       return {
