@@ -4,5 +4,6 @@ export namespace NSystem {
     path: string;
     stuffix: string;
     isLeaf: boolean;
+    isDisk: boolean;
   }
 }

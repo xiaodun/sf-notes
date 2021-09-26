@@ -4,20 +4,26 @@ import { Tree } from "antd";
 import SSystem from "@/common/service/SSystem";
 import { DataNode, EventDataNode } from "antd/lib/tree";
 import { produce } from "@/common";
+import { NSystem } from "@/common/namespace/NSystem";
 
 export interface IPageDirectoryProps {
   startPath?: string;
   height?: number;
+  onSelect?: (pathInfos: NSystem.IDirectory) => void;
+}
+export interface IPageDirectoryDataNode extends DataNode {
+  metaInfo: NSystem.IDirectory;
 }
 export default (props: PropsWithChildren<IPageDirectoryProps>) => {
   const { children } = props;
   const treeHeight = props.height ? props.height : 780;
-  const [treeData, setTreeData] = useState([] as DataNode[]);
+  const [treeData, setTreeData] = useState([] as IPageDirectoryDataNode[]);
   useEffect(() => {
     getDirectory(props.startPath);
   }, []);
   const onSelect = (keys: React.Key[], info: any) => {
-    console.log("Trigger Select", keys, info);
+    const metaInfo = info.node.metaInfo as NSystem.IDirectory;
+    props.onSelect(metaInfo);
   };
 
   const onExpand = (
@@ -29,7 +35,8 @@ export default (props: PropsWithChildren<IPageDirectoryProps>) => {
     }
   ) => {
     if (info.expanded && !info.node.children) {
-      getDirectory(info.node.key as string, info.expanded, info.node);
+      console.log("wx", info.node);
+      getDirectory(info.node.key as string, info.expanded);
     }
   };
   async function getDirectory(path?: string, expanded: boolean = false) {
@@ -38,31 +45,34 @@ export default (props: PropsWithChildren<IPageDirectoryProps>) => {
       let list = directoryRsp.list.map((item) => {
         return {
           isLeaf: item.isLeaf,
-          selectable: item.isLeaf,
           title: item.name,
           key: item.path,
           metaInfo: item,
-        } as DataNode;
+        } as IPageDirectoryDataNode;
       });
       if (expanded) {
-        const newTreeData = produce(treeData, (drafState: DataNode[]) => {
-          let tempTreeData = drafState;
-          while (true) {
-            let node = tempTreeData.find((item) =>
-              path.includes(item.key as string)
-            );
-            if (node) {
-              if (node.children && node.children.length > 0) {
-                tempTreeData = node.children;
+        const newTreeData = produce(
+          treeData,
+          (drafState: IPageDirectoryDataNode[]) => {
+            let tempTreeData = drafState;
+
+            while (true) {
+              let node = tempTreeData.find((item) => {
+                return path.includes(item.key as string);
+              });
+              if (node) {
+                if (node.children && node.children.length > 0) {
+                  tempTreeData = node.children as IPageDirectoryDataNode[];
+                } else {
+                  node.children = list;
+                  break;
+                }
               } else {
-                node.children = list;
                 break;
               }
-            } else {
-              break;
             }
           }
-        });
+        );
         setTreeData(newTreeData);
       } else {
         setTreeData(list);

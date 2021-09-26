@@ -7,28 +7,25 @@ import { connect, ConnectRC, NMDProject } from "umi";
 import SelfStyle from "./LProject.less";
 import NProject from "./NProject";
 import SProject from "./SProject";
-
-import AddProjectModal, {
-  IAddProjectModalRef,
-} from "./components/add/AddProjectModal";
 import qs from "qs";
-export interface IPBookProps {
+import DirectoryModal, {
+  IDirectoryModal,
+} from "@/common/components/directory/combination/modal/DirectoryModal";
+import { NSystem } from "@/common/namespace/NSystem";
+export interface IProjectProps {
   MDProject: NMDProject.IState;
 }
 
-const PBook: ConnectRC<IPBookProps> = (props) => {
+const Project: ConnectRC<IProjectProps> = (props) => {
   const { MDProject } = props;
+  const directoryModalRef = useRef<IDirectoryModal>();
+
   useEffect(() => {
     reqGetList();
   }, []);
-  const addProjectModalRef = useRef<IAddProjectModalRef>();
 
   return (
     <div>
-      <AddProjectModal
-        ref={addProjectModalRef}
-        onOk={reqGetList}
-      ></AddProjectModal>
       <Table
         rowKey="id"
         columns={[
@@ -47,11 +44,23 @@ const PBook: ConnectRC<IPBookProps> = (props) => {
         dataSource={MDProject.rsp.list}
         pagination={null}
       ></Table>
+      <DirectoryModal
+        onOk={onSelectDirectory}
+        ref={directoryModalRef}
+      ></DirectoryModal>
       <PageFooter>
         <Button onClick={onShowAddModal}>添加项目</Button>
       </PageFooter>
     </div>
   );
+  async function onSelectDirectory(pathInfos: NSystem.IDirectory) {
+    const addRsp = await SProject.addProject({
+      rootPath: pathInfos.path,
+    });
+    if (addRsp.success) {
+      reqGetList();
+    }
+  }
   function onGoOverview(project = {} as NProject) {
     props.history.push({
       pathname: NRouter.projectOverviewPath,
@@ -74,9 +83,9 @@ const PBook: ConnectRC<IPBookProps> = (props) => {
     }
   }
   function onShowAddModal() {
-    addProjectModalRef.current.showModal();
+    directoryModalRef.current.showModal();
   }
 };
 export default connect(({ MDProject }: NModel.IState) => ({
   MDProject,
-}))(PBook);
+}))(Project);
