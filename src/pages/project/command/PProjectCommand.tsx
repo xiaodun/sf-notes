@@ -29,26 +29,49 @@ const PProjectOverview: ConnectRC<IPProjectOverviewProps> = (props) => {
   return (
     <div className={SelfStyle.main}>
       <div style={{ width: 256 }}>
-        <Menu
-          defaultSelectedKeys={["1"]}
-          defaultOpenKeys={["sub1"]}
-          mode="inline"
-          theme="dark"
-        >
-          <Menu.SubMenu key="sub1" title="Navigation One">
-            <Menu.Item key="5">Option 5</Menu.Item>
-            <Menu.Item key="6">Option 6</Menu.Item>
-            <Menu.Item key="7">Option 7</Menu.Item>
-            <Menu.Item key="8">Option 8</Menu.Item>
-          </Menu.SubMenu>
+        <Menu mode="inline">
+          {MDProject.commonMenuList.map((subMenu) => (
+            <Menu.SubMenu key={subMenu.name} title={subMenu.name}>
+              {subMenu.children.map((item) => (
+                <Menu.Item key={item.name}>{item.name || "暂无名字"}</Menu.Item>
+              ))}
+              <Menu.Item key="_add-command">
+                <Button block>添加</Button>
+              </Menu.Item>
+            </Menu.SubMenu>
+          ))}
         </Menu>
       </div>
     </div>
   );
-  async function pageSetup() {
-    const rsp = await SProject.getList();
+  function goEdit(commandId: string) {
+    window.location.href =
+      NRouter.projectCommandPath +
+      qs.stringify(
+        { commandId },
+        {
+          addQueryPrefix: true,
+        }
+      );
+  }
+  async function reqProjectCommad(name: string, isProject: boolean) {
+    const rsp = await SProject.getCommandMenuList();
     if (rsp.success) {
-      NModel.dispatch(new NMDProject.ARSetProject(rsp.data));
+      NModel.dispatch(
+        new NMDProject.ARSetState({
+          commonMenuList: rsp.list,
+        })
+      );
+    }
+  }
+  async function pageSetup() {
+    const rsp = await SProject.getCommandMenuList();
+    if (rsp.success) {
+      NModel.dispatch(
+        new NMDProject.ARSetState({
+          commonMenuList: rsp.list,
+        })
+      );
     }
   }
 };

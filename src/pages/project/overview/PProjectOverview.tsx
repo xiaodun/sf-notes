@@ -40,7 +40,11 @@ const PProjectOverview: ConnectRC<IPProjectOverviewProps> = (props) => {
   async function pageSetup() {
     const rsp = await SProject.getProject(urlQuery.id);
     if (rsp.success) {
-      NModel.dispatch(new NMDProject.ARSetProject(rsp.data));
+      NModel.dispatch(
+        new NMDProject.ARSetState({
+          project: rsp.data,
+        })
+      );
       document.title = rsp.data.name;
     }
   }
