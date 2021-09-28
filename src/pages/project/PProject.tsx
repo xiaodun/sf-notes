@@ -83,9 +83,13 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     });
   }
   async function reqGetList() {
-    const rsp = await SProject.getList();
+    const rsp = await SProject.getProjectList();
     if (rsp.success) {
-      NModel.dispatch(new NMDProject.ARSetRsp(rsp));
+      NModel.dispatch(
+        new NMDProject.ARSetState({
+          rsp,
+        })
+      );
     }
   }
   function onShowAddModal() {

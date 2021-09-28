@@ -6,15 +6,13 @@ export namespace NMDProject {
   export interface IState {
     rsp: NRsp<NProject>;
     project: NProject;
+    commonMenuList: NProject.ICommandMenu[];
   }
   class Action<P> extends NModel.IAction<P> {
     namespace = NModel.ENames.MDProject;
   }
-  export class ARSetRsp extends Action<NRsp<NProject>> {
-    type = "setRsp";
-  }
-  export class ARSetProject extends Action<NProject> {
-    type = "setProject";
+  export class ARSetState extends Action<Partial<NMDProject.IState>> {
+    type = "setState";
   }
 }
 
@@ -28,14 +26,16 @@ export default {
       name: "",
       rootPath: "",
     },
+    commonMenuList: [],
   },
   effects: {},
   reducers: {
-    setRsp(state, { payload }: NMDProject.ARSetRsp) {
-      state.rsp = payload;
-    },
-    setProject(state, { payload }: NMDProject.ARSetProject) {
-      state.project = payload;
+    setState(state, { payload }: NMDProject.ARSetState) {
+      for (let key in payload) {
+        if (payload[key]) {
+          state[key] = payload[key];
+        }
+      }
     },
   },
 } as NModel<NMDProject.IState>;

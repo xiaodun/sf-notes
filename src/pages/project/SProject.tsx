@@ -3,7 +3,14 @@ import NProject from "./NProject";
 import request from "@/utils/request";
 
 namespace SProject {
-  export async function getList(): Promise<NRsp<NProject>> {
+  export async function getCommandMenuList(): Promise<
+    NRsp<NProject.ICommandMenu>
+  > {
+    return request({
+      url: "/project/getCommandMenuList",
+    });
+  }
+  export async function getProjectList(): Promise<NRsp<NProject>> {
     return request({
       url: "/project/getProjectList",
     });
