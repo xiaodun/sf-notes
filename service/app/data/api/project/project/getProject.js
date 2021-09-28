@@ -1,7 +1,7 @@
 (function () {
   return function (argData = [], argParams) {
     //argData 数据的副本
-    const project = argData.find((item) => item.id == argParams.id);
+    const project = argData.projectList.find((item) => item.id == argParams.id);
     return {
       isWrite: false, //是否覆盖数据
       //data:argData,//需要存储的新数据

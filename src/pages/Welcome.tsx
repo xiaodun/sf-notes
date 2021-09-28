@@ -32,9 +32,11 @@ export const Welcome: ConnectRC<IWelcomeProps> = (props) => {
       showHeader = true;
     }
     if (
-      [NRouter.bookEditPath, NRouter.projectOverviewPath].includes(
-        props.match.path
-      )
+      [
+        NRouter.projectCommandPath,
+        NRouter.bookEditPath,
+        NRouter.projectOverviewPath,
+      ].includes(props.match.path)
     ) {
       controlLayout = false;
     } else {

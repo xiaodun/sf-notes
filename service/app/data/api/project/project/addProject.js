@@ -1,9 +1,7 @@
 (function () {
-  return function (argData, argParams) {
-    if (!argData) {
-      argData = [];
-    }
-    const isExist = argData.some(
+  return function (argData, argParams, external) {
+    argData = external.getBaseStructure(argData);
+    const isExist = argData.projectList.some(
       (item) => item.rootPath === argParams.rootPath
     );
     if (isExist) {
@@ -20,7 +18,7 @@
     } else {
       argParams.name = argParams.rootPath.split("\\").pop();
       argParams.id = Date.now();
-      argData.push(argParams);
+      argData.projectList.push(argParams);
       return {
         isWrite: true,
         data: argData,
