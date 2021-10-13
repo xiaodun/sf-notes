@@ -1,15 +1,10 @@
 import React, {
-  useEffect,
-  useRef,
-  PropsWithChildren,
   useState,
   useImperativeHandle,
   ForwardRefRenderFunction,
   forwardRef,
 } from "react";
-import SelfStyle from "./DirectoryModal.less";
 import { Modal } from "antd";
-import SSystem from "@/common/service/SSystem";
 import { produce } from "@/common";
 import PageDirectory from "../../PageDirectory";
 import { NSystem } from "@/common/namespace/NSystem";
@@ -32,8 +27,6 @@ export const EditModal: ForwardRefRenderFunction<
   IDirectoryModal,
   IDirectoryModalProps
 > = (props, ref) => {
-  const { children } = props;
-
   const [state, setState] = useState<Partial<IDirectoryModalState>>(
     defaultState
   );
