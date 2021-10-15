@@ -27,6 +27,8 @@ export default {
       rootPath: "",
       isSfMock: false,
       sfMock: {
+        startPort: 0,
+        programUrl: "",
         startBatPath: "",
       },
       web: {
