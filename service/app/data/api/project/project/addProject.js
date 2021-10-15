@@ -63,7 +63,7 @@
         });
         argParams.isSfMock = true;
         argParams.sfMock = {
-          startPort: serviceConfigObj.startPort,
+          programUrl: `http://localhost:${serviceConfigObj.startPort}`,
           startBatPath: path_os.join(argParams.rootPath, "bat", "sf-mock.bat"),
         };
       } else {

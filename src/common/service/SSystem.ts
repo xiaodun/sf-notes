@@ -14,15 +14,7 @@ namespace SSystem {
       },
     });
   }
-  export async function usedPort(port: number): Promise<NRsp<boolean>> {
-    return request({
-      url: "/system/usedPort",
-      method: "post",
-      data: {
-        port,
-      },
-    });
-  }
+
   export async function startBat(path?: string): Promise<NRsp<boolean>> {
     return request({
       url: "/system/startBat",

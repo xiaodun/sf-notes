@@ -110,9 +110,12 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     );
     if (startRsp.success) {
       message.success("已执行");
-      setTimeout(() => {
-        reqProjecStart(project, cloneDeep(MDProject.rsp));
-      }, 30000);
+      setTimeout(
+        () => {
+          reqProjecStart(project, cloneDeep(MDProject.rsp));
+        },
+        project.isSfMock ? 3000 : 30000
+      );
     }
   }
   function onGoCommand() {
@@ -122,11 +125,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   }
   async function reqProjecStart(project: NProject, projectRsp: NRsp<NProject>) {
     let startRsp: NRsp<boolean>;
-    if (project.isSfMock) {
-      startRsp = await SSystem.usedPort(project.sfMock.startPort);
-    } else {
-      startRsp = await SProject.isProjectStart(project.sfMock.programUrl);
-    }
+    startRsp = await SProject.isProjectStart(project.sfMock.programUrl);
     const index = projectRsp.list.findIndex(
       (item) => item.name === project.name
     );
