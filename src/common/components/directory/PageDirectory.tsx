@@ -36,7 +36,6 @@ export default (props: PropsWithChildren<IPageDirectoryProps>) => {
     }
   ) => {
     if (info.expanded && !info.node.children) {
-      console.log("wx", info.node);
       getDirectory(info.node.key as string, info.expanded);
     }
   };

@@ -2,6 +2,15 @@ export interface NProject {
   id?: number;
   name: string;
   rootPath: string;
+  isSfMock: boolean;
+  sfMock: {
+    programUrl: string;
+    startPort: number;
+    startBatPath: string;
+  };
+  web: {
+    isStart: boolean;
+  };
 }
 export namespace NProject {
   export interface IUrlQuery {

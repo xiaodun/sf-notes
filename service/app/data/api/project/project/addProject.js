@@ -30,13 +30,20 @@
         const programConfigObj = eval(
           fs_os.readFileSync(programConfigPath, "utf-8")
         );
+        const serviceConfigPath = path_os.join(
+          argParams.rootPath,
+          "config",
+          "serviceConfig.js"
+        );
+        const serviceConfigObj = eval(
+          fs_os.readFileSync(serviceConfigPath, "utf-8")
+        );
 
         argData.projectList.forEach((item) => {
           const mockConfig = programConfigObj[item.name];
 
           if (
             mockConfig.WindowsTerminal &&
-            mockConfig.WindowsTerminal.isOpen &&
             mockConfig.WindowsTerminal.tabList
           ) {
             const tabList = mockConfig.WindowsTerminal.tabList;
@@ -44,6 +51,7 @@
             if (selfStartConfig) {
               item.isSfMock = false;
               item.sfMock = {
+                programUrl: mockConfig.programUrl,
                 startBatPath: path_os.join(
                   argParams.rootPath,
                   "bat",
@@ -55,8 +63,47 @@
         });
         argParams.isSfMock = true;
         argParams.sfMock = {
+          startPort: serviceConfigObj.startPort,
           startBatPath: path_os.join(argParams.rootPath, "bat", "sf-mock.bat"),
         };
+      } else {
+        const sfMockPrject = argData.projectList.find(
+          (item) => item.name == "sf-mock"
+        );
+        if (sfMockPrject) {
+          const programConfigPath = path_os.join(
+            sfMockPrject.rootPath,
+            "config",
+            "programConfig.js"
+          );
+
+          const programConfigObj = eval(
+            fs_os.readFileSync(programConfigPath, "utf-8")
+          );
+
+          const mockConfig = programConfigObj[argParams.name];
+          if (mockConfig) {
+            if (
+              mockConfig.WindowsTerminal &&
+              mockConfig.WindowsTerminal.tabList
+            ) {
+              const tabList = mockConfig.WindowsTerminal.tabList;
+              const selfStartConfig = tabList.find((item) => item.isSelf);
+
+              if (selfStartConfig) {
+                argParams.isSfMock = false;
+                argParams.sfMock = {
+                  programUrl: mockConfig.programUrl,
+                  startBatPath: path_os.join(
+                    sfMockPrject.rootPath,
+                    "bat",
+                    `${argParams.name}.bat`
+                  ),
+                };
+              }
+            }
+          }
+        }
       }
       argData.projectList.push(argParams);
       return {
