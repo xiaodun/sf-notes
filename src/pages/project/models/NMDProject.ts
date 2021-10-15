@@ -25,6 +25,13 @@ export default {
     project: {
       name: "",
       rootPath: "",
+      isSfMock: false,
+      sfMock: {
+        startBatPath: "",
+      },
+      web: {
+        isStart: null,
+      },
     },
     commonMenuList: [],
   },

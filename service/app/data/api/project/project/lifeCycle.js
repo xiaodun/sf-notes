@@ -9,7 +9,6 @@
     return {
       createFloder: function (createFloder, external) {
         external.getBaseStructure = (argData) => {
-          console.log("wx", argData);
           if (!argData) {
             return {
               command: {

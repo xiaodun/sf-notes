@@ -6,8 +6,6 @@
   return function (argData, argParams) {
     if (argParams.path) {
       const readDir = fs.readdirSync(argParams.path);
-      console.log("wx", readDir);
-
       const list = [];
       readDir.forEach((item) => {
         const itemPath = path.join(argParams.path, item);
