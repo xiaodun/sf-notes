@@ -65,6 +65,8 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     });
     if (addRsp.success) {
       reqGetList();
+    } else {
+      message.error(addRsp.message);
     }
   }
   function onGoOverview(project = {} as NProject) {
@@ -80,7 +82,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         startBlock = <Button loading={true} type="link"></Button>;
       } else if (project.web.isStart) {
         startBlock = <Tag color="#87d068">已启动</Tag>;
-      } else {
+      } else if (project.sfMock.programUrl) {
         startBlock = (
           <Button type="link" onClick={() => onStartProject(project)}>
             启动
@@ -147,7 +149,9 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       );
       const newRsp = cloneDeep(rsp);
       rsp.list.forEach((item) => {
-        reqProjecStart(item, newRsp);
+        if (item.web.isStart == null) {
+          reqProjecStart(item, newRsp);
+        }
       });
     }
   }
