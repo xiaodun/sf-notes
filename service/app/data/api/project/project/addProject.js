@@ -48,9 +48,15 @@
           ) {
             const tabList = mockConfig.WindowsTerminal.tabList;
             const selfStartConfig = tabList.find((item) => item.isSelf);
+            let serviceObj;
+            if (mockConfig.serverList) {
+              serviceObj = mockConfig.serverList.find((item) => item.isMock);
+            }
             if (selfStartConfig) {
               item.isSfMock = false;
               item.sfMock = {
+                nginxPort: serviceObj ? serviceObj.port : "",
+                addressPath: mockConfig.addressPath || "",
                 programUrl: mockConfig.programUrl,
                 startBatPath: path_os.join(
                   argParams.rootPath,
@@ -82,7 +88,12 @@
           );
 
           const mockConfig = programConfigObj[argParams.name];
+
           if (mockConfig) {
+            let serviceObj;
+            if (mockConfig.serverList) {
+              serviceObj = mockConfig.serverList.find((item) => item.isMock);
+            }
             if (
               mockConfig.WindowsTerminal &&
               mockConfig.WindowsTerminal.tabList
@@ -93,6 +104,8 @@
               if (selfStartConfig) {
                 argParams.isSfMock = false;
                 argParams.sfMock = {
+                  nginxPort: serviceObj ? serviceObj.port : "",
+                  addressPath: mockConfig.addressPath,
                   programUrl: mockConfig.programUrl,
                   startBatPath: path_os.join(
                     sfMockPrject.rootPath,

@@ -76,12 +76,19 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     });
   }
   function renderOption(project: NProject) {
-    let startBlock;
+    let startBlock, openBlock;
     if (project.sfMock) {
       if (project.web.isStart === null) {
         startBlock = <Button loading={true} type="link"></Button>;
       } else if (project.web.isStart) {
         startBlock = <Tag color="#87d068">已启动</Tag>;
+        if (!project.isSfMock && project.sfMock.openUrl) {
+          openBlock = (
+            <a target="_blank" href={project.sfMock.openUrl}>
+              打开
+            </a>
+          );
+        }
       } else if (project.sfMock.programUrl) {
         startBlock = (
           <Button type="link" onClick={() => onStartProject(project)}>
@@ -96,6 +103,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
           进入总览
         </Button>
         {startBlock}
+        {openBlock}
       </Space>
     );
   }
