@@ -7,6 +7,9 @@ export interface NProject {
     programUrl: string;
     startPort: number;
     startBatPath: string;
+    nginxPort: number;
+    addressPath: string;
+    openUrl: string;
   };
   web: {
     isStart: boolean;
