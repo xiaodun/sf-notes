@@ -310,9 +310,15 @@ const Note: FC<INoteProps> = (props) => {
               } else {
                 //普通链接
                 copyStr += link;
+                //限制一下长度
+                const showLen = 60;
+                let showLinkStr =
+                  link.length > showLen
+                    ? link.substring(0, showLen) + "..."
+                    : link;
                 partList.push(
                   <a target="_blank" key={prefix + key++} href={link}>
-                    {link}
+                    {showLinkStr}
                   </a>
                 );
               }
