@@ -11,6 +11,8 @@ import { connect } from "dva";
 import NModel from "@/common/namespace/NModel";
 import { ConnectRC, NMDNotes } from "umi";
 import { uniq, isEqual } from "lodash";
+import Browser from "@/utils/browser";
+
 export interface PNotesProps {
   MDNotes: NMDNotes.IState;
 }
@@ -73,31 +75,34 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
       <EditModal ref={editModalRef} rsp={MDNotes.rsp}></EditModal>
       <PageFooter>
         <Button onClick={() => onAddNote()}>新建笔记</Button>
+
         <Radio.Group value={MDNotes.isTitleModel} buttonStyle="solid">
           <Radio.Button value={true} onClick={onToggleShowModel}>
             标题模式
           </Radio.Button>
         </Radio.Group>
-        <div id={searchContentId}>
-          <Select
-            ref={searchSelectRef}
-            className={SelfStyle.searchSelect}
-            getPopupContainer={() => document.getElementById(searchContentId)}
-            mode="tags"
-            allowClear={true}
-            placeholder="搜索内容"
-            onChange={onSearchContent}
-            open={searchOpen}
-            onFocus={() => setSearchOpen(true)}
-            onBlur={() => setSearchOpen(false)}
-          >
-            {titleOptionList.map((item, index) => (
-              <Select.Option key={index} value={item.value}>
-                {item.value}
-              </Select.Option>
-            ))}
-          </Select>
-        </div>
+        {!Browser.isMobile() && (
+          <div id={searchContentId}>
+            <Select
+              ref={searchSelectRef}
+              className={SelfStyle.searchSelect}
+              getPopupContainer={() => document.getElementById(searchContentId)}
+              mode="tags"
+              allowClear={true}
+              placeholder="搜索内容"
+              onChange={onSearchContent}
+              open={searchOpen}
+              onFocus={() => setSearchOpen(true)}
+              onBlur={() => setSearchOpen(false)}
+            >
+              {titleOptionList.map((item, index) => (
+                <Select.Option key={index} value={item.value}>
+                  {item.value}
+                </Select.Option>
+              ))}
+            </Select>
+          </div>
+        )}
       </PageFooter>
       <ZoomImgModal ref={zoomModalRef}></ZoomImgModal>
     </div>
