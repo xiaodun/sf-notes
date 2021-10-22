@@ -19,6 +19,7 @@ import { IEditModal } from "../edit/EditModal";
 import { IZoomImgModal } from "../zoom/ZoomImgModal";
 import { NConnect } from "@/common/namespace/NConnect";
 import { cloneDeep, isEqual } from "lodash";
+import Browser from "@/utils/browser";
 
 type TCopyType = "img" | "str";
 export interface INoteProps {
@@ -113,7 +114,11 @@ const Note: FC<INoteProps> = (props) => {
     return (
       <div
         style={{ backgroundColor: titleColor }}
-        className={classNames(SelfStyle.actionWrap, className)}
+        className={classNames(
+          SelfStyle.actionWrap,
+          { [SelfStyle.mobile]: Browser.isMobile() },
+          className
+        )}
       >
         <div className={SelfStyle.item}>
           <Button onClick={onCopy} icon={<CopyOutlined />}></Button>
