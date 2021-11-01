@@ -12,12 +12,11 @@
     }
 
     argData = external.getBaseStructure(argData);
-    argData.projectList.forEach(
-      (item) =>
-        (item.sfMock.openUrl = item.sfMock.nginxPort
-          ? `http://${ip}:${item.sfMock.nginxPort}${item.sfMock.addressPath}`
-          : `${item.sfMock.programUrl}${item.sfMock.addressPath}`)
-    );
+    argData.projectList.forEach((item) => {
+      item.sfMock.openUrl = item.sfMock.nginxPort
+        ? `http://${ip}:${item.sfMock.nginxPort}${item.sfMock.addressPath}`
+        : `${item.sfMock.programUrl}${item.sfMock.addressPath}`;
+    });
     return {
       response: {
         code: 200,
