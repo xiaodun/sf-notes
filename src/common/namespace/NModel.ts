@@ -1,5 +1,5 @@
 import { SubscriptionsMapObject, EffectsCommandMap } from "dva";
-import { NMDTest, NMDNotes, NMDBook, NMDGlobal } from "umi";
+import { NMDTest, NMDNotes, NMDBook, NMDGlobal, NMDProject } from "umi";
 interface NModel<S> {
   namespace: string;
   state?: S;
@@ -18,6 +18,7 @@ namespace NModel {
     MDNotes = "MDNotes",
     MDBook = "MDBook",
     MDGlobal = "MDGlobal",
+    MDProject = "MDProject",
   }
   export class IAction<P = any> {
     type: string;
@@ -32,6 +33,7 @@ namespace NModel {
     [ENames.MDNotes]: NMDNotes.IState;
     [ENames.MDBook]: NMDBook.IState;
     [ENames.MDGlobal]: NMDGlobal.IState;
+    [ENames.MDProject]: NMDProject.IState;
   }
   export function dispatch(action: NModel.IAction) {
     window.umiDispatch({

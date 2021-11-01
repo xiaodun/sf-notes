@@ -1,0 +1,16 @@
+{
+    "command": {
+        "menuList": [
+            {
+                "name": "通用命令"
+            }
+        ]
+    },
+    "projectList": [
+        {
+            "rootPath": "D:\\github\\ncme-app-h5",
+            "name": "ncme-app-h5",
+            "id": 1632801322969
+        }
+    ]
+}
