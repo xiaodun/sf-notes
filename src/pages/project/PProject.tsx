@@ -1,7 +1,7 @@
 import { PageFooter } from "@/common/components/page";
 import NModel from "@/common/namespace/NModel";
 import NRouter from "@/../config/router/NRouter";
-import { Button, message, Space, Table, Tag } from "antd";
+import { Button, message, Space, Table, Tag, Typography } from "antd";
 import React, { useEffect, useRef } from "react";
 import { connect, ConnectRC, NMDProject } from "umi";
 import SelfStyle from "./LProject.less";
@@ -38,12 +38,13 @@ const Project: ConnectRC<IProjectProps> = (props) => {
             title: "项目名",
             key: "name",
             dataIndex: "name",
+            render: renderNameColumn,
           },
 
           {
             title: "操作",
             key: "_option",
-            render: renderOption,
+            render: renderOptionColumn,
           },
         ]}
         dataSource={MDProject.rsp.list}
@@ -75,7 +76,14 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       search: qs.stringify({ id: project.id }),
     });
   }
-  function renderOption(project: NProject) {
+  function renderNameColumn(name: string) {
+    return (
+      <Typography.Paragraph copyable={{ text: name }}>
+        {name}
+      </Typography.Paragraph>
+    );
+  }
+  function renderOptionColumn(project: NProject) {
     let startBlock, openBlock;
     if (project.sfMock) {
       if (project.web.isStart === null) {
@@ -110,7 +118,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   async function onStartProject(project: NProject) {
     const startRsp = await SSystem.startBat(project.sfMock.startBatPath);
     const newRsp = produce(MDProject.rsp, (drafState) => {
-      const item = drafState.list.find((item) => item.name === project.name);
+      const item = drafState.list.find((item) => item.name === name);
       item.web.isStart = null;
     });
     NModel.dispatch(
