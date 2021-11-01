@@ -6,7 +6,11 @@
     const isExist = argData.projectList.some(
       (item) => item.rootPath === argParams.rootPath
     );
+    //数据初始化
+    argParams.sfMock = {};
+
     if (isExist) {
+      //不能重复添加
       return {
         isWrite: false,
         response: {
@@ -21,12 +25,15 @@
       argParams.name = argParams.rootPath.split("\\").pop();
       argParams.id = Date.now();
       if (argParams.name === "sf-mock") {
+        //如果添加的项目是sf-mock
+
+        // 获得相关资源
+
         const programConfigPath = path_os.join(
           argParams.rootPath,
           "config",
           "programConfig.js"
         );
-
         const programConfigObj = eval(
           fs_os.readFileSync(programConfigPath, "utf-8")
         );
@@ -39,9 +46,10 @@
           fs_os.readFileSync(serviceConfigPath, "utf-8")
         );
 
+        // 对已添加的项目统一处理
         argData.projectList.forEach((item) => {
           const mockConfig = programConfigObj[item.name];
-
+          //写入启动命令的地址
           if (
             mockConfig.WindowsTerminal &&
             mockConfig.WindowsTerminal.tabList
@@ -77,6 +85,7 @@
           (item) => item.name == "sf-mock"
         );
         if (sfMockPrject) {
+          //sf-mock是否已被添加
           const programConfigPath = path_os.join(
             sfMockPrject.rootPath,
             "config",
@@ -90,6 +99,7 @@
           const mockConfig = programConfigObj[argParams.name];
 
           if (mockConfig) {
+            //为新添加的项目写入sf-mock涉及到的配置
             let serviceObj;
             if (mockConfig.serverList) {
               serviceObj = mockConfig.serverList.find((item) => item.isMock);
