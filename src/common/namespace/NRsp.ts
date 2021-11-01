@@ -1,4 +1,4 @@
-import { produce } from '..';
+import { produce } from "..";
 
 export interface NRsp<T = null> {
   success?: boolean;
@@ -7,10 +7,7 @@ export interface NRsp<T = null> {
   data?: T;
 }
 export namespace NRsp {
-  export function delItem<T>(
-    rsp: NRsp<T>,
-    del: (item: T) => boolean,
-  ) {
+  export function delItem<T>(rsp: NRsp<T>, del: (item: T) => boolean) {
     const newRsp = produce(rsp, (drafState: NRsp<T>) => {
       const index = drafState.list.findIndex(del);
       if (index !== -1) {
@@ -20,10 +17,7 @@ export namespace NRsp {
 
     return newRsp;
   }
-  export function addItem<T>(
-    rsp: NRsp<T>,
-    onAdd: (dataList: T[]) => T[],
-  ) {
+  export function addItem<T>(rsp: NRsp<T>, onAdd: (dataList: T[]) => T[]) {
     const newRsp = produce(rsp, (drafState: NRsp<T>) => {
       drafState.list = onAdd(drafState.list);
     });
@@ -32,7 +26,7 @@ export namespace NRsp {
   export function updateItem<T>(
     rsp: NRsp<T>,
     data: T,
-    onUpdate: (data: T) => boolean,
+    onUpdate: (data: T) => boolean
   ) {
     const newRsp = produce(rsp, (drafState: NRsp<T>) => {
       const index = drafState.list.findIndex(onUpdate);
@@ -43,7 +37,7 @@ export namespace NRsp {
   export function switchItem<T>(
     rsp: NRsp<T>,
     data: T,
-    onPos: () => { currentIndex: number; targetIndex: number },
+    onPos: () => { currentIndex: number; targetIndex: number }
   ) {
     const newRsp = produce(rsp, (drafState: NRsp<T>) => {
       const { currentIndex, targetIndex } = onPos();
