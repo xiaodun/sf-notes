@@ -6,6 +6,16 @@
     const isExist = argData.projectList.some(
       (item) => item.rootPath === argParams.rootPath
     );
+    let ip = "";
+    let network = os.networkInterfaces();
+    for (let key in network) {
+      let env = network[key];
+      for (var i = 0; i < env.length; i++) {
+        if (env[i].family == "IPv4" && env[i].address != "127.0.0.1") {
+          ip = env[i].address;
+        }
+      }
+    }
     //数据初始化
     argParams.sfMock = {};
 
@@ -72,6 +82,12 @@
                   `${item.name}.bat`
                 ),
               };
+              //计算openUrl
+              let { programUrl, addressPath, nginxPort } = item.sfMock;
+              if (nginxPort) {
+                programUrl = `http://${ip}:${nginxPort}`;
+              }
+              item.sfMock.openUrl = programUrl + addressPath;
             }
           }
         });
@@ -123,6 +139,12 @@
                     `${argParams.name}.bat`
                   ),
                 };
+                //计算openUrl
+                let { programUrl, addressPath, nginxPort } = argParams.sfMock;
+                if (nginxPort) {
+                  programUrl = `http://${ip}:${nginxPort}`;
+                }
+                argParams.sfMock.openUrl = programUrl + addressPath;
               }
             }
           }
