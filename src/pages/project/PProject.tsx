@@ -116,7 +116,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         <Button type="link" onClick={() => onGoOverview(project)}>
           进入总览
         </Button>
-        {!project.isSfMock && (
+        {project.sfMock.nginxPort && (
           <Button type="link" onClick={() => onGoSwagger(project)}>
             Swagger
           </Button>
