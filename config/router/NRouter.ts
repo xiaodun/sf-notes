@@ -12,6 +12,7 @@ export namespace NRouter {
   export const projectPath = "/project";
   export const projectOverviewPath = projectPath + "/overview";
   export const projectCommandPath = projectPath + "/command";
+  export const projectSwaggerPath = projectPath + "/swagger";
   export const routes: IRoute[] = [
     {
       path: rootPath,
@@ -66,6 +67,11 @@ export namespace NRouter {
     {
       path: projectCommandPath,
       component: "." + projectCommandPath,
+      wrappers: [rootComponentPath],
+    },
+    {
+      path: projectSwaggerPath,
+      component: "." + projectSwaggerPath,
       wrappers: [rootComponentPath],
     },
   ];

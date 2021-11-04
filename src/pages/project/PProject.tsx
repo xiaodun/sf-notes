@@ -70,6 +70,12 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       message.error(addRsp.message);
     }
   }
+  function onGoSwagger(project = {} as NProject) {
+    props.history.push({
+      pathname: NRouter.projectSwaggerPath,
+      search: qs.stringify({ id: project.id }),
+    });
+  }
   function onGoOverview(project = {} as NProject) {
     props.history.push({
       pathname: NRouter.projectOverviewPath,
@@ -110,6 +116,9 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         <Button type="link" onClick={() => onGoOverview(project)}>
           进入总览
         </Button>
+        <Button type="link" onClick={() => onGoSwagger(project)}>
+          Swagger
+        </Button>
         {startBlock}
         {openBlock}
       </Space>
@@ -118,7 +127,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   async function onStartProject(project: NProject) {
     const startRsp = await SSystem.startBat(project.sfMock.startBatPath);
     const newRsp = produce(MDProject.rsp, (drafState) => {
-      const item = drafState.list.find((item) => item.name === name);
+      const item = drafState.list.find((item) => item.name === project.name);
       item.web.isStart = null;
     });
     NModel.dispatch(
