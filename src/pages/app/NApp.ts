@@ -18,6 +18,10 @@ namespace NApp {
       path: NRouter.filePath,
     },
     {
+      name: "活动领取",
+      path: NRouter.activityPath,
+    },
+    {
       name: "写书籍",
       path: NRouter.bookPath,
     },
