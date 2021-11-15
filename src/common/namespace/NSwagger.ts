@@ -24,14 +24,19 @@ export namespace NSwagger {
         required?: boolean;
         format?: string;
         items?: {
-          type?: string;
+          type?: "boolean" | "number" | "string";
 
           $ref?: string;
           originalRef?: string;
         };
+
         enum: string[];
+        originalRef?: string;
         description: string;
       };
+    };
+    additionalProperties?: {
+      type: string;
     };
     required: string[];
     title: string;
@@ -50,14 +55,23 @@ export namespace NSwagger {
       originalRef: string;
     };
   }
+  export interface IResponseInfo {
+    description: string;
+    schema?: {
+      originalRef?: string;
+      type: "array";
+      items: {
+        type?: "string" | "number" | "boolean";
+        originalRef: string;
+      };
+    };
+  }
   export interface IMethodInfos {
     deprecated: boolean;
     operationId: string;
     parameters: IParametersInfos[];
     responses: {
-      [key: number]: {
-        description: string;
-      };
+      [key: string]: IResponseInfo;
     }[];
     summary: string;
     tags: string[];

@@ -22,11 +22,6 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   const swaggerModalRef = useRef<IEnterSwaggerModal>();
 
   useEffect(() => {
-    NModel.dispatch(
-      new NMDGlobal.ARChangeSetting({
-        controlLayout: false,
-      })
-    );
     pageSetup();
   }, []);
   const urlQuery = (qs.parse(window.location.search, {
