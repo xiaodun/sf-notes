@@ -42,9 +42,118 @@ export namespace USwagger {
       tags: methodInfos.tags,
     };
     //解析入参
-
     obj.parameters = parseParameterList(methodInfos.parameters, definitions);
+    // 解析返回格式
+    console.log("wx", pathUrl);
+    obj.responses = parseResponseInfo(methodInfos, definitions);
     return obj;
+  }
+  export function parseResponseInfo(
+    methodInfos: NSwagger.IMethodInfos,
+    definitions: NSwagger.IDefinitions
+  ) {
+    let obj = { children: [] } as NProject.IRenderResponsesInfo;
+    if (methodInfos?.responses?.["200"]?.schema) {
+      const { schema } = (methodInfos.responses[
+        "200"
+      ] as unknown) as NSwagger.IResponseInfo;
+      if (schema.originalRef) {
+        obj.type = "object";
+        obj.children = fillResponseDefinitions(schema.originalRef, definitions);
+      } else {
+        if (schema.type === "array") {
+          if (schema.items.originalRef) {
+            obj.type = "array";
+            obj.children = fillResponseDefinitions(
+              schema.items.originalRef,
+              definitions
+            );
+          } else {
+            //普通数组
+            obj = {
+              type: schema.type,
+              itemsType: schema.items.type,
+            };
+          }
+        }
+        if (schema.type === "array") {
+        } else {
+          //基本类型
+          obj = {
+            type: schema.type,
+          };
+        }
+      }
+    }
+    return obj;
+  }
+  export function fillResponseDefinitions(
+    originalRef: string,
+    definitions: NSwagger.IDefinitions
+  ) {
+    let list: NProject.IRenderResponsesInfo[] = [];
+    function able(
+      currentDef: NSwagger.IDefinition,
+      ableList: NProject.IRenderResponsesInfo[],
+      passDefinitionList: NSwagger.IDefinition[] = []
+    ) {
+      if (currentDef) {
+        const count = passDefinitionList.reduce((total, cur) => {
+          if (currentDef === cur) {
+            total++;
+          }
+          return total;
+        }, 0);
+        if (currentDef.properties) {
+          Object.keys(currentDef.properties).forEach((key) => {
+            const values = currentDef.properties[key];
+            if (values.originalRef) {
+              const item = {
+                name: key,
+                format: values.format,
+                type: values.type,
+                children: [],
+              } as NProject.IRenderResponsesInfo;
+              if (count < 2) {
+                able(definitions[values.originalRef], item.children, [
+                  ...passDefinitionList,
+                  definitions[values.originalRef],
+                  currentDef,
+                ]);
+              }
+              ableList.push(item);
+            } else if (values.type === "array") {
+              const item = {
+                name: key,
+                format: values.format,
+                type: values.type,
+                children: [],
+              } as NProject.IRenderResponsesInfo;
+              if (values.items?.originalRef) {
+                if (count < 2) {
+                  able(definitions[values.items?.originalRef], item.children, [
+                    ...passDefinitionList,
+                    currentDef,
+                    definitions[values.items?.originalRef],
+                  ]);
+                }
+              } else {
+                item.itemsType = values.items.type;
+              }
+              ableList.push(item);
+            } else {
+              ableList.push({ ...values, name: key });
+            }
+          });
+        } else {
+          console.warn("该定义没有properties", originalRef);
+        }
+      } else {
+        console.warn("未找到的定义", originalRef);
+      }
+    }
+    able(definitions[originalRef], list);
+    return list;
   }
   export function fillParamsDefinitions(
     originalRef: string,
@@ -73,7 +182,6 @@ export namespace USwagger {
           } as NProject.IRenderParameterInfo;
           ableList.push(paramInfo);
           if (values.items) {
-            console.log("wx", values.items);
             if (values.items.type) {
               paramInfo.itemsType = values.items.type;
             } else if (values.items.originalRef) {

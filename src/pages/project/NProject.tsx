@@ -34,12 +34,21 @@ export namespace NProject {
     itemsType?: string;
     children: IRenderParameterInfo[];
   }
+  export interface IRenderResponsesInfo {
+    type: "array" | "boolean" | "number" | "string" | "object";
+    itemsType?: "boolean" | "number" | "string";
+    description?: string;
+    children?: IRenderResponsesInfo[];
+    name?: string;
+    format?: string;
+  }
   export interface IRenderMethodInfo {
     pathUrl: string;
     method: string;
     summary: string;
     tags: string[];
     parameters?: IRenderParameterInfo[];
+    responses?: IRenderResponsesInfo;
   }
   export interface IRenderSwaggerInfo {
     [key: string]: {
