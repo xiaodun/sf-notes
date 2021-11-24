@@ -44,7 +44,6 @@ export namespace USwagger {
     //解析入参
     obj.parameters = parseParameterList(methodInfos.parameters, definitions);
     // 解析返回格式
-    console.log("wx", pathUrl);
     obj.responses = parseResponseInfo(methodInfos, definitions);
     return obj;
   }
