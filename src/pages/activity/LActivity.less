@@ -7,4 +7,23 @@
       margin-left: 20px;
     }
   }
+  .tipWrap {
+    max-width: 400px;
+    margin-top: 20px;
+
+    .tipBlock {
+      display: flex;
+      max-width: 400px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      .name {
+        flex-shrink: 0;
+        font-weight: bold;
+      }
+      .value {
+        flex-grow: 1;
+        word-break: break-all;
+      }
+    }
+  }
 }
