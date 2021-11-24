@@ -175,7 +175,6 @@ const EnterSwaggerModal: ForwardRefRenderFunction<IEnterSwaggerModal> = (
           });
         });
       });
-      console.log("wx", renderSwaggerInfos);
     });
   }
 };
