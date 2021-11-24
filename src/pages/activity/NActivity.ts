@@ -2,8 +2,7 @@ export interface NActivity {
   name: string;
   weight?: number;
   isClose?: boolean;
-  href?: string;
-  currentHref?: string;
+  tips?: string;
   children?: NActivity[];
 }
 export namespace NActivity {

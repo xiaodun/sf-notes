@@ -62,8 +62,29 @@ const PActivity: ConnectRC<PActivityProps> = (props) => {
           );
         })}
       </Space>
+      <div className={SelfStyle.tipWrap}>
+        {getActivityTipList().map((item) => item)}
+      </div>
     </div>
   );
+  function getActivityTipList() {
+    let tipBlockList: React.ReactNode[] = [];
+
+    activityConfigList.forEach((activityConfig) => {
+      const selectActivity = activityConfig.children.find(
+        (item) => activityConfig.selectValue === item.name
+      );
+      if (selectActivity?.tips) {
+        tipBlockList.push(
+          <div key={tipBlockList.length} className={SelfStyle.tipBlock}>
+            <div className={SelfStyle.name}>{selectActivity.name} : </div>
+            <div className={SelfStyle.value}>{selectActivity.tips}</div>
+          </div>
+        );
+      }
+    });
+    return tipBlockList;
+  }
   function setActivityLine(
     name: string,
     activityConfigs: NActivity.ISelectCell,
