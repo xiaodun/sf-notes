@@ -21,12 +21,6 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   const { MDProject } = props;
   const swaggerModalRef = useRef<IEnterSwaggerModal>();
 
-  useEffect(() => {
-    pageSetup();
-  }, []);
-  const urlQuery = (qs.parse(window.location.search, {
-    ignoreQueryPrefix: true,
-  }) as {}) as NProject.IUrlQuery;
   return (
     <>
       <EnterSwaggerModal ref={swaggerModalRef}></EnterSwaggerModal>
@@ -43,17 +37,6 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   );
   function openEnterSwaggerModal() {
     swaggerModalRef.current.showModal();
-  }
-  async function pageSetup() {
-    const rsp = await SProject.getProject(urlQuery.id);
-    if (rsp.success) {
-      NModel.dispatch(
-        new NMDProject.ARSetState({
-          project: rsp.data,
-        })
-      );
-      document.title = rsp.data.name;
-    }
   }
 };
 export default connect(({ MDProject, MDGlobal }: NModel.IState) => ({
