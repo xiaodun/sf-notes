@@ -57,6 +57,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       <PageFooter>
         <Button onClick={onShowAddModal}>添加项目</Button>
         <Button onClick={onGoCommand}>命令管理</Button>
+        <Button onClick={onGoSwagger}>Swagger</Button>
       </PageFooter>
     </div>
   );
@@ -70,10 +71,9 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       message.error(addRsp.message);
     }
   }
-  function onGoSwagger(project = {} as NProject) {
+  function onGoSwagger() {
     props.history.push({
       pathname: NRouter.projectSwaggerPath,
-      search: qs.stringify({ id: project.id }),
     });
   }
   function onGoOverview(project = {} as NProject) {
@@ -116,11 +116,6 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         <Button type="link" onClick={() => onGoOverview(project)}>
           进入总览
         </Button>
-        {project.sfMock.nginxPort && (
-          <Button type="link" onClick={() => onGoSwagger(project)}>
-            Swagger
-          </Button>
-        )}
 
         {startBlock}
         {openBlock}
