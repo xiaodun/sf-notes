@@ -1,3 +1,5 @@
+import NSwagger from "@/common/namespace/NSwagger";
+
 export interface NProject {
   id?: number;
   name: string;
@@ -35,8 +37,8 @@ export namespace NProject {
     children: IRenderParameterInfo[];
   }
   export interface IRenderResponsesInfo {
-    type: "array" | "boolean" | "number" | "string" | "object";
-    itemsType?: "boolean" | "number" | "string";
+    type: NSwagger.TType;
+    itemsType?: NSwagger.TType;
     description?: string;
     children?: IRenderResponsesInfo[];
     name?: string;

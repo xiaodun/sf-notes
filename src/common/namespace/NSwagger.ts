@@ -1,5 +1,6 @@
 export interface NSwagger {}
 export namespace NSwagger {
+  export type TType = "object" | "array" | "string" | "number" | "boolean";
   export interface IGroup {
     name: string;
     url: string;
@@ -20,11 +21,11 @@ export namespace NSwagger {
   export interface IDefinition {
     properties: {
       [key: string]: {
-        type: "array" | "string";
+        type: TType;
         required?: boolean;
         format?: string;
         items?: {
-          type?: "boolean" | "number" | "string";
+          type?: TType;
 
           $ref?: string;
           originalRef?: string;
@@ -36,11 +37,11 @@ export namespace NSwagger {
       };
     };
     additionalProperties?: {
-      type: string;
+      type: TType;
     };
     required: string[];
     title: string;
-    type: "object";
+    type: TType;
   }
   export interface IDefinitions {
     [key: string]: IDefinition;
@@ -49,19 +50,21 @@ export namespace NSwagger {
     description: string;
     in: string;
     name: string;
+    type: TType;
     required: boolean;
     schema: {
       $ref: string;
       originalRef: string;
+      type: TType;
     };
   }
   export interface IResponseInfo {
     description: string;
     schema?: {
       originalRef?: string;
-      type: "array";
+      type: TType;
       items: {
-        type?: "string" | "number" | "boolean";
+        type?: TType;
         originalRef: string;
       };
     };

@@ -106,11 +106,15 @@ export namespace USwagger {
         if (currentDef.properties) {
           Object.keys(currentDef.properties).forEach((key) => {
             const values = currentDef.properties[key];
+            let type = values.type;
             if (values.originalRef) {
+              if (!values.type) {
+                type = definitions[values.originalRef].type;
+              }
               const item = {
                 name: key,
                 format: values.format,
-                type: values.type,
+                type,
                 children: [],
               } as NProject.IRenderResponsesInfo;
               if (count < 2) {
@@ -185,13 +189,26 @@ export namespace USwagger {
               paramInfo.itemsType = values.items.type;
             } else if (values.items.originalRef) {
               const count = passOriginalList.reduce((total, pre) => {
-                if (pre === originalRef) {
+                if (pre === values.items.originalRef) {
                   total++;
                 }
                 return total;
               }, 0);
               if (count < 2) {
                 able(definitions[values.items.originalRef], paramInfo.children);
+              }
+            }
+          } else {
+            if (values.originalRef) {
+              paramInfo.type = definitions[values.originalRef]?.type;
+              const count = passOriginalList.reduce((total, pre) => {
+                if (pre === originalRef) {
+                  total++;
+                }
+                return total;
+              }, 0);
+              if (count < 2) {
+                able(definitions[values.originalRef], paramInfo.children);
               }
             }
           }
@@ -217,11 +234,17 @@ export namespace USwagger {
           name: arg.name,
           required: arg.required,
           children: [],
+          type: arg.type,
         };
         list.push(data);
-        if (arg.schema && arg.schema.originalRef) {
-          let originalRef = arg.schema.originalRef;
-          data.children = fillParamsDefinitions(originalRef, definitions);
+        if (arg.schema) {
+          if (arg.schema.originalRef) {
+            let originalRef = arg.schema.originalRef;
+            data.type = definitions[originalRef]?.type;
+            data.children = fillParamsDefinitions(originalRef, definitions);
+          } else {
+            data.type = arg.schema.type;
+          }
         }
       });
     }
