@@ -3,6 +3,22 @@ import NProject from "./NProject";
 import request from "@/utils/request";
 
 namespace SProject {
+  export async function saveSwagger(
+    data: NProject.IDomainSwagger
+  ): Promise<NRsp<boolean>> {
+    return request({
+      url: "/project/saveSwagger",
+      method: "post",
+      data,
+    });
+  }
+  export async function getSwaggerList(): Promise<
+    NRsp<NProject.IDomainSwagger>
+  > {
+    return request({
+      url: "/project/getSwagger",
+    });
+  }
   export async function isProjectStart(url: string): Promise<NRsp<boolean>> {
     return request({
       url: "/project/isProjectStart",

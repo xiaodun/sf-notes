@@ -15,8 +15,12 @@ import USwagger from "@/common/utils/USwagger";
 import NSwagger from "@/common/namespace/NSwagger";
 import SelfStyle from "./EnterSwaggerModal.less";
 import NProject from "../../NProject";
+import SProject from "../../SProject";
 export interface IEnterSwaggerModal {
   showModal: () => void;
+}
+export interface IEnterSwaggerProps {
+  onOk: () => void;
 }
 export interface IEnterSwaggerModalState {
   visible: boolean;
@@ -28,10 +32,10 @@ const defaultState: IEnterSwaggerModalState = {
   isAnalysisMode: false,
   parseNodeList: [],
 };
-const EnterSwaggerModal: ForwardRefRenderFunction<IEnterSwaggerModal> = (
-  props,
-  ref
-) => {
+const EnterSwaggerModal: ForwardRefRenderFunction<
+  IEnterSwaggerModal,
+  IEnterSwaggerProps
+> = (props, ref) => {
   const [state, setState] = useState<IEnterSwaggerModalState>(defaultState);
   const [form] = Form.useForm();
   const urlInputRef = useRef<Input>();
@@ -100,11 +104,8 @@ const EnterSwaggerModal: ForwardRefRenderFunction<IEnterSwaggerModal> = (
   );
 
   function onCancel() {
-    setState(
-      produce(state, (drafState) => {
-        drafState.visible = false;
-      })
-    );
+    setState(defaultState);
+    form.resetFields();
   }
   async function onOk() {
     form.validateFields().then(async (values) => {
@@ -175,6 +176,14 @@ const EnterSwaggerModal: ForwardRefRenderFunction<IEnterSwaggerModal> = (
           });
         });
       });
+      const saveRsp = await SProject.saveSwagger({
+        data: renderSwaggerInfos,
+        domain: url.origin,
+      });
+      if (saveRsp.success) {
+        onCancel();
+        props.onOk();
+      }
     });
   }
 };
