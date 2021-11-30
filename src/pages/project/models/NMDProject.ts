@@ -6,6 +6,7 @@ export namespace NMDProject {
   export interface IState {
     rsp: NRsp<NProject>;
     project: NProject;
+    domainSwaggerList: NProject.IDomainSwagger[];
     commonMenuList: NProject.ICommandMenu[];
   }
   class Action<P> extends NModel.IAction<P> {
@@ -18,7 +19,9 @@ export namespace NMDProject {
 
 export default {
   namespace: NModel.ENames.MDProject,
+
   state: {
+    domainSwaggerList: [],
     rsp: {
       list: [],
     },

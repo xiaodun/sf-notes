@@ -20,10 +20,15 @@ export interface IPProjectSwaggerProps {
 const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   const { MDProject } = props;
   const swaggerModalRef = useRef<IEnterSwaggerModal>();
-
+  useEffect(() => {
+    reqGetSwagger();
+  }, []);
   return (
     <>
-      <EnterSwaggerModal ref={swaggerModalRef}></EnterSwaggerModal>
+      <EnterSwaggerModal
+        ref={swaggerModalRef}
+        onOk={reqGetSwagger}
+      ></EnterSwaggerModal>
       <div className={SelfStyle.main}>
         <div className={SelfStyle.optionWrap}>
           <Button onClick={openEnterSwaggerModal}>录入</Button>
@@ -35,6 +40,16 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       </div>
     </>
   );
+  async function reqGetSwagger() {
+    const rsp = await SProject.getSwaggerList();
+    if (rsp.success) {
+      NModel.dispatch(
+        new NMDProject.ARSetState({
+          domainSwaggerList: rsp.list,
+        })
+      );
+    }
+  }
   function openEnterSwaggerModal() {
     swaggerModalRef.current.showModal();
   }

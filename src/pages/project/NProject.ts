@@ -18,6 +18,13 @@ export interface NProject {
   };
 }
 export namespace NProject {
+  export interface IDomainSwagger {
+    id: number;
+    domain: string;
+    createTime: number;
+    updateTime: number;
+    data: IRenderSwaggerInfo;
+  }
   export interface IUrlQuery {
     id: number;
   }
