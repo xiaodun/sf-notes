@@ -6,9 +6,20 @@
 .contentWrap {
   display: flex;
   flex-grow: 1;
+  height: 0;
   .apiMenu {
     flex-grow: 0;
-    width: 420px;
+    width: 450px;
+    overflow-y: auto;
+    :global {
+      .ant-menu {
+        height: 100%;
+      }
+    }
+    .pathValue {
+      color: #333;
+      font-weight: bold;
+    }
   }
   .apiDoc {
     flex-grow: 1;
