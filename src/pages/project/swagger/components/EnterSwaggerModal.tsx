@@ -76,7 +76,7 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
           name="url"
           rules={[{ required: true }, { type: "url" }]}
         >
-          <Input ref={urlInputRef} />
+          <Input ref={urlInputRef} onPressEnter={onOk} />
         </Form.Item>
       </Form>
     </Modal>
