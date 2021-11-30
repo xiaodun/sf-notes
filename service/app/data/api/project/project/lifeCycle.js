@@ -10,18 +10,22 @@
     return {
       createFloder: function (createFloder, external) {
         external.getBaseStructure = (argData) => {
+          let baseData = {
+            command: {
+              menuList: [
+                {
+                  name: "通用命令",
+                },
+              ],
+            },
+            projectList: [],
+          };
           if (!argData) {
-            return {
-              command: {
-                menuList: [
-                  {
-                    name: "通用命令",
-                  },
-                ],
-              },
-              projectList: [],
-              swaggerList: [],
-            };
+            return baseData;
+          }
+
+          if (!argData.swaggerList) {
+            argData.swaggerList = [];
           }
 
           return argData;
