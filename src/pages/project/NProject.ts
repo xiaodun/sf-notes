@@ -32,32 +32,25 @@ export namespace NProject {
     name: string;
     children?: ICommandMenu[];
   }
-  export interface IRenderParameterInfo {
-    description: string;
+  export interface IRenderFormatInfo {
+    key: string;
+    description?: string;
     name: string;
-    required: boolean;
+    required?: boolean;
     format?: string;
-    type?: string;
+    type?: NSwagger.TType;
     enum?: string[];
     schema?: string;
     itemsType?: string;
-    children: IRenderParameterInfo[];
-  }
-  export interface IRenderResponsesInfo {
-    type: NSwagger.TType;
-    itemsType?: NSwagger.TType;
-    description?: string;
-    children?: IRenderResponsesInfo[];
-    name?: string;
-    format?: string;
+    children: IRenderFormatInfo[];
   }
   export interface IRenderMethodInfo {
     pathUrl: string;
     method: string;
     summary: string;
     tags: string[];
-    parameters?: IRenderParameterInfo[];
-    responses?: IRenderResponsesInfo;
+    parameters?: IRenderFormatInfo[];
+    responses?: IRenderFormatInfo[];
   }
   export interface IRenderSwaggerInfo {
     [key: string]: {
