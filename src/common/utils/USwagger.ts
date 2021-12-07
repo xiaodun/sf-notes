@@ -51,7 +51,11 @@ export namespace USwagger {
     methodInfos: NSwagger.IMethodInfos,
     definitions: NSwagger.IDefinitions
   ) {
-    let obj = { children: [] } as NProject.IRenderResponsesInfo;
+    let obj = {
+      key: Math.random() + "",
+      name: "rsp",
+      children: [],
+    } as NProject.IRenderFormatInfo;
     if (methodInfos?.responses?.["200"]?.schema) {
       const { schema } = (methodInfos.responses[
         "200"
@@ -70,6 +74,8 @@ export namespace USwagger {
           } else {
             //普通数组
             obj = {
+              ...obj,
+
               type: schema.type,
               itemsType: schema.items.type,
             };
@@ -79,21 +85,22 @@ export namespace USwagger {
         } else {
           //基本类型
           obj = {
+            ...obj,
             type: schema.type,
           };
         }
       }
     }
-    return obj;
+    return [obj];
   }
   export function fillResponseDefinitions(
     originalRef: string,
     definitions: NSwagger.IDefinitions
   ) {
-    let list: NProject.IRenderResponsesInfo[] = [];
+    let list: NProject.IRenderFormatInfo[] = [];
     function able(
       currentDef: NSwagger.IDefinition,
-      ableList: NProject.IRenderResponsesInfo[],
+      ableList: NProject.IRenderFormatInfo[],
       passDefinitionList: NSwagger.IDefinition[] = []
     ) {
       if (currentDef) {
@@ -112,11 +119,13 @@ export namespace USwagger {
                 type = definitions[values.originalRef].type;
               }
               const item = {
+                key: Math.random() + "",
                 name: key,
                 format: values.format,
+                description: values.description,
                 type,
                 children: [],
-              } as NProject.IRenderResponsesInfo;
+              } as NProject.IRenderFormatInfo;
               if (count < 2) {
                 able(definitions[values.originalRef], item.children, [
                   ...passDefinitionList,
@@ -127,11 +136,13 @@ export namespace USwagger {
               ableList.push(item);
             } else if (values.type === "array") {
               const item = {
+                key: Math.random() + "",
                 name: key,
                 format: values.format,
                 type: values.type,
+                description: values.description,
                 children: [],
-              } as NProject.IRenderResponsesInfo;
+              } as NProject.IRenderFormatInfo;
               if (values.items?.originalRef) {
                 if (count < 2) {
                   able(definitions[values.items?.originalRef], item.children, [
@@ -142,10 +153,17 @@ export namespace USwagger {
                 }
               } else {
                 item.itemsType = values.items.type;
+                item.enum = values.items.enum;
               }
               ableList.push(item);
             } else {
-              ableList.push({ ...values, name: key });
+              ableList.push({
+                ...values,
+                name: key,
+                key: Math.random() + "",
+                description: values.description,
+                children: [],
+              });
             }
           });
         } else {
@@ -162,12 +180,12 @@ export namespace USwagger {
     originalRef: string,
     definitions: NSwagger.IDefinitions
   ) {
-    let returnList: NProject.IRenderParameterInfo[] = [];
+    let returnList: NProject.IRenderFormatInfo[] = [];
     let passOriginalList: string[] = [];
 
     function able(
       currentDef: NSwagger.IDefinition,
-      ableList: NProject.IRenderParameterInfo[]
+      ableList: NProject.IRenderFormatInfo[]
     ) {
       passOriginalList.push(originalRef);
       if (currentDef) {
@@ -181,8 +199,9 @@ export namespace USwagger {
             required: currentDef.required && currentDef.required.includes(item),
             format: values.format,
             children: [],
-            enum: values.enum,
-          } as NProject.IRenderParameterInfo;
+            enum: values.enum || values.items?.enum,
+            key: item + Math.random(),
+          } as NProject.IRenderFormatInfo;
           ableList.push(paramInfo);
           if (values.items) {
             if (values.items.type) {
@@ -225,16 +244,17 @@ export namespace USwagger {
     parameterList: NSwagger.IParametersInfos[],
     definitions: NSwagger.IDefinitions
   ) {
-    let list: NProject.IRenderParameterInfo[] = null;
+    let list: NProject.IRenderFormatInfo[] = null;
     if (parameterList && parameterList.length > 0) {
       list = [];
       parameterList.forEach((arg) => {
-        const data: NProject.IRenderParameterInfo = {
+        const data: NProject.IRenderFormatInfo = {
           description: arg.description,
           name: arg.name,
           required: arg.required,
           children: [],
           type: arg.type,
+          key: arg.name + Math.random(),
         };
         list.push(data);
         if (arg.schema) {
@@ -242,6 +262,12 @@ export namespace USwagger {
             let originalRef = arg.schema.originalRef;
             data.type = definitions[originalRef]?.type;
             data.children = fillParamsDefinitions(originalRef, definitions);
+          } else if (arg.schema.items) {
+            data.type = arg.schema.type;
+            data.children = fillParamsDefinitions(
+              arg.schema.items.originalRef,
+              definitions
+            );
           } else {
             data.type = arg.schema.type;
           }

@@ -26,7 +26,7 @@ export namespace NSwagger {
         format?: string;
         items?: {
           type?: TType;
-
+          enum?: string[];
           $ref?: string;
           originalRef?: string;
         };
@@ -56,6 +56,9 @@ export namespace NSwagger {
       $ref: string;
       originalRef: string;
       type: TType;
+      items?: {
+        originalRef: string;
+      };
     };
   }
   export interface IResponseInfo {
