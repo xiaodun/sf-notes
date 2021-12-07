@@ -139,17 +139,6 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         })
       );
     }
-    setTimeout(() => {
-      /**
-          admin 医生信息 /d/admin/doctor/auditStatusList  没参数
-       *   账号管理接口相关接口 /d/admin/account/cancel 有参数
-       */
-      setRendMethodInfos(
-        rsp.list[0].data["background-admin"].tags["评论管理后台管理接口"].paths[
-          "/d/admin/article/comment/listReportingCommentPage"
-        ]
-      );
-    });
   }
   function renderSwaggerUI() {
     let contentNode: ReactNode = null;
