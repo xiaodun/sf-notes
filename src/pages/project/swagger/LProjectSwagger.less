@@ -16,6 +16,9 @@
     width: 450px;
     overflow-y: auto;
     :global {
+      .ant-checkbox-wrapper {
+        margin-right: 6px;
+      }
       .ant-menu {
         height: 100%;
       }
@@ -40,6 +43,16 @@
     padding-left: 25px;
     overflow-y: auto;
     background-color: #f5f5f5;
+    .ableWrap {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 15px;
+      :global {
+        .ant-btn {
+          margin-left: 10px;
+        }
+      }
+    }
     .baseInfo {
       margin-top: 20px;
       .itemWrap {

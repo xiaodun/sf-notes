@@ -1,6 +1,17 @@
 import NModel from "@/common/namespace/NModel";
 import NRouter from "@/../config/router/NRouter";
-import { Alert, Button, Menu, Space, Table, TableProps, Tag } from "antd";
+import {
+  Alert,
+  Button,
+  Checkbox,
+  Dropdown,
+  Menu,
+  Space,
+  Table,
+  TableProps,
+  Tabs,
+  Tag,
+} from "antd";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { connect, ConnectRC, NMDGlobal, NMDProject } from "umi";
 import SelfStyle from "./LProjectSwagger.less";
@@ -12,6 +23,10 @@ import NProject from "../NProject";
 import classNames from "classnames";
 import { DownloadOutlined, UploadOutlined } from "@ant-design/icons";
 import NSwagger from "@/common/namespace/NSwagger";
+import UCopy from "@/common/utils/UCopy";
+import { isEqual, values } from "lodash";
+import produce from "immer";
+import { CheckboxChangeEvent } from "antd/es/checkbox";
 
 export interface IPProjectSwaggerProps {
   MDProject: NMDProject.IState;
@@ -23,10 +38,20 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   const swaggerModalRef = useRef<IEnterSwaggerModal>();
   const [
     rendMethodInfos,
-    setRendMethodInfos,
+    setRenderMethodInfos,
   ] = useState<NProject.IRenderMethodInfo>(null);
+
+  const [
+    currentMenuCheckbox,
+    setCurrentMenuCheckbox,
+  ] = useState<NProject.IMenuCheckbox>(null);
+  const [menActiveTabKey, setMenActiveTabKey] = useState<string>("domain");
+  const [myAttentionChecked, setMyAttentionChecked] = useState<boolean>(false);
+
   useEffect(() => {
+    reqGetApiPrefix();
     reqGetSwagger();
+    reqGetAttentionList();
   }, []);
   const desColumnWidth = 450;
   const swaggerTableProps: TableProps<any> = {
@@ -59,14 +84,14 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                 <span>{record.description} 枚举:</span>
                 {record.enum.map((item, index) => {
                   return (
-                    <>
+                    <span key={index}>
                       {item}
                       {index !== record.enum.length - 1 && (
                         <span style={{ color: "#a64942", padding: "0 4px" }}>
                           |
                         </span>
                       )}
-                    </>
+                    </span>
                   );
                 })}
               </>
@@ -120,7 +145,33 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       ></EnterSwaggerModal>
       <div className={SelfStyle.main}>
         <div className={SelfStyle.optionWrap}>
-          <Button onClick={openEnterSwaggerModal}>录入</Button>
+          <Space direction="horizontal" size={20}>
+            <Button onClick={openEnterSwaggerModal}>录入</Button>
+            <Dropdown.Button
+              overlay={
+                <Menu>
+                  <Menu.Item key="attention" onClick={onBatchPathAttention}>
+                    关注
+                  </Menu.Item>
+                  <Menu.Item
+                    key="cancelAttention"
+                    onClick={onBatchCancelPathAttention}
+                  >
+                    取消关注
+                  </Menu.Item>
+                  <Menu.Item key="createAjaxCode">生成ajax代码</Menu.Item>
+                  <Menu.Item
+                    key="cancelMenuChecked"
+                    onClick={onCancelMenuChecked}
+                  >
+                    取消选中
+                  </Menu.Item>
+                </Menu>
+              }
+            >
+              批量操作
+            </Dropdown.Button>
+          </Space>
         </div>
         <div className={SelfStyle.contentWrap}>
           <div className={SelfStyle.apiMenu}>{getApiMenu()}</div>
@@ -130,6 +181,26 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       </div>
     </>
   );
+  async function reqGetAttentionList() {
+    const rsp = await SProject.getAttentionList();
+    if (rsp.success) {
+      NModel.dispatch(
+        new NMDProject.ARSetState({
+          attentionPathList: rsp.list,
+        })
+      );
+    }
+  }
+  async function reqGetApiPrefix() {
+    const rsp = await SProject.getApiPrefixs();
+    if (rsp.success) {
+      NModel.dispatch(
+        new NMDProject.ARSetState({
+          apiPrefixs: rsp.data,
+        })
+      );
+    }
+  }
   async function reqGetSwagger() {
     const rsp = await SProject.getSwaggerList();
     if (rsp.success) {
@@ -145,23 +216,64 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     if (rendMethodInfos) {
       contentNode = (
         <div key={Math.random()} className={SelfStyle.apiDoc}>
+          <div className={SelfStyle.ableWrap}>
+            {menActiveTabKey === "attentionList" ? (
+              <Button type="default" onClick={onCancelAttentionPath}>
+                取消关注
+              </Button>
+            ) : (
+              <Button type="default" onClick={onAttentionPath}>
+                关注
+              </Button>
+            )}
+
+            <Button type="default">生成ajax代码</Button>
+          </div>
           <div className={SelfStyle.baseInfo}>
             <div className={SelfStyle.itemWrap}>
-              <div className="label">网关</div>
-              <div className="content"></div>
+              <div className="label">前缀</div>
+              <div className="content">
+                {renderApiPrefix(rendMethodInfos.pathUrl)}
+              </div>
             </div>
             <div className={SelfStyle.itemWrap}>
               <div className="label">路径</div>
               <div className="content">
                 {rendMethodInfos.pathUrl}
-                <Button type="link">复制</Button>
-                <Button type="link">带网关复制</Button>
+                <Button
+                  type="link"
+                  onClick={() => onCopyPathUrl(rendMethodInfos.pathUrl, false)}
+                >
+                  复制
+                </Button>
+                <Button
+                  type="link"
+                  onClick={() => onCopyPathUrl(rendMethodInfos.pathUrl, true)}
+                >
+                  带网关复制
+                </Button>
               </div>
             </div>
             <div className={SelfStyle.itemWrap}>
               <div className="label">描述</div>
               <div className="content summary">{rendMethodInfos.summary}</div>
             </div>
+            {menActiveTabKey === "attentionList" && (
+              <>
+                <div className={SelfStyle.itemWrap}>
+                  <div className="label">域名</div>
+                  <div className="content">{currentMenuCheckbox.domain}</div>
+                </div>
+                <div className={SelfStyle.itemWrap}>
+                  <div className="label">分组</div>
+                  <div className="content">{currentMenuCheckbox.groupName}</div>
+                </div>
+                <div className={SelfStyle.itemWrap}>
+                  <div className="label">标签</div>
+                  <div className="content">{currentMenuCheckbox.tagName}</div>
+                </div>
+              </>
+            )}
           </div>
           <div className={SelfStyle.paramInfo}>
             {rendMethodInfos.parameters ? (
@@ -187,6 +299,74 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     }
     return contentNode;
   }
+  function getMenuCheckedPathUrlList() {
+    const list: NProject.IMenuCheckbox[] = [];
+    MDProject.menuCheckedList.forEach((menuCheckedInfos) => {
+      if (menuCheckedInfos.isPath) {
+        list.push(menuCheckedInfos);
+      } else {
+        const domainSwagger = MDProject.domainSwaggerList.find(
+          (domainSwagger) => domainSwagger.domain === menuCheckedInfos.domain
+        );
+
+        Object.keys(
+          domainSwagger.data[menuCheckedInfos.groupName].tags[
+            menuCheckedInfos.tagName
+          ].paths
+        ).forEach((pathUrl) => {
+          list.push({
+            domain: menuCheckedInfos.domain,
+            tagName: menuCheckedInfos.tagName,
+            groupName: menuCheckedInfos.groupName,
+            pathUrl,
+            isPath: true,
+          });
+        });
+      }
+    });
+    return list;
+  }
+  function onBatchCancelPathAttention() {
+    const list = getMenuCheckedPathUrlList();
+
+    if (list.length) {
+      reqCanclePathAttention(list);
+    }
+  }
+  function onBatchPathAttention() {
+    const list = getMenuCheckedPathUrlList();
+
+    if (list.length) {
+      reqSetPathAttention(list);
+    }
+  }
+  function onAttentionPath() {
+    if (currentMenuCheckbox) {
+      reqSetPathAttention([currentMenuCheckbox]);
+    }
+  }
+  function onCancelAttentionPath() {
+    reqCanclePathAttention([currentMenuCheckbox]);
+  }
+  async function reqSetPathAttention(list: NProject.IMenuCheckbox[]) {
+    const rsp = await SProject.setPathAttention(list);
+    if (rsp.success) {
+      reqGetAttentionList();
+    }
+  }
+  async function reqCanclePathAttention(list: NProject.IMenuCheckbox[]) {
+    const rsp = await SProject.cancelPathAttention(list);
+    if (rsp.success) {
+      reqGetAttentionList();
+    }
+  }
+  function onCopyPathUrl(pathUrl: string, withPrefix: boolean) {
+    let content = pathUrl;
+    if (withPrefix) {
+      content = getPrefixByPathUrl(pathUrl);
+    }
+    UCopy.copyStr(content);
+  }
   function getResponseUI() {
     return rendMethodInfos.responses[0].type ? (
       <>
@@ -204,60 +384,237 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       <Alert message="没有返回" type="error" showIcon />
     );
   }
+  function getPrefixByPathUrl(pathUrl: string) {
+    let prefix;
+    if (MDProject.apiPrefixs) {
+      Object.keys(MDProject.apiPrefixs).find((item) => {
+        if (pathUrl.startsWith(item)) {
+          let config = MDProject.apiPrefixs[item];
+          prefix = config.prefix;
+          return true;
+        }
+      });
+    }
+    return prefix;
+  }
+  function renderApiPrefix(pathUrl: string) {
+    const prefix = getPrefixByPathUrl(pathUrl);
+
+    if (prefix == undefined) {
+      return <span style={{ color: "#ca3e47" }}>没有配置前缀</span>;
+    } else if (prefix == "") {
+      return <span style={{ color: "#1ee3cf" }}>没有前缀</span>;
+    } else {
+      return <span style={{ color: "rgba(23,34,59,1)" }}>{prefix}</span>;
+    }
+  }
   function renderPathUrl(pathUrl: string) {
     const list = pathUrl.split("/").filter(Boolean);
     return <span className={SelfStyle.pathValue}>{list[list.length - 1]}</span>;
   }
-  function onSelectApi(rendMethodInfos: NProject.IRenderMethodInfo) {
-    setRendMethodInfos(rendMethodInfos);
+  function onSelectApi(
+    rendMethodInfos: NProject.IRenderMethodInfo,
+    pathMenuCheckbox: NProject.IMenuCheckbox
+  ) {
+    setRenderMethodInfos(rendMethodInfos);
+    setCurrentMenuCheckbox(pathMenuCheckbox);
   }
   function getApiMenu() {
     return (
-      <Menu mode="inline" theme="light">
-        {MDProject.domainSwaggerList.map((domainItem) => {
-          return (
-            <Menu.SubMenu key={domainItem.id} title={domainItem.domain}>
-              {Object.values(domainItem.data).map((groupItem) => {
+      <>
+        <Tabs activeKey={menActiveTabKey} onChange={onMenuTabChange}>
+          <Tabs.TabPane key="domain" tab="域名列表">
+            <Menu mode="inline" theme="light">
+              {MDProject.domainSwaggerList.map((domainItem) => {
                 return (
-                  <Menu.SubMenu
-                    key={domainItem.domain + groupItem.groupName}
-                    title={groupItem.groupName}
-                  >
-                    {Object.values(groupItem.tags).map((tagItem, tagIndex) => {
+                  <Menu.SubMenu key={domainItem.id} title={domainItem.domain}>
+                    {Object.values(domainItem.data).map((groupItem) => {
                       return (
                         <Menu.SubMenu
-                          key={
-                            domainItem.domain +
-                            groupItem.groupName +
-                            tagItem.tagName +
-                            tagIndex
-                          }
-                          title={tagItem.tagName}
+                          key={domainItem.domain + groupItem.groupName}
+                          title={groupItem.groupName}
                         >
-                          {Object.values(tagItem.paths).map((pathItem) => {
-                            return (
-                              <Menu.Item
-                                onClick={() => onSelectApi(pathItem)}
-                                key={domainItem.domain + pathItem.pathUrl}
-                              >
-                                <Tag color="#87d068">
-                                  {pathItem.method.substring(-4)}
-                                </Tag>
-                                {renderPathUrl(pathItem.pathUrl)}
-                              </Menu.Item>
-                            );
-                          })}
+                          {Object.values(groupItem.tags).map(
+                            (tagItem, tagIndex) => {
+                              const tagMenuCheckbox: NProject.IMenuCheckbox = {
+                                domain: domainItem.domain,
+                                groupName: groupItem.groupName,
+                                tagName: tagItem.tagName,
+                                isTag: true,
+                              };
+                              return (
+                                <Menu.SubMenu
+                                  key={
+                                    domainItem.domain +
+                                    groupItem.groupName +
+                                    tagItem.tagName +
+                                    tagIndex
+                                  }
+                                  title={
+                                    <>
+                                      <span
+                                        onClick={(e) =>
+                                          onStop(
+                                            e,
+                                            getMenuChecked(tagMenuCheckbox)
+                                          )
+                                        }
+                                      >
+                                        <Checkbox
+                                          checked={getMenuChecked(
+                                            tagMenuCheckbox
+                                          )}
+                                          onChange={(e) =>
+                                            onMenuDomainCheckedChange(
+                                              e.target.checked,
+                                              tagMenuCheckbox
+                                            )
+                                          }
+                                          className={SelfStyle.tagCheckbox}
+                                        ></Checkbox>
+                                      </span>
+                                      {tagItem.tagName}
+                                    </>
+                                  }
+                                >
+                                  {Object.values(tagItem.paths).map(
+                                    (pathItem) => {
+                                      const pathMenuCheckbox = {
+                                        domain: domainItem.domain,
+                                        groupName: groupItem.groupName,
+                                        tagName: tagItem.tagName,
+                                        pathUrl: pathItem.pathUrl,
+                                        isPath: true,
+                                      };
+                                      return renderMenuPathUrl(
+                                        pathMenuCheckbox,
+                                        pathItem
+                                      );
+                                    }
+                                  )}
+                                </Menu.SubMenu>
+                              );
+                            }
+                          )}
                         </Menu.SubMenu>
                       );
                     })}
                   </Menu.SubMenu>
                 );
               })}
-            </Menu.SubMenu>
-          );
-        })}
-      </Menu>
+            </Menu>
+          </Tabs.TabPane>
+          <Tabs.TabPane key="attentionList" tab="关注">
+            <Menu mode="inline" defaultOpenKeys={["myAttention"]} theme="light">
+              <Menu.SubMenu
+                key="myAttention"
+                title={
+                  <>
+                    <span onClick={(e) => onStop(e, true)}>
+                      <Checkbox
+                        checked={myAttentionChecked}
+                        onChange={(e) =>
+                          onMenuAttentionCheckedChange(e.target.checked)
+                        }
+                      ></Checkbox>
+                    </span>
+                    我的关注
+                  </>
+                }
+              >
+                {MDProject.attentionPathList.map((pathInfos) => {
+                  return renderMenuPathUrl(pathInfos, pathInfos.data);
+                })}
+              </Menu.SubMenu>
+            </Menu>
+          </Tabs.TabPane>
+        </Tabs>
+      </>
     );
+  }
+  function onMenuTabChange(activeKey: string) {
+    setMenActiveTabKey(activeKey);
+    setRenderMethodInfos(null);
+    onCancelMenuChecked();
+  }
+  function onCancelMenuChecked() {
+    setMyAttentionChecked(false);
+    NModel.dispatch(
+      new NMDProject.ARSetState({
+        menuCheckedList: [],
+      })
+    );
+  }
+  function renderMenuPathUrl(
+    pathMenuCheckbox: NProject.IMenuCheckbox,
+    pathItem: NProject.IRenderMethodInfo
+  ) {
+    return (
+      <Menu.Item
+        onClick={() => {
+          onSelectApi(pathItem, pathMenuCheckbox);
+        }}
+        key={
+          pathMenuCheckbox.domain +
+          pathMenuCheckbox.groupName +
+          pathMenuCheckbox.tagName +
+          pathItem.pathUrl
+        }
+      >
+        <Checkbox
+          checked={getMenuChecked(pathMenuCheckbox)}
+          onChange={(e) =>
+            onMenuDomainCheckedChange(e.target.checked, pathMenuCheckbox)
+          }
+          className={SelfStyle.pathCheckbox}
+        ></Checkbox>
+        <Tag color="#87d068">{pathItem.method.substring(-4)}</Tag>
+        {renderPathUrl(pathItem.pathUrl)}
+      </Menu.Item>
+    );
+  }
+  function onStop(event: React.MouseEvent, checked: boolean) {
+    if (checked) {
+      event.stopPropagation();
+    }
+  }
+  function onMenuAttentionCheckedChange(checked: boolean) {
+    let list: NProject.IMenuCheckbox[] = [];
+    if (checked) {
+      list = MDProject.attentionPathList;
+    }
+    setMyAttentionChecked(checked);
+    NModel.dispatch(
+      new NMDProject.ARSetState({
+        menuCheckedList: list,
+      })
+    );
+  }
+  function getMenuChecked(params: NProject.IMenuCheckbox) {
+    return MDProject.menuCheckedList.some((item) => isEqual(params, item));
+  }
+  function onMenuDomainCheckedChange(
+    checked: boolean,
+    params: NProject.IMenuCheckbox
+  ) {
+    if (checked) {
+      NModel.dispatch(
+        new NMDProject.ARSetState({
+          menuCheckedList: [...MDProject.menuCheckedList, params],
+        })
+      );
+    } else {
+      const newList = produce(MDProject.menuCheckedList, (drafState) => {
+        const index = drafState.findIndex((item) => isEqual(params, item));
+        drafState.splice(index, 1);
+      });
+      NModel.dispatch(
+        new NMDProject.ARSetState({
+          menuCheckedList: newList,
+        })
+      );
+    }
+    return MDProject.menuCheckedList.some((item) => isEqual(params, item));
   }
   function openEnterSwaggerModal() {
     swaggerModalRef.current.showModal();

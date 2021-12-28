@@ -3,6 +3,39 @@ import NProject from "./NProject";
 import request from "@/utils/request";
 
 namespace SProject {
+  export async function getAttentionList(): Promise<
+    NRsp<NProject.IMenuCheckbox>
+  > {
+    return request({
+      url: "/project/getAttentionList",
+      method: "get",
+    });
+  }
+  export async function setPathAttention(
+    data: NProject.IMenuCheckbox[]
+  ): Promise<NRsp<NProject.IApiWithPrefix>> {
+    return request({
+      url: "/project/setPathAttention",
+      method: "post",
+      data,
+    });
+  }
+  export async function cancelPathAttention(
+    data: NProject.IMenuCheckbox[]
+  ): Promise<NRsp<NProject.IApiWithPrefix>> {
+    return request({
+      url: "/project/cancelPathAttention",
+      method: "post",
+      data,
+    });
+  }
+  export async function getApiPrefixs(): Promise<
+    NRsp<NProject.IApiWithPrefix>
+  > {
+    return request({
+      url: "/project/getApiPrefix",
+    });
+  }
   export async function saveSwagger(
     data: NProject.IDomainSwagger
   ): Promise<NRsp<boolean>> {
