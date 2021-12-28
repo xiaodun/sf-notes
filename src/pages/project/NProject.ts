@@ -18,6 +18,12 @@ export interface NProject {
   };
 }
 export namespace NProject {
+  export type TMenuTabKey = "attention" | "domain";
+  export interface IApiWithPrefix {
+    [key: string]: {
+      prefix: string;
+    };
+  }
   export interface IDomainSwagger {
     id?: number;
     domain: string;
@@ -64,6 +70,15 @@ export namespace NProject {
         };
       };
     };
+  }
+  export interface IMenuCheckbox {
+    domain: string;
+    groupName: string;
+    tagName: string;
+    pathUrl?: string;
+    isTag?: boolean;
+    isPath?: boolean;
+    data?: NProject.IRenderMethodInfo;
   }
 }
 export default NProject;

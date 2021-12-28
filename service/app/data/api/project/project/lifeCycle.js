@@ -28,6 +28,10 @@
             argData.swaggerList = [];
           }
 
+          if (!argData.attentionPathList) {
+            argData.attentionPathList = [];
+          }
+
           return argData;
         };
         external.getSwaggerFolderPath = () => {

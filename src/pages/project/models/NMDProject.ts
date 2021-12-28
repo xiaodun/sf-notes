@@ -8,6 +8,9 @@ export namespace NMDProject {
     project: NProject;
     domainSwaggerList: NProject.IDomainSwagger[];
     commonMenuList: NProject.ICommandMenu[];
+    apiPrefixs: NProject.IApiWithPrefix;
+    menuCheckedList: NProject.IMenuCheckbox[];
+    attentionPathList: NProject.IMenuCheckbox[];
   }
   class Action<P> extends NModel.IAction<P> {
     namespace = NModel.ENames.MDProject;
@@ -21,6 +24,7 @@ export default {
   namespace: NModel.ENames.MDProject,
 
   state: {
+    apiPrefixs: null,
     domainSwaggerList: [],
     rsp: {
       list: [],
@@ -42,6 +46,8 @@ export default {
       },
     },
     commonMenuList: [],
+    menuCheckedList: [],
+    attentionPathList: [],
   },
   effects: {},
   reducers: {
