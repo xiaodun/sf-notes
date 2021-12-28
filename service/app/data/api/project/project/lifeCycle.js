@@ -27,6 +27,9 @@
           if (!argData.swaggerList) {
             argData.swaggerList = [];
           }
+          if (!argData.apiPrefixs) {
+            argData.apiPrefixs = {};
+          }
 
           if (!argData.attentionPathList) {
             argData.attentionPathList = [];
