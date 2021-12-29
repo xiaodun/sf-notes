@@ -1,10 +1,10 @@
 import NModel from "@/common/namespace/NModel";
-import NRouter from "@/../config/router/NRouter";
 import {
   Alert,
   Button,
   Checkbox,
   Dropdown,
+  Input,
   Menu,
   Space,
   Table,
@@ -20,13 +20,10 @@ import EnterSwaggerModal, {
   IEnterSwaggerModal,
 } from "./components/EnterSwaggerModal";
 import NProject from "../NProject";
-import classNames from "classnames";
 import { DownloadOutlined, UploadOutlined } from "@ant-design/icons";
-import NSwagger from "@/common/namespace/NSwagger";
 import UCopy from "@/common/utils/UCopy";
-import { isEqual, values } from "lodash";
+import { cloneDeep, isEqual, values } from "lodash";
 import produce from "immer";
-import { CheckboxChangeEvent } from "antd/es/checkbox";
 
 export interface IPProjectSwaggerProps {
   MDProject: NMDProject.IState;
@@ -47,6 +44,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   ] = useState<NProject.IMenuCheckbox>(null);
   const [menActiveTabKey, setMenActiveTabKey] = useState<string>("domain");
   const [myAttentionChecked, setMyAttentionChecked] = useState<boolean>(false);
+  const [searchSwaggerValue, setSearchSwaggerValue] = useState<string>("");
 
   useEffect(() => {
     reqGetApiPrefix();
@@ -171,6 +169,13 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
             >
               批量操作
             </Dropdown.Button>
+            <Input.Search
+              allowClear
+              style={{ width: 280 }}
+              onPressEnter={(e) => onSearchSwagger(e.currentTarget.value)}
+              onSearch={onSearchSwagger}
+              enterButton
+            />
           </Space>
         </div>
         <div className={SelfStyle.contentWrap}>
@@ -210,6 +215,9 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         })
       );
     }
+  }
+  function onSearchSwagger(value: string) {
+    setSearchSwaggerValue(value);
   }
   function renderSwaggerUI() {
     let contentNode: ReactNode = null;
@@ -425,7 +433,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         <Tabs activeKey={menActiveTabKey} onChange={onMenuTabChange}>
           <Tabs.TabPane key="domain" tab="域名列表">
             <Menu mode="inline" theme="light">
-              {MDProject.domainSwaggerList.map((domainItem) => {
+              {filterSwaggerList().map((domainItem) => {
                 return (
                   <Menu.SubMenu key={domainItem.id} title={domainItem.domain}>
                     {Object.values(domainItem.data).map((groupItem) => {
@@ -452,14 +460,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                                   }
                                   title={
                                     <>
-                                      <span
-                                        onClick={(e) =>
-                                          onStop(
-                                            e,
-                                            getMenuChecked(tagMenuCheckbox)
-                                          )
-                                        }
-                                      >
+                                      <span onClick={(e) => onStop(e)}>
                                         <Checkbox
                                           checked={getMenuChecked(
                                             tagMenuCheckbox
@@ -510,7 +511,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                 key="myAttention"
                 title={
                   <>
-                    <span onClick={(e) => onStop(e, true)}>
+                    <span onClick={(e) => onStop(e)}>
                       <Checkbox
                         checked={myAttentionChecked}
                         onChange={(e) =>
@@ -531,6 +532,66 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         </Tabs>
       </>
     );
+  }
+  function filterSwaggerList() {
+    if (searchSwaggerValue) {
+      const list: NProject.IDomainSwagger[] = [];
+      MDProject.domainSwaggerList.forEach((domainItem) => {
+        const searchDomainItemStr = JSON.stringify(domainItem);
+        const searchDomainItem = cloneDeep(domainItem);
+        searchDomainItem.data = {};
+        if (searchDomainItemStr.includes(searchSwaggerValue)) {
+          //搜索域名下
+          list.push(searchDomainItem);
+          Object.keys(domainItem.data).forEach((groupName) => {
+            const groupValueStr = JSON.stringify(domainItem.data[groupName]);
+            if (groupValueStr.includes(searchSwaggerValue)) {
+              //搜索组下面
+              const serachGroupValues = (searchDomainItem.data[
+                groupName
+              ] = cloneDeep(domainItem.data[groupName]));
+              serachGroupValues.tags = {};
+              Object.keys(domainItem.data[groupName].tags).forEach(
+                (tagName) => {
+                  {
+                    const tagValueStr = JSON.stringify(
+                      domainItem.data[groupName].tags[tagName]
+                    );
+                    if (tagValueStr.includes(searchSwaggerValue)) {
+                      //搜索标签下面
+                      const searchTagValues = (serachGroupValues.tags[
+                        tagName
+                      ] = cloneDeep(domainItem.data[groupName].tags[tagName]));
+                      searchTagValues.paths = {};
+                      Object.keys(
+                        domainItem.data[groupName].tags[tagName].paths
+                      ).forEach((pathUrl) => {
+                        const pathValueStr = JSON.stringify(
+                          domainItem.data[groupName].tags[tagName].paths[
+                            pathUrl
+                          ]
+                        );
+                        if (pathValueStr.includes(searchSwaggerValue)) {
+                          //搜索路径下面
+                          searchTagValues.paths[pathUrl] = cloneDeep(
+                            domainItem.data[groupName].tags[tagName].paths[
+                              pathUrl
+                            ]
+                          );
+                        }
+                      });
+                    }
+                  }
+                }
+              );
+            }
+          });
+        }
+      });
+      return list;
+    }
+
+    return MDProject.domainSwaggerList;
   }
   function onMenuTabChange(activeKey: string) {
     setMenActiveTabKey(activeKey);
@@ -573,10 +634,8 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       </Menu.Item>
     );
   }
-  function onStop(event: React.MouseEvent, checked: boolean) {
-    if (checked) {
-      event.stopPropagation();
-    }
+  function onStop(event: React.MouseEvent) {
+    event.stopPropagation();
   }
   function onMenuAttentionCheckedChange(checked: boolean) {
     let list: NProject.IMenuCheckbox[] = [];
