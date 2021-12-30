@@ -417,7 +417,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     );
   }
   function getPrefixByPathUrl(pathUrl: string) {
-    let prefix;
+    let prefix = "";
     if (MDProject.apiPrefixs) {
       Object.keys(MDProject.apiPrefixs).find((item) => {
         if (pathUrl.startsWith(item)) {
@@ -455,7 +455,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     return (
       <>
         <Tabs activeKey={menActiveTabKey} onChange={onMenuTabChange}>
-          <Tabs.TabPane key="domain" tab="域名列表">
+          <Tabs.TabPane key="domain" tab="域名">
             <Menu mode="inline" theme="light">
               {filterSwaggerList().map((domainItem) => {
                 return (

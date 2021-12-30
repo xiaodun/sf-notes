@@ -6,6 +6,7 @@ export interface NProject {
   rootPath: string;
   isSfMock: boolean;
   isDefaultAjaxCode: boolean;
+  closeAjaxCode: boolean;
   sfMock: {
     programUrl: string;
     startPort: number;

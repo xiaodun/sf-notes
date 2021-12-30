@@ -92,7 +92,7 @@
               projecGenerateAjaxCodePath,
               `(function(){
 
-              return function(checkedPathList){
+              return function(checkedPathList, apiPrefixs, external){
                 
               }
             })()`

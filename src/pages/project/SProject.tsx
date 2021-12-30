@@ -24,6 +24,17 @@ namespace SProject {
       method: "get",
     });
   }
+  export async function setDefaultAjaxCode(
+    projectName: String
+  ): Promise<NRsp<boolean>> {
+    return request({
+      url: "/project/setDefaultAjaxCode",
+      method: "post",
+      data: {
+        projectName,
+      },
+    });
+  }
   export async function setPathAttention(
     data: NProject.IMenuCheckbox[]
   ): Promise<NRsp<NProject.IApiWithPrefix>> {
