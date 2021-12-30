@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Modal, Button, Form, Input, Tabs } from "antd";
+import { Modal, Button, Form, Input, Tabs, message } from "antd";
 import produce from "immer";
 import SBase from "@/common/service/SBase";
 import urlParse from "url-parse";
@@ -85,9 +85,9 @@ const GenerateAjaxCodeModal: ForwardRefRenderFunction<
                 </div>
                 <div className={SelfStyle.contentWrap}>
                   {ajaxCodeList &&
-                    ajaxCodeList.map((item) => {
+                    ajaxCodeList.map((item, index) => {
                       return (
-                        <>
+                        <div key={index}>
                           <div className={SelfStyle.titleWrap}>
                             <div className="title">{item.name}</div>
                             <Button onClick={() => UCopy.copyStr(item.data)}>
@@ -97,7 +97,7 @@ const GenerateAjaxCodeModal: ForwardRefRenderFunction<
                           <div className={SelfStyle.codeWrap}>
                             <pre>{item.data}</pre>
                           </div>
-                        </>
+                        </div>
                       );
                     })}
                 </div>
@@ -108,7 +108,13 @@ const GenerateAjaxCodeModal: ForwardRefRenderFunction<
       </div>
     </Modal>
   );
-  async function reqSetDefaultAjaxCode() {}
+  async function reqSetDefaultAjaxCode() {
+    const rsp = await SProject.setDefaultAjaxCode(activeTabKey);
+    if (rsp.success) {
+      message.success("设置成功");
+      setDefaultTabKey(activeTabKey);
+    }
+  }
   async function reqGetAjaxCode(
     projectName: string,
     checkedPathList: NProject.IMenuCheckbox[]
@@ -125,8 +131,9 @@ const GenerateAjaxCodeModal: ForwardRefRenderFunction<
   async function reqGetProjectList(checkedPathList: NProject.IMenuCheckbox[]) {
     const rsp = await SProject.getProjectList();
     if (rsp.success) {
-      setProjectList(rsp.list);
-      let defaultProject = rsp.list.find(
+      const projectList = rsp.list.filter((project) => !project.closeAjaxCode);
+      setProjectList(projectList);
+      let defaultProject = projectList.find(
         (project) => project.isDefaultAjaxCode
       );
       if (defaultProject) {
@@ -134,8 +141,8 @@ const GenerateAjaxCodeModal: ForwardRefRenderFunction<
         setDefaultTabKey(defaultProject.name);
         reqGetAjaxCode(defaultProject.name, checkedPathList);
       } else {
-        if (rsp.list.length) {
-          defaultProject = rsp.list[0];
+        if (projectList.length) {
+          defaultProject = projectList[0];
           setActiveTabKey(defaultProject.name);
           reqGetAjaxCode(defaultProject.name, checkedPathList);
         }
