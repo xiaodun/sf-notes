@@ -84,7 +84,10 @@
     .responseInfo {
       margin: 20px 0 35px;
       .title {
-        padding-left: 2em;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 2em;
         color: #000;
         font-size: 16px;
         line-height: 32px;
@@ -93,6 +96,11 @@
         :global {
           .anticon {
             margin-right: 5px;
+          }
+          .ant-btn-primary {
+            color: #f5f7fa;
+            background-color: #5be7c4;
+            border-color: #5be7c4;
           }
         }
       }
@@ -105,7 +113,7 @@
     }
     .responseInfo {
       .title {
-        background-color: #dd2a7b;
+        background-color: lighten(#dd2a7b, 20%);
       }
     }
   }
