@@ -20,4 +20,7 @@ export namespace URandom {
     }
     return able();
   }
+  export function getBoolean() {
+    return Math.random() > 0.5 ? true : false;
+  }
 }

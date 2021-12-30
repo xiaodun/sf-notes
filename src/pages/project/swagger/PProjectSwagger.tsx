@@ -22,11 +22,13 @@ import EnterSwaggerModal, {
 import NProject from "../NProject";
 import { DownloadOutlined, UploadOutlined } from "@ant-design/icons";
 import UCopy from "@/common/utils/UCopy";
-import { cloneDeep, isEqual, values } from "lodash";
+import { cloneDeep, isArray, isEqual, values } from "lodash";
 import produce from "immer";
 import GenerateAjaxCodeModal, {
   IGenerateAjaxCodeModal,
 } from "./components/GenerateAjaxCodeModal";
+import { URandom } from "@/common/utils/URandom";
+import moment from "moment";
 
 export interface IPProjectSwaggerProps {
   MDProject: NMDProject.IState;
@@ -53,7 +55,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   useEffect(() => {
     reqGetApiPrefix();
     reqGetSwagger();
-    reqGetAttentionList();
+    reqGetAttentionList(true);
   }, []);
   const desColumnWidth = 450;
   const swaggerTableProps: TableProps<any> = {
@@ -201,7 +203,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   ) {
     generateAjaxCodeRef.current.showModal(checkedPathList);
   }
-  async function reqGetAttentionList() {
+  async function reqGetAttentionList(isFirst: boolean) {
     const rsp = await SProject.getAttentionList();
     if (rsp.success) {
       NModel.dispatch(
@@ -209,6 +211,9 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
           attentionPathList: rsp.list,
         })
       );
+      if (rsp.list.length && isFirst) {
+        setMenActiveTabKey("attentionList");
+      }
     }
   }
   async function reqGetApiPrefix() {
@@ -304,8 +309,22 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
             {rendMethodInfos.parameters ? (
               <>
                 <div className={SelfStyle.title}>
-                  <UploadOutlined />
-                  请求参数
+                  <div className="desc">
+                    <UploadOutlined />
+                    请求参数
+                  </div>
+                  <div className="able-wrap">
+                    <Button
+                      type="primary"
+                      shape="round"
+                      size="small"
+                      onClick={() =>
+                        onCopySwaggerData(rendMethodInfos.parameters, false)
+                      }
+                    >
+                      复制
+                    </Button>
+                  </div>
                 </div>
                 <Table
                   {...swaggerTableProps}
@@ -383,13 +402,13 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   async function reqSetPathAttention(list: NProject.IMenuCheckbox[]) {
     const rsp = await SProject.setPathAttention(list);
     if (rsp.success) {
-      reqGetAttentionList();
+      reqGetAttentionList(false);
     }
   }
   async function reqCanclePathAttention(list: NProject.IMenuCheckbox[]) {
     const rsp = await SProject.cancelPathAttention(list);
     if (rsp.success) {
-      reqGetAttentionList();
+      reqGetAttentionList(false);
     }
   }
   function onCopyPathUrl(pathUrl: string, withPrefix: boolean) {
@@ -403,8 +422,20 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     return rendMethodInfos.responses[0].type ? (
       <>
         <div className={SelfStyle.title}>
-          <DownloadOutlined />
-          返回格式
+          <div className="desc">
+            <DownloadOutlined />
+            返回格式
+          </div>
+          <div className="able-wrap">
+            <Button
+              type="primary"
+              shape="round"
+              size="small"
+              onClick={() => onCopySwaggerData(rendMethodInfos.responses, true)}
+            >
+              复制
+            </Button>
+          </div>
         </div>
         <Table
           {...swaggerTableProps}
@@ -415,6 +446,62 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     ) : (
       <Alert message="没有返回" type="error" showIcon />
     );
+  }
+  function onCopySwaggerData(
+    rspItemList: NProject.IRenderFormatInfo[],
+    isRsp: boolean
+  ) {
+    function able(dataLit: NProject.IRenderFormatInfo[], wrap = {}) {
+      dataLit.forEach((item) => {
+        if (item.type === "array") {
+          wrap[item.name] = [];
+
+          if (item.children.length) {
+            wrap[item.name].push(able(item.children));
+          }
+        }
+        if (item.type === "object") {
+          wrap[item.name] = {};
+
+          if (item.children.length) {
+            wrap[item.name] = {
+              ...able(item.children, {}),
+            };
+          }
+        } else if (item.type === "boolean") {
+          wrap[item.name] = URandom.getBoolean();
+        } else if (item.type === "integer") {
+          wrap[item.name] = 0;
+        } else if (item.type === "string") {
+          if (isRsp) {
+            if (item.enum) {
+              wrap[item.name] =
+                item.enum[URandom.getIntegeValue(0, item.enum.length - 1)];
+            } else if (item.format === "date-time") {
+              wrap[item.name] = moment().format("YYYY-MM-DD HH:mm:ss");
+            } else {
+              wrap[item.name] = item.name;
+            }
+          } else {
+            wrap[item.name] = "";
+          }
+        }
+      });
+
+      return wrap;
+    }
+    let data = {};
+
+    able(rspItemList, data);
+    if (!isRsp) {
+      if (Object.keys(data).length === 1) {
+        const innerObj = data[Object.keys(data)[0]];
+        if (typeof innerObj === "object") {
+          data = innerObj;
+        }
+      }
+    }
+    UCopy.copyStr(JSON.stringify(data));
   }
   function getPrefixByPathUrl(pathUrl: string) {
     let prefix = "";

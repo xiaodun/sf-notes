@@ -1,6 +1,6 @@
 export interface NSwagger {}
 export namespace NSwagger {
-  export type TType = "object" | "array" | "string" | "number" | "boolean";
+  export type TType = "object" | "array" | "string" | "integer" | "boolean";
   export interface IGroup {
     name: string;
     url: string;
