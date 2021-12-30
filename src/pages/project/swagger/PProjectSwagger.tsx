@@ -20,7 +20,11 @@ import EnterSwaggerModal, {
   IEnterSwaggerModal,
 } from "./components/EnterSwaggerModal";
 import NProject from "../NProject";
-import { DownloadOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  CopyOutlined,
+  DownloadOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import UCopy from "@/common/utils/UCopy";
 import { cloneDeep, isArray, isEqual, values } from "lodash";
 import produce from "immer";
@@ -29,6 +33,9 @@ import GenerateAjaxCodeModal, {
 } from "./components/GenerateAjaxCodeModal";
 import { URandom } from "@/common/utils/URandom";
 import moment from "moment";
+import GenerateEnumCodeModal, {
+  IGenerateEnumCodeModal,
+} from "./components/GenerateEnumCodeModal";
 
 export interface IPProjectSwaggerProps {
   MDProject: NMDProject.IState;
@@ -39,9 +46,14 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   const { MDProject } = props;
   const swaggerModalRef = useRef<IEnterSwaggerModal>();
   const generateAjaxCodeRef = useRef<IGenerateAjaxCodeModal>();
+  const generateEnumCodeRef = useRef<IGenerateEnumCodeModal>();
   const [
     rendMethodInfos,
     setRenderMethodInfos,
+  ] = useState<NProject.IRenderMethodInfo>(null);
+  const [
+    lastRendMethodInfos,
+    setLastRenderMethodInfos,
   ] = useState<NProject.IRenderMethodInfo>(null);
 
   const [
@@ -75,6 +87,13 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         title: "名称",
         dataIndex: "name",
         key: "name",
+        render: (text: any) => {
+          return (
+            <span onClick={(e) => UCopy.copyStr(e.currentTarget.textContent)}>
+              {text}
+            </span>
+          );
+        },
       },
       {
         title: "描述",
@@ -82,7 +101,9 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         key: "description",
         render: (text: any, record: NProject.IRenderFormatInfo) => {
           let node: ReactNode = record.description;
+          let enumList: string[] = [];
           if (record.enum) {
+            enumList = record.enum;
             node = (
               <>
                 <span>{record.description} 枚举:</span>
@@ -102,9 +123,26 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
             );
           }
 
+          enumList = [...new Set(enumList)];
           return (
             <div style={{ width: desColumnWidth, wordBreak: "keep-all" }}>
-              {node ? node : <span style={{ color: "#5bd1d7" }}>没有描述</span>}
+              {enumList.length > 1 && (
+                <Button
+                  style={{ marginRight: 20, borderColor: "#a696c8" }}
+                  type="dashed"
+                  onClick={() => showGenerateEnumCodeModal(enumList)}
+                >
+                  枚举代码
+                </Button>
+              )}
+
+              {node ? (
+                <span onClick={() => UCopy.copyStr(record.description)}>
+                  {node}
+                </span>
+              ) : (
+                <span style={{ color: "#5bd1d7" }}>没有描述</span>
+              )}
             </div>
           );
         },
@@ -148,6 +186,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         onOk={reqGetSwagger}
       ></EnterSwaggerModal>
       <GenerateAjaxCodeModal ref={generateAjaxCodeRef}></GenerateAjaxCodeModal>
+      <GenerateEnumCodeModal ref={generateEnumCodeRef}></GenerateEnumCodeModal>
       <div className={SelfStyle.main}>
         <div className={SelfStyle.optionWrap}>
           <Space direction="horizontal" size={20}>
@@ -198,6 +237,9 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       </div>
     </>
   );
+  function showGenerateEnumCodeModal(enumList: string[]) {
+    generateEnumCodeRef.current.showModal(enumList);
+  }
   function showGenerateAjaxCodeModal(
     checkedPathList: NProject.IMenuCheckbox[]
   ) {
@@ -375,6 +417,8 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
 
     if (list.length) {
       reqCanclePathAttention(list);
+      setMenActiveTabKey("domain");
+      setRenderMethodInfos(null);
     }
   }
 
@@ -398,6 +442,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   }
   function onCancelAttentionPath() {
     reqCanclePathAttention([currentMenuCheckbox]);
+    setRenderMethodInfos(null);
   }
   async function reqSetPathAttention(list: NProject.IMenuCheckbox[]) {
     const rsp = await SProject.setPathAttention(list);
@@ -529,7 +574,13 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   }
   function renderPathUrl(pathUrl: string) {
     const list = pathUrl.split("/").filter(Boolean);
-    return <span className={SelfStyle.pathValue}>{list[list.length - 1]}</span>;
+    const item = list[list.length - 1];
+    return (
+      <>
+        <CopyOutlined onClick={() => UCopy.copyStr(item)} />
+        <span className={SelfStyle.pathValue}>{item}</span>
+      </>
+    );
   }
   function onSelectApi(
     rendMethodInfos: NProject.IRenderMethodInfo,
@@ -706,7 +757,8 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   }
   function onMenuTabChange(activeKey: string) {
     setMenActiveTabKey(activeKey);
-    setRenderMethodInfos(null);
+    setRenderMethodInfos(lastRendMethodInfos);
+    setLastRenderMethodInfos(rendMethodInfos);
     onCancelMenuChecked();
   }
   function onCancelMenuChecked() {

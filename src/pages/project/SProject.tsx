@@ -3,6 +3,15 @@ import NProject from "./NProject";
 import request from "@/utils/request";
 
 namespace SProject {
+  export async function getEnumCode(enumList: string[]): Promise<NRsp<Object>> {
+    return request({
+      url: "/project/getEnumCode",
+      method: "post",
+      data: {
+        enumList,
+      },
+    });
+  }
   export async function getAjaxCode(
     projectName: String,
     checkedPathList: NProject.IMenuCheckbox[]

@@ -1,22 +1,14 @@
 import React, {
   forwardRef,
   ForwardRefRenderFunction,
-  ReactNode,
-  useEffect,
   useImperativeHandle,
-  useRef,
   useState,
 } from "react";
 import { Modal, Button, Form, Input, Tabs, message } from "antd";
 import produce from "immer";
-import SBase from "@/common/service/SBase";
-import urlParse from "url-parse";
-import USwagger from "@/common/utils/USwagger";
-import NSwagger from "@/common/namespace/NSwagger";
 import SelfStyle from "./GenerateAjaxCodeModal.less";
 import NProject from "../../NProject";
 import SProject from "../../SProject";
-import { lte } from "lodash";
 import UCopy from "@/common/utils/UCopy";
 export interface IGenerateAjaxCodeModal {
   showModal: (checkPathList: NProject.IMenuCheckbox[]) => void;
