@@ -7,6 +7,8 @@
     userPathList.splice(3, 0, "/user");
     const fs = require("fs");
     const swaggerFolderpath = "./data/api/project/project/swagger";
+    const generateAjaxCodeFolderpath =
+      "./data/api/project/project/generateAjaxCode";
     return {
       createFloder: function (createFloder, external) {
         external.getBaseStructure = (argData) => {
@@ -43,6 +45,58 @@
         external.createSwaggerFolder = () => {
           if (!fs.existsSync(swaggerFolderpath)) {
             fs.mkdirSync(swaggerFolderpath);
+          }
+        };
+        external.getProjecGenerateAjaxCodePath = (projectName) => {
+          return (
+            generateAjaxCodeFolderpath + "/" + projectName + "-ajax-code.js"
+          );
+        };
+        external.getPathName = (pathUrl, usePreventRepeat) => {
+          let pathBodyList = pathUrl.split("/").filter(Boolean);
+
+          let lastPathBody = pathBodyList[pathBodyList.length - 1];
+          let pathName = lastPathBody;
+          if (usePreventRepeat) {
+            const haveUppperchar = [...lastPathBody].some(
+              (char) => char.charCodeAt() >= 65 && char.charCodeAt() <= 90
+            );
+            if (!haveUppperchar) {
+              pathName =
+                pathBodyList[pathBodyList.length - 2] +
+                lastPathBody[0].toUpperCase() +
+                lastPathBody.substr(1);
+            }
+          }
+          return pathName;
+        };
+        external.getPathPrefix = (pathUrl, apiPrefixs) => {
+          let str = "";
+          Object.keys(apiPrefixs).some((prefix) => {
+            if (apiPrefixs[prefix].some((item) => pathUrl.startsWith(item))) {
+              str = prefix;
+              return true;
+            }
+          });
+          return str;
+        };
+        external.createGenerateAjaxCodeJs = (projectName) => {
+          if (!fs.existsSync(generateAjaxCodeFolderpath)) {
+            fs.mkdirSync(generateAjaxCodeFolderpath);
+          }
+          const projecGenerateAjaxCodePath = external.getProjecGenerateAjaxCodePath(
+            projectName
+          );
+          if (!fs.existsSync(projecGenerateAjaxCodePath)) {
+            fs.writeFileSync(
+              projecGenerateAjaxCodePath,
+              `(function(){
+
+              return function(checkedPathList){
+                
+              }
+            })()`
+            );
           }
         };
       },

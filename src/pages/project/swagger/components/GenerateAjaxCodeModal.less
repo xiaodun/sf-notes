@@ -1,0 +1,40 @@
+.main {
+  :global {
+    .ant-tabs-content-holder {
+      display: flex;
+    }
+    .ant-tabs-content {
+      flex-grow: 1;
+    }
+    .ant-tabs-tabpane {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      min-height: 450px;
+    }
+  }
+  .ableWrap {
+    margin-bottom: 15px;
+  }
+  .contentWrap {
+    flex-grow: 1;
+    height: 0;
+    overflow-y: auto;
+    .titleWrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      :global {
+        color: #333;
+        font-weight: bold;
+      }
+    }
+    .codeWrap {
+      margin: 10px 0 15px;
+      padding: 10px;
+
+      border: 1px solid #1ee3cf;
+      border-radius: 15px;
+    }
+  }
+}

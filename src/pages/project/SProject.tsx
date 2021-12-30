@@ -3,6 +3,19 @@ import NProject from "./NProject";
 import request from "@/utils/request";
 
 namespace SProject {
+  export async function getAjaxCode(
+    projectName: String,
+    checkedPathList: NProject.IMenuCheckbox[]
+  ): Promise<NRsp<NProject.IAjaxCode>> {
+    return request({
+      url: "/project/getAjaxCode",
+      method: "post",
+      data: {
+        projectName,
+        checkedPathList,
+      },
+    });
+  }
   export async function getAttentionList(): Promise<
     NRsp<NProject.IMenuCheckbox>
   > {

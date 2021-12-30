@@ -5,6 +5,7 @@ export interface NProject {
   name: string;
   rootPath: string;
   isSfMock: boolean;
+  isDefaultAjaxCode: boolean;
   sfMock: {
     programUrl: string;
     startPort: number;
@@ -19,6 +20,13 @@ export interface NProject {
 }
 export namespace NProject {
   export type TMenuTabKey = "attention" | "domain";
+  export interface IAjaxCodeWrap {
+    [key: string]: IAjaxCode[];
+  }
+  export interface IAjaxCode {
+    name: string;
+    data: string;
+  }
   export interface IApiWithPrefix {
     [key: string]: {
       prefix: string;
