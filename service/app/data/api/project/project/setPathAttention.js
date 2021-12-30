@@ -4,6 +4,7 @@
     const lodash = require("lodash");
     argData = external.getBaseStructure(argData);
     argParams.forEach((menuCheckbox) => {
+      delete menuCheckbox.data;
       const isSaved = argData.attentionPathList.some((item) =>
         lodash.isEqual(item, menuCheckbox)
       );

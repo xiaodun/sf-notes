@@ -24,6 +24,9 @@ import { DownloadOutlined, UploadOutlined } from "@ant-design/icons";
 import UCopy from "@/common/utils/UCopy";
 import { cloneDeep, isEqual, values } from "lodash";
 import produce from "immer";
+import GenerateAjaxCodeModal, {
+  IGenerateAjaxCodeModal,
+} from "./components/GenerateAjaxCodeModal";
 
 export interface IPProjectSwaggerProps {
   MDProject: NMDProject.IState;
@@ -33,6 +36,7 @@ export interface IPProjectSwaggerProps {
 const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   const { MDProject } = props;
   const swaggerModalRef = useRef<IEnterSwaggerModal>();
+  const generateAjaxCodeRef = useRef<IGenerateAjaxCodeModal>();
   const [
     rendMethodInfos,
     setRenderMethodInfos,
@@ -141,6 +145,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         ref={swaggerModalRef}
         onOk={reqGetSwagger}
       ></EnterSwaggerModal>
+      <GenerateAjaxCodeModal ref={generateAjaxCodeRef}></GenerateAjaxCodeModal>
       <div className={SelfStyle.main}>
         <div className={SelfStyle.optionWrap}>
           <Space direction="horizontal" size={20}>
@@ -157,7 +162,12 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                   >
                     取消关注
                   </Menu.Item>
-                  <Menu.Item key="createAjaxCode">生成ajax代码</Menu.Item>
+                  <Menu.Item
+                    onClick={onBatchCreateAjaxCode}
+                    key="createAjaxCode"
+                  >
+                    生成ajax代码
+                  </Menu.Item>
                   <Menu.Item
                     key="cancelMenuChecked"
                     onClick={onCancelMenuChecked}
@@ -186,6 +196,11 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       </div>
     </>
   );
+  function showGenerateAjaxCodeModal(
+    checkedPathList: NProject.IMenuCheckbox[]
+  ) {
+    generateAjaxCodeRef.current.showModal(checkedPathList);
+  }
   async function reqGetAttentionList() {
     const rsp = await SProject.getAttentionList();
     if (rsp.success) {
@@ -235,7 +250,9 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
               </Button>
             )}
 
-            <Button type="default">生成ajax代码</Button>
+            <Button type="default" onClick={onGenerateAjaxCode}>
+              生成ajax代码
+            </Button>
           </div>
           <div className={SelfStyle.baseInfo}>
             <div className={SelfStyle.itemWrap}>
@@ -341,6 +358,12 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       reqCanclePathAttention(list);
     }
   }
+
+  function onBatchCreateAjaxCode() {
+    const list = getMenuCheckedPathUrlList();
+
+    showGenerateAjaxCodeModal(list);
+  }
   function onBatchPathAttention() {
     const list = getMenuCheckedPathUrlList();
 
@@ -349,9 +372,10 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     }
   }
   function onAttentionPath() {
-    if (currentMenuCheckbox) {
-      reqSetPathAttention([currentMenuCheckbox]);
-    }
+    reqSetPathAttention([currentMenuCheckbox]);
+  }
+  function onGenerateAjaxCode() {
+    showGenerateAjaxCodeModal([currentMenuCheckbox]);
   }
   function onCancelAttentionPath() {
     reqCanclePathAttention([currentMenuCheckbox]);
@@ -371,7 +395,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   function onCopyPathUrl(pathUrl: string, withPrefix: boolean) {
     let content = pathUrl;
     if (withPrefix) {
-      content = getPrefixByPathUrl(pathUrl);
+      content = getPrefixByPathUrl(pathUrl) + pathUrl;
     }
     UCopy.copyStr(content);
   }

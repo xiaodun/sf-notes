@@ -33,6 +33,7 @@ export default {
       name: "",
       rootPath: "",
       isSfMock: false,
+      isDefaultAjaxCode: false,
       sfMock: {
         programUrl: "",
         startPort: 0,
