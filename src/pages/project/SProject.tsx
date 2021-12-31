@@ -102,12 +102,25 @@ namespace SProject {
       url: "/project/getSwagger",
     });
   }
-  export async function isProjectStart(url: string): Promise<NRsp<boolean>> {
+  export async function isProjectStart(
+    url: string
+  ): Promise<NRsp<{ isStart: boolean; isError: boolean }>> {
     return request({
       url: "/project/isProjectStart",
       method: "post",
       data: {
         url,
+      },
+    });
+  }
+  export async function isProjectListStart(
+    projectList: NProject[]
+  ): Promise<NRsp<NProject>> {
+    return request({
+      url: "/project/isProjectListStart",
+      method: "post",
+      data: {
+        projectList,
       },
     });
   }

@@ -16,6 +16,7 @@ import SSystem from "@/common/service/SSystem";
 import produce from "immer";
 import NRsp from "@/common/namespace/NRsp";
 import { cloneDeep } from "lodash";
+import UCopy from "@/common/utils/UCopy";
 
 export interface IProjectProps {
   MDProject: NMDProject.IState;
@@ -48,7 +49,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
           },
         ]}
         dataSource={MDProject.rsp.list}
-        pagination={null}
+        pagination={false}
       ></Table>
       <DirectoryModal
         onOk={onSelectDirectory}
@@ -83,11 +84,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     });
   }
   function renderNameColumn(name: string) {
-    return (
-      <Typography.Paragraph copyable={{ text: name }}>
-        {name}
-      </Typography.Paragraph>
-    );
+    return <div onClick={() => UCopy.copyStr(name)}>{name}</div>;
   }
   function renderOptionColumn(project: NProject) {
     let startBlock, openBlock;
@@ -105,21 +102,23 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         }
       } else if (project.sfMock.programUrl) {
         startBlock = (
-          <Button type="link" onClick={() => onStartProject(project)}>
+          <Button type="dashed" onClick={() => onStartProject(project)}>
             启动
           </Button>
         );
       }
     }
     return (
-      <Space align="start">
-        <Button type="link" onClick={() => onGoOverview(project)}>
-          进入总览
-        </Button>
+      <div className={SelfStyle.optionColumn}>
+        <Space align="start">
+          <Button type="link" onClick={() => onGoOverview(project)}>
+            进入总览
+          </Button>
 
-        {startBlock}
-        {openBlock}
-      </Space>
+          {startBlock}
+          {openBlock}
+        </Space>
+      </div>
     );
   }
   async function onStartProject(project: NProject) {
@@ -148,13 +147,36 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       pathname: NRouter.projectCommandPath,
     });
   }
-  async function reqProjecStart(project: NProject, projectRsp: NRsp<NProject>) {
-    let startRsp: NRsp<boolean>;
-    startRsp = await SProject.isProjectStart(project.sfMock.programUrl);
+  async function reqProjecStart(
+    project: NProject,
+    projectRsp: NRsp<NProject>,
+    retryCount = 0
+  ) {
+    const startRsp = await SProject.isProjectStart(project.sfMock.programUrl);
     const index = projectRsp.list.findIndex(
       (item) => item.name === project.name
     );
-    projectRsp.list[index].web.isStart = startRsp.success;
+    if (startRsp.success) {
+      if (startRsp.data.isError) {
+        if (retryCount < 2) {
+          reqProjecStart(project, projectRsp, ++retryCount);
+        }
+      } else {
+        projectRsp.list[index].web.isStart = startRsp.data.isStart;
+        NModel.dispatch(
+          new NMDProject.ARSetState({
+            rsp: cloneDeep(projectRsp),
+          })
+        );
+      }
+    }
+  }
+  async function reqProjecListStart(
+    projectList: NProject[],
+    projectRsp: NRsp<NProject>
+  ) {
+    const startRsp = await SProject.isProjectListStart(projectList);
+    projectRsp.list = startRsp.list;
 
     NModel.dispatch(
       new NMDProject.ARSetState({
@@ -171,11 +193,8 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         })
       );
       const newRsp = cloneDeep(rsp);
-      rsp.list.forEach((item) => {
-        if (item.web.isStart == null) {
-          reqProjecStart(item, newRsp);
-        }
-      });
+
+      reqProjecListStart(rsp.list, newRsp);
     }
   }
   function onShowAddModal() {
