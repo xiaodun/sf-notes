@@ -6,6 +6,7 @@ import {
   Dropdown,
   Input,
   Menu,
+  message,
   Space,
   Table,
   TableProps,
@@ -36,6 +37,9 @@ import moment from "moment";
 import GenerateEnumCodeModal, {
   IGenerateEnumCodeModal,
 } from "./components/GenerateEnumCodeModal";
+import KeyValueExtractionModal, {
+  IKeyValueExtractionModal,
+} from "./components/KeyValueExtractionModal";
 
 export interface IPProjectSwaggerProps {
   MDProject: NMDProject.IState;
@@ -47,6 +51,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   const swaggerModalRef = useRef<IEnterSwaggerModal>();
   const generateAjaxCodeRef = useRef<IGenerateAjaxCodeModal>();
   const generateEnumCodeRef = useRef<IGenerateEnumCodeModal>();
+  const keyValueExtractionRef = useRef<IKeyValueExtractionModal>();
   const [
     rendMethodInfos,
     setRenderMethodInfos,
@@ -187,6 +192,10 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       ></EnterSwaggerModal>
       <GenerateAjaxCodeModal ref={generateAjaxCodeRef}></GenerateAjaxCodeModal>
       <GenerateEnumCodeModal ref={generateEnumCodeRef}></GenerateEnumCodeModal>
+      <KeyValueExtractionModal
+        onEnumCode={onEnumCode}
+        ref={keyValueExtractionRef}
+      ></KeyValueExtractionModal>
       <div className={SelfStyle.main}>
         <div className={SelfStyle.optionWrap}>
           <Space direction="horizontal" size={20}>
@@ -227,6 +236,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
               onSearch={onSearchSwagger}
               enterButton
             />
+            <Button onClick={showKeyValueExtractionModal}> 键值提取</Button>
           </Space>
         </div>
         <div className={SelfStyle.contentWrap}>
@@ -237,6 +247,12 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       </div>
     </>
   );
+  function showKeyValueExtractionModal() {
+    keyValueExtractionRef.current.showModal();
+  }
+  function onEnumCode(enumList: string[], values: Object) {
+    generateEnumCodeRef.current.showModal(enumList, values);
+  }
   function showGenerateEnumCodeModal(enumList: string[]) {
     generateEnumCodeRef.current.showModal(enumList);
   }
@@ -318,12 +334,14 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                 >
                   复制
                 </Button>
-                <Button
-                  type="link"
-                  onClick={() => onCopyPathUrl(rendMethodInfos.pathUrl, true)}
-                >
-                  带网关复制
-                </Button>
+                {getPrefixByPathUrl(rendMethodInfos.pathUrl) && (
+                  <Button
+                    type="link"
+                    onClick={() => onCopyPathUrl(rendMethodInfos.pathUrl, true)}
+                  >
+                    带网关复制
+                  </Button>
+                )}
               </div>
             </div>
             <div className={SelfStyle.itemWrap}>
@@ -448,6 +466,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     const rsp = await SProject.setPathAttention(list);
     if (rsp.success) {
       reqGetAttentionList(false);
+      message.success("关注成功");
     }
   }
   async function reqCanclePathAttention(list: NProject.IMenuCheckbox[]) {

@@ -13,7 +13,7 @@ import UCopy from "@/common/utils/UCopy";
 export interface IGenerateAjaxCodeModal {
   showModal: (checkPathList: NProject.IMenuCheckbox[]) => void;
 }
-export interface IEnterSwaggerProps {}
+export interface IGenerateAjaxCodeModalProps {}
 export interface IGenerateAjaxCodeModalState {
   visible: boolean;
   checkedPathList: NProject.IMenuCheckbox[];
@@ -24,7 +24,7 @@ const defaultState: IGenerateAjaxCodeModalState = {
 };
 const GenerateAjaxCodeModal: ForwardRefRenderFunction<
   IGenerateAjaxCodeModal,
-  IEnterSwaggerProps
+  IGenerateAjaxCodeModalProps
 > = (props, ref) => {
   const [state, setState] = useState<IGenerateAjaxCodeModalState>({
     ...defaultState,

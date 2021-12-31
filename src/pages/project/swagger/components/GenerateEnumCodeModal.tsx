@@ -11,9 +11,9 @@ import NProject from "../../NProject";
 import SProject from "../../SProject";
 import UCopy from "@/common/utils/UCopy";
 export interface IGenerateEnumCodeModal {
-  showModal: (enumList: string[]) => void;
+  showModal: (enumList: string[], values?: Object) => void;
 }
-export interface IEnterSwaggerProps {}
+export interface IGenerateEnumCodeModalProps {}
 export interface IGenerateEnumCodeModalState {
   visible: boolean;
 }
@@ -22,18 +22,18 @@ const defaultState: IGenerateEnumCodeModalState = {
 };
 const GenerateEnumCodeModal: ForwardRefRenderFunction<
   IGenerateEnumCodeModal,
-  IEnterSwaggerProps
+  IGenerateEnumCodeModalProps
 > = (props, ref) => {
   const [state, setState] = useState<IGenerateEnumCodeModalState>({
     ...defaultState,
   });
   const [codeInfos, setCodeinfos] = useState<Object>({});
   useImperativeHandle(ref, () => ({
-    showModal: (enumList: string[]) => {
+    showModal: (enumList: string[], values?: Object) => {
       setState(
         produce(state, (drafState) => {
           drafState.visible = true;
-          reqGetEnumCode(enumList);
+          reqGetEnumCode(enumList, values);
         })
       );
     },
@@ -74,8 +74,8 @@ const GenerateEnumCodeModal: ForwardRefRenderFunction<
       </div>
     </Modal>
   );
-  async function reqGetEnumCode(enumList: string[]) {
-    const rsp = await SProject.getEnumCode(enumList);
+  async function reqGetEnumCode(enumList: string[], values?: Object) {
+    const rsp = await SProject.getEnumCode(enumList, values);
     if (rsp.success) {
       setCodeinfos(rsp.data);
     }

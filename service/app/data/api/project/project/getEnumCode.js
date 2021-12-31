@@ -1,5 +1,6 @@
 (function () {
   return function (argData, argParams) {
+    argParams.values = argParams.values || [];
     let singleVarStatementStr =
       argParams.enumList
         .map((key) => {
@@ -8,8 +9,9 @@
         .join("\n") + "\n";
     let selectOptionStr = argParams.enumList
       .map((key) => {
-        return `{
-          label:"",
+        return `
+      {
+          label:${argParams.values[key] || ""},
           value:obj["${key}"]
       },`;
       })
@@ -47,38 +49,5 @@
         },
       },
     };
-    let obj = (function () {
-      let obj = {
-        INIT: "INIT",
-        WITHDRAW: "WITHDRAW",
-        FOLLOW: "FOLLOW",
-        CANCEL: "CANCEL",
-      };
-      obj.selectOptionList = [
-        {
-          label: "",
-          value: obj["INIT"],
-        },
-        {
-          label: "",
-          value: obj["WITHDRAW"],
-        },
-        {
-          label: "",
-          value: obj["FOLLOW"],
-        },
-        {
-          label: "",
-          value: obj["CANCEL"],
-        },
-      ];
-      obj.getLabel = (key) => {
-        const data = obj.selectOptionList.find((item) => item.value == key);
-        if (data) {
-          return data.label;
-        }
-        return key;
-      };
-    })();
   };
 })();
