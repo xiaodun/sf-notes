@@ -3,12 +3,29 @@ import NProject from "./NProject";
 import request from "@/utils/request";
 
 namespace SProject {
-  export async function getEnumCode(enumList: string[]): Promise<NRsp<Object>> {
+  export async function getKeyValueExtraction(
+    strategy: string,
+    content: string
+  ): Promise<NRsp<{ enumList: string[]; values: Object }>> {
+    return request({
+      url: "/project/keyValueExtraction",
+      method: "post",
+      data: {
+        strategy,
+        content,
+      },
+    });
+  }
+  export async function getEnumCode(
+    enumList: string[],
+    values?: Object
+  ): Promise<NRsp<Object>> {
     return request({
       url: "/project/getEnumCode",
       method: "post",
       data: {
         enumList,
+        values,
       },
     });
   }

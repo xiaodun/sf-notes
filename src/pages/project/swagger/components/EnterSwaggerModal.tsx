@@ -19,7 +19,7 @@ import SProject from "../../SProject";
 export interface IEnterSwaggerModal {
   showModal: () => void;
 }
-export interface IEnterSwaggerProps {
+export interface IEnterSwaggerModalProps {
   onOk: () => void;
 }
 export interface IEnterSwaggerModalState {
@@ -34,7 +34,7 @@ const defaultState: IEnterSwaggerModalState = {
 };
 const EnterSwaggerModal: ForwardRefRenderFunction<
   IEnterSwaggerModal,
-  IEnterSwaggerProps
+  IEnterSwaggerModalProps
 > = (props, ref) => {
   const [state, setState] = useState<IEnterSwaggerModalState>(defaultState);
   const [form] = Form.useForm();
