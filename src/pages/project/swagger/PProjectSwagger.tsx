@@ -188,7 +188,10 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     <>
       <EnterSwaggerModal
         ref={swaggerModalRef}
-        onOk={reqGetSwagger}
+        onOk={() => {
+          reqGetSwagger();
+          reqGetAttentionList(false);
+        }}
       ></EnterSwaggerModal>
       <GenerateAjaxCodeModal ref={generateAjaxCodeRef}></GenerateAjaxCodeModal>
       <GenerateEnumCodeModal ref={generateEnumCodeRef}></GenerateEnumCodeModal>
@@ -894,7 +897,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     return MDProject.menuCheckedList.some((item) => isEqual(params, item));
   }
   function openEnterSwaggerModal() {
-    swaggerModalRef.current.showModal();
+    swaggerModalRef.current.showModal(props.MDProject.domainSwaggerList);
   }
 };
 export default connect(({ MDProject, MDGlobal }: NModel.IState) => ({

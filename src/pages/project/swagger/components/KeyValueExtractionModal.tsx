@@ -105,10 +105,12 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
   function generateEnumCode() {
     if (state.strategy === "onlyEnglish") {
       if (state.enumList) {
+        onCancel();
         props.onEnumCode(state.enumList);
       }
     } else if (state.strategy === "englishKeyChineseDesc") {
       if (state.values) {
+        onCancel();
         props.onEnumCode(state.enumList, state.values);
       }
     }

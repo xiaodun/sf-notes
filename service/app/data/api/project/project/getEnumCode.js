@@ -11,7 +11,7 @@
       .map((key) => {
         return `
       {
-          label:${argParams.values[key] || ""},
+          label:${argParams.values[key] || '""'},
           value:obj["${key}"]
       },`;
       })
