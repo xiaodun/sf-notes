@@ -232,8 +232,10 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
             <Input.Search
               allowClear
               style={{ width: 280 }}
-              onPressEnter={(e) => onSearchSwagger(e.currentTarget.value)}
-              onSearch={onSearchSwagger}
+              onPressEnter={(e) =>
+                onSearchSwagger(e.currentTarget.value.trim())
+              }
+              onSearch={(value) => onSearchSwagger(value.trim())}
               enterButton
             />
             <Button onClick={showKeyValueExtractionModal}> 键值提取</Button>
@@ -348,7 +350,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
               <div className="label">描述</div>
               <div className="content summary">{rendMethodInfos.summary}</div>
             </div>
-            {menActiveTabKey === "attentionList" && (
+            {(menActiveTabKey === "attentionList" || searchSwaggerValue) && (
               <>
                 <div className={SelfStyle.itemWrap}>
                   <div className="label">域名</div>
@@ -613,77 +615,104 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       <>
         <Tabs activeKey={menActiveTabKey} onChange={onMenuTabChange}>
           <Tabs.TabPane key="domain" tab="域名">
-            <Menu mode="inline" theme="light">
-              {filterSwaggerList().map((domainItem) => {
-                return (
-                  <Menu.SubMenu key={domainItem.id} title={domainItem.domain}>
-                    {Object.values(domainItem.data).map((groupItem) => {
-                      return (
-                        <Menu.SubMenu
-                          key={domainItem.domain + groupItem.groupName}
-                          title={groupItem.groupName}
-                        >
-                          {Object.values(groupItem.tags).map(
-                            (tagItem, tagIndex) => {
-                              const tagMenuCheckbox: NProject.IMenuCheckbox = {
-                                domain: domainItem.domain,
-                                groupName: groupItem.groupName,
-                                tagName: tagItem.tagName,
-                                isTag: true,
-                              };
-                              return (
-                                <Menu.SubMenu
-                                  key={
-                                    domainItem.domain +
-                                    groupItem.groupName +
-                                    tagItem.tagName +
-                                    tagIndex
-                                  }
-                                  title={
-                                    <>
-                                      <span onClick={(e) => onStop(e)}>
-                                        <Checkbox
-                                          checked={getMenuChecked(
-                                            tagMenuCheckbox
-                                          )}
-                                          onChange={(e) =>
-                                            onMenuDomainCheckedChange(
-                                              e.target.checked,
-                                              tagMenuCheckbox
-                                            )
-                                          }
-                                          className={SelfStyle.tagCheckbox}
-                                        ></Checkbox>
-                                      </span>
-                                      {tagItem.tagName}
-                                    </>
-                                  }
-                                >
-                                  {Object.values(tagItem.paths).map(
-                                    (pathItem) => {
-                                      const pathMenuCheckbox = {
-                                        domain: domainItem.domain,
-                                        groupName: groupItem.groupName,
-                                        tagName: tagItem.tagName,
-                                        pathUrl: pathItem.pathUrl,
-                                        isPath: true,
-                                      };
-                                      return renderMenuPathUrl(
-                                        pathMenuCheckbox,
-                                        pathItem
-                                      );
+            <Menu
+              defaultOpenKeys={["myDomainSearch"]}
+              mode="inline"
+              theme="light"
+            >
+              {searchSwaggerValue ? (
+                <Menu.SubMenu
+                  key="myDomainSearch"
+                  title={
+                    <>
+                      <span onClick={(e) => onStop(e)}>
+                        <Checkbox
+                          checked={myAttentionChecked}
+                          onChange={(e) =>
+                            onMenuMySearchCheckedChange(e.target.checked)
+                          }
+                        ></Checkbox>
+                      </span>
+                      我的搜索
+                    </>
+                  }
+                >
+                  {filterSwaggerList().map((pathInfos) => {
+                    return renderMenuPathUrl(pathInfos, pathInfos.data);
+                  })}
+                </Menu.SubMenu>
+              ) : (
+                MDProject.domainSwaggerList.map((domainItem) => {
+                  return (
+                    <Menu.SubMenu key={domainItem.id} title={domainItem.domain}>
+                      {Object.values(domainItem.data).map((groupItem) => {
+                        return (
+                          <Menu.SubMenu
+                            key={domainItem.domain + groupItem.groupName}
+                            title={groupItem.groupName}
+                          >
+                            {Object.values(groupItem.tags).map(
+                              (tagItem, tagIndex) => {
+                                const tagMenuCheckbox: NProject.IMenuCheckbox = {
+                                  domain: domainItem.domain,
+                                  groupName: groupItem.groupName,
+                                  tagName: tagItem.tagName,
+                                  isTag: true,
+                                };
+                                return (
+                                  <Menu.SubMenu
+                                    key={
+                                      domainItem.domain +
+                                      groupItem.groupName +
+                                      tagItem.tagName +
+                                      tagIndex
                                     }
-                                  )}
-                                </Menu.SubMenu>
-                              );
-                            }
-                          )}
-                        </Menu.SubMenu>
-                      );
-                    })}
-                  </Menu.SubMenu>
-                );
-              })}
+                                    title={
+                                      <>
+                                        <span onClick={(e) => onStop(e)}>
+                                          <Checkbox
+                                            checked={getMenuChecked(
+                                              tagMenuCheckbox
+                                            )}
+                                            onChange={(e) =>
+                                              onMenuDomainCheckedChange(
+                                                e.target.checked,
+                                                tagMenuCheckbox
+                                              )
+                                            }
+                                            className={SelfStyle.tagCheckbox}
+                                          ></Checkbox>
+                                        </span>
+                                        {tagItem.tagName}
+                                      </>
+                                    }
+                                  >
+                                    {Object.values(tagItem.paths).map(
+                                      (pathItem) => {
+                                        const pathMenuCheckbox = {
+                                          domain: domainItem.domain,
+                                          groupName: groupItem.groupName,
+                                          tagName: tagItem.tagName,
+                                          pathUrl: pathItem.pathUrl,
+                                          isPath: true,
+                                        };
+                                        return renderMenuPathUrl(
+                                          pathMenuCheckbox,
+                                          pathItem
+                                        );
+                                      }
+                                    )}
+                                  </Menu.SubMenu>
+                                );
+                              }
+                            )}
+                          </Menu.SubMenu>
+                        );
+                      })}
+                    </Menu.SubMenu>
+                  );
+                })
+              )}
             </Menu>
           </Tabs.TabPane>
           <Tabs.TabPane key="attentionList" tab="关注">
@@ -704,7 +733,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                   </>
                 }
               >
-                {MDProject.attentionPathList.map((pathInfos) => {
+                {filterAttentionPathList().map((pathInfos) => {
                   return renderMenuPathUrl(pathInfos, pathInfos.data);
                 })}
               </Menu.SubMenu>
@@ -714,65 +743,60 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       </>
     );
   }
+  function filterAttentionPathList() {
+    return MDProject.attentionPathList.filter((item) =>
+      JSON.stringify(item).includes(searchSwaggerValue)
+    );
+  }
   function filterSwaggerList() {
-    if (searchSwaggerValue) {
-      const list: NProject.IDomainSwagger[] = [];
-      MDProject.domainSwaggerList.forEach((domainItem) => {
-        const searchDomainItemStr = JSON.stringify(domainItem);
-        const searchDomainItem = cloneDeep(domainItem);
-        searchDomainItem.data = {};
-        if (searchDomainItemStr.includes(searchSwaggerValue)) {
-          //搜索域名下
-          list.push(searchDomainItem);
-          Object.keys(domainItem.data).forEach((groupName) => {
-            const groupValueStr = JSON.stringify(domainItem.data[groupName]);
-            if (groupValueStr.includes(searchSwaggerValue)) {
-              //搜索组下面
-              const serachGroupValues = (searchDomainItem.data[
-                groupName
-              ] = cloneDeep(domainItem.data[groupName]));
-              serachGroupValues.tags = {};
-              Object.keys(domainItem.data[groupName].tags).forEach(
-                (tagName) => {
-                  {
-                    const tagValueStr = JSON.stringify(
-                      domainItem.data[groupName].tags[tagName]
+    const list: NProject.IMenuCheckbox[] = [];
+
+    MDProject.domainSwaggerList.forEach((domainItem) => {
+      const searchDomainItemStr = JSON.stringify(domainItem);
+      if (searchDomainItemStr.includes(searchSwaggerValue)) {
+        //搜索域名下
+
+        Object.keys(domainItem.data).forEach((groupName) => {
+          const groupValueStr = JSON.stringify(domainItem.data[groupName]);
+          if (groupValueStr.includes(searchSwaggerValue)) {
+            //搜索组下面
+
+            Object.keys(domainItem.data[groupName].tags).forEach((tagName) => {
+              {
+                const tagValueStr = JSON.stringify(
+                  domainItem.data[groupName].tags[tagName]
+                );
+                if (tagValueStr.includes(searchSwaggerValue)) {
+                  //搜索标签下面
+                  Object.keys(
+                    domainItem.data[groupName].tags[tagName].paths
+                  ).forEach((pathUrl) => {
+                    const pathValueStr = JSON.stringify(
+                      domainItem.data[groupName].tags[tagName].paths[pathUrl]
                     );
-                    if (tagValueStr.includes(searchSwaggerValue)) {
-                      //搜索标签下面
-                      const searchTagValues = (serachGroupValues.tags[
-                        tagName
-                      ] = cloneDeep(domainItem.data[groupName].tags[tagName]));
-                      searchTagValues.paths = {};
-                      Object.keys(
-                        domainItem.data[groupName].tags[tagName].paths
-                      ).forEach((pathUrl) => {
-                        const pathValueStr = JSON.stringify(
+                    if (pathValueStr.includes(searchSwaggerValue)) {
+                      //搜索路径下面
+                      list.push({
+                        domain: domainItem.domain,
+                        groupName,
+                        tagName,
+                        pathUrl,
+                        isPath: true,
+                        data:
                           domainItem.data[groupName].tags[tagName].paths[
                             pathUrl
-                          ]
-                        );
-                        if (pathValueStr.includes(searchSwaggerValue)) {
-                          //搜索路径下面
-                          searchTagValues.paths[pathUrl] = cloneDeep(
-                            domainItem.data[groupName].tags[tagName].paths[
-                              pathUrl
-                            ]
-                          );
-                        }
+                          ],
                       });
                     }
-                  }
+                  });
                 }
-              );
-            }
-          });
-        }
-      });
-      return list;
-    }
-
-    return MDProject.domainSwaggerList;
+              }
+            });
+          }
+        });
+      }
+    });
+    return list;
   }
   function onMenuTabChange(activeKey: string) {
     setMenActiveTabKey(activeKey);
@@ -818,6 +842,18 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   }
   function onStop(event: React.MouseEvent) {
     event.stopPropagation();
+  }
+  function onMenuMySearchCheckedChange(checked: boolean) {
+    let list: NProject.IMenuCheckbox[] = [];
+    if (checked) {
+      list = filterSwaggerList();
+    }
+    setMyAttentionChecked(checked);
+    NModel.dispatch(
+      new NMDProject.ARSetState({
+        menuCheckedList: list,
+      })
+    );
   }
   function onMenuAttentionCheckedChange(checked: boolean) {
     let list: NProject.IMenuCheckbox[] = [];
