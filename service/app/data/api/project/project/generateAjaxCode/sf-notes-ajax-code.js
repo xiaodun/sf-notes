@@ -1,6 +1,0 @@
-(function(){
-
-              return function(checkedPathList){
-                
-              }
-            })()
