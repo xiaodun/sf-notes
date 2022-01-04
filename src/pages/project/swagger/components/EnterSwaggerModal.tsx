@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Modal, Button, Form, Input } from "antd";
+import { Modal, Button, Form, Input, Radio, Select } from "antd";
 import produce from "immer";
 import SBase from "@/common/service/SBase";
 import urlParse from "url-parse";
@@ -17,34 +17,40 @@ import SelfStyle from "./EnterSwaggerModal.less";
 import NProject from "../../NProject";
 import SProject from "../../SProject";
 export interface IEnterSwaggerModal {
-  showModal: () => void;
+  showModal: (domainSwaggerList: NProject.IDomainSwagger[]) => void;
 }
 export interface IEnterSwaggerModalProps {
   onOk: () => void;
 }
+export type TEnterSwaggerModalWay = "add" | "update";
 export interface IEnterSwaggerModalState {
   visible: boolean;
   isAnalysisMode: boolean;
   parseNodeList: ReactNode[];
+  way: TEnterSwaggerModalWay;
 }
 const defaultState: IEnterSwaggerModalState = {
   visible: false,
   isAnalysisMode: false,
   parseNodeList: [],
+  way: "add",
 };
 const EnterSwaggerModal: ForwardRefRenderFunction<
   IEnterSwaggerModal,
   IEnterSwaggerModalProps
 > = (props, ref) => {
   const [state, setState] = useState<IEnterSwaggerModalState>(defaultState);
+  const [domainNameList, setDomainNameList] = useState<string[]>([]);
   const [form] = Form.useForm();
   const urlInputRef = useRef<Input>();
 
   useImperativeHandle(ref, () => ({
-    showModal: () => {
+    showModal: (domainSwaggerList: NProject.IDomainSwagger[]) => {
+      setDomainNameList(domainSwaggerList.map((item) => item.domain));
       setState(
         produce(state, (drafState) => {
           drafState.visible = true;
+
           setTimeout(() => {
             if (urlInputRef.current) {
               urlInputRef.current.focus();
@@ -57,7 +63,7 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
 
   return !state.isAnalysisMode ? (
     <Modal
-      width="420px"
+      width="500px"
       title="录入Swagger信息"
       maskClosable={false}
       bodyStyle={{ maxHeight: "100%" }}
@@ -70,14 +76,43 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
       onCancel={onCancel}
       centered
     >
-      <Form form={form} name="basic" layout="vertical" autoComplete="off">
+      <Form
+        form={form}
+        name="basic"
+        layout="vertical"
+        autoComplete="off"
+        initialValues={{
+          way: defaultState.way,
+        }}
+      >
         <Form.Item
-          label="Swagger文档地址"
+          label="Swagger文档地址:"
           name="url"
           rules={[{ required: true }, { type: "url" }]}
         >
           <Input ref={urlInputRef} onPressEnter={onOk} />
         </Form.Item>
+        <Form.Item label="方式:" name="way">
+          <Radio.Group onChange={(e) => onWayChange(e.target.value)}>
+            <Radio value={"add"}>新增</Radio>
+            <Radio value={"update"}>覆盖</Radio>
+          </Radio.Group>
+        </Form.Item>
+        {state.way === "update" && (
+          <Form.Item
+            label="域名:"
+            name="domainName"
+            rules={[{ required: true }]}
+          >
+            <Select>
+              {domainNameList.map((item) => (
+                <Select.Option key={item} value={item}>
+                  {item}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        )}
       </Form>
     </Modal>
   ) : (
@@ -106,6 +141,22 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
   function onCancel() {
     setState(defaultState);
     form.resetFields();
+  }
+  function onWayChange(way: TEnterSwaggerModalWay) {
+    setState(
+      produce(state, (drafState) => {
+        drafState.way = way;
+      })
+    );
+    if (way === "update") {
+      form.validateFields().then(async (values) => {
+        let url = new URL(values.url);
+        const index = domainNameList.findIndex((item) => item === url.origin);
+        form.setFieldsValue({
+          domainName: domainNameList[index] || "",
+        });
+      });
+    }
   }
   async function onOk() {
     form.validateFields().then(async (values) => {
@@ -176,10 +227,14 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
           });
         });
       });
-      const saveRsp = await SProject.saveSwagger({
-        data: renderSwaggerInfos,
-        domain: url.origin,
-      });
+      const saveRsp = await SProject.saveSwagger(
+        {
+          data: renderSwaggerInfos,
+          domain: url.origin,
+        },
+        state.way,
+        values.domainName
+      );
       if (saveRsp.success) {
         onCancel();
         props.onOk();

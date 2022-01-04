@@ -1,6 +1,7 @@
 import NRsp from "@/common/namespace/NRsp";
 import NProject from "./NProject";
 import request from "@/utils/request";
+import { TEnterSwaggerModalWay } from "./swagger/components/EnterSwaggerModal";
 
 namespace SProject {
   export async function getKeyValueExtraction(
@@ -87,12 +88,18 @@ namespace SProject {
     });
   }
   export async function saveSwagger(
-    data: NProject.IDomainSwagger
+    data: NProject.IDomainSwagger,
+    way: TEnterSwaggerModalWay,
+    oldDomainName: string
   ): Promise<NRsp<boolean>> {
     return request({
       url: "/project/saveSwagger",
       method: "post",
-      data,
+      data: {
+        ...data,
+        way,
+        oldDomainName,
+      },
     });
   }
   export async function getSwaggerList(): Promise<
