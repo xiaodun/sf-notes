@@ -35,7 +35,7 @@ export const Welcome: ConnectRC<IWelcomeProps> = (props) => {
       [
         NRouter.projectCommandPath,
         NRouter.bookEditPath,
-        NRouter.projectOverviewPath,
+        NRouter.projectSnippetPath,
         NRouter.projectSwaggerPath,
       ].includes(props.match.path)
     ) {
