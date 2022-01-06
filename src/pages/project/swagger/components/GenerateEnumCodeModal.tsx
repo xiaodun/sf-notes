@@ -10,6 +10,7 @@ import SelfStyle from "./GenerateEnumCodeModal.less";
 import NProject from "../../NProject";
 import SProject from "../../SProject";
 import UCopy from "@/common/utils/UCopy";
+import SyntaxHighlighter from "react-syntax-highlighter";
 export interface IGenerateEnumCodeModal {
   showModal: (enumList: string[], values?: Object) => void;
 }
@@ -65,7 +66,7 @@ const GenerateEnumCodeModal: ForwardRefRenderFunction<
                   </Button>
                 </div>
                 <div className={SelfStyle.codeWrap}>
-                  <pre>{codeInfos[key]}</pre>
+                  <SyntaxHighlighter>{codeInfos[key]}</SyntaxHighlighter>
                 </div>
               </Tabs.TabPane>
             );
