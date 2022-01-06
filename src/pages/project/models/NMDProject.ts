@@ -34,6 +34,7 @@ export default {
       rootPath: "",
       isSfMock: false,
       isDefaultAjaxCode: false,
+      closeAjaxCode: false,
       sfMock: {
         programUrl: "",
         startPort: 0,

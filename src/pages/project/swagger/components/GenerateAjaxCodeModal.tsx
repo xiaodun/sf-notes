@@ -10,6 +10,7 @@ import SelfStyle from "./GenerateAjaxCodeModal.less";
 import NProject from "../../NProject";
 import SProject from "../../SProject";
 import UCopy from "@/common/utils/UCopy";
+import SyntaxHighlighter from "react-syntax-highlighter";
 export interface IGenerateAjaxCodeModal {
   showModal: (checkPathList: NProject.IMenuCheckbox[]) => void;
 }
@@ -87,7 +88,7 @@ const GenerateAjaxCodeModal: ForwardRefRenderFunction<
                             </Button>
                           </div>
                           <div className={SelfStyle.codeWrap}>
-                            <pre>{item.data}</pre>
+                            <SyntaxHighlighter>{item.data}</SyntaxHighlighter>
                           </div>
                         </div>
                       );
