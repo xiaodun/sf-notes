@@ -167,5 +167,12 @@ namespace SProject {
       data: { id },
     });
   }
+  export async function getProjectSnippet(id: number): Promise<NRsp<NProject>> {
+    return request({
+      url: "/project/getProjectSnippet",
+      method: "post",
+      data: { id },
+    });
+  }
 }
 export default SProject;

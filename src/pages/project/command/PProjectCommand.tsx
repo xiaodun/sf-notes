@@ -9,12 +9,12 @@ import SProject from "../SProject";
 import qs from "qs";
 import NProject from "../NProject";
 import PageDirectory from "@/common/components/directory/PageDirectory";
-export interface IPProjectOverviewProps {
+export interface IPProjectCommandProps {
   MDProject: NMDProject.IState;
   MDGlobal: NMDGlobal.IState;
 }
 
-const PProjectOverview: ConnectRC<IPProjectOverviewProps> = (props) => {
+const PProjectCommand: ConnectRC<IPProjectCommandProps> = (props) => {
   const { MDProject } = props;
   useEffect(() => {
     NModel.dispatch(
@@ -78,4 +78,4 @@ const PProjectOverview: ConnectRC<IPProjectOverviewProps> = (props) => {
 export default connect(({ MDProject, MDGlobal }: NModel.IState) => ({
   MDProject,
   MDGlobal,
-}))(PProjectOverview);
+}))(PProjectCommand);

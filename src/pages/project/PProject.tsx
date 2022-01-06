@@ -77,9 +77,9 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       pathname: NRouter.projectSwaggerPath,
     });
   }
-  function onGoOverview(project = {} as NProject) {
+  function onGoSnippet(project = {} as NProject) {
     props.history.push({
-      pathname: NRouter.projectOverviewPath,
+      pathname: NRouter.projectSnippetPath,
       search: qs.stringify({ id: project.id }),
     });
   }
@@ -111,7 +111,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     return (
       <div className={SelfStyle.optionColumn}>
         <Space align="start">
-          <Button type="link" onClick={() => onGoOverview(project)}>
+          <Button type="link" onClick={() => onGoSnippet(project)}>
             进入总览
           </Button>
 

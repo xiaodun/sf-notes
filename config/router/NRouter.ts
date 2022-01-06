@@ -10,7 +10,7 @@ export namespace NRouter {
   export const bookEditPath = bookPath + "/edit";
   export const qrCodePath = "/qrCode";
   export const projectPath = "/project";
-  export const projectOverviewPath = projectPath + "/overview";
+  export const projectSnippetPath = projectPath + "/snippet";
   export const projectCommandPath = projectPath + "/command";
   export const projectSwaggerPath = projectPath + "/swagger";
   export const activityPath = "/activity";
@@ -61,8 +61,8 @@ export namespace NRouter {
       wrappers: [rootComponentPath],
     },
     {
-      path: projectOverviewPath,
-      component: "." + projectOverviewPath,
+      path: projectSnippetPath,
+      component: "." + projectSnippetPath,
       wrappers: [rootComponentPath],
     },
     {
