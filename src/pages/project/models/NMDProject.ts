@@ -46,6 +46,7 @@ export default {
       web: {
         isStart: null,
       },
+      snippetList: [],
     },
     commonMenuList: [],
     menuCheckedList: [],

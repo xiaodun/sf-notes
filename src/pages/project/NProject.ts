@@ -1,4 +1,5 @@
 import NSwagger from "@/common/namespace/NSwagger";
+import NProjectSnippet from "./snippet/NProjectSnippet";
 
 export interface NProject {
   id?: number;
@@ -15,6 +16,7 @@ export interface NProject {
     addressPath: string;
     openUrl: string;
   };
+  snippetList: NProjectSnippet[];
   web: {
     isStart: boolean;
   };

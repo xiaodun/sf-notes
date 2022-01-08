@@ -11,7 +11,7 @@
       }
     } else if (argParams.strategy === "englishKeyChineseDesc") {
       const chinese = "([\u4e00-\u9fa5]+)",
-        separator = "\\s*[-:]\\s*",
+        separator = "\\s*[-:]?\\s*",
         english = "([a-zA-Z_]+)";
       const chineseStartPattern = new RegExp(
         chinese + separator + english,

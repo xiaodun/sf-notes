@@ -1,6 +1,7 @@
 (function () {
   return function (argData, argParams) {
     argParams.values = argParams.values || [];
+    const prettier = require("prettier");
     let singleVarStatementStr =
       argParams.enumList
         .map((key) => {
@@ -45,7 +46,9 @@
         code: 200,
         data: {
           success: true,
-          data: { JavaScript: enumInfoStr },
+          data: {
+            JavaScript: prettier.format(enumInfoStr, { parser: "babel" }),
+          },
         },
       },
     };
