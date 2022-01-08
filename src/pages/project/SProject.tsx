@@ -2,8 +2,47 @@ import NRsp from "@/common/namespace/NRsp";
 import NProject from "./NProject";
 import request from "@/utils/request";
 import { TEnterSwaggerModalWay } from "./swagger/components/EnterSwaggerModal";
+import NProjectSnippet from "./snippet/NProjectSnippet";
 
 namespace SProject {
+  export async function getPreivewTemplate(
+    data: {
+      script: string;
+      id: number;
+      previewAbleName: string;
+    },
+    values: {}
+  ): Promise<NRsp<string>> {
+    return request({
+      url: "/project/getPreivewTemplate",
+      method: "post",
+      data: {
+        data,
+        values,
+      },
+    });
+  }
+  export async function getSnippetConfig(data: {
+    script: string;
+    id: number;
+  }): Promise<NRsp<NProjectSnippet.IConfig>> {
+    return request({
+      url: "/project/getSnippetConfig",
+      method: "post",
+      data,
+    });
+  }
+  export async function createProjectSnippet(data: {
+    name: string;
+    script: string;
+    id: number;
+  }): Promise<NRsp<boolean>> {
+    return request({
+      url: "/project/createProjectSnippet",
+      method: "post",
+      data,
+    });
+  }
   export async function getKeyValueExtraction(
     strategy: string,
     content: string
@@ -163,13 +202,6 @@ namespace SProject {
   export async function getProject(id: number): Promise<NRsp<NProject>> {
     return request({
       url: "/project/getProject",
-      method: "post",
-      data: { id },
-    });
-  }
-  export async function getProjectSnippet(id: number): Promise<NRsp<NProject>> {
-    return request({
-      url: "/project/getProjectSnippet",
       method: "post",
       data: { id },
     });

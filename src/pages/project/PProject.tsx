@@ -112,7 +112,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       <div className={SelfStyle.optionColumn}>
         <Space align="start">
           <Button type="link" onClick={() => onGoSnippet(project)}>
-            进入总览
+            代码片段
           </Button>
 
           {startBlock}

@@ -1,3 +1,5 @@
+const path = require("path");
+
 (function () {
   return function () {
     const commonList = ["c://sf-mobile-web", "/player", "/movie"];
@@ -28,6 +30,9 @@
 
           if (!argData.swaggerList) {
             argData.swaggerList = [];
+          }
+          if (!argData.snippetList) {
+            argData.snippetList = [];
           }
           if (!argData.apiPrefixs) {
             argData.apiPrefixs = {};
@@ -97,6 +102,29 @@
               }
             })()`
             );
+          }
+        };
+        external.getSnippetFolder = (projectName) => {
+          return `./data/api/project/project/snippet/${projectName}`;
+        };
+        external.getSnippetScriptPath = (projectName, script) => {
+          return (
+            external.getSnippetFolder(projectName) +
+            "/" +
+            script +
+            "-" +
+            projectName +
+            ".js"
+          );
+        };
+        external.createSnippetFolder = (projectName) => {
+          const projectPath = external.getSnippetFolder(projectName);
+          snipeetFollder = projectPath.split(`/${projectName}`)[0];
+          if (!fs.existsSync(snipeetFollder)) {
+            fs.mkdirSync(snipeetFollder);
+          }
+          if (!fs.existsSync(projectPath)) {
+            fs.mkdirSync(projectPath);
           }
         };
       },
