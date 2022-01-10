@@ -8,6 +8,7 @@ import { NSystem } from "@/common/namespace/NSystem";
 
 export interface IPageDirectoryProps {
   startPath?: string;
+  disableFile?: boolean;
   height?: number;
   onSelect?: (pathInfos: NSystem.IDirectory) => void;
   className?: string;
@@ -45,9 +46,11 @@ export default (props: PropsWithChildren<IPageDirectoryProps>) => {
       let list = directoryRsp.list.map((item) => {
         return {
           isLeaf: item.isLeaf,
+
           title: item.name,
           key: item.path,
           metaInfo: item,
+          selectable: item.isLeaf ? !props.disableFile : true,
         } as IPageDirectoryDataNode;
       });
       if (expanded) {

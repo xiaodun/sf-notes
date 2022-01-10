@@ -10,9 +10,14 @@ export namespace NProjectSnippet {
     previewAbleName: string;
     template: string;
   }
-  export interface IWriteOs {
+  export interface IWriteOsConfig {
     open: boolean;
     needFolder: boolean;
+    basePath: string;
+  }
+  export interface IWriteResult {
+    title: string;
+    success: boolean;
   }
   export interface IParam {
     name: string;
@@ -25,7 +30,7 @@ export namespace NProjectSnippet {
   export interface IConfig {
     globalParamList: IParam[];
     fragmentList: IFragment[];
-    writeOs: IWriteOs;
+    writeOs: IWriteOsConfig;
   }
 }
 

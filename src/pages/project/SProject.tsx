@@ -5,6 +5,22 @@ import { TEnterSwaggerModalWay } from "./swagger/components/EnterSwaggerModal";
 import NProjectSnippet from "./snippet/NProjectSnippet";
 
 namespace SProject {
+  export async function writeSnippetOs(
+    data: {
+      script: string;
+      id: number;
+    },
+    values: any
+  ): Promise<NRsp<NProjectSnippet.IWriteResult>> {
+    return request({
+      url: "/project/writeSnippetOs",
+      method: "post",
+      data: {
+        data,
+        values,
+      },
+    });
+  }
   export async function getPreivewTemplate(
     data: {
       script: string;

@@ -9,16 +9,16 @@
       argParams.data.script
     );
     const sctiptContent = fs.readFileSync(snippetScriptPath).toString();
-    const data = eval(sctiptContent)(argParams.values, project).ables[
-      argParams.data.previewAbleName
-    ]();
+    const data = eval(sctiptContent)(argParams.values, project).ables.writeOs(
+      argParams.values
+    );
     return {
       isWrite: false,
       response: {
         code: 200,
         data: {
           success: true,
-          data,
+          list: data,
         },
       },
     };
