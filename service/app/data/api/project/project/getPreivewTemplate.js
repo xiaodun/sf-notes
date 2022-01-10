@@ -1,6 +1,5 @@
 (function () {
   return function (argData, argParams, external) {
-    //argData 数据的副本
     const project = argData.projectList.find(
       (item) => item.id == argParams.data.id
     );
@@ -10,7 +9,7 @@
       argParams.data.script
     );
     const sctiptContent = fs.readFileSync(snippetScriptPath).toString();
-    const data = eval(sctiptContent)(argParams.values).ables[
+    const data = eval(sctiptContent)(argParams.values, project).ables[
       argParams.data.previewAbleName
     ]();
     return {

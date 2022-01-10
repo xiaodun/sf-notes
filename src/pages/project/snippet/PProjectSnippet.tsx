@@ -1,5 +1,5 @@
 import NModel from "@/common/namespace/NModel";
-import { Button, Form, Input, Menu, Space, Switch } from "antd";
+import { Button, Form, Input, Menu, message, Modal, Space, Switch } from "antd";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { connect, ConnectRC, NMDGlobal, NMDProject } from "umi";
 import SelfStyle from "./LProjectSnippet.less";
@@ -13,6 +13,10 @@ import NProjectSnippet from "./NProjectSnippet";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import produce from "immer";
 import UCopy from "@/common/utils/UCopy";
+import DirectoryModal, {
+  IDirectoryModal,
+} from "@/common/components/directory/combination/modal/DirectoryModal";
+import { NSystem } from "@/common/namespace/NSystem";
 export interface IPProjectSnippetProps {
   MDProject: NMDProject.IState;
   MDGlobal: NMDGlobal.IState;
@@ -28,7 +32,8 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
   const [snippetConfig, setSnippetConfig] =
     useState<NProjectSnippet.IConfig>(null);
   const [snippet, setSnippet] = useState<NProjectSnippet>(null);
-
+  const directoryModalRef = useRef<IDirectoryModal>();
+  const firstGlobalParamInputId = "firstGlobalParamInputId";
   useEffect(() => {
     NModel.dispatch(
       new NMDGlobal.ARChangeSetting({
@@ -44,6 +49,10 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
 
   return (
     <div className={SelfStyle.main}>
+      <DirectoryModal
+        onOk={onSelectDirectory}
+        ref={directoryModalRef}
+      ></DirectoryModal>
       <CreateSnipeetModal
         ref={createSnipeetModalRef}
         onOk={pageSetup}
@@ -73,7 +82,11 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
               <div className="ableWrap">
                 <Space size={40}>
                   {snippetConfig.writeOs.open && (
-                    <Button type="primary" style={{ width: 120 }}>
+                    <Button
+                      onClick={() => onWriteOs(snippetConfig)}
+                      type="primary"
+                      style={{ width: 120 }}
+                    >
                       写入
                     </Button>
                   )}
@@ -89,11 +102,11 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
                   autoComplete="off"
                   initialValues={getGlobalInitialValues()}
                 >
-                  {renderParamList(snippetConfig.globalParamList)}
+                  {renderParamList(snippetConfig.globalParamList || [])}
                 </Form>
               </div>
               <div className="fragmentListWrap">
-                {renderFragmentList(snippetConfig.fragmentList)}
+                {renderFragmentList(snippetConfig.fragmentList || [])}
               </div>
             </>
           )}
@@ -101,6 +114,56 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
       </div>
     </div>
   );
+  function onWriteOs(snippetConfig: NProjectSnippet.IConfig) {
+    globalform.validateFields().then(async () => {
+      if (snippetConfig.writeOs.needFolder) {
+        directoryModalRef.current.showModal({
+          startPath:
+            MDProject.project.rootPath + snippetConfig.writeOs.basePath,
+          disableFile: true,
+          selectCallbackFlag: "writeOs",
+        });
+      } else {
+        reqWriteSnippetOs();
+      }
+    });
+  }
+  async function onSelectDirectory(
+    pathInfos: NSystem.IDirectory,
+    selectCallbackFlag: string
+  ) {
+    if (selectCallbackFlag == "writeOs") {
+      reqWriteSnippetOs(pathInfos.path);
+    }
+  }
+  function reqWriteSnippetOs(writeOsPath?: string) {
+    globalform.validateFields().then(async (values) => {
+      const rsp = await SProject.writeSnippetOs(
+        {
+          id: urlQuery.id,
+          script: snippet.script,
+        },
+        {
+          ...values,
+          writeOsPath,
+        }
+      );
+      if (rsp.success) {
+        Modal.info({
+          content: rsp.list.map((item) => (
+            <div className={SelfStyle.writeOsResult}>
+              <div className="title">{item.title}</div>
+              {item.success ? (
+                <div className="success">成功</div>
+              ) : (
+                <div className="fail">失败</div>
+              )}
+            </div>
+          )),
+        });
+      }
+    });
+  }
   function renderFragmentList(fragmentList: NProjectSnippet.IFragment[]) {
     return fragmentList.map((fragment, index) => {
       return (
@@ -150,10 +213,15 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
     });
   }
   function renderParamList(paramList: NProjectSnippet.IParam[]) {
-    return paramList.map((param) => {
+    return paramList.map((param, index) => {
       let content: ReactNode = "";
       if (param.type === "input") {
-        content = <Input style={param.style} />;
+        content = (
+          <Input
+            id={index == 0 ? firstGlobalParamInputId : ""}
+            style={param.style}
+          />
+        );
       } else if (param.type === "switch") {
         content = <Switch></Switch>;
       }
@@ -185,6 +253,12 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
     });
     if (rsp.success) {
       setSnippetConfig(rsp.data);
+      setTimeout(() => {
+        const input = document.getElementById("firstGlobalParamInputId");
+        if (input) {
+          input.focus();
+        }
+      }, 100);
     }
   }
 

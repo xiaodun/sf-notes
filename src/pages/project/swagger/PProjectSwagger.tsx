@@ -52,19 +52,13 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   const generateAjaxCodeRef = useRef<IGenerateAjaxCodeModal>();
   const generateEnumCodeRef = useRef<IGenerateEnumCodeModal>();
   const keyValueExtractionRef = useRef<IKeyValueExtractionModal>();
-  const [
-    rendMethodInfos,
-    setRenderMethodInfos,
-  ] = useState<NProject.IRenderMethodInfo>(null);
-  const [
-    lastRendMethodInfos,
-    setLastRenderMethodInfos,
-  ] = useState<NProject.IRenderMethodInfo>(null);
+  const [rendMethodInfos, setRenderMethodInfos] =
+    useState<NProject.IRenderMethodInfo>(null);
+  const [lastRendMethodInfos, setLastRenderMethodInfos] =
+    useState<NProject.IRenderMethodInfo>(null);
 
-  const [
-    currentMenuCheckbox,
-    setCurrentMenuCheckbox,
-  ] = useState<NProject.IMenuCheckbox>(null);
+  const [currentMenuCheckbox, setCurrentMenuCheckbox] =
+    useState<NProject.IMenuCheckbox>(null);
   const [menActiveTabKey, setMenActiveTabKey] = useState<string>("domain");
   const [myAttentionChecked, setMyAttentionChecked] = useState<boolean>(false);
   const [searchSwaggerValue, setSearchSwaggerValue] = useState<string>("");
@@ -559,7 +553,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
 
       return wrap;
     }
-    let data = {};
+    let data = {} as any;
 
     able(rspItemList, data);
     if (!isRsp) {
@@ -569,6 +563,8 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
           data = innerObj;
         }
       }
+    } else {
+      data = data.rsp;
     }
     UCopy.copyStr(JSON.stringify(data));
   }
@@ -656,12 +652,13 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                           >
                             {Object.values(groupItem.tags).map(
                               (tagItem, tagIndex) => {
-                                const tagMenuCheckbox: NProject.IMenuCheckbox = {
-                                  domain: domainItem.domain,
-                                  groupName: groupItem.groupName,
-                                  tagName: tagItem.tagName,
-                                  isTag: true,
-                                };
+                                const tagMenuCheckbox: NProject.IMenuCheckbox =
+                                  {
+                                    domain: domainItem.domain,
+                                    groupName: groupItem.groupName,
+                                    tagName: tagItem.tagName,
+                                    isTag: true,
+                                  };
                                 return (
                                   <Menu.SubMenu
                                     key={
@@ -785,10 +782,9 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                         tagName,
                         pathUrl,
                         isPath: true,
-                        data:
-                          domainItem.data[groupName].tags[tagName].paths[
-                            pathUrl
-                          ],
+                        data: domainItem.data[groupName].tags[tagName].paths[
+                          pathUrl
+                        ],
                       });
                     }
                   });
