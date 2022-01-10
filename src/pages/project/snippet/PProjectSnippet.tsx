@@ -274,8 +274,6 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
         })
       );
       document.title = "代码片段 - " + projectRsp.data.name;
-
-      reqGetSnippetConfig(projectRsp.data.snippetList[0]);
     }
   }
 };
