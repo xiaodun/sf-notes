@@ -27,6 +27,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   const directoryModalRef = useRef<IDirectoryModal>();
 
   useEffect(() => {
+    reqGetProject();
     reqGetList();
   }, []);
 
@@ -184,6 +185,16 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       })
     );
   }
+  async function reqGetProject() {
+    const rsp = await SProject.getConfig();
+    if (rsp.success) {
+      NModel.dispatch(
+        new NMDProject.ARSetState({
+          config: rsp.data,
+        })
+      );
+    }
+  }
   async function reqGetList() {
     const rsp = await SProject.getProjectList();
     if (rsp.success) {
@@ -198,7 +209,9 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     }
   }
   function onShowAddModal() {
-    directoryModalRef.current.showModal();
+    directoryModalRef.current.showModal({
+      startPath: MDProject.config.addBasePath,
+    });
   }
 };
 export default connect(({ MDProject }: NModel.IState) => ({

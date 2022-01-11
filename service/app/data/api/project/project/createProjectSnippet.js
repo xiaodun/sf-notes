@@ -27,68 +27,51 @@
         snippetScriptPath,
         `
         (function () {
-          return function (argParams,peoject) {
+          return function (argParams) {
             const _ = require("lodash");
             const prettier = require("prettier");
             const path = require("path");
             const fs = require("fs");
-            const results = {
-              config: {
-                globalParamList: [
-                  {
-                    name: "fileName",
-                    label: "文件名",
-                    type: "input",
-                    style: {
-                      width: 300,
-                    },
-                    require: true,
+            const babelParser = require("@babel/parser");
+            const { default: babelTraverse } = require("@babel/traverse");
+            const { baseParse: vueParse } = require("@vue/compiler-core");
+        
+            function getRouteFilePath() {
+              return path.join(argParams.writeOsPath, "router", "index.js");
+            }
+            return {
+              writeOs: {
+                open: true,
+                needFolder: true,
+                basePath: "\\src\\modules",
+              },
+              globalParamList: [
+                {
+                  name: "fileName",
+                  label: "文件名",
+                  type: "input",
+                  style: {
+                    width: 300,
                   },
-                ],
-                fragmentList: [
-                  {
-                    title: "单文件",
-                    previewAbleName: "previewSingleFile",
-                    supportWriteOs: true,
-                  },
-                  
-                ],
-                writeOs: {
-                  open: true,
-                  needFolder: true,
-                  basePath: "\\src\\modules",
+                  require: true,
                 },
-              },
-              ables: {
-                previewSingleFile() {},
-              },
+                {
+                  name: "hasCrumb",
+                  label: "面包屑",
+                  type: "switch",
+                  defaultValue: true,
+                },
+              ],
+              fragmentList: [
+                {
+                  title: "单文件",
+                  getTemplate() {
+                    return "";
+                  },
+                  writeOs(template) {},
+                },
+              ],
             };
-            results.ables.writeOs = function () {
-              const execResultList = [];
-              const execFragmentList = results.config.fragmentList
-                .filter((item) => item.supportWriteOs)
-                .forEach((frgment) => {
-                  try {
-                    if (frgment.previewAbleName == "previewSingleFile") {
-
-                    }
-        
-                    execResultList.push({
-                      title: frgment.title,
-                      success: true,
-                    });
-                  } catch (error) {
-                    console.error(error);
-                    execResultList.push({
-                      title: frgment.title,
-                      success: false,
-                    });
-                  }
-                });
-        
-              return execResultList;
-            };
-            return results;
           };
         })();
         

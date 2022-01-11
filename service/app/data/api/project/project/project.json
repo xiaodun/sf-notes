@@ -1,10 +1,6 @@
 {
-    "command": {
-        "menuList": [
-            {
-                "name": "通用命令"
-            }
-        ]
+    "config": {
+        "addBasePath": "D:\\github"
     },
     "projectList": []
 }

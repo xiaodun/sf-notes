@@ -5,6 +5,12 @@ import { TEnterSwaggerModalWay } from "./swagger/components/EnterSwaggerModal";
 import NProjectSnippet from "./snippet/NProjectSnippet";
 
 namespace SProject {
+  export async function getConfig(): Promise<NRsp<NProject.IConfig>> {
+    return request({
+      url: "/project/getConfig",
+      method: "get",
+    });
+  }
   export async function writeSnippetOs(
     data: {
       script: string;
@@ -25,7 +31,7 @@ namespace SProject {
     data: {
       script: string;
       id: number;
-      previewAbleName: string;
+      index: number;
     },
     values: {}
   ): Promise<NRsp<string>> {
