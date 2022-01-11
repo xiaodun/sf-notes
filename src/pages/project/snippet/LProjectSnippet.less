@@ -70,10 +70,12 @@
 }
 .writeOsResult {
   display: flex;
+  align-items: flex-start;
   margin-bottom: 10px;
   font-size: 14px;
   :global {
     .title {
+      flex-shrink: 0;
       margin-right: 10px;
       font-weight: bold;
       &::after {
@@ -85,6 +87,7 @@
     }
     .fail {
       color: #d25565;
+      word-break: break-all;
     }
   }
 }

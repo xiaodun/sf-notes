@@ -4,7 +4,7 @@ import React, {
   ForwardRefRenderFunction,
   forwardRef,
 } from "react";
-import { Modal } from "antd";
+import { message, Modal } from "antd";
 import { produce } from "@/common";
 import PageDirectory from "../../PageDirectory";
 import { NSystem } from "@/common/namespace/NSystem";
@@ -69,6 +69,10 @@ export const EditModal: ForwardRefRenderFunction<
     </Modal>
   );
   async function onOk() {
+    if (!state.pathInfos) {
+      message.error("请选择一个路径!");
+      return;
+    }
     props.onOk(state.pathInfos, state.showParasm.selectCallbackFlag);
     onClose();
   }

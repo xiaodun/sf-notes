@@ -7,7 +7,14 @@
       argParams.script
     );
     const sctiptContent = fs.readFileSync(snippetScriptPath).toString();
-    const data = eval(sctiptContent)().config;
+    const data = eval(sctiptContent)();
+    data.fragmentList.forEach((item) => {
+      if (item.getTemplate) {
+        item.noTemplate = false;
+      } else {
+        item.noTemplate = true;
+      }
+    });
     return {
       isWrite: false, //是否覆盖数据
       //data:argData,//需要存储的新数据

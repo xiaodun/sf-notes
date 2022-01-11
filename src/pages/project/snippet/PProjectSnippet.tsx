@@ -150,13 +150,14 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
       );
       if (rsp.success) {
         Modal.info({
-          content: rsp.list.map((item) => (
-            <div className={SelfStyle.writeOsResult}>
+          icon: null,
+          content: rsp.list.map((item, index) => (
+            <div key={index} className={SelfStyle.writeOsResult}>
               <div className="title">{item.title}</div>
               {item.success ? (
                 <div className="success">成功</div>
               ) : (
-                <div className="fail">失败</div>
+                <div className="fail">{item.errorMsg}</div>
               )}
             </div>
           )),
@@ -172,14 +173,14 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
             <div className="title">{fragment.title}</div>
             <div className="btnWrap">
               <Space size={30}>
-                <Button
-                  size="small"
-                  onClick={() =>
-                    reqGetPreivewTemplate(index, fragment.previewAbleName)
-                  }
-                >
-                  预览
-                </Button>
+                {!fragment.noTemplate && (
+                  <Button
+                    size="small"
+                    onClick={() => reqGetPreivewTemplate(index)}
+                  >
+                    预览
+                  </Button>
+                )}
               </Space>
             </div>
           </div>
@@ -192,13 +193,13 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
       );
     });
   }
-  async function reqGetPreivewTemplate(index: number, previewAbleName: string) {
+  async function reqGetPreivewTemplate(index: number) {
     globalform.validateFields().then(async (values) => {
       const rsp = await SProject.getPreivewTemplate(
         {
           id: urlQuery.id,
           script: snippet.script,
-          previewAbleName,
+          index,
         },
         values
       );

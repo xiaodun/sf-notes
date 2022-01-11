@@ -5,6 +5,7 @@ import NProject from "../NProject";
 export namespace NMDProject {
   export interface IState {
     rsp: NRsp<NProject>;
+    config: NProject.IConfig;
     project: NProject;
     domainSwaggerList: NProject.IDomainSwagger[];
     commonMenuList: NProject.ICommandMenu[];
@@ -28,6 +29,9 @@ export default {
     domainSwaggerList: [],
     rsp: {
       list: [],
+    },
+    config: {
+      addBasePath: "",
     },
     project: {
       name: "",

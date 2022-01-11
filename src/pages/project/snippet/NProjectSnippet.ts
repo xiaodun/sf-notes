@@ -6,9 +6,8 @@ export interface NProjectSnippet {
 export namespace NProjectSnippet {
   export interface IFragment {
     title: string;
-    openCode: boolean;
-    previewAbleName: string;
-    template: string;
+    noTemplate: boolean;
+    template?: string;
   }
   export interface IWriteOsConfig {
     open: boolean;
@@ -18,6 +17,7 @@ export namespace NProjectSnippet {
   export interface IWriteResult {
     title: string;
     success: boolean;
+    errorMsg: string;
   }
   export interface IParam {
     name: string;
