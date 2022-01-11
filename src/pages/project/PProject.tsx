@@ -58,7 +58,6 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       ></DirectoryModal>
       <PageFooter>
         <Button onClick={onShowAddModal}>添加项目</Button>
-        <Button onClick={onGoCommand}>命令管理</Button>
         <Button onClick={onGoSwagger}>Swagger</Button>
       </PageFooter>
     </div>
