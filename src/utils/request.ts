@@ -55,7 +55,11 @@ export default function request(config: AxiosRequestConfig) {
 
         notification.error({
           message: `请求错误 ${status}: ${config.url}`,
-          description: errorText,
+          description: response.data ? response.data : errorText,
+          style: response.data
+            ? { width: "45vw", whiteSpace: "pre", overflow: "auto" }
+            : {},
+          duration: response.data ? 20 : 4.5,
         });
       } else if (!response) {
         notification.error({
