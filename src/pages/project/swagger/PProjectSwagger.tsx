@@ -578,13 +578,19 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   function getPrefixByPathUrl(pathUrl: string) {
     let prefix = "";
     if (MDProject.apiPrefixs) {
-      Object.keys(MDProject.apiPrefixs).find((item) => {
-        if (pathUrl.startsWith(item)) {
-          let config = MDProject.apiPrefixs[item];
-          prefix = config.prefix;
-          return true;
-        }
-      });
+      const prefixConfigs =
+        MDProject.apiPrefixs[currentMenuCheckbox.domain]?.[
+          currentMenuCheckbox.groupName
+        ];
+      if (prefixConfigs) {
+        Object.keys(prefixConfigs).find((item) => {
+          if (pathUrl.startsWith(item)) {
+            let config = prefixConfigs[item];
+            prefix = config.prefix;
+            return true;
+          }
+        });
+      }
     }
     return prefix;
   }
