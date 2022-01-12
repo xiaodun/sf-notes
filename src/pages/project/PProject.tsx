@@ -96,7 +96,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         if (!project.isSfMock && project.sfMock.openUrl) {
           openBlock = (
             <a target="_blank" href={project.sfMock.openUrl}>
-              打开
+              在mock端口打开
             </a>
           );
         }
