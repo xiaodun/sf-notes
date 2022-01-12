@@ -72,7 +72,11 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
             ></Note>
           </div>
         ))}
-      <EditModal ref={editModalRef} rsp={MDNotes.rsp}></EditModal>
+      <EditModal
+        onOk={reqGetList}
+        ref={editModalRef}
+        rsp={MDNotes.rsp}
+      ></EditModal>
       <PageFooter>
         <Button onClick={() => onAddNote()}>新建笔记</Button>
 

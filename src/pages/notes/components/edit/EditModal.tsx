@@ -10,7 +10,6 @@ import {
 import { Modal, Input, Space, message, AutoComplete, Radio } from "antd";
 import SelfStyle from "./EditModal.less";
 import React from "react";
-import TextArea from "antd/lib/input/TextArea";
 import moment from "moment";
 import SNotes from "../../SNotes";
 import produce from "immer";
@@ -19,9 +18,11 @@ import NModel from "@/common/namespace/NModel";
 import { NMDNotes } from "umi";
 import NRsp from "@/common/namespace/NRsp";
 import { USelection } from "@/common/utils/USelection";
+import { TextAreaRef } from "antd/lib/input/TextArea";
 
 export interface IEditModalProps {
   rsp: NRsp<NNotes>;
+  onOk: () => void;
 }
 
 export interface IEditModalState {
@@ -52,7 +53,7 @@ export const EditModal: ForwardRefRenderFunction<
   IEditModalProps
 > = (props, ref) => {
   const [state, setState] = useState<Partial<IEditModalState>>(defaultState);
-  const textAreaRef = useRef<TextArea>();
+  const textAreaRef = useRef<TextAreaRef>();
   const loadCountRef = useRef<number>(0);
   const noteTitleId = "noteTitleId";
   const noteEditId = "noteEditId";
@@ -93,7 +94,7 @@ export const EditModal: ForwardRefRenderFunction<
   }, [state.visible]);
 
   const title = state.added ? "添加记事" : "编辑记事";
-  const titlePlaceholder = `标题 默认为${moment().format(UDate.ymd)}`;
+  const titlePlaceholder = `标题 默认为${moment().format(UDate.ymdhms)}`;
   return (
     <Modal
       visible={state.visible}
@@ -179,13 +180,12 @@ export const EditModal: ForwardRefRenderFunction<
   function onBlurTitle() {
     const notes = props.rsp.list.find((item) => item.title == state.data.title);
     if (notes) {
-      onDataChange({
-        content: notes.content,
-      });
-    } else {
-      onDataChange({
-        content: "",
-      });
+      if (!state.data.content) {
+        //如果没值才覆盖
+        onDataChange({
+          content: notes.content,
+        });
+      }
     }
   }
   function onSelectExistTitle(title: string) {
@@ -193,10 +193,12 @@ export const EditModal: ForwardRefRenderFunction<
   }
   function onSelectTitle(title: string) {
     const notes = props.rsp.list.find((item) => item.title == title) || {};
-    onDataChange({
-      title,
-      ...notes,
-    });
+    if (!state.data.content) {
+      onDataChange({
+        title,
+        ...notes,
+      });
+    }
   }
   function onDataChange(notes: Partial<NNotes>) {
     const newState = produce(state, (drafState) => {
@@ -208,29 +210,18 @@ export const EditModal: ForwardRefRenderFunction<
     if (state.added) {
       const params = { ...state.data };
       if (!state.data.title) {
-        params.title = moment().format(UDate.ymd);
+        params.title = moment().format(UDate.ymdhms);
       }
       const addRsp = await SNotes.addItem(params);
       if (addRsp.success) {
-        const newNotesRsp = NRsp.addItem(props.rsp, (newDataList) => {
-          newDataList.splice(state.index, 0, addRsp.data);
-          return newDataList;
-        });
-        NModel.dispatch(new NMDNotes.ARSetRsp(newNotesRsp));
-
         onClose();
+        props.onOk();
       }
     } else {
       const editRsp = await SNotes.editItem(state.data);
       if (editRsp.success) {
-        const newNotesRsp = NRsp.updateItem(
-          props.rsp,
-          state.data,
-          (data) => data.id === state.data.id
-        );
-        NModel.dispatch(new NMDNotes.ARSetRsp(newNotesRsp));
-
         onClose();
+        props.onOk();
       }
     }
   }
