@@ -48,6 +48,13 @@
           .forEach((item) => {
             item.domain = argParams.domain;
           });
+
+        //处理前缀配置
+
+        argData.apiPrefixs[argParams.domain] =
+          argData.apiPrefixs[argParams.oldDomainName];
+
+        delete argData.apiPrefixs[argParams.oldDomainName];
       }
     }
 

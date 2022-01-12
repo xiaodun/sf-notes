@@ -1,18 +1,23 @@
 (function () {
   return function (argData, argParams, external) {
+    const _ = require("lodash");
     argData = external.getBaseStructure(argData);
 
-    let apiPrefixs = {};
-    Object.keys(argData.apiPrefixs).forEach((prefix) => {
-      argData.apiPrefixs[prefix].forEach((item) => {
-        apiPrefixs[item] = { prefix };
+    let apiPrefixs = _.cloneDeep(argData.apiPrefixs);
+    Object.keys(argData.apiPrefixs).forEach((domain) => {
+      Object.keys(argData.apiPrefixs[domain]).forEach((group) => {
+        apiPrefixs[domain][group] = {};
+        Object.keys(argData.apiPrefixs[domain][group]).forEach((prefix) => {
+          argData.apiPrefixs[domain][group][prefix].forEach((item) => {
+            apiPrefixs[domain][group][item] = { prefix };
+          });
+        });
       });
     });
     return {
-      isWrite: false, //是否覆盖数据
-      //data:argData,//需要存储的新数据
+      isWrite: false,
+
       response: {
-        //返回的数据
         code: 200,
         data: {
           success: true,
