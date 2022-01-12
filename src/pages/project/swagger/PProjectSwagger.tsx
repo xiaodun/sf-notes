@@ -67,6 +67,9 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     reqGetApiPrefix();
     reqGetSwagger();
     reqGetAttentionList(true);
+    setTimeout(() => {
+      document.title = "Swagger文档";
+    }, 1000);
   }, []);
   const desColumnWidth = 450;
   const swaggerTableProps: TableProps<any> = {
@@ -136,9 +139,13 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
               )}
 
               {node ? (
-                <span onClick={() => UCopy.copyStr(record.description)}>
-                  {node}
-                </span>
+                <>
+                  <CopyOutlined
+                    style={{ marginRight: 10 }}
+                    onClick={() => UCopy.copyStr(record.description)}
+                  ></CopyOutlined>
+                  <span>{node}</span>
+                </>
               ) : (
                 <span style={{ color: "#5bd1d7" }}>没有描述</span>
               )}
