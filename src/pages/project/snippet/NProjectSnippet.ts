@@ -4,6 +4,12 @@ export interface NProjectSnippet {
 }
 
 export namespace NProjectSnippet {
+  export interface IExtractionResult {
+    enumList: string[];
+    enumStr: string;
+    values: Object;
+    valueStr: string;
+  }
   export interface IFragment {
     title: string;
     noTemplate: boolean;

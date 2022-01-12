@@ -68,7 +68,7 @@ namespace SProject {
   export async function getKeyValueExtraction(
     strategy: string,
     content: string
-  ): Promise<NRsp<{ enumList: string[]; values: Object }>> {
+  ): Promise<NRsp<NProjectSnippet.IExtractionResult>> {
     return request({
       url: "/project/keyValueExtraction",
       method: "post",

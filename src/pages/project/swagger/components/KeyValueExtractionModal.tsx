@@ -11,31 +11,33 @@ import { Modal, Button, Form, Input, Radio, Space } from "antd";
 import produce from "immer";
 import SelfStyle from "./KeyValueExtractionModal.less";
 import SProject from "../../SProject";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import NProjectSnippet from "../../snippet/NProjectSnippet";
 export interface IKeyValueExtractionModal {
   showModal: () => void;
 }
 export interface IKeyValueExtractionModalProps {
   onEnumCode: (enumList: string[], values?: Object) => void;
 }
-export interface IKeyValueExtractionModalState {
+export interface IKeyValueExtractionModalState
+  extends NProjectSnippet.IExtractionResult {
   visible: boolean;
   strategy: string;
-  enumList: string[];
-  values: Object;
 }
 const defaultState: IKeyValueExtractionModalState = {
   visible: false,
   strategy: "",
   enumList: null,
   values: null,
+  valueStr: "",
+  enumStr: "",
 };
 const KeyValueExtractionModal: ForwardRefRenderFunction<
   IKeyValueExtractionModal,
   IKeyValueExtractionModalProps
 > = (props, ref) => {
-  const [state, setState] = useState<IKeyValueExtractionModalState>(
-    defaultState
-  );
+  const [state, setState] =
+    useState<IKeyValueExtractionModalState>(defaultState);
   const [form] = Form.useForm();
   const contentTextAreaRef = useRef<Input>();
 
@@ -85,10 +87,11 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
             <Button onClick={() => reqKeyValueExtraction("onlyEnglish")}>
               提取英文
             </Button>
-            <Button
-              onClick={() => reqKeyValueExtraction("englishKeyChineseDesc")}
-            >
-              提取英文键和中文描述
+            <Button onClick={() => reqKeyValueExtraction("englishChinese")}>
+              英文前中文后
+            </Button>
+            <Button onClick={() => reqKeyValueExtraction("chineseEnglish")}>
+              中文前英文后
             </Button>
           </Space>
         </Form.Item>
@@ -108,7 +111,7 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
         onCancel();
         props.onEnumCode(state.enumList);
       }
-    } else if (state.strategy === "englishKeyChineseDesc") {
+    } else if (state.strategy === "englishChinese") {
       if (state.values) {
         onCancel();
         props.onEnumCode(state.enumList, state.values);
@@ -119,13 +122,21 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
     const noResult = <span style={{ color: "#C00000" }}> 没有提取到</span>;
     if (state.strategy === "onlyEnglish") {
       if (state.enumList) {
-        return <div className="content">{JSON.stringify(state.enumList)}</div>;
+        return (
+          <div className="content">
+            <SyntaxHighlighter>{state.enumStr}</SyntaxHighlighter>
+          </div>
+        );
       }
 
       return noResult;
-    } else if (state.strategy == "englishKeyChineseDesc") {
+    } else {
       if (state.values) {
-        return <div className="content">{JSON.stringify(state.values)}</div>;
+        return (
+          <div className="content">
+            <SyntaxHighlighter>{state.valueStr}</SyntaxHighlighter>
+          </div>
+        );
       }
       return noResult;
     }
@@ -142,9 +153,10 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
         setState(
           produce(state, (drafState) => {
             drafState.strategy = strategy;
-
             drafState.enumList = rsp.data.enumList;
             drafState.values = rsp.data.values;
+            drafState.valueStr = rsp.data.valueStr;
+            drafState.enumStr = rsp.data.enumStr;
           })
         );
       }
