@@ -44,14 +44,20 @@ namespace SProject {
       },
     });
   }
-  export async function getSnippetConfig(data: {
-    script: string;
-    id: number;
-  }): Promise<NRsp<NProjectSnippet.IConfig>> {
+  export async function getSnippetConfig(
+    data: {
+      script: string;
+      id: number;
+    },
+    values: any
+  ): Promise<NRsp<NProjectSnippet.IConfig>> {
     return request({
       url: "/project/getSnippetConfig",
       method: "post",
-      data,
+      data: {
+        data,
+        values,
+      },
     });
   }
   export async function createProjectSnippet(data: {
