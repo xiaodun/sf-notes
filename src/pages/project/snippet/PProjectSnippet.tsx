@@ -1,5 +1,16 @@
 import NModel from "@/common/namespace/NModel";
-import { Button, Form, Input, Menu, message, Modal, Space, Switch } from "antd";
+import {
+  Button,
+  Form,
+  Input,
+  InputNumber,
+  Menu,
+  message,
+  Modal,
+  Select,
+  Space,
+  Switch,
+} from "antd";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { connect, ConnectRC, NMDGlobal, NMDProject } from "umi";
 import SelfStyle from "./LProjectSnippet.less";
@@ -17,6 +28,8 @@ import DirectoryModal, {
   IDirectoryModal,
 } from "@/common/components/directory/combination/modal/DirectoryModal";
 import { NSystem } from "@/common/namespace/NSystem";
+import { CopyOutlined } from "@ant-design/icons";
+import { isEmpty, uniqueId } from "lodash";
 export interface IPProjectSnippetProps {
   MDProject: NMDProject.IState;
   MDGlobal: NMDGlobal.IState;
@@ -33,7 +46,6 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
     useState<NProjectSnippet.IConfig>(null);
   const [snippet, setSnippet] = useState<NProjectSnippet>(null);
   const directoryModalRef = useRef<IDirectoryModal>();
-  const firstGlobalParamInputId = "firstGlobalParamInputId";
   useEffect(() => {
     NModel.dispatch(
       new NMDGlobal.ARChangeSetting({
@@ -59,6 +71,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
       ></CreateSnipeetModal>
       <div className={SelfStyle.ableWrap}>
         <Button onClick={onShowCreateSnipeetModal}>添加片段</Button>
+        <h1>{MDProject.project.name}</h1>
       </div>
       <div className={SelfStyle.contentWrap}>
         <div className="menuWrap">
@@ -67,10 +80,19 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
               return (
                 <Menu.Item
                   key={snippet.script}
-                  onClick={() => reqGetSnippetConfig(snippet)}
+                  onClick={() => {
+                    globalform.resetFields();
+
+                    reqGetSnippetConfig(snippet);
+                  }}
                 >
                   {snippet.name}{" "}
-                  <span className="script">{snippet.script}</span>
+                  <span className="script">
+                    <CopyOutlined
+                      onClick={() => UCopy.copyStr(snippet.script)}
+                    ></CopyOutlined>
+                    {snippet.script}
+                  </span>
                 </Menu.Item>
               );
             })}
@@ -96,6 +118,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
               <div className="globalParamList">
                 <div className="title">全局参数</div>
                 <Form
+                  key={Math.random()}
                   form={globalform}
                   name="basic"
                   layout="horizontal"
@@ -188,6 +211,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
             {fragment.template && (
               <SyntaxHighlighter>{fragment.template}</SyntaxHighlighter>
             )}
+            {fragment.template === "" && "无内容"}
           </div>
         </div>
       );
@@ -206,25 +230,47 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
       if (rsp.success) {
         setSnippetConfig(
           produce(snippetConfig, (drafState) => {
-            drafState.fragmentList[index].template = rsp.data;
+            drafState.fragmentList[index].template = isEmpty(rsp.data)
+              ? ""
+              : rsp.data;
           })
         );
-        UCopy.copyStr(rsp.data);
+        if (!isEmpty(rsp.data)) {
+          UCopy.copyStr(rsp.data);
+        }
       }
     });
   }
   function renderParamList(paramList: NProjectSnippet.IParam[]) {
     return paramList.map((param, index) => {
       let content: ReactNode = "";
+
       if (param.type === "input") {
-        content = (
-          <Input
-            id={index == 0 ? firstGlobalParamInputId : ""}
-            style={param.style}
-          />
-        );
+        content = <Input style={param.style} disabled={param.disabled} />;
+      } else if (param.type === "number") {
+        content = <InputNumber style={param.style} disabled={param.disabled} />;
       } else if (param.type === "switch") {
         content = <Switch></Switch>;
+      } else if (param.type === "select") {
+        content = (
+          <Select
+            showSearch
+            style={param.style}
+            filterOption={(input, option) =>
+              option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }
+            optionFilterProp="children"
+            onChange={
+              param.openChangeRequest ? () => onRequestConfig() : () => {}
+            }
+          >
+            {param.valueList.map((item) => (
+              <Select.Option key={item} value={item}>
+                {item}
+              </Select.Option>
+            ))}
+          </Select>
+        );
       }
       return (
         <Form.Item
@@ -246,13 +292,47 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
     }, {} as any);
     return values;
   }
-  async function reqGetSnippetConfig(snippet: NProjectSnippet) {
-    setSnippet(snippet);
-    const rsp = await SProject.getSnippetConfig({
-      id: urlQuery.id,
-      script: snippet.script,
+  function onRequestConfig() {
+    globalform.setFieldsValue({
+      uniqueId: uniqueId(),
     });
+    reqGetSnippetConfig(snippet, globalform.getFieldsValue());
+  }
+  async function reqGetSnippetConfig(
+    snippet: NProjectSnippet,
+    values: any = {}
+  ) {
+    setSnippet(snippet);
+    const rsp = await SProject.getSnippetConfig(
+      {
+        id: urlQuery.id,
+        script: snippet.script,
+      },
+      values
+    );
     if (rsp.success) {
+      rsp.data.globalParamList.find((item) => {
+        if (item.name === "uniqueId") {
+          item.disabled = true;
+          item.type = "input";
+          item.label = "标识符";
+          item.defaultValue = uniqueId();
+          item.style = {
+            width: 135,
+          };
+          return true;
+        }
+        let inputWidth = item.type === "input" ? 300 : 100;
+        if (item.style) {
+          if (!item.style.width) {
+            item.style.width = inputWidth;
+          }
+        } else {
+          item.style = {
+            width: inputWidth,
+          };
+        }
+      });
       setSnippetConfig(rsp.data);
       setTimeout(() => {
         const input = document.getElementById("firstGlobalParamInputId");

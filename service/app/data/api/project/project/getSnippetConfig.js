@@ -1,13 +1,15 @@
 (function () {
   return function (argData, argParams, external) {
-    const project = argData.projectList.find((item) => item.id == argParams.id);
+    const project = argData.projectList.find(
+      (item) => item.id == argParams.data.id
+    );
     const fs = require("fs");
     const snippetScriptPath = external.getSnippetScriptPath(
       project.name,
-      argParams.script
+      argParams.data.script
     );
     const sctiptContent = fs.readFileSync(snippetScriptPath).toString();
-    const data = eval(sctiptContent)();
+    const data = eval(sctiptContent)(argParams.values);
     data.fragmentList.forEach((item) => {
       if (item.getTemplate) {
         item.noTemplate = false;
