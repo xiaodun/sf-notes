@@ -75,13 +75,20 @@ const path = require("path");
           }
           return pathName;
         };
-        external.getPathPrefix = (pathUrl, apiPrefixs) => {
+        external.getPathPrefix = (checkedPathInfo, apiPrefixs) => {
           let str = "";
-          Object.keys(apiPrefixs).some((prefix) => {
-            if (apiPrefixs[prefix].some((item) => pathUrl.startsWith(item))) {
-              str = prefix;
-              return true;
-            }
+          Object.keys(apiPrefixs).some((domain) => {
+            return Object.keys(apiPrefixs[domain]).some((group) => {
+              return Object.keys(apiPrefixs[domain][group]).some((prefix) => {
+                const hasPrefix = apiPrefixs[domain][group][prefix].find(
+                  (item) => checkedPathInfo.pathUrl.startsWith(item)
+                );
+                if (hasPrefix) {
+                  str = prefix;
+                  return true;
+                }
+              });
+            });
           });
           return str;
         };
@@ -89,9 +96,8 @@ const path = require("path");
           if (!fs.existsSync(generateAjaxCodeFolderpath)) {
             fs.mkdirSync(generateAjaxCodeFolderpath);
           }
-          const projecGenerateAjaxCodePath = external.getProjecGenerateAjaxCodePath(
-            projectName
-          );
+          const projecGenerateAjaxCodePath =
+            external.getProjecGenerateAjaxCodePath(projectName);
           if (!fs.existsSync(projecGenerateAjaxCodePath)) {
             fs.writeFileSync(
               projecGenerateAjaxCodePath,

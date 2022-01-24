@@ -28,10 +28,13 @@ export namespace NProjectSnippet {
   export interface IParam {
     name: string;
     label: string;
-    type: "input" | "switch";
+    type: "input" | "switch" | "select" | "number";
     require: boolean;
+    disabled: boolean;
     defaultValue: any;
+    openChangeRequest?: boolean;
     style?: React.CSSProperties;
+    valueList?: string[];
   }
   export interface IConfig {
     globalParamList: IParam[];
