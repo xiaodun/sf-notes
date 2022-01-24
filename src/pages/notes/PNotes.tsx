@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Note from "./components/note/note";
 import SelfStyle from "./LNotes.less";
 import SNotes from "./SNotes";
-import { Button, Radio, Select } from "antd";
+import { Button, message, Radio, Select } from "antd";
 import { RefSelectProps } from "antd/lib/select";
 import EditModal, { IEditModal } from "./components/edit/EditModal";
 import ZoomImgModal, { IZoomImgModal } from "./components/zoom/ZoomImgModal";
@@ -107,10 +107,17 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
             </Select>
           </div>
         )}
+        <Button onClick={() => onClearDeletedNote()}>清空删除备份</Button>
       </PageFooter>
       <ZoomImgModal ref={zoomModalRef}></ZoomImgModal>
     </div>
   );
+  async function onClearDeletedNote() {
+    const rsp = await SNotes.clearDeletedNote();
+    if (rsp.success) {
+      message.success("已清空");
+    }
+  }
   function getMatchIdList() {
     //名字标题的在前
     let matchTitleIdList = MDNotes.rsp.list
