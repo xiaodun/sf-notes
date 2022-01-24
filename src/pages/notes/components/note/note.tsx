@@ -12,7 +12,7 @@ import NNotes from "../../NNotes";
 import UCopy from "@/common/utils/UCopy";
 import SNotes from "../../SNotes";
 import NRsp from "@/common/namespace/NRsp";
-import { classNames } from "@/common";
+import { classNames, produce } from "@/common";
 import { NMDNotes } from "umi";
 import NModel from "@/common/namespace/NModel";
 import { IEditModal } from "../edit/EditModal";
@@ -375,10 +375,16 @@ const Note: FC<INoteProps> = (props) => {
     const end = start + count;
     const newContent =
       content.substring(0, start) + content.substring(end, content.length);
-    const newNote: NNotes = {
-      ...props.data,
-      content: newContent,
-    };
+
+    const newNote: NNotes = produce(props.data, (drafState) => {
+      drafState.content = newContent;
+      //删除的是否为base64图片,不及时清除会导致接口响应缓慢
+      const delContent = content.substring(start, end).trim();
+      if (delContent.startsWith(NNotes.imgProtocolKey)) {
+        delete drafState.base64[delContent];
+      }
+    });
+
     const res = await SNotes.editItem(newNote);
     if (res.success) {
       NModel.dispatch(
