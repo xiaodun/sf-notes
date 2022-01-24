@@ -1,16 +1,21 @@
-import NNotes from './NNotes';
+import NNotes from "./NNotes";
 
-import request from '@/utils/request';
-import NRsp from '@/common/namespace/NRsp';
+import request from "@/utils/request";
+import NRsp from "@/common/namespace/NRsp";
 export namespace SNotes {
+  export async function clearDeletedNote(): Promise<NRsp<boolean>> {
+    return request({
+      url: "/notes/clearDeletedNote",
+    });
+  }
   export async function getList(): Promise<NRsp<NNotes>> {
     return request({
-      url: '/notes/getNoteList',
+      url: "/notes/getNoteList",
     });
   }
   export async function delItem(id: string): Promise<NRsp> {
     return request({
-      url: '/notes/delNote',
+      url: "/notes/delNote",
       params: {
         id,
       },
@@ -18,11 +23,11 @@ export namespace SNotes {
   }
   export async function addItem(
     notes: NNotes,
-    index: number = 0,
+    index: number = 0
   ): Promise<NRsp<NNotes>> {
     return request({
-      url: '/notes/addNote',
-      method: 'post',
+      url: "/notes/addNote",
+      method: "post",
       data: {
         notes,
         index,
@@ -31,22 +36,22 @@ export namespace SNotes {
   }
   export async function editItem(notes: NNotes): Promise<NRsp> {
     return request({
-      url: '/notes/editNote',
-      method: 'post',
+      url: "/notes/editNote",
+      method: "post",
       data: notes,
     });
   }
   export async function topItem(notes: NNotes): Promise<NRsp> {
     return request({
-      url: '/notes/topNote',
-      method: 'post',
+      url: "/notes/topNote",
+      method: "post",
       data: notes,
     });
   }
   export async function bottomItem(notes: NNotes): Promise<NRsp> {
     return request({
-      url: '/notes/bottomNote',
-      method: 'post',
+      url: "/notes/bottomNote",
+      method: "post",
       data: notes,
     });
   }
