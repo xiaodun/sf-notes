@@ -244,13 +244,34 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
   function renderParamList(paramList: NProjectSnippet.IParam[]) {
     return paramList.map((param, index) => {
       let content: ReactNode = "";
+      let onChange;
+
+      if (param.openChangeRequest) {
+        onChange = onRequestConfig;
+      } else if (param.require) {
+        onChange = changeUniqueId;
+      } else {
+        onChange = () => {};
+      }
 
       if (param.type === "input") {
-        content = <Input style={param.style} disabled={param.disabled} />;
+        content = (
+          <Input
+            style={param.style}
+            onChange={onChange}
+            disabled={param.disabled}
+          />
+        );
       } else if (param.type === "number") {
-        content = <InputNumber style={param.style} disabled={param.disabled} />;
+        content = (
+          <InputNumber
+            style={param.style}
+            onChange={onChange}
+            disabled={param.disabled}
+          />
+        );
       } else if (param.type === "switch") {
-        content = <Switch></Switch>;
+        content = <Switch onChange={onChange}></Switch>;
       } else if (param.type === "select") {
         content = (
           <Select
@@ -260,9 +281,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
               option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }
             optionFilterProp="children"
-            onChange={
-              param.openChangeRequest ? () => onRequestConfig() : () => {}
-            }
+            onChange={onChange}
           >
             {param.valueList.map((item) => (
               <Select.Option key={item} value={item}>
@@ -292,10 +311,13 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
     }, {} as any);
     return values;
   }
-  function onRequestConfig() {
+  function changeUniqueId() {
     globalform.setFieldsValue({
       uniqueId: uniqueId(),
     });
+  }
+  function onRequestConfig() {
+    changeUniqueId();
     reqGetSnippetConfig(snippet, globalform.getFieldsValue());
   }
   async function reqGetSnippetConfig(
