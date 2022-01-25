@@ -205,9 +205,18 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       );
       const newRsp = cloneDeep(rsp);
 
-      rsp.list.forEach((item) => {
+      rsp.list.forEach((item, index) => {
         if (item.web.isStart == null) {
-          reqProjecStart(item, newRsp);
+          if (item.sfMock.programUrl) {
+            reqProjecStart(item, newRsp);
+          } else {
+            newRsp.list[index].web.isStart = false;
+            NModel.dispatch(
+              new NMDProject.ARSetState({
+                rsp: cloneDeep(newRsp),
+              })
+            );
+          }
         }
       });
     }
