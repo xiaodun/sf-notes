@@ -160,15 +160,16 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       if (startRsp.data.isError) {
         if (retryCount < 2) {
           reqProjecStart(project, projectRsp, ++retryCount);
+          return;
         }
-      } else {
-        projectRsp.list[index].web.isStart = startRsp.data.isStart;
-        NModel.dispatch(
-          new NMDProject.ARSetState({
-            rsp: cloneDeep(projectRsp),
-          })
-        );
       }
+
+      projectRsp.list[index].web.isStart = startRsp.data.isStart;
+      NModel.dispatch(
+        new NMDProject.ARSetState({
+          rsp: cloneDeep(projectRsp),
+        })
+      );
     }
   }
   async function reqProjecListStart(
@@ -204,7 +205,11 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       );
       const newRsp = cloneDeep(rsp);
 
-      reqProjecListStart(rsp.list, newRsp);
+      rsp.list.forEach((item) => {
+        if (item.web.isStart == null) {
+          reqProjecStart(item, newRsp);
+        }
+      });
     }
   }
   function onShowAddModal() {
