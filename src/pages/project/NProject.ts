@@ -65,6 +65,8 @@ export namespace NProject {
     children: IRenderFormatInfo[];
   }
   export interface IRenderMethodInfo {
+    notFound?: boolean;
+
     pathUrl: string;
     method: string;
     summary: string;

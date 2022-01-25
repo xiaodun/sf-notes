@@ -318,32 +318,37 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                 关注
               </Button>
             )}
-
-            <Button type="default" onClick={onGenerateAjaxCode}>
-              生成ajax代码
-            </Button>
+            {rendMethodInfos.notFound && (
+              <Button type="default" onClick={onGenerateAjaxCode}>
+                生成ajax代码
+              </Button>
+            )}
           </div>
           <div className={SelfStyle.baseInfo}>
             <div className={SelfStyle.itemWrap}>
               <div className="label">前缀</div>
               <div className="content">
-                {renderApiPrefix(rendMethodInfos.pathUrl)}
+                {renderApiPrefix(currentMenuCheckbox.pathUrl)}
               </div>
             </div>
             <div className={SelfStyle.itemWrap}>
               <div className="label">路径</div>
               <div className="content">
-                {rendMethodInfos.pathUrl}
+                {currentMenuCheckbox.pathUrl}
                 <Button
                   type="link"
-                  onClick={() => onCopyPathUrl(rendMethodInfos.pathUrl, false)}
+                  onClick={() =>
+                    onCopyPathUrl(currentMenuCheckbox.pathUrl, false)
+                  }
                 >
                   复制
                 </Button>
-                {getPrefixByPathUrl(rendMethodInfos.pathUrl) && (
+                {getPrefixByPathUrl(currentMenuCheckbox.pathUrl) && (
                   <Button
                     type="link"
-                    onClick={() => onCopyPathUrl(rendMethodInfos.pathUrl, true)}
+                    onClick={() =>
+                      onCopyPathUrl(currentMenuCheckbox.pathUrl, true)
+                    }
                   >
                     带网关复制
                   </Button>
@@ -371,39 +376,46 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
               </>
             )}
           </div>
-          <div className={SelfStyle.paramInfo}>
-            {rendMethodInfos.parameters ? (
-              <>
-                <div className={SelfStyle.title}>
-                  <div className="desc">
-                    <UploadOutlined />
-                    请求参数
-                  </div>
-                  <div className="able-wrap">
-                    <Button
-                      type="primary"
-                      shape="round"
-                      size="small"
-                      onClick={() =>
-                        onCopySwaggerData(rendMethodInfos.parameters, false)
-                      }
-                    >
-                      复制
-                    </Button>
-                  </div>
-                </div>
-                <Table
-                  {...swaggerTableProps}
-                  key={Math.random()}
-                  className={SelfStyle.table}
-                  dataSource={rendMethodInfos.parameters}
-                ></Table>
-              </>
-            ) : (
-              <Alert message="无需传参" type="success" showIcon />
-            )}
-          </div>
-          <div className={SelfStyle.responseInfo}>{getResponseUI()}</div>
+          {rendMethodInfos.notFound ? (
+            <div className="not-found">没有匹配到接口数据格式</div>
+          ) : (
+            <>
+              <div className={SelfStyle.paramInfo}>
+                {rendMethodInfos.parameters ? (
+                  <>
+                    <div className={SelfStyle.title}>
+                      <div className="desc">
+                        <UploadOutlined />
+                        请求参数
+                      </div>
+                      <div className="able-wrap">
+                        <Button
+                          type="primary"
+                          shape="round"
+                          size="small"
+                          onClick={() =>
+                            onCopySwaggerData(rendMethodInfos.parameters, false)
+                          }
+                        >
+                          复制
+                        </Button>
+                      </div>
+                    </div>
+                    <Table
+                      {...swaggerTableProps}
+                      key={Math.random()}
+                      className={SelfStyle.table}
+                      dataSource={rendMethodInfos.parameters}
+                    ></Table>
+                  </>
+                ) : (
+                  <Alert message="无需传参" type="success" showIcon />
+                )}
+              </div>
+
+              <div className={SelfStyle.responseInfo}>{getResponseUI()}</div>
+            </>
+          )}
         </div>
       );
     }
@@ -837,7 +849,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
           pathMenuCheckbox.domain +
           pathMenuCheckbox.groupName +
           pathMenuCheckbox.tagName +
-          pathItem.pathUrl
+          pathMenuCheckbox.pathUrl
         }
       >
         <Checkbox
@@ -847,8 +859,15 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
           }
           className={SelfStyle.pathCheckbox}
         ></Checkbox>
-        <Tag color="#87d068">{pathItem.method.substring(-4)}</Tag>
-        {renderPathUrl(pathItem.pathUrl)}
+        {pathItem.notFound ? (
+          <Tag color="#a39e9e">失效</Tag>
+        ) : (
+          <Tag className="path-tag" color="#87d068">
+            {pathItem.method.substring(-4)}
+          </Tag>
+        )}
+
+        {renderPathUrl(pathMenuCheckbox.pathUrl)}
       </Menu.Item>
     );
   }
