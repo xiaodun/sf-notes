@@ -16,10 +16,17 @@
     });
 
     argData.attentionPathList.forEach((pathInfos) => {
-      pathInfos.data =
-        swaggerInfos[pathInfos.domain][pathInfos.groupName].tags[
-          pathInfos.tagName
-        ].paths[pathInfos.pathUrl];
+      try {
+        pathInfos.data =
+          swaggerInfos[pathInfos.domain][pathInfos.groupName].tags[
+            pathInfos.tagName
+          ].paths[pathInfos.pathUrl];
+      } catch (error) {
+        console.error(error);
+        pathInfos.data = {
+          notFound: true,
+        };
+      }
     });
     return {
       isWrite: false, //是否覆盖数据
