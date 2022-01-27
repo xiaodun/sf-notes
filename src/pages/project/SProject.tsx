@@ -5,6 +5,38 @@ import { TEnterSwaggerModalWay } from "./swagger/components/EnterSwaggerModal";
 import NProjectSnippet from "./snippet/NProjectSnippet";
 
 namespace SProject {
+  export async function copySwaggerDataWithProject(data: {
+    rspItemList: NProject.IRenderFormatInfo[];
+    isRsp: boolean;
+    name: string;
+  }): Promise<NRsp<boolean>> {
+    return request({
+      url: "/project/copySwaggerDataWithProject",
+      method: "post",
+      data,
+    });
+  }
+  export async function setDefaultCopySwaggerProject(
+    id: number
+  ): Promise<NRsp<boolean>> {
+    return request({
+      url: "/project/setDefaultCopySwaggerProject",
+      method: "post",
+      data: {
+        id,
+      },
+    });
+  }
+  export async function copySwaggerData(data: {
+    rspItemList: NProject.IRenderFormatInfo[];
+    isRsp: boolean;
+  }): Promise<NRsp<string>> {
+    return request({
+      url: "/project/copySwaggerData",
+      method: "post",
+      data,
+    });
+  }
   export async function getConfig(): Promise<NRsp<NProject.IConfig>> {
     return request({
       url: "/project/getConfig",

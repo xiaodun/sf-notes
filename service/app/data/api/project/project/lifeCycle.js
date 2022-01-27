@@ -8,20 +8,15 @@ const path = require("path");
     let userPathList = [...commonList];
     userPathList.splice(3, 0, "/user");
     const fs = require("fs");
-    const swaggerFolderpath = "./data/api/project/project/swagger";
+    const swaggerFolderPath = "./data/api/project/project/swagger";
+    const publicFolderPath = "./data/api/project/project/public";
+    const generateMockDataWithProjectPath = `${publicFolderPath}/generateMockDataWithProject.js`;
     const generateAjaxCodeFolderpath =
       "./data/api/project/project/generateAjaxCode";
     return {
       createFloder: function (createFloder, external) {
         external.getBaseStructure = (argData) => {
           let baseData = {
-            command: {
-              menuList: [
-                {
-                  name: "通用命令",
-                },
-              ],
-            },
             projectList: [],
           };
           if (!argData) {
@@ -45,11 +40,11 @@ const path = require("path");
           return argData;
         };
         external.getSwaggerFolderPath = () => {
-          return swaggerFolderpath;
+          return swaggerFolderPath;
         };
         external.createSwaggerFolder = () => {
-          if (!fs.existsSync(swaggerFolderpath)) {
-            fs.mkdirSync(swaggerFolderpath);
+          if (!fs.existsSync(swaggerFolderPath)) {
+            fs.mkdirSync(swaggerFolderPath);
           }
         };
         external.getProjecGenerateAjaxCodePath = (projectName) => {
@@ -131,6 +126,92 @@ const path = require("path");
           }
           if (!fs.existsSync(projectPath)) {
             fs.mkdirSync(projectPath);
+          }
+        };
+
+        external.getPublicFolderPath = () => {
+          return publicFolderPath;
+        };
+        external.getCopySwaggerJsPath = () => {
+          return generateMockDataWithProjectPath;
+        };
+
+        external.createPublicFolder = () => {
+          if (!fs.existsSync(publicFolderPath)) {
+            fs.mkdirSync(publicFolderPath);
+          }
+        };
+        external.createCopySwaggerJs = () => {
+          external.createPublicFolder();
+          if (!fs.existsSync(generateMockDataWithProjectPath)) {
+            fs.writeFileSync(
+              generateMockDataWithProjectPath,
+              `
+            (function () {
+              const moment = require("moment");
+              const _ = require("lodash");
+              return function (argParams) {
+                const { rspItemList, isRsp } = argParams;
+                function able(dataLit, wrap = {}) {
+                  dataLit.forEach((item) => {
+                    if (item.type === "array") {
+                      wrap[item.name] = [];
+            
+                      if (item.children.length) {
+                        wrap[item.name].push(able(item.children));
+                      }
+                    }
+                    if (item.type === "object") {
+                      wrap[item.name] = {};
+            
+                      if (item.children.length) {
+                        wrap[item.name] = {
+                          ...able(item.children, {}),
+                        };
+                      }
+                    } else if (item.type === "boolean") {
+                      wrap[item.name] = Math.random() > 0.5 ? true : false;
+                    } else if (item.type === "integer") {
+                      wrap[item.name] = 0;
+                    } else if (item.type === "string") {
+                      if (isRsp) {
+                        if (item.enum) {
+                          wrap[item.name] = item.enum[_.random(item.enum.length - 1)];
+                        } else if (item.format === "date-time") {
+                          wrap[item.name] = moment().format("YYYY-MM-DD HH:mm:ss");
+                        } else {
+                          wrap[item.name] = item.name;
+                        }
+                      } else {
+                        wrap[item.name] = "";
+                      }
+                    }
+                  });
+            
+                  return wrap;
+                }
+                let data = {};
+            
+                able(rspItemList, data);
+                if (!isRsp) {
+                  if (Object.keys(data).length === 1) {
+                    const innerObj = data[Object.keys(data)[0]];
+                    if (typeof innerObj === "object") {
+                      data = innerObj;
+                    }
+                  }
+                } else {
+                  data = data.rsp;
+                }
+                return JSON.stringify(data);
+              };
+            })();
+            
+            
+            
+            
+            `
+            );
           }
         };
       },

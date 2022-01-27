@@ -12,6 +12,7 @@ import {
   TableProps,
   Tabs,
   Tag,
+  Select,
 } from "antd";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { connect, ConnectRC, NMDGlobal, NMDProject } from "umi";
@@ -27,13 +28,11 @@ import {
   UploadOutlined,
 } from "@ant-design/icons";
 import UCopy from "@/common/utils/UCopy";
-import { cloneDeep, isArray, isEqual, values } from "lodash";
+import { isEqual } from "lodash";
 import produce from "immer";
 import GenerateAjaxCodeModal, {
   IGenerateAjaxCodeModal,
 } from "./components/GenerateAjaxCodeModal";
-import { URandom } from "@/common/utils/URandom";
-import moment from "moment";
 import GenerateEnumCodeModal, {
   IGenerateEnumCodeModal,
 } from "./components/GenerateEnumCodeModal";
@@ -49,6 +48,7 @@ export interface IPProjectSwaggerProps {
 const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   const { MDProject } = props;
   const swaggerModalRef = useRef<IEnterSwaggerModal>();
+  const apiDocWrapRef = useRef<HTMLDivElement>();
   const generateAjaxCodeRef = useRef<IGenerateAjaxCodeModal>();
   const generateEnumCodeRef = useRef<IGenerateEnumCodeModal>();
   const keyValueExtractionRef = useRef<IKeyValueExtractionModal>();
@@ -59,14 +59,18 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
 
   const [currentMenuCheckbox, setCurrentMenuCheckbox] =
     useState<NProject.IMenuCheckbox>(null);
-  const [menActiveTabKey, setMenActiveTabKey] = useState<string>("domain");
+  const [menuActiveTabKey, setMenuActiveTabKey] = useState<string>("domain");
   const [myAttentionChecked, setMyAttentionChecked] = useState<boolean>(false);
   const [searchSwaggerValue, setSearchSwaggerValue] = useState<string>("");
+  const [projectList, setProjectList] = useState<NProject[]>([]);
+  const [currentCopySwaggerProject, changeCurrentCopySwaggerProject] =
+    useState<NProject>();
 
   useEffect(() => {
     reqGetApiPrefix();
     reqGetSwagger();
     reqGetAttentionList(true);
+    reqGetProjectList();
     setTimeout(() => {
       document.title = "Swagger文档";
     }, 1000);
@@ -276,7 +280,11 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         })
       );
       if (rsp.list.length && isFirst) {
-        setMenActiveTabKey("attentionList");
+        setMenuActiveTabKey("attentionList");
+      }
+
+      if (menuActiveTabKey == "attentionList" && !rsp.list.length) {
+        setMenuActiveTabKey("domain");
       }
     }
   }
@@ -307,9 +315,9 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     let contentNode: ReactNode = null;
     if (rendMethodInfos) {
       contentNode = (
-        <div key={Math.random()} className={SelfStyle.apiDoc}>
+        <div ref={apiDocWrapRef} className={SelfStyle.apiDoc}>
           <div className={SelfStyle.ableWrap}>
-            {menActiveTabKey === "attentionList" ? (
+            {menuActiveTabKey === "attentionList" ? (
               <Button type="default" onClick={onCancelAttentionPath}>
                 取消关注
               </Button>
@@ -359,7 +367,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
               <div className="label">描述</div>
               <div className="content summary">{rendMethodInfos.summary}</div>
             </div>
-            {(menActiveTabKey === "attentionList" || searchSwaggerValue) && (
+            {(menuActiveTabKey === "attentionList" || searchSwaggerValue) && (
               <>
                 <div className={SelfStyle.itemWrap}>
                   <div className="label">域名</div>
@@ -390,6 +398,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                       </div>
                       <div className="able-wrap">
                         <Button
+                          className="default-copy"
                           type="primary"
                           shape="round"
                           size="small"
@@ -453,7 +462,6 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
 
     if (list.length) {
       reqCanclePathAttention(list);
-      setMenActiveTabKey("domain");
       setRenderMethodInfos(null);
     }
   }
@@ -509,14 +517,45 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
             返回格式
           </div>
           <div className="able-wrap">
-            <Button
-              type="primary"
-              shape="round"
-              size="small"
-              onClick={() => onCopySwaggerData(rendMethodInfos.responses, true)}
-            >
-              复制
-            </Button>
+            <Space direction="horizontal" size={20}>
+              {projectList.length && (
+                <Input.Group compact>
+                  <Select
+                    size="small"
+                    value={currentCopySwaggerProject?.id}
+                    style={{ width: 200 }}
+                    onChange={onChangeCopySwaggerProject}
+                  >
+                    {projectList.map((item) => (
+                      <Select.Option value={item.id}>{item.name}</Select.Option>
+                    ))}
+                  </Select>
+                  <Button
+                    type="primary"
+                    onClick={() =>
+                      onCopySwaggerDataByProject(
+                        rendMethodInfos.responses,
+                        true
+                      )
+                    }
+                    size="small"
+                  >
+                    复制
+                  </Button>
+                </Input.Group>
+              )}
+              <Button
+                className="default-copy"
+                type="primary"
+                shape="round"
+                size="small"
+                onClick={() =>
+                  onCopySwaggerData(rendMethodInfos.responses, true)
+                }
+              >
+                复制
+              </Button>
+            </Space>
           </div>
         </div>
         <Table
@@ -529,63 +568,56 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       <Alert message="没有返回" type="error" showIcon />
     );
   }
-  function onCopySwaggerData(
+  async function onCopySwaggerDataByProject(
     rspItemList: NProject.IRenderFormatInfo[],
     isRsp: boolean
   ) {
-    function able(dataLit: NProject.IRenderFormatInfo[], wrap = {}) {
-      dataLit.forEach((item) => {
-        if (item.type === "array") {
-          wrap[item.name] = [];
-
-          if (item.children.length) {
-            wrap[item.name].push(able(item.children));
-          }
-        }
-        if (item.type === "object") {
-          wrap[item.name] = {};
-
-          if (item.children.length) {
-            wrap[item.name] = {
-              ...able(item.children, {}),
-            };
-          }
-        } else if (item.type === "boolean") {
-          wrap[item.name] = URandom.getBoolean();
-        } else if (item.type === "integer") {
-          wrap[item.name] = 0;
-        } else if (item.type === "string") {
-          if (isRsp) {
-            if (item.enum) {
-              wrap[item.name] =
-                item.enum[URandom.getIntegeValue(0, item.enum.length - 1)];
-            } else if (item.format === "date-time") {
-              wrap[item.name] = moment().format("YYYY-MM-DD HH:mm:ss");
-            } else {
-              wrap[item.name] = item.name;
-            }
-          } else {
-            wrap[item.name] = "";
-          }
-        }
-      });
-
-      return wrap;
+    let project = projectList.find(
+      (project) => project.id == currentCopySwaggerProject.id
+    );
+    const rsp = await SProject.copySwaggerDataWithProject({
+      rspItemList,
+      name: project.name,
+      isRsp,
+    });
+    if (rsp.success) {
+      UCopy.copyStr(rsp.data);
     }
-    let data = {} as any;
+  }
+  async function onChangeCopySwaggerProject(id: number) {
+    let project = projectList.find((project) => project.id == id);
+    changeCurrentCopySwaggerProject(project);
+    await SProject.setDefaultCopySwaggerProject(project.id);
+  }
+  async function onCopySwaggerData(
+    rspItemList: NProject.IRenderFormatInfo[],
+    isRsp: boolean
+  ) {
+    const rsp = await SProject.copySwaggerData({
+      rspItemList,
+      isRsp,
+    });
 
-    able(rspItemList, data);
-    if (!isRsp) {
-      if (Object.keys(data).length === 1) {
-        const innerObj = data[Object.keys(data)[0]];
-        if (typeof innerObj === "object") {
-          data = innerObj;
+    if (rsp.success) {
+      UCopy.copyStr(rsp.data);
+    }
+  }
+  async function reqGetProjectList() {
+    const rsp = await SProject.getProjectList();
+    if (rsp.success) {
+      const projectList = rsp.list.filter((project) => !project.closeAjaxCode);
+      setProjectList(projectList);
+      let defaultProject = projectList.find(
+        (project) => project.isDefaultCopySwagger
+      );
+      if (defaultProject) {
+        changeCurrentCopySwaggerProject(defaultProject);
+      } else {
+        if (projectList.length) {
+          changeCurrentCopySwaggerProject(rsp.list[0]);
         }
       }
-    } else {
-      data = data.rsp;
     }
-    UCopy.copyStr(JSON.stringify(data));
   }
   function getPrefixByPathUrl(pathUrl: string) {
     let prefix = "";
@@ -633,11 +665,14 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   ) {
     setRenderMethodInfos(rendMethodInfos);
     setCurrentMenuCheckbox(pathMenuCheckbox);
+    if (apiDocWrapRef.current) {
+      apiDocWrapRef.current.scrollTop = 0;
+    }
   }
   function getApiMenu() {
     return (
       <>
-        <Tabs activeKey={menActiveTabKey} onChange={onMenuTabChange}>
+        <Tabs activeKey={menuActiveTabKey} onChange={onMenuTabChange}>
           <Tabs.TabPane key="domain" tab="域名">
             <Menu
               defaultOpenKeys={["myDomainSearch"]}
@@ -823,7 +858,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     return list;
   }
   function onMenuTabChange(activeKey: string) {
-    setMenActiveTabKey(activeKey);
+    setMenuActiveTabKey(activeKey);
     setRenderMethodInfos(lastRendMethodInfos);
     setLastRenderMethodInfos(rendMethodInfos);
     onCancelMenuChecked();
