@@ -422,7 +422,9 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                 )}
               </div>
 
-              <div className={SelfStyle.responseInfo}>{getResponseUI()}</div>
+              <div key={Math.random()} className={SelfStyle.responseInfo}>
+                {getResponseUI()}
+              </div>
             </>
           )}
         </div>
