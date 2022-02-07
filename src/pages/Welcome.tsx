@@ -26,15 +26,11 @@ export const Welcome: ConnectRC<IWelcomeProps> = (props) => {
   useEffect(() => {
     let showHeader = props.MDGlobal.showHeader,
       controlLayout = props.MDGlobal.controlLayout;
-    if ([NRouter.bookEditPath].includes(props.match.path)) {
-      // showHeader = false;
-    } else {
-      showHeader = true;
-    }
+
+    showHeader = true;
     if (
       [
         NRouter.projectCommandPath,
-        NRouter.bookEditPath,
         NRouter.projectSnippetPath,
         NRouter.projectSwaggerPath,
       ].includes(props.match.path)

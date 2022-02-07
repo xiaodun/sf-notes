@@ -22,10 +22,6 @@ namespace NApp {
       path: NRouter.activityPath,
     },
     {
-      name: "写书籍",
-      path: NRouter.bookPath,
-    },
-    {
       name: "二维码",
       path: NRouter.qrCodePath,
     },
