@@ -6,8 +6,6 @@ export namespace NRouter {
   export const testPath = "/test";
   export const notesPath = "/notes";
   export const filePath = "/file";
-  export const bookPath = "/book";
-  export const bookEditPath = bookPath + "/edit";
   export const qrCodePath = "/qrCode";
   export const projectPath = "/project";
   export const projectSnippetPath = projectPath + "/snippet";
@@ -33,16 +31,6 @@ export namespace NRouter {
     {
       path: testPath,
       component: "." + testPath,
-      wrappers: [rootComponentPath],
-    },
-    {
-      path: bookPath,
-      component: "." + bookPath,
-      wrappers: [rootComponentPath],
-    },
-    {
-      path: bookEditPath,
-      component: "." + bookEditPath,
       wrappers: [rootComponentPath],
     },
     {
