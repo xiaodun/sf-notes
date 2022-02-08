@@ -251,12 +251,16 @@ namespace SProject {
     });
   }
   export async function addProject(
-    data: Partial<NProject>
+    data: Partial<NProject>,
+    isUpdate?: boolean
   ): Promise<NRsp<Boolean>> {
     return request({
       url: "/project/addProject",
       method: "post",
-      data,
+      data: {
+        ...data,
+        isUpdate,
+      },
     });
   }
   export async function getProject(id: number): Promise<NRsp<NProject>> {

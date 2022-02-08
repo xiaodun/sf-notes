@@ -32,15 +32,19 @@
         },
       };
     } else {
-      argParams.name = argParams.rootPath.split("\\").pop();
-      argParams.id = Date.now();
-      if (argParams.name === "sf-mock") {
-        //如果添加的项目是sf-mock
+      if (!argParams.isUpdate) {
+        argParams.name = argParams.rootPath.split("\\").pop();
+        argParams.id = Date.now();
+        argData.projectList.push(argParams);
+      }
 
-        // 获得相关资源
-
+      // 更新配置
+      const sfMockPrject = argData.projectList.find(
+        (item) => item.name == "sf-mock"
+      );
+      if (sfMockPrject) {
         const programConfigPath = path_os.join(
-          argParams.rootPath,
+          sfMockPrject.rootPath,
           "config",
           "programConfig.js"
         );
@@ -48,76 +52,28 @@
           fs_os.readFileSync(programConfigPath, "utf-8")
         );
         const serviceConfigPath = path_os.join(
-          argParams.rootPath,
+          sfMockPrject.rootPath,
           "config",
           "serviceConfig.js"
         );
         const serviceConfigObj = eval(
           fs_os.readFileSync(serviceConfigPath, "utf-8")
         );
-
         // 对已添加的项目统一处理
         argData.projectList.forEach((item) => {
-          const mockConfig = programConfigObj[item.name];
-          //写入启动命令的地址
-          if (
-            mockConfig.WindowsTerminal &&
-            mockConfig.WindowsTerminal.tabList
-          ) {
-            const tabList = mockConfig.WindowsTerminal.tabList;
-            const selfStartConfig = tabList.find((item) => item.isSelf);
+          if (item.name === "sf-mock") {
+            //如果添加的项目是sf-mock
+            item.isSfMock = true;
+            item.closeAjaxCode = true;
+            item.sfMock = {
+              programUrl: `http://localhost:${serviceConfigObj.startPort}`,
+              startBatPath: path_os.join(item.rootPath, "bat", "sf-mock.bat"),
+            };
+          } else {
+            const mockConfig = programConfigObj[item.name];
+            //写入启动命令的地址
             let serviceObj;
-            if (mockConfig.serverList) {
-              serviceObj = mockConfig.serverList.find((item) => item.isMock);
-            }
-            if (selfStartConfig) {
-              item.isSfMock = false;
-              item.sfMock = {
-                nginxPort: serviceObj ? serviceObj.port : "",
-                addressPath: mockConfig.addressPath || "",
-                programUrl: mockConfig.programUrl,
-                startBatPath: path_os.join(
-                  argParams.rootPath,
-                  "bat",
-                  `${item.name}.bat`
-                ),
-              };
-              //计算openUrl
-              let { programUrl, addressPath, nginxPort } = item.sfMock;
-              if (nginxPort) {
-                programUrl = `http://${ip}:${nginxPort}`;
-              }
-              item.sfMock.openUrl = programUrl + addressPath;
-            }
-          }
-        });
-        argParams.isSfMock = true;
-        argParams.closeAjaxCode = true;
-        argParams.sfMock = {
-          programUrl: `http://localhost:${serviceConfigObj.startPort}`,
-          startBatPath: path_os.join(argParams.rootPath, "bat", "sf-mock.bat"),
-        };
-      } else {
-        const sfMockPrject = argData.projectList.find(
-          (item) => item.name == "sf-mock"
-        );
-        if (sfMockPrject) {
-          //sf-mock是否已被添加
-          const programConfigPath = path_os.join(
-            sfMockPrject.rootPath,
-            "config",
-            "programConfig.js"
-          );
 
-          const programConfigObj = eval(
-            fs_os.readFileSync(programConfigPath, "utf-8")
-          );
-
-          const mockConfig = programConfigObj[argParams.name];
-
-          if (mockConfig) {
-            //为新添加的项目写入sf-mock涉及到的配置
-            let serviceObj;
             if (mockConfig.serverList) {
               serviceObj = mockConfig.serverList.find((item) => item.isMock);
             }
@@ -129,29 +85,28 @@
               const selfStartConfig = tabList.find((item) => item.isSelf);
 
               if (selfStartConfig) {
-                argParams.isSfMock = false;
-                argParams.sfMock = {
+                item.isSfMock = false;
+                item.sfMock = {
                   nginxPort: serviceObj ? serviceObj.port : "",
-                  addressPath: mockConfig.addressPath,
+                  addressPath: mockConfig.addressPath || "",
                   programUrl: mockConfig.programUrl,
                   startBatPath: path_os.join(
                     sfMockPrject.rootPath,
                     "bat",
-                    `${argParams.name}.bat`
+                    `${item.name}.bat`
                   ),
                 };
                 //计算openUrl
-                let { programUrl, addressPath, nginxPort } = argParams.sfMock;
+                let { programUrl, addressPath, nginxPort } = item.sfMock;
                 if (nginxPort) {
                   programUrl = `http://${ip}:${nginxPort}`;
                 }
-                argParams.sfMock.openUrl = programUrl + addressPath;
+                item.sfMock.openUrl = programUrl + addressPath;
               }
             }
           }
-        }
+        });
       }
-      argData.projectList.push(argParams);
       return {
         isWrite: true,
         data: argData,
