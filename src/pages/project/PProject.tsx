@@ -108,28 +108,26 @@ const Project: ConnectRC<IProjectProps> = (props) => {
           const mockService = project.sfMock.serverList.find(
             (item) => item.isMock
           );
+          let envList = project.sfMock.serverList.filter(
+            (item) => !item.isMock
+          );
           openBlock = (
             <Dropdown.Button
-              onClick={() => onOpenMockUrl(project)}
               overlay={
                 <Menu>
-                  {project.sfMock.serverList
-                    .filter((item) => !item.isMock)
-                    .map((item) => {
-                      let name;
-                      if (item.isMock) {
-                        name = "在mock端口";
-                      } else {
-                        name = item.name || item.openUrl;
-                      }
+                  {envList.length > 1 ? (
+                    envList.map((item) => {
                       return (
                         <Menu.Item key={item.openUrl}>
                           <a target="_blank" href={item.openUrl}>
-                            {name}
+                            {item.name || item.openUrl}
                           </a>
                         </Menu.Item>
                       );
-                    })}
+                    })
+                  ) : (
+                    <Menu.Item>没有其它环境</Menu.Item>
+                  )}
                 </Menu>
               }
             >
@@ -165,11 +163,11 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       </div>
     );
   }
-  function onOpenMockUrl(project: NProject) {}
   async function onUpdateSfMockConfig() {
     const rsp = await SProject.addProject(null, true);
     if (rsp.success) {
       message.success("更新成功");
+      reqGetList();
     }
   }
   async function onStartProject(project: NProject) {
