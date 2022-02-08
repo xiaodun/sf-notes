@@ -116,10 +116,21 @@ const Project: ConnectRC<IProjectProps> = (props) => {
           </Button>
 
           {startBlock}
+          {project.isSfMock && (
+            <Button type="link" onClick={onUpdateSfMockConfig}>
+              更新
+            </Button>
+          )}
           {openBlock}
         </Space>
       </div>
     );
+  }
+  async function onUpdateSfMockConfig() {
+    const rsp = await SProject.addProject(null, true);
+    if (rsp.success) {
+      message.success("更新成功");
+    }
   }
   async function onStartProject(project: NProject) {
     const startRsp = await SSystem.startBat(project.sfMock.startBatPath);
@@ -141,11 +152,6 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         project.isSfMock ? 3000 : 30000
       );
     }
-  }
-  function onGoCommand() {
-    props.history.push({
-      pathname: NRouter.projectCommandPath,
-    });
   }
   async function reqProjecStart(
     project: NProject,
