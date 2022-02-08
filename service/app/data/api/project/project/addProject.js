@@ -72,11 +72,7 @@
           } else {
             const mockConfig = programConfigObj[item.name];
             //写入启动命令的地址
-            let serviceObj;
 
-            if (mockConfig.serverList) {
-              serviceObj = mockConfig.serverList.find((item) => item.isMock);
-            }
             if (
               mockConfig.WindowsTerminal &&
               mockConfig.WindowsTerminal.tabList
@@ -87,7 +83,12 @@
               if (selfStartConfig) {
                 item.isSfMock = false;
                 item.sfMock = {
-                  nginxPort: serviceObj ? serviceObj.port : "",
+                  serverList: (mockConfig.serverList || []).map((item) => {
+                    return {
+                      ...item,
+                      openUrl: `http://${ip}:${item.port}`,
+                    };
+                  }),
                   addressPath: mockConfig.addressPath || "",
                   programUrl: mockConfig.programUrl,
                   startBatPath: path_os.join(
@@ -96,12 +97,6 @@
                     `${item.name}.bat`
                   ),
                 };
-                //计算openUrl
-                let { programUrl, addressPath, nginxPort } = item.sfMock;
-                if (nginxPort) {
-                  programUrl = `http://${ip}:${nginxPort}`;
-                }
-                item.sfMock.openUrl = programUrl + addressPath;
               }
             }
           }

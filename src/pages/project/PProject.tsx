@@ -1,7 +1,17 @@
 import { PageFooter } from "@/common/components/page";
 import NModel from "@/common/namespace/NModel";
 import NRouter from "@/../config/router/NRouter";
-import { Button, message, Space, Table, Tag, Typography } from "antd";
+import {
+  Button,
+  Dropdown,
+  Menu,
+  message,
+  Select,
+  Space,
+  Table,
+  Tag,
+  Typography,
+} from "antd";
 import React, { useEffect, useRef } from "react";
 import { connect, ConnectRC, NMDProject } from "umi";
 import SelfStyle from "./LProject.less";
@@ -93,11 +103,40 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         startBlock = <Button loading={true} type="link"></Button>;
       } else if (project.web.isStart) {
         startBlock = <Tag color="#87d068">已启动</Tag>;
-        if (!project.isSfMock && project.sfMock.openUrl) {
+
+        if (!project.isSfMock && project.sfMock.serverList?.length) {
+          const mockService = project.sfMock.serverList.find(
+            (item) => item.isMock
+          );
           openBlock = (
-            <a target="_blank" href={project.sfMock.openUrl}>
-              在mock端口打开
-            </a>
+            <Dropdown.Button
+              onClick={() => onOpenMockUrl(project)}
+              overlay={
+                <Menu>
+                  {project.sfMock.serverList
+                    .filter((item) => !item.isMock)
+                    .map((item) => {
+                      let name;
+                      if (item.isMock) {
+                        name = "在mock端口";
+                      } else {
+                        name = item.name || item.openUrl;
+                      }
+                      return (
+                        <Menu.Item key={item.openUrl}>
+                          <a target="_blank" href={item.openUrl}>
+                            {name}
+                          </a>
+                        </Menu.Item>
+                      );
+                    })}
+                </Menu>
+              }
+            >
+              <a target="_blank" href={mockService.openUrl}>
+                打开
+              </a>
+            </Dropdown.Button>
           );
         }
       } else if (project.sfMock.programUrl) {
@@ -126,6 +165,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       </div>
     );
   }
+  function onOpenMockUrl(project: NProject) {}
   async function onUpdateSfMockConfig() {
     const rsp = await SProject.addProject(null, true);
     if (rsp.success) {
@@ -177,19 +217,6 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         })
       );
     }
-  }
-  async function reqProjecListStart(
-    projectList: NProject[],
-    projectRsp: NRsp<NProject>
-  ) {
-    const startRsp = await SProject.isProjectListStart(projectList);
-    projectRsp.list = startRsp.list;
-
-    NModel.dispatch(
-      new NMDProject.ARSetState({
-        rsp: cloneDeep(projectRsp),
-      })
-    );
   }
   async function reqGetProject() {
     const rsp = await SProject.getConfig();
