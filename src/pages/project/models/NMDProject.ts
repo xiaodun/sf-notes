@@ -39,11 +39,11 @@ export default {
       isSfMock: false,
       isDefaultAjaxCode: false,
       closeAjaxCode: false,
+      isDefaultCopySwagger: false,
       sfMock: {
         programUrl: "",
         startPort: 0,
         startBatPath: "",
-        nginxPort: null,
         addressPath: "",
         openUrl: "",
       },

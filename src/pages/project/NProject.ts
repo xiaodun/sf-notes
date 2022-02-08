@@ -13,7 +13,12 @@ export interface NProject {
     programUrl: string;
     startPort: number;
     startBatPath: string;
-    nginxPort: number;
+    serverList: {
+      name: string;
+      openUrl: string;
+      isMock?: boolean;
+      port?: number;
+    }[];
     addressPath: string;
     openUrl: string;
   };
