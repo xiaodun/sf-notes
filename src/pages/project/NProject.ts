@@ -54,10 +54,6 @@ export namespace NProject {
   export interface IUrlQuery {
     id: number;
   }
-  export interface ICommandMenu {
-    name: string;
-    children?: ICommandMenu[];
-  }
   export interface IRenderFormatInfo {
     key: string;
     description?: string;

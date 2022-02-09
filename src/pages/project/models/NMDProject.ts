@@ -8,7 +8,6 @@ export namespace NMDProject {
     config: NProject.IConfig;
     project: NProject;
     domainSwaggerList: NProject.IDomainSwagger[];
-    commonMenuList: NProject.ICommandMenu[];
     apiPrefixs: NProject.IApiWithPrefix;
     menuCheckedList: NProject.IMenuCheckbox[];
     attentionPathList: NProject.IMenuCheckbox[];
@@ -41,6 +40,7 @@ export default {
       closeAjaxCode: false,
       isDefaultCopySwagger: false,
       sfMock: {
+        serverList: [],
         programUrl: "",
         startPort: 0,
         startBatPath: "",
@@ -52,7 +52,6 @@ export default {
       },
       snippetList: [],
     },
-    commonMenuList: [],
     menuCheckedList: [],
     attentionPathList: [],
   },
