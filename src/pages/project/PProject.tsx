@@ -87,6 +87,11 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       pathname: NRouter.projectSwaggerPath,
     });
   }
+  function onGoSfMockVisualization() {
+    props.history.push({
+      pathname: NRouter.projectSfMockPath,
+    });
+  }
   function onGoSnippet(project = {} as NProject) {
     props.history.push({
       pathname: NRouter.projectSnippetPath,
@@ -154,9 +159,14 @@ const Project: ConnectRC<IProjectProps> = (props) => {
 
           {startBlock}
           {project.isSfMock && (
-            <Button type="link" onClick={onUpdateSfMockConfig}>
-              更新
-            </Button>
+            <>
+              <Button type="link" onClick={onGoSfMockVisualization}>
+                可视化
+              </Button>
+              <Button type="link" onClick={onUpdateSfMockConfig}>
+                更新
+              </Button>
+            </>
           )}
           {openBlock}
         </Space>

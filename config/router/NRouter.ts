@@ -9,7 +9,7 @@ export namespace NRouter {
   export const qrCodePath = "/qrCode";
   export const projectPath = "/project";
   export const projectSnippetPath = projectPath + "/snippet";
-  export const projectCommandPath = projectPath + "/command";
+  export const projectSfMockPath = projectPath + "/sf-mock";
   export const projectSwaggerPath = projectPath + "/swagger";
   export const activityPath = "/activity";
   export const routes: IRoute[] = [
@@ -54,8 +54,8 @@ export namespace NRouter {
       wrappers: [rootComponentPath],
     },
     {
-      path: projectCommandPath,
-      component: "." + projectCommandPath,
+      path: projectSfMockPath,
+      component: "." + projectSfMockPath,
       wrappers: [rootComponentPath],
     },
     {

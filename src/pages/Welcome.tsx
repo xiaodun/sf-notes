@@ -30,7 +30,7 @@ export const Welcome: ConnectRC<IWelcomeProps> = (props) => {
     showHeader = true;
     if (
       [
-        NRouter.projectCommandPath,
+        NRouter.projectSfMockPath,
         NRouter.projectSnippetPath,
         NRouter.projectSwaggerPath,
       ].includes(props.match.path)
