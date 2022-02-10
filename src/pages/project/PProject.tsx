@@ -120,7 +120,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
             <Dropdown.Button
               overlay={
                 <Menu>
-                  {envList.length > 1 ? (
+                  {envList.length > 0 ? (
                     envList.map((item) => {
                       return (
                         <Menu.Item key={item.openUrl}>

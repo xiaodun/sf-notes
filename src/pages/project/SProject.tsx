@@ -11,6 +11,12 @@ namespace SProject {
       method: "post",
     });
   }
+  export async function generateProjectStartBat(): Promise<NRsp<boolean>> {
+    return request({
+      url: "/project/generateProjectStartBat",
+      method: "post",
+    });
+  }
   export async function reStartNginx(): Promise<NRsp<boolean>> {
     return request({
       url: "/project/reStartNginx",
