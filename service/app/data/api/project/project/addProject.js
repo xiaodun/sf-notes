@@ -76,7 +76,9 @@
               (item) => {
                 return {
                   ...item,
-                  openUrl: `http://${ip}:${item.port}`,
+                  openUrl: `http://${ip}:${item.port}${
+                    mockConfig.addressPath || ""
+                  }`,
                 };
               }
             );

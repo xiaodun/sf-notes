@@ -63,6 +63,12 @@ const PProjectSfMock: ConnectRC<IPProjectSfMockProps> = (props) => {
       message.success("已执行");
     }
   }
+  async function onGenerateProjectStartBat() {
+    const rsp = await SProject.generateProjectStartBat();
+    if (rsp.success) {
+      message.success("已执行");
+    }
+  }
   async function onGenerateProjectMockStructrue() {
     const rsp = await SProject.generateProjectMockStructrue();
     if (rsp.success) {
