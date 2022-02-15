@@ -13,7 +13,7 @@
     } else {
       const chinese = "([\u4e00-\u9fa5]+)",
         separator = "\\s*[-:]?\\s*",
-        english = "([a-zA-Z_]+)";
+        english = "([0-9a-zA-Z_]+)";
       let result;
       if (argParams.strategy === "chineseEnglish") {
         const chineseStartPattern = new RegExp(
