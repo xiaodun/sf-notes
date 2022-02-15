@@ -81,9 +81,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
                 <Menu.Item
                   key={snippet.script}
                   onClick={() => {
-                    globalform.resetFields();
-
-                    reqGetSnippetConfig(snippet);
+                    reqGetSnippetConfig(snippet, true);
                   }}
                 >
                   {snippet.name}{" "}
@@ -248,7 +246,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
 
       if (param.openChangeRequest) {
         onChange = onRequestConfig;
-      } else if (param.require) {
+      } else if (param.require && param.name !== "_uniqueId") {
         onChange = changeUniqueId;
       } else {
         onChange = () => {};
@@ -313,15 +311,16 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
   }
   function changeUniqueId() {
     globalform.setFieldsValue({
-      uniqueId: uniqueId(),
+      _uniqueId: uniqueId(),
     });
   }
   function onRequestConfig() {
     changeUniqueId();
-    reqGetSnippetConfig(snippet, globalform.getFieldsValue());
+    reqGetSnippetConfig(snippet, false, globalform.getFieldsValue());
   }
   async function reqGetSnippetConfig(
     snippet: NProjectSnippet,
+    isChangeScript: boolean,
     values: any = {}
   ) {
     setSnippet(snippet);
@@ -334,8 +333,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
     );
     if (rsp.success) {
       rsp.data.globalParamList.find((item) => {
-        if (item.name === "uniqueId") {
-          item.disabled = true;
+        if (item.name === "_uniqueId") {
           item.type = "input";
           item.label = "标识符";
           item.defaultValue = uniqueId();
@@ -356,10 +354,14 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
         }
       });
       setSnippetConfig(rsp.data);
+
       setTimeout(() => {
         const input = document.getElementById("firstGlobalParamInputId");
         if (input) {
           input.focus();
+        }
+        if (isChangeScript) {
+          globalform.resetFields();
         }
       }, 100);
     }
