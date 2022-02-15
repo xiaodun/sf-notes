@@ -7,7 +7,9 @@
     let { notes, index } = argParams;
     // 标题不能重复
 
-    let originIndex = argData.findIndex((el) => el.title === notes.title);
+    let originIndex = argData
+      .filter((item) => !item.deleted)
+      .findIndex((el) => el.title === notes.title);
     if (originIndex != -1) {
       argData[originIndex] = notes = {
         ...argData[originIndex],
