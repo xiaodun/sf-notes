@@ -53,6 +53,7 @@ export namespace NProject {
   }
   export interface IUrlQuery {
     id: number;
+    script: string;
   }
   export interface IRenderFormatInfo {
     key: string;

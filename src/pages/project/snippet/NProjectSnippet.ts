@@ -19,6 +19,7 @@ export namespace NProjectSnippet {
     open: boolean;
     needFolder: boolean;
     basePath: string;
+    usePathChoose: boolean;
   }
   export interface IWriteResult {
     title: string;

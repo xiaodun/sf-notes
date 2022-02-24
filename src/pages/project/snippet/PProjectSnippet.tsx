@@ -41,7 +41,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
     project: { snippetList },
   } = MDProject;
   const createSnipeetModalRef = useRef<ICreateSnipeetModal>();
-
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const [snippetConfig, setSnippetConfig] =
     useState<NProjectSnippet.IConfig>(null);
   const [snippet, setSnippet] = useState<NProjectSnippet>(null);
@@ -75,16 +75,17 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
       </div>
       <div className={SelfStyle.contentWrap}>
         <div className="menuWrap">
-          <Menu mode="inline" theme="light">
+          <Menu mode="inline" theme="light" selectedKeys={selectedKeys}>
             {snippetList.map((snippet) => {
               return (
                 <Menu.Item
                   key={snippet.script}
                   onClick={() => {
+                    setSelectedKeys([snippet.script]);
                     reqGetSnippetConfig(snippet, true);
                   }}
                 >
-                  {snippet.name}{" "}
+                  {snippet.name}
                   <span className="script">
                     <CopyOutlined
                       onClick={() => UCopy.copyStr(snippet.script)}
@@ -123,6 +124,20 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
                   autoComplete="off"
                   initialValues={getGlobalInitialValues()}
                 >
+                  {snippetConfig.writeOs.usePathChoose && (
+                    <Form.Item
+                      label="写入参数"
+                      name="writeOsPath"
+                      rules={[{ required: true }]}
+                    >
+                      <Space size={30}>
+                        <Input readOnly></Input>
+
+                        <Button>选择路径</Button>
+                      </Space>
+                    </Form.Item>
+                  )}
+
                   {renderParamList(snippetConfig.globalParamList || [])}
                 </Form>
               </div>
@@ -324,6 +339,12 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
     values: any = {}
   ) {
     setSnippet(snippet);
+    props.history.replace({
+      search: qs.stringify({
+        id: MDProject.project.id,
+        script: snippet.script,
+      }),
+    });
     const rsp = await SProject.getSnippetConfig(
       {
         id: urlQuery.id,
@@ -378,6 +399,12 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
           project: projectRsp.data,
         })
       );
+      const { snippetList } = projectRsp.data;
+      const currentSnippet = snippetList.find(
+        (item) => item.script == urlQuery.script
+      );
+      reqGetSnippetConfig(currentSnippet, false);
+      setSelectedKeys([currentSnippet.script]);
       document.title = "代码片段 - " + projectRsp.data.name;
     }
   }
