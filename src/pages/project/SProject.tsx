@@ -27,7 +27,7 @@ namespace SProject {
     rspItemList: NProject.IRenderFormatInfo[];
     isRsp: boolean;
     name: string;
-  }): Promise<NRsp<boolean>> {
+  }): Promise<NRsp<string>> {
     return request({
       url: "/project/copySwaggerDataWithProject",
       method: "post",

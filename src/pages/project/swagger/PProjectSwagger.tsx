@@ -903,6 +903,9 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
             {pathItem.method.substring(-4)}
           </Tag>
         )}
+        {menuActiveTabKey == "attentionList" && (
+          <Tag> {pathMenuCheckbox.groupName}</Tag>
+        )}
 
         {renderPathUrl(pathMenuCheckbox.pathUrl)}
       </Menu.Item>
