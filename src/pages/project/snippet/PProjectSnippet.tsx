@@ -1,12 +1,14 @@
 import NModel from "@/common/namespace/NModel";
 import {
   Button,
+  Col,
   Form,
   Input,
   InputNumber,
   Menu,
   message,
   Modal,
+  Row,
   Select,
   Space,
   Switch,
@@ -125,17 +127,24 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
                   initialValues={getGlobalInitialValues()}
                 >
                   {snippetConfig.writeOs.usePathChoose && (
-                    <Form.Item
-                      label="写入参数"
-                      name="writeOsPath"
-                      rules={[{ required: true }]}
-                    >
-                      <Space size={30}>
-                        <Input readOnly></Input>
-
-                        <Button>选择路径</Button>
-                      </Space>
-                    </Form.Item>
+                    <Row gutter={8}>
+                      <Col span={12}>
+                        <Form.Item
+                          name="writeOsPath"
+                          label="写入路径"
+                          rules={[{ required: true }]}
+                        >
+                          <Input readOnly></Input>
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Button
+                          onClick={() => onChooseWritePath(snippetConfig)}
+                        >
+                          选择路径
+                        </Button>
+                      </Col>
+                    </Row>
                   )}
 
                   {renderParamList(snippetConfig.globalParamList || [])}
@@ -150,9 +159,19 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
       </div>
     </div>
   );
+  function onChooseWritePath(snippetConfig: NProjectSnippet.IConfig) {
+    directoryModalRef.current.showModal({
+      startPath: MDProject.project.rootPath + snippetConfig.writeOs.basePath,
+      disableFile: true,
+      selectCallbackFlag: "setWriteOsPath",
+    });
+  }
   function onWriteOs(snippetConfig: NProjectSnippet.IConfig) {
     globalform.validateFields().then(async () => {
-      if (snippetConfig.writeOs.needFolder) {
+      if (
+        snippetConfig.writeOs.needFolder &&
+        !snippetConfig.writeOs.usePathChoose
+      ) {
         directoryModalRef.current.showModal({
           startPath:
             MDProject.project.rootPath + snippetConfig.writeOs.basePath,
@@ -170,6 +189,10 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
   ) {
     if (selectCallbackFlag == "writeOs") {
       reqWriteSnippetOs(pathInfos.path);
+    } else if (selectCallbackFlag === "setWriteOsPath") {
+      globalform.setFieldsValue({
+        writeOsPath: pathInfos.path,
+      });
     }
   }
   function reqWriteSnippetOs(writeOsPath?: string) {
@@ -341,7 +364,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
     setSnippet(snippet);
     props.history.replace({
       search: qs.stringify({
-        id: MDProject.project.id,
+        id: urlQuery.id,
         script: snippet.script,
       }),
     });
