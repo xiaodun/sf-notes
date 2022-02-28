@@ -32,12 +32,28 @@
       flex-grow: 1;
       height: 100%;
       margin-left: 15px;
+      overflow-x: hidden;
       overflow-y: auto;
       .ableWrap {
         :global {
           .ant-btn {
             margin-bottom: 30px;
           }
+        }
+      }
+      .openFileList {
+        margin-bottom: 15px;
+        padding: 5px 10px;
+        background-color: #fff;
+        box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+        .ant-btn {
+          float: left;
+          margin: 2px 3px;
+        }
+        &::after {
+          display: table;
+          clear: both;
+          content: " ";
         }
       }
       .globalParamList {

@@ -1,5 +1,6 @@
 import NModel from "@/common/namespace/NModel";
 import {
+  Affix,
   Button,
   Col,
   Form,
@@ -32,6 +33,7 @@ import DirectoryModal, {
 import { NSystem } from "@/common/namespace/NSystem";
 import { CopyOutlined } from "@ant-design/icons";
 import { isEmpty, uniqueId } from "lodash";
+import SBase from "@/common/service/SBase";
 export interface IPProjectSnippetProps {
   MDProject: NMDProject.IState;
   MDGlobal: NMDGlobal.IState;
@@ -102,6 +104,19 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
         <div className="scriptWrap">
           {snippetConfig && (
             <>
+              <Affix offsetTop={100}>
+                <div className="openFileList">
+                  {snippetConfig.openFileList.map((item, index) => (
+                    <Button
+                      key={index}
+                      onClick={() => onOpenFile(item.path)}
+                      type="link"
+                    >
+                      {item.name}
+                    </Button>
+                  ))}
+                </div>
+              </Affix>
               <div className="ableWrap">
                 <Space size={40}>
                   {snippetConfig.writeOs.open && (
@@ -159,6 +174,12 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
       </div>
     </div>
   );
+  async function onOpenFile(filePath: string) {
+    const rsp = await SBase.openFile(filePath);
+    if (rsp.success) {
+      message.success("已执行");
+    }
+  }
   function onChooseWritePath(snippetConfig: NProjectSnippet.IConfig) {
     directoryModalRef.current.showModal({
       startPath: MDProject.project.rootPath + snippetConfig.writeOs.basePath,
@@ -193,6 +214,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
       globalform.setFieldsValue({
         writeOsPath: pathInfos.path,
       });
+      onRequestConfig();
     }
   }
   function reqWriteSnippetOs(writeOsPath?: string) {
