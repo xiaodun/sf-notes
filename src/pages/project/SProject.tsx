@@ -161,7 +161,7 @@ namespace SProject {
     });
   }
   export async function getAttentionList(): Promise<
-    NRsp<NProject.IMenuCheckbox>
+    NRsp<NProject.IAttentionInfo>
   > {
     return request({
       url: "/project/getAttentionList",
