@@ -37,10 +37,15 @@ export namespace NProjectSnippet {
     style?: React.CSSProperties;
     valueList?: string[];
   }
+  export interface IFile {
+    name: string;
+    path: string;
+  }
   export interface IConfig {
     globalParamList: IParam[];
     fragmentList: IFragment[];
     writeOs: IWriteOsConfig;
+    openFileList: IFile[];
   }
 }
 

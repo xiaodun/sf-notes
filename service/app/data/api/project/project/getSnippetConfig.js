@@ -17,6 +17,10 @@
         item.noTemplate = true;
       }
     });
+    data.openFileList = [];
+    if (data.getOpenFileList) {
+      data.openFileList = data.getOpenFileList();
+    }
     return {
       isWrite: false, //是否覆盖数据
       //data:argData,//需要存储的新数据

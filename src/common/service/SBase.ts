@@ -21,6 +21,15 @@ namespace SBase {
       },
     });
   }
+  export async function openFile(filePath: string): Promise<NRsp<boolean>> {
+    return request({
+      url: "/baseService/openFilePath",
+      method: "post",
+      data: {
+        filePath,
+      },
+    });
+  }
 }
 
 export default SBase;
