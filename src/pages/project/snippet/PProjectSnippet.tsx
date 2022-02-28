@@ -400,11 +400,14 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
         })
       );
       const { snippetList } = projectRsp.data;
+
       const currentSnippet = snippetList.find(
         (item) => item.script == urlQuery.script
       );
-      reqGetSnippetConfig(currentSnippet, false);
-      setSelectedKeys([currentSnippet.script]);
+      if (currentSnippet) {
+        reqGetSnippetConfig(currentSnippet, false);
+        setSelectedKeys([currentSnippet.script]);
+      }
       document.title = "代码片段 - " + projectRsp.data.name;
     }
   }
