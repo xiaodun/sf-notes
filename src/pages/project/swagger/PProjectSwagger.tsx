@@ -712,6 +712,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                       key={domainItem.id}
                       title={
                         <div className="domainTitleWrap">
+                          <div className="title">{domainItem.domain}</div>
                           <div className="able">
                             <Button
                               onClick={(e) => onDelDomain(e, domainItem)}
@@ -720,7 +721,6 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                               icon={<CloseOutlined />}
                             ></Button>
                           </div>
-                          <div className="title">{domainItem.domain}</div>
                         </div>
                       }
                     >
