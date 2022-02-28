@@ -90,6 +90,13 @@ export namespace NProject {
       };
     };
   }
+  export interface IAttentionInfo {
+    hasMoreGroup: boolean;
+    list: IMenuCheckbox[];
+    groupInfos: {
+      [key: string]: IMenuCheckbox[];
+    };
+  }
   export interface IMenuCheckbox {
     domain: string;
     groupName: string;

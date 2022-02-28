@@ -66,6 +66,8 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   const [currentCopySwaggerProject, changeCurrentCopySwaggerProject] =
     useState<NProject>();
 
+  const [checkedAttentionGroupNameList, setCheckedAttentionGroupNameList] =
+    useState<string[]>([]);
   useEffect(() => {
     reqGetApiPrefix();
     reqGetSwagger();
@@ -276,14 +278,14 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     if (rsp.success) {
       NModel.dispatch(
         new NMDProject.ARSetState({
-          attentionPathList: rsp.list,
+          attentionInfos: rsp.data,
         })
       );
-      if (rsp.list.length && isFirst) {
+      if (rsp.data.list.length && isFirst) {
         setMenuActiveTabKey("attentionList");
       }
 
-      if (menuActiveTabKey == "attentionList" && !rsp.list.length) {
+      if (menuActiveTabKey == "attentionList" && !rsp.data.list.length) {
         setMenuActiveTabKey("domain");
       }
     }
@@ -795,9 +797,42 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                   </>
                 }
               >
-                {filterAttentionPathList().map((pathInfos) => {
-                  return renderMenuPathUrl(pathInfos, pathInfos.data);
-                })}
+                {!MDProject.attentionInfos.hasMoreGroup || searchSwaggerValue
+                  ? filterAttentionPathList().map((pathInfos) => {
+                      return renderMenuPathUrl(pathInfos, pathInfos.data);
+                    })
+                  : Object.keys(MDProject.attentionInfos.groupInfos).map(
+                      (groupName, index) => (
+                        <Menu.SubMenu
+                          key={index}
+                          title={
+                            <>
+                              <span onClick={(e) => onStop(e)}>
+                                <Checkbox
+                                  checked={getGroupNameChecked(groupName)}
+                                  onChange={(e) =>
+                                    onGroupNameAttentionCheckedChange(
+                                      e.target.checked,
+                                      groupName
+                                    )
+                                  }
+                                ></Checkbox>
+                              </span>
+                              {groupName}
+                            </>
+                          }
+                        >
+                          {MDProject.attentionInfos.groupInfos[groupName].map(
+                            (pathInfos) => {
+                              return renderMenuPathUrl(
+                                pathInfos,
+                                pathInfos.data
+                              );
+                            }
+                          )}
+                        </Menu.SubMenu>
+                      )
+                    )}
               </Menu.SubMenu>
             </Menu>
           </Tabs.TabPane>
@@ -806,7 +841,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     );
   }
   function filterAttentionPathList() {
-    return MDProject.attentionPathList.filter((item) =>
+    return MDProject.attentionInfos.list.filter((item) =>
       JSON.stringify(item).includes(searchSwaggerValue)
     );
   }
@@ -867,6 +902,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   }
   function onCancelMenuChecked() {
     setMyAttentionChecked(false);
+    setCheckedAttentionGroupNameList([]);
     NModel.dispatch(
       new NMDProject.ARSetState({
         menuCheckedList: [],
@@ -903,10 +939,6 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
             {pathItem.method.substring(-4)}
           </Tag>
         )}
-        {menuActiveTabKey == "attentionList" && (
-          <Tag> {pathMenuCheckbox.groupName}</Tag>
-        )}
-
         {renderPathUrl(pathMenuCheckbox.pathUrl)}
       </Menu.Item>
     );
@@ -929,7 +961,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   function onMenuAttentionCheckedChange(checked: boolean) {
     let list: NProject.IMenuCheckbox[] = [];
     if (checked) {
-      list = MDProject.attentionPathList;
+      list = MDProject.attentionInfos.list;
     }
     setMyAttentionChecked(checked);
     NModel.dispatch(
@@ -937,6 +969,56 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         menuCheckedList: list,
       })
     );
+  }
+  function getGroupNameChecked(groupName: string) {
+    return checkedAttentionGroupNameList.includes(groupName);
+  }
+  function onGroupNameAttentionCheckedChange(
+    checked: boolean,
+    groupName: string
+  ) {
+    if (checked) {
+      NModel.dispatch(
+        new NMDProject.ARSetState({
+          menuCheckedList: [
+            ...MDProject.menuCheckedList,
+            ...MDProject.attentionInfos.groupInfos[groupName].filter(
+              (item) =>
+                !MDProject.menuCheckedList.some((pathInfos) =>
+                  isEqual(item, pathInfos)
+                )
+            ),
+          ],
+        })
+      );
+      setCheckedAttentionGroupNameList([
+        ...checkedAttentionGroupNameList,
+        groupName,
+      ]);
+    } else {
+      const newList = produce(MDProject.menuCheckedList, (drafState) => {
+        MDProject.attentionInfos.groupInfos[groupName].forEach((item) => {
+          const index = drafState.findIndex((pathInfos) =>
+            isEqual(item, pathInfos)
+          );
+          drafState.splice(index, 1);
+        });
+      });
+
+      const index = checkedAttentionGroupNameList.findIndex(
+        (item) => item === groupName
+      );
+      checkedAttentionGroupNameList.splice(index, 1);
+      setCheckedAttentionGroupNameList(
+        [...checkedAttentionGroupNameList].splice(index, 1)
+      );
+
+      NModel.dispatch(
+        new NMDProject.ARSetState({
+          menuCheckedList: newList,
+        })
+      );
+    }
   }
   function getMenuChecked(params: NProject.IMenuCheckbox) {
     return MDProject.menuCheckedList.some((item) => isEqual(params, item));

@@ -10,7 +10,7 @@ export namespace NMDProject {
     domainSwaggerList: NProject.IDomainSwagger[];
     apiPrefixs: NProject.IApiWithPrefix;
     menuCheckedList: NProject.IMenuCheckbox[];
-    attentionPathList: NProject.IMenuCheckbox[];
+    attentionInfos: NProject.IAttentionInfo;
   }
   class Action<P> extends NModel.IAction<P> {
     namespace = NModel.ENames.MDProject;
@@ -53,7 +53,11 @@ export default {
       snippetList: [],
     },
     menuCheckedList: [],
-    attentionPathList: [],
+    attentionInfos: {
+      hasMoreGroup: false,
+      list: [],
+      groupInfos: {},
+    },
   },
   effects: {},
   reducers: {
