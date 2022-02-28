@@ -16,6 +16,21 @@
     width: 450px;
     overflow-y: auto;
     :global {
+      .domainTitleWrap {
+        display: flex;
+        .title {
+          flex-grow: 1;
+          margin-left: 4px;
+        }
+        .able {
+          visibility: hidden;
+        }
+        &:hover {
+          .able {
+            visibility: visible;
+          }
+        }
+      }
       .ant-tabs-top {
         height: 100%;
       }

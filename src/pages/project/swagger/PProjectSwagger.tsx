@@ -23,6 +23,7 @@ import EnterSwaggerModal, {
 } from "./components/EnterSwaggerModal";
 import NProject from "../NProject";
 import {
+  CloseOutlined,
   CopyOutlined,
   DownloadOutlined,
   UploadOutlined,
@@ -707,7 +708,22 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
               ) : (
                 MDProject.domainSwaggerList.map((domainItem) => {
                   return (
-                    <Menu.SubMenu key={domainItem.id} title={domainItem.domain}>
+                    <Menu.SubMenu
+                      key={domainItem.id}
+                      title={
+                        <div className="domainTitleWrap">
+                          <div className="able">
+                            <Button
+                              onClick={(e) => onDelDomain(e, domainItem)}
+                              shape="circle"
+                              size="small"
+                              icon={<CloseOutlined />}
+                            ></Button>
+                          </div>
+                          <div className="title">{domainItem.domain}</div>
+                        </div>
+                      }
+                    >
                       {Object.values(domainItem.data).map((groupItem) => {
                         return (
                           <Menu.SubMenu
@@ -942,6 +958,18 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         {renderPathUrl(pathMenuCheckbox.pathUrl)}
       </Menu.Item>
     );
+  }
+  async function onDelDomain(
+    event: React.MouseEvent,
+    domainItem: NProject.IDomainSwagger
+  ) {
+    onStop(event);
+    const rsp = await SProject.delSwaggerDomain(domainItem);
+    if (rsp.success) {
+      message.success("已删除!");
+      reqGetSwagger();
+      reqGetAttentionList(false);
+    }
   }
   function onStop(event: React.MouseEvent) {
     event.stopPropagation();
