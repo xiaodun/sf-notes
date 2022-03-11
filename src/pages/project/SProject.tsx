@@ -3,7 +3,6 @@ import NProject from "./NProject";
 import request from "@/utils/request";
 import { TEnterSwaggerModalWay } from "./swagger/components/EnterSwaggerModal";
 import NProjectSnippet from "./snippet/NProjectSnippet";
-import NSwagger from "@/common/namespace/NSwagger";
 
 namespace SProject {
   export async function delSwaggerDomain(
@@ -120,6 +119,17 @@ namespace SProject {
         data,
         values,
       },
+    });
+  }
+  export async function createSnippetGroup(data: {
+    name: string;
+    id: number;
+    isGroup: boolean;
+  }): Promise<NRsp<boolean>> {
+    return request({
+      url: "/project/createSnippetGroup",
+      method: "post",
+      data,
     });
   }
   export async function createProjectSnippet(data: {

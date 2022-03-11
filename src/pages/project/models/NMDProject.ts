@@ -1,12 +1,14 @@
 import NModel from "@/common/namespace/NModel";
 import NRsp from "@/common/namespace/NRsp";
 import NProject from "../NProject";
+import NProjectSnippet from "../snippet/NProjectSnippet";
 
 export namespace NMDProject {
   export interface IState {
     rsp: NRsp<NProject>;
     config: NProject.IConfig;
     project: NProject;
+    snippetGroupList: NProjectSnippet[];
     domainSwaggerList: NProject.IDomainSwagger[];
     apiPrefixs: NProject.IApiWithPrefix;
     menuCheckedList: NProject.IMenuCheckbox[];
@@ -52,6 +54,7 @@ export default {
       },
       snippetList: [],
     },
+    snippetGroupList: [],
     menuCheckedList: [],
     attentionInfos: {
       hasMoreGroup: false,

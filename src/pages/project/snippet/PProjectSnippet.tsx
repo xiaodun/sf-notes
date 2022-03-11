@@ -23,6 +23,9 @@ import NProject from "../NProject";
 import CreateSnipeetModal, {
   ICreateSnipeetModal,
 } from "./components/CreateSnipeetModal";
+import CreateGroupModal, {
+  ICreateGroupModal,
+} from "./components/CreateGroupModal";
 import NProjectSnippet from "./NProjectSnippet";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import produce from "immer";
@@ -45,6 +48,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
     project: { snippetList },
   } = MDProject;
   const createSnipeetModalRef = useRef<ICreateSnipeetModal>();
+  const createGroupModalRef = useRef<ICreateGroupModal>();
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const [snippetConfig, setSnippetConfig] =
     useState<NProjectSnippet.IConfig>(null);
@@ -73,30 +77,29 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
         ref={createSnipeetModalRef}
         onOk={pageSetup}
       ></CreateSnipeetModal>
+      <CreateGroupModal
+        ref={createGroupModalRef}
+        onOk={pageSetup}
+      ></CreateGroupModal>
       <div className={SelfStyle.ableWrap}>
-        <Button onClick={onShowCreateSnipeetModal}>添加片段</Button>
+        <Space size={30} className="btn-wrap">
+          <Button onClick={onShowCreateSnipeetModal}>添加片段</Button>
+          <Button onClick={onShowCreateGroupModal}>添加分组</Button>
+        </Space>
         <h1>{MDProject.project.name}</h1>
       </div>
       <div className={SelfStyle.contentWrap}>
         <div className="menuWrap">
           <Menu mode="inline" theme="light" selectedKeys={selectedKeys}>
             {snippetList.map((snippet) => {
-              return (
-                <Menu.Item
-                  key={snippet.script}
-                  onClick={() => {
-                    setSelectedKeys([snippet.script]);
-                    reqGetSnippetConfig(snippet, true);
-                  }}
-                >
-                  {snippet.name}
-                  <span className="script">
-                    <CopyOutlined
-                      onClick={() => UCopy.copyStr(snippet.script)}
-                    ></CopyOutlined>
-                    {snippet.script}
-                  </span>
-                </Menu.Item>
+              return snippet.isGroup ? (
+                <Menu.SubMenu title={snippet.name}>
+                  {snippet.children.map((childrenSnippet) => {
+                    return renderMenuItem(childrenSnippet);
+                  })}
+                </Menu.SubMenu>
+              ) : (
+                renderMenuItem(snippet)
               );
             })}
           </Menu>
@@ -104,19 +107,21 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
         <div className="scriptWrap">
           {snippetConfig && (
             <>
-              <Affix offsetTop={100}>
-                <div className="openFileList">
-                  {snippetConfig.openFileList.map((item, index) => (
-                    <Button
-                      key={index}
-                      onClick={() => onOpenFile(item.path)}
-                      type="link"
-                    >
-                      {item.name}
-                    </Button>
-                  ))}
-                </div>
-              </Affix>
+              {snippetConfig?.openFileList.length > 0 && (
+                <Affix offsetTop={100}>
+                  <div className="openFileList">
+                    {snippetConfig.openFileList.map((item, index) => (
+                      <Button
+                        key={index}
+                        onClick={() => onOpenFile(item.path)}
+                        type="link"
+                      >
+                        {item.name}
+                      </Button>
+                    ))}
+                  </div>
+                </Affix>
+              )}
               <div className="ableWrap">
                 <Space size={40}>
                   {snippetConfig.writeOs.open && (
@@ -174,6 +179,25 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
       </div>
     </div>
   );
+  function renderMenuItem(snippet: NProjectSnippet) {
+    return (
+      <Menu.Item
+        key={snippet.script}
+        onClick={() => {
+          setSelectedKeys([snippet.script]);
+          reqGetSnippetConfig(snippet, true);
+        }}
+      >
+        {snippet.name}
+        <span className="script">
+          <CopyOutlined
+            onClick={() => UCopy.copyStr(snippet.script)}
+          ></CopyOutlined>
+          {snippet.script}
+        </span>
+      </Menu.Item>
+    );
+  }
   async function onOpenFile(filePath: string) {
     const rsp = await SBase.openFile(filePath);
     if (rsp.success) {
@@ -434,7 +458,16 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
   }
 
   function onShowCreateSnipeetModal() {
-    createSnipeetModalRef.current.showModal(MDProject.project);
+    createSnipeetModalRef.current.showModal(
+      MDProject.project,
+      MDProject.snippetGroupList
+    );
+  }
+  function onShowCreateGroupModal() {
+    createGroupModalRef.current.showModal(
+      MDProject.project,
+      MDProject.snippetGroupList
+    );
   }
   async function pageSetup() {
     const projectRsp = await SProject.getProject(urlQuery.id);
@@ -442,13 +475,24 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
       NModel.dispatch(
         new NMDProject.ARSetState({
           project: projectRsp.data,
+          snippetGroupList: projectRsp.data.snippetList.filter(
+            (item) => item.isGroup
+          ),
         })
       );
       const { snippetList } = projectRsp.data;
 
-      const currentSnippet = snippetList.find(
-        (item) => item.script == urlQuery.script
-      );
+      const currentSnippet = snippetList
+        .reduce((pre, cur) => {
+          if (cur.isGroup) {
+            pre.push(...cur.children);
+          } else {
+            pre.push(cur);
+          }
+          return pre;
+        }, [])
+        .find((item) => item.script === urlQuery.script);
+
       if (currentSnippet) {
         reqGetSnippetConfig(currentSnippet, false);
         setSelectedKeys([currentSnippet.script]);

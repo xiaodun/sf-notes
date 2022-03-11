@@ -1,6 +1,8 @@
 export interface NProjectSnippet {
   name: string;
-  script: string;
+  script?: string;
+  isGroup?: boolean;
+  children: NProjectSnippet[];
 }
 
 export namespace NProjectSnippet {
