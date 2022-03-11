@@ -4,25 +4,44 @@
     const fs = require("fs");
     let success = true,
       message = "";
-    if (project.snippetList.find((item) => item.name === argParams.name)) {
+    //展开分组
+    let snippetList = [];
+    project.snippetList.forEach((item) => {
+      if (item.isGroup) {
+        return snippetList.push(item, ...item.children);
+      } else {
+        return snippetList.push(item);
+      }
+    });
+    if (snippetList.find((item) => item.name === argParams.name)) {
       success = false;
       message = "片段名重复";
     }
 
-    if (project.snippetList.find((item) => item.script === argParams.script)) {
+    if (snippetList.find((item) => item.script === argParams.script)) {
       success = false;
       message = "脚本文件名重复";
     }
 
     if (success) {
+      const snippet = {
+        name: argParams.name,
+        script: argParams.script,
+      };
       const snippetScriptPath = external.getSnippetScriptPath(
         project.name,
         argParams.script
       );
-      project.snippetList.push({
-        name: argParams.name,
-        script: argParams.script,
-      });
+      if (argParams.groupName) {
+        //找到当前分组并放到里面
+        const groupSnippet = project.snippetList.find(
+          (item) => item.name === argParams.groupName
+        );
+
+        groupSnippet.children.push(snippet);
+      } else {
+        project.snippetList.push(snippet);
+      }
       fs.writeFileSync(
         snippetScriptPath,
         `
