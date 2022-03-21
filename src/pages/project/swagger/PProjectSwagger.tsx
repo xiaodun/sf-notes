@@ -361,7 +361,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                       onCopyPathUrl(currentMenuCheckbox.pathUrl, true)
                     }
                   >
-                    带网关复制
+                    带前缀复制
                   </Button>
                 )}
               </div>
@@ -625,7 +625,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     }
   }
   function getPrefixByPathUrl(pathUrl: string) {
-    let prefix = "";
+    let prefix: string;
     if (MDProject.apiPrefixs) {
       const prefixConfigs =
         MDProject.apiPrefixs[currentMenuCheckbox.domain]?.[
