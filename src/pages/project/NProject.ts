@@ -91,9 +91,9 @@ export namespace NProject {
     };
   }
   export interface IAttentionInfo {
-    hasMoreGroup: boolean;
+    hasMoreTag: boolean;
     list: IMenuCheckbox[];
-    groupInfos: {
+    tagInfos: {
       [key: string]: IMenuCheckbox[];
     };
   }

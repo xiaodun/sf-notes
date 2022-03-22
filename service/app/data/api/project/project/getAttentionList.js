@@ -28,21 +28,21 @@
         };
       }
     });
-    let groupInfos = {};
-    let hasMoreGroup = false;
+    let tagInfos = {};
+    let hasMoreTag = false;
     // 如果关注列表涉及到多个分组则进行归类
     if (argData.attentionPathList.length > 1) {
-      const firstGroupName = argData.attentionPathList[0].groupName;
+      const firstTagName = argData.attentionPathList[0].tagName;
       const hasDifferentName = argData.attentionPathList.some(
-        (item) => item.groupName !== firstGroupName
+        (item) => item.tagName !== firstTagName
       );
       if (hasDifferentName) {
-        hasMoreGroup = true;
+        hasMoreTag = true;
         argData.attentionPathList.forEach((item) => {
-          if (!groupInfos[item.groupName]) {
-            groupInfos[item.groupName] = [];
+          if (!tagInfos[item.tagName]) {
+            tagInfos[item.tagName] = [];
           }
-          groupInfos[item.groupName].push(item);
+          tagInfos[item.tagName].push(item);
         });
       }
     }
@@ -54,9 +54,9 @@
         data: {
           success: true,
           data: {
-            hasMoreGroup,
+            hasMoreTag,
             list: argData.attentionPathList,
-            groupInfos,
+            tagInfos,
           },
         },
       },

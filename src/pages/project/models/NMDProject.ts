@@ -57,9 +57,9 @@ export default {
     snippetGroupList: [],
     menuCheckedList: [],
     attentionInfos: {
-      hasMoreGroup: false,
+      hasMoreTag: false,
       list: [],
-      groupInfos: {},
+      tagInfos: {},
     },
   },
   effects: {},
