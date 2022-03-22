@@ -34,7 +34,11 @@
               wrap[item.name] = item.name;
             }
           } else {
-            wrap[item.name] = "";
+            if (item.enum) {
+              wrap[item.name] = null;
+            } else {
+              wrap[item.name] = "";
+            }
           }
         }
       });
