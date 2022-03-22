@@ -813,11 +813,11 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                   </>
                 }
               >
-                {!MDProject.attentionInfos.hasMoreGroup || searchSwaggerValue
+                {!MDProject.attentionInfos.hasMoreTag || searchSwaggerValue
                   ? filterAttentionPathList().map((pathInfos) => {
                       return renderMenuPathUrl(pathInfos, pathInfos.data);
                     })
-                  : Object.keys(MDProject.attentionInfos.groupInfos).map(
+                  : Object.keys(MDProject.attentionInfos.tagInfos).map(
                       (groupName, index) => (
                         <Menu.SubMenu
                           key={index}
@@ -838,7 +838,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                             </>
                           }
                         >
-                          {MDProject.attentionInfos.groupInfos[groupName].map(
+                          {MDProject.attentionInfos.tagInfos[groupName].map(
                             (pathInfos) => {
                               return renderMenuPathUrl(
                                 pathInfos,
@@ -1010,7 +1010,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         new NMDProject.ARSetState({
           menuCheckedList: [
             ...MDProject.menuCheckedList,
-            ...MDProject.attentionInfos.groupInfos[groupName].filter(
+            ...MDProject.attentionInfos.tagInfos[groupName].filter(
               (item) =>
                 !MDProject.menuCheckedList.some((pathInfos) =>
                   isEqual(item, pathInfos)
@@ -1025,7 +1025,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       ]);
     } else {
       const newList = produce(MDProject.menuCheckedList, (drafState) => {
-        MDProject.attentionInfos.groupInfos[groupName].forEach((item) => {
+        MDProject.attentionInfos.tagInfos[groupName].forEach((item) => {
           const index = drafState.findIndex((pathInfos) =>
             isEqual(item, pathInfos)
           );
