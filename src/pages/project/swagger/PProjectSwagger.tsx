@@ -70,6 +70,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   const [checkedAttentionGroupNameList, setCheckedAttentionGroupNameList] =
     useState<string[]>([]);
   useEffect(() => {
+    reqGetProject();
     reqGetApiPrefix();
     reqGetSwagger();
     reqGetAttentionList(true);
@@ -115,19 +116,26 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
             enumList = record.enum;
             node = (
               <>
-                <span>{record.description} 枚举:</span>
-                {record.enum.map((item, index) => {
-                  return (
-                    <span key={index}>
-                      {item}
-                      {index !== record.enum.length - 1 && (
-                        <span style={{ color: "#a64942", padding: "0 4px" }}>
-                          |
+                <div>{record.description} </div>
+                {MDProject.config.showEnumList && (
+                  <div>
+                    枚举:
+                    {record.enum.map((item, index) => {
+                      return (
+                        <span key={index}>
+                          {item}
+                          {index !== record.enum.length - 1 && (
+                            <span
+                              style={{ color: "#a64942", padding: "0 4px" }}
+                            >
+                              |
+                            </span>
+                          )}
                         </span>
-                      )}
-                    </span>
-                  );
-                })}
+                      );
+                    })}
+                  </div>
+                )}
               </>
             );
           }
@@ -135,27 +143,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
           enumList = [...new Set(enumList)];
           return (
             <div style={{ width: desColumnWidth, wordBreak: "keep-all" }}>
-              {enumList.length > 1 && (
-                <Button
-                  style={{ marginRight: 20, borderColor: "#a696c8" }}
-                  type="dashed"
-                  onClick={() => showGenerateEnumCodeModal(enumList)}
-                >
-                  枚举代码
-                </Button>
-              )}
-
-              {node ? (
-                <>
-                  <CopyOutlined
-                    style={{ marginRight: 10 }}
-                    onClick={() => UCopy.copyStr(record.description)}
-                  ></CopyOutlined>
-                  <span>{node}</span>
-                </>
-              ) : (
-                <span style={{ color: "#5bd1d7" }}>没有描述</span>
-              )}
+              {node ? node : <span style={{ color: "#5bd1d7" }}>没有描述</span>}
             </div>
           );
         },
@@ -260,6 +248,16 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       </div>
     </>
   );
+  async function reqGetProject() {
+    const rsp = await SProject.getConfig();
+    if (rsp.success) {
+      NModel.dispatch(
+        new NMDProject.ARSetState({
+          config: rsp.data,
+        })
+      );
+    }
+  }
   function showKeyValueExtractionModal() {
     keyValueExtractionRef.current.showModal();
   }
@@ -531,8 +529,10 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                     style={{ width: 200 }}
                     onChange={onChangeCopySwaggerProject}
                   >
-                    {projectList.map((item) => (
-                      <Select.Option value={item.id}>{item.name}</Select.Option>
+                    {projectList.map((item, index) => (
+                      <Select.Option value={item.id} key={index}>
+                        {item.name}
+                      </Select.Option>
                     ))}
                   </Select>
                   <Button

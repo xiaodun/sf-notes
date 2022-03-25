@@ -31,6 +31,7 @@ export namespace NProject {
   export type TMenuTabKey = "attention" | "domain";
   export interface IConfig {
     addBasePath: string;
+    showEnumList: false;
   }
   export interface IAjaxCodeWrap {
     [key: string]: IAjaxCode[];

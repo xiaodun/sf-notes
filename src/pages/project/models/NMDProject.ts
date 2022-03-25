@@ -33,6 +33,7 @@ export default {
     },
     config: {
       addBasePath: "",
+      showEnumList: false,
     },
     project: {
       name: "",
