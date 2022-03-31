@@ -116,9 +116,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         key: "description",
         render: (text: any, record: NProject.IRenderFormatInfo) => {
           let node: ReactNode = record.description;
-          let enumList: string[] = [];
           if (record.enum) {
-            enumList = record.enum;
             node = (
               <>
                 <div>{record.description} </div>
@@ -144,8 +142,6 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
               </>
             );
           }
-
-          enumList = [...new Set(enumList)];
           return (
             <div
               style={{ width: desColumnWidth, wordBreak: "keep-all" }}
@@ -265,9 +261,6 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   function onEnumCode(enumList: string[], values: Object) {
     generateEnumCodeRef.current.showModal(enumList, values);
   }
-  function showGenerateEnumCodeModal(enumList: string[]) {
-    generateEnumCodeRef.current.showModal(enumList);
-  }
   function showGenerateAjaxCodeModal(
     checkedPathList: NProject.IMenuCheckbox[]
   ) {
@@ -328,11 +321,10 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                 关注
               </Button>
             )}
-            {rendMethodInfos.notFound && (
-              <Button type="default" onClick={onGenerateAjaxCode}>
-                生成ajax代码
-              </Button>
-            )}
+
+            <Button type="default" onClick={onGenerateAjaxCode}>
+              生成ajax代码
+            </Button>
           </div>
           <div className={SelfStyle.baseInfo}>
             <div className={SelfStyle.itemWrap}>
