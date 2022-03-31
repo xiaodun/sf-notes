@@ -73,17 +73,19 @@ const path = require("path");
         external.getPathPrefix = (checkedPathInfo, apiPrefixs) => {
           let str = "";
           Object.keys(apiPrefixs).some((domain) => {
-            return Object.keys(apiPrefixs[domain]).some((group) => {
-              return Object.keys(apiPrefixs[domain][group]).some((prefix) => {
-                const hasPrefix = apiPrefixs[domain][group][prefix].find(
-                  (item) => checkedPathInfo.pathUrl.startsWith(item)
-                );
-                if (hasPrefix) {
-                  str = prefix;
-                  return true;
-                }
+            if (new RegExp(domain).test(checkedPathInfo.domain)) {
+              return Object.keys(apiPrefixs[domain]).some((group) => {
+                return Object.keys(apiPrefixs[domain][group]).some((prefix) => {
+                  const hasPrefix = apiPrefixs[domain][group][prefix].find(
+                    (item) => checkedPathInfo.pathUrl.startsWith(item)
+                  );
+                  if (hasPrefix) {
+                    str = prefix;
+                    return true;
+                  }
+                });
               });
-            });
+            }
           });
           return str;
         };
