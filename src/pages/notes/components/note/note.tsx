@@ -237,7 +237,7 @@ const Note: FC<INoteProps> = (props) => {
       key = 0;
     const imgStuffixList = [".jpg", ".jpeg", ".gif", ".png", ".svg"];
     const linkPattern = RegExp(
-      `(https?|ftp|file|${NNotes.imgProtocolKey})://[-A-Za-z0-9+&@#/%?=~_|!:,.;\u4e00-\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]`,
+      `((https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;\u4e00-\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5])|(${NNotes.imgProtocolKey}://[.A-Za-z0-9]+)`,
       "g"
     );
 
