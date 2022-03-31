@@ -1,21 +1,24 @@
 (function () {
   return function (argData, argParams) {
-    //argData 数据的副本
     let enumList = [];
     let values = {};
     const prettier = require("prettier");
+
     if (argParams.strategy === "onlyEnglish") {
+      //只有英文
       const pattern = /[a-zA-z]+/g;
       let result;
       while ((result = pattern.exec(argParams.content)) != null) {
         enumList.push(result[0]);
       }
     } else {
+      //中英结合
       const chinese = "([\u4e00-\u9fa5]+)",
         separator = "\\s*[-:]?\\s*",
         english = "([0-9a-zA-Z_]+)";
       let result;
       if (argParams.strategy === "chineseEnglish") {
+        //中文前英文后
         const chineseStartPattern = new RegExp(
           chinese + separator + english,
           "g"
@@ -25,6 +28,7 @@
           enumList.push(result[2]);
         }
       } else if (argParams.strategy === "englishChinese") {
+        //英文前中文后
         const englishStartPattern = new RegExp(
           english + separator + chinese,
           "g"
@@ -41,10 +45,7 @@
     }
 
     return {
-      isWrite: false, //是否覆盖数据
-      //data:argData,//需要存储的新数据
       response: {
-        //返回的数据
         code: 200,
         data: {
           success: true,

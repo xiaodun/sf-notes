@@ -97,9 +97,14 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         title: "名称",
         dataIndex: "name",
         key: "name",
-        render: (text: any) => {
+        render: (text: any, record: NProject.IRenderFormatInfo) => {
           return (
-            <span onClick={(e) => UCopy.copyStr(e.currentTarget.textContent)}>
+            <span onClick={(e) => UCopy.copyStr(text)}>
+              {record.required && (
+                <span style={{ color: "#ca3e47", fontWeight: "bold" }}>
+                  *&nbsp;
+                </span>
+              )}
               {text}
             </span>
           );
@@ -142,7 +147,12 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
 
           enumList = [...new Set(enumList)];
           return (
-            <div style={{ width: desColumnWidth, wordBreak: "keep-all" }}>
+            <div
+              style={{ width: desColumnWidth, wordBreak: "keep-all" }}
+              onClick={() => {
+                UCopy.copyStr(record.description);
+              }}
+            >
               {node ? node : <span style={{ color: "#5bd1d7" }}>没有描述</span>}
             </div>
           );
@@ -160,22 +170,13 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
               node = "Array";
             }
             return <span style={{ color: "#ff502f" }}>{node}</span>;
+          } else if (record.enum?.length > 0) {
+            return <span style={{ color: "#F78D3F" }}>enum</span>;
           } else if (record.format) {
             return record.format;
           }
 
           return record.type;
-        },
-      },
-      {
-        title: "必传",
-        key: "required",
-        render: (text: any, record: NProject.IRenderFormatInfo) => {
-          return record.required ? (
-            <span style={{ color: "#ca3e47" }}> 是</span>
-          ) : (
-            <span> 否</span>
-          );
         },
       },
     ],
@@ -627,10 +628,14 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   function getPrefixByPathUrl(pathUrl: string) {
     let prefix: string;
     if (MDProject.apiPrefixs) {
+      const matchDomian = Object.keys(MDProject.apiPrefixs).find((domian) => {
+        const regexp = new RegExp(domian);
+        if (regexp.test(currentMenuCheckbox.domain)) {
+          return true;
+        }
+      });
       const prefixConfigs =
-        MDProject.apiPrefixs[currentMenuCheckbox.domain]?.[
-          currentMenuCheckbox.groupName
-        ];
+        MDProject.apiPrefixs[matchDomian]?.[currentMenuCheckbox.groupName];
       if (prefixConfigs) {
         Object.keys(prefixConfigs).find((item) => {
           if (pathUrl.startsWith(item)) {

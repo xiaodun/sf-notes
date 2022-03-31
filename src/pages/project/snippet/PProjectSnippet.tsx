@@ -249,8 +249,8 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
           script: snippet.script,
         },
         {
-          ...values,
           writeOsPath,
+          ...values,
         }
       );
       if (rsp.success) {
