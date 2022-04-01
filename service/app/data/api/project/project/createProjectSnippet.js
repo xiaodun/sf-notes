@@ -55,14 +55,16 @@
             const { default: babelTraverse } = require("@babel/traverse");
             const { baseParse: vueParse } = require("@vue/compiler-core");
         
-            function getRouteFilePath() {
-              return path.join(argParams.writeOsPath, "router", "index.js");
+            function getBaseNameInfo() {
+              return {
+                routeFilePath:path.join(argParams.writeOsPath, "router", "index.js");
+              }
             }
             return {
               writeOs: {
                 open: true,
                 needFolder: true,
-                basePath: "\\src\\modules",
+                basePath: "\\\\src\\\\modules",
               },
               globalParamList: [
                 {
