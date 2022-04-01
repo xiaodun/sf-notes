@@ -22,10 +22,8 @@
       data.openFileList = data.getOpenFileList();
     }
     return {
-      isWrite: false, //是否覆盖数据
-      //data:argData,//需要存储的新数据
+      isWrite: false,
       response: {
-        //返回的数据
         code: 200,
         data: {
           success: true,

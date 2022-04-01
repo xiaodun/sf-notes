@@ -26,7 +26,7 @@
           wrap[item.name] = 0;
         } else if (item.type === "string") {
           if (isRsp) {
-            //属于相应数据
+            //属于响应数据
             if (item.enum) {
               wrap[item.name] = item.enum[_.random(item.enum.length - 1)];
             } else if (item.format === "date-time") {
@@ -52,21 +52,20 @@
     able(rspItemList, data);
     if (!isRsp) {
       /***
-       * 请求数据中如有对于的接口
+       * 请求数据中存在这样的结构
        * {
        *   data:{
        *      age:""
        *   }
        * }
        *
-       * 通常情况下data后台只需要接受
+       * 通常情况下后台只需要接受
        *
        *
        * {
        *  age:""
        * }
        *
-       *  因此下面逻辑做了处理
        * */
 
       if (Object.keys(data).length === 1) {

@@ -18,7 +18,6 @@
     commandList.push(`start nginx.exe`);
 
     file_os.writeFileSync(cmdFileName, commandList.join("\n"));
-    //运行nginx的原因,回调不触发
     exec(cmdFileName, function (err, stdout, stderr) {
       if (err) {
         console.error(err);
