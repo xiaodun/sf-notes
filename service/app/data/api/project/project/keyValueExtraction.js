@@ -2,8 +2,6 @@
   return function (argData, argParams) {
     let enumList = [];
     let values = {};
-    const prettier = require("prettier");
-
     if (argParams.strategy === "onlyEnglish") {
       //只有英文
       const pattern = /[a-zA-z]+/g;

@@ -1,6 +1,5 @@
 (function () {
   return function (argData, argParams, external) {
-    //argData 数据的副本
     const lodash = require("lodash");
     argData = external.getBaseStructure(argData);
     argParams.forEach((menuCheckbox) => {

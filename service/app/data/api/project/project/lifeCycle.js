@@ -1,12 +1,5 @@
-const path = require("path");
-
 (function () {
   return function () {
-    const commonList = ["c://sf-mobile-web", "/player", "/movie"];
-    let pathList = [...commonList];
-    pathList.splice(3, 0, "/system");
-    let userPathList = [...commonList];
-    userPathList.splice(3, 0, "/user");
     const fs = require("fs");
     const swaggerFolderPath = "./data/api/project/project/swagger";
     const publicFolderPath = "./data/api/project/project/public";
@@ -26,9 +19,7 @@ const path = require("path");
           if (!argData.swaggerList) {
             argData.swaggerList = [];
           }
-          if (!argData.snippetList) {
-            argData.snippetList = [];
-          }
+
           if (!argData.apiPrefixs) {
             argData.apiPrefixs = {};
           }

@@ -14,7 +14,6 @@
       ).data;
     });
     return {
-      isWrite: false,
       response: {
         code: 200,
         data: {
