@@ -96,7 +96,7 @@
 - NRsp 整合了对列表的系列操作
 - 合理的利用 Promise 加形参的方式控制行为，避免混淆。
 
-# 代做事项
+# 待做事项
 
 ## 版本迭代
 
@@ -130,4 +130,4 @@
 
 ## 代码片段
 
-- <span style="color:red;font-weight:bold">[BUG]</span> 更改参数引起重新请求参数后,标题不显示了。
+- <span style="color:red;font-weight:bold">[BUG]</span> 更改参数引起重新请求配置后,标题不显示了。
