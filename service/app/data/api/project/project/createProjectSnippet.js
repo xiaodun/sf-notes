@@ -57,7 +57,7 @@
         
             function getBaseNameInfo() {
               return {
-                routeFilePath:path.join(argParams.writeOsPath, "router", "index.js");
+                routeFilePath:path.join(argParams.writeOsPath, "router", "index.js")
               }
             }
             return {
