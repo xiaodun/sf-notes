@@ -1,19 +1,9 @@
 import { PageFooter } from "@/common/components/page";
 import NModel from "@/common/namespace/NModel";
 import NRouter from "@/../config/router/NRouter";
-import {
-  Button,
-  Dropdown,
-  Menu,
-  message,
-  Select,
-  Space,
-  Table,
-  Tag,
-  Typography,
-} from "antd";
+import { Button, Dropdown, Menu, message, Space, Table, Tag } from "antd";
 import React, { useEffect, useRef } from "react";
-import { connect, ConnectRC, NMDProject } from "umi";
+import { connect, ConnectRC, Link, NMDProject } from "umi";
 import SelfStyle from "./LProject.less";
 import NProject from "./NProject";
 import SProject from "./SProject";
@@ -68,7 +58,11 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       ></DirectoryModal>
       <PageFooter>
         <Button onClick={onShowAddModal}>添加项目</Button>
-        <Button onClick={onGoSwagger}>Swagger</Button>
+        <Button>
+          <Link to={NRouter.projectSwaggerPath} target="_blank">
+            Swagger
+          </Link>
+        </Button>
       </PageFooter>
     </div>
   );
@@ -82,22 +76,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       message.error(addRsp.message);
     }
   }
-  function onGoSwagger() {
-    props.history.push({
-      pathname: NRouter.projectSwaggerPath,
-    });
-  }
-  function onGoSfMockVisualization() {
-    props.history.push({
-      pathname: NRouter.projectSfMockPath,
-    });
-  }
-  function onGoSnippet(project = {} as NProject) {
-    props.history.push({
-      pathname: NRouter.projectSnippetPath,
-      search: qs.stringify({ id: project.id }),
-    });
-  }
+
   function renderNameColumn(name: string) {
     return <div onClick={() => UCopy.copyStr(name)}>{name}</div>;
   }
@@ -153,15 +132,30 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     return (
       <div className={SelfStyle.optionColumn}>
         <Space align="start">
-          <Button type="link" onClick={() => onGoSnippet(project)}>
-            代码片段
+          <Button type="link">
+            <Link
+              to={{
+                pathname: NRouter.projectSwaggerPath,
+                search: qs.stringify({ id: project.id }),
+              }}
+              target="_blank"
+            >
+              代码片段
+            </Link>
           </Button>
 
           {startBlock}
           {project.isSfMock && (
             <>
-              <Button type="link" onClick={onGoSfMockVisualization}>
-                可视化
+              <Button type="link">
+                <Link
+                  to={{
+                    pathname: NRouter.projectSfMockPath,
+                  }}
+                  target="_blank"
+                >
+                  可视化
+                </Link>
               </Button>
               <Button type="link" onClick={onUpdateSfMockConfig}>
                 更新
