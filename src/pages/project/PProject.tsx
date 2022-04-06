@@ -135,7 +135,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
           <Button type="link">
             <Link
               to={{
-                pathname: NRouter.projectSwaggerPath,
+                pathname: NRouter.projectSnippetPath,
                 search: qs.stringify({ id: project.id }),
               }}
               target="_blank"
