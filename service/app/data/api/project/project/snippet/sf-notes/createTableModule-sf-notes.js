@@ -46,6 +46,9 @@
           name: "moduleName",
           label: "模块名",
           type: "input",
+          props: {
+            placeholder: "英文名用于文件夹的创建等",
+          },
           style: {
             width: 300,
           },
@@ -58,12 +61,19 @@
           style: {
             width: 300,
           },
+          props: {
+            placeholder: "中文名字相当于文档标题",
+          },
           require: true,
         },
         {
           name: "position",
           label: "位置",
           type: "number",
+          props: {
+            min: 1,
+            placeholder: "在应用列表中展示的位置",
+          },
           style: {
             width: 300,
           },
