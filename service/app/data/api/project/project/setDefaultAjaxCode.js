@@ -1,6 +1,5 @@
 (function () {
   return function (argData, argParams, external) {
-    argData = external.getBaseStructure(argData);
     argData.projectList.forEach((project) => {
       delete project.isDefaultAjaxCode;
       if (project.name === argParams.projectName) {

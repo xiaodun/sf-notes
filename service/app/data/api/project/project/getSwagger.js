@@ -2,7 +2,6 @@
   return function (argData, argParams, external) {
     const fs = require("fs");
     const path = require("path");
-    argData = external.getBaseStructure(argData);
     external.createSwaggerFolder();
     argData.swaggerList.forEach((item) => {
       item.data = JSON.parse(
