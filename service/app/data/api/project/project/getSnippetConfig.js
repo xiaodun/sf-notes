@@ -10,6 +10,20 @@
     );
     const sctiptContent = fs.readFileSync(snippetScriptPath).toString();
     const data = eval(sctiptContent)(argParams.values);
+    data.globalParamList.forEach((item) => {
+      if (!item.props) {
+        item.props = {};
+      }
+      if (item.type === "select" && item.valueList) {
+        //自动改为{label:"",value:""}形式
+        if (typeof item.valueList[0] != "object") {
+          item.valueList = item.valueList.map((item) => ({
+            label: item,
+            value: item,
+          }));
+        }
+      }
+    });
     data.fragmentList.forEach((item) => {
       if (item.getTemplate) {
         item.noTemplate = false;

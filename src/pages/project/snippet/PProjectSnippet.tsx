@@ -325,7 +325,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
     });
   }
   function renderParamList(paramList: NProjectSnippet.IParam[]) {
-    return paramList.map((param, index) => {
+    return paramList.map((param) => {
       let content: ReactNode = "";
       let onChange;
 
@@ -342,6 +342,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
           <Input
             style={param.style}
             onChange={onChange}
+            {...param.props}
             disabled={param.disabled}
           />
         );
@@ -349,15 +350,17 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
         content = (
           <InputNumber
             style={param.style}
+            {...param.props}
             onChange={onChange}
             disabled={param.disabled}
           />
         );
       } else if (param.type === "switch") {
-        content = <Switch onChange={onChange}></Switch>;
+        content = <Switch onChange={onChange} {...param.props}></Switch>;
       } else if (param.type === "select") {
         content = (
           <Select
+            {...param.props}
             showSearch
             style={param.style}
             filterOption={(input, option) =>

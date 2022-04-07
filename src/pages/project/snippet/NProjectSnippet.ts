@@ -37,7 +37,8 @@ export namespace NProjectSnippet {
     defaultValue: any;
     openChangeRequest?: boolean;
     style?: React.CSSProperties;
-    valueList?: string[];
+    valueList?: { label: string; value: string | number }[];
+    props: object;
   }
   export interface IFile {
     name: string;
