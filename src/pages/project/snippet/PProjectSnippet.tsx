@@ -93,7 +93,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
           <Menu mode="inline" theme="light" selectedKeys={selectedKeys}>
             {snippetList.map((snippet) => {
               return snippet.isGroup ? (
-                <Menu.SubMenu title={snippet.name}>
+                <Menu.SubMenu key={snippet.name} title={snippet.name}>
                   {snippet.children.map((childrenSnippet) => {
                     return renderMenuItem(childrenSnippet);
                   })}
