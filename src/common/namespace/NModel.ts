@@ -1,12 +1,5 @@
 import { SubscriptionsMapObject, EffectsCommandMap } from "dva";
-import {
-  NMDTest,
-  NMDNotes,
-  NMDBook,
-  NMDGlobal,
-  NMDProject,
-  NMDActivity,
-} from "umi";
+import { NMDTest, NMDNotes, NMDGlobal, NMDProject, NMDActivity } from "umi";
 interface NModel<S> {
   namespace: string;
   state?: S;
@@ -23,7 +16,6 @@ namespace NModel {
   export enum ENames {
     MDTest = "MDTest",
     MDNotes = "MDNotes",
-    MDBook = "MDBook",
     MDGlobal = "MDGlobal",
     MDProject = "MDProject",
     MDActivity = "MDActivity",
@@ -39,7 +31,6 @@ namespace NModel {
   export interface IState {
     [ENames.MDTest]: NMDTest.IState;
     [ENames.MDNotes]: NMDNotes.IState;
-    [ENames.MDBook]: NMDBook.IState;
     [ENames.MDGlobal]: NMDGlobal.IState;
     [ENames.MDProject]: NMDProject.IState;
     [ENames.MDActivity]: NMDActivity.IState;
