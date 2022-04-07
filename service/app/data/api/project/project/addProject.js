@@ -2,7 +2,6 @@
   return function (argData, argParams, external) {
     const path_os = require("path");
     const fs_os = require("fs");
-    argData = external.getBaseStructure(argData);
     const isExist = argData.projectList.some(
       (item) => item.rootPath === argParams.rootPath
     );

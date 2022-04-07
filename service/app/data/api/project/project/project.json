@@ -3,5 +3,19 @@
         "addBasePath": "",
         "showEnumList": false
     },
-    "projectList": []
+    "projectList": [
+        {
+            "rootPath": "",
+            "name": "sf-notes",
+            "id": 1634522259207,
+            "isSfMock": false,
+            "closeAjaxCode": true,
+            "sfMock": {},
+            "snippetList": [],
+            "isDefaultCopySwagger": false
+        }
+    ],
+    "swaggerList": [],
+    "apiPrefixs": {},
+    "attentionPathList": []
 }

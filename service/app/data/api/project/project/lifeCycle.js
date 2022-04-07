@@ -8,28 +8,6 @@
       "./data/api/project/project/generateAjaxCode";
     return {
       createFloder: function (createFloder, external) {
-        external.getBaseStructure = (argData) => {
-          let baseData = {
-            projectList: [],
-          };
-          if (!argData) {
-            return baseData;
-          }
-
-          if (!argData.swaggerList) {
-            argData.swaggerList = [];
-          }
-
-          if (!argData.apiPrefixs) {
-            argData.apiPrefixs = {};
-          }
-
-          if (!argData.attentionPathList) {
-            argData.attentionPathList = [];
-          }
-
-          return argData;
-        };
         external.getSwaggerFolderPath = () => {
           return swaggerFolderPath;
         };

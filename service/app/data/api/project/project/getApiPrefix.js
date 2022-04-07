@@ -1,7 +1,6 @@
 (function () {
   return function (argData, argParams, external) {
     const _ = require("lodash");
-    argData = external.getBaseStructure(argData);
 
     let apiPrefixs = _.cloneDeep(argData.apiPrefixs);
     Object.keys(argData.apiPrefixs).forEach((domain) => {

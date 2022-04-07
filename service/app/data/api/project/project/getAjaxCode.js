@@ -1,6 +1,5 @@
 (function () {
   return function (argData, argParams, external) {
-    argData = external.getBaseStructure(argData);
     external.createSwaggerFolder();
     const fs = require("fs");
     const path = require("path");
