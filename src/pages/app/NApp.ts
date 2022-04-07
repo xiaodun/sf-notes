@@ -14,6 +14,10 @@ namespace NApp {
       path: NRouter.projectPath,
     },
     {
+      name: "迭代开发",
+      path: NRouter.iterativePath,
+    },
+    {
       name: "文件管理",
       path: NRouter.filePath,
     },
