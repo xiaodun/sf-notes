@@ -3,6 +3,10 @@
     const project = argData.projectList.find(
       (item) => item.id == argParams.data.id
     );
+    if (!argParams.values.writeOsPath) {
+      //防止path.join报错
+      argParams.values.writeOsPath = "";
+    }
     const fs = require("fs");
     const snippetScriptPath = external.getSnippetScriptPath(
       project.name,
@@ -14,7 +18,10 @@
       (item) => {
         if (item.writeOs) {
           try {
-            const template = item.getTemplate ? item.getTemplate() : "";
+            //防止写入多出空行
+            const template = item.getTemplate
+              ? (item.getTemplate() || "").trim()
+              : "";
             item.writeOs(template);
             execResultList.push({ title: item.title, success: true });
           } catch (error) {
