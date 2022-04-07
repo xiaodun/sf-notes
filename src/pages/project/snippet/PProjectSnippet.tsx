@@ -206,7 +206,8 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
   }
   function onChooseWritePath(snippetConfig: NProjectSnippet.IConfig) {
     directoryModalRef.current.showModal({
-      startPath: MDProject.project.rootPath + snippetConfig.writeOs.basePath,
+      startPath:
+        MDProject.project.rootPath + (snippetConfig.writeOs.basePath || ""),
       disableFile: true,
       selectCallbackFlag: "setWriteOsPath",
     });
@@ -224,7 +225,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
           selectCallbackFlag: "writeOs",
         });
       } else {
-        reqWriteSnippetOs();
+        reqWriteSnippetOs(MDProject.project.rootPath);
       }
     });
   }
