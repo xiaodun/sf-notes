@@ -12,6 +12,7 @@ export namespace NRouter {
   export const projectSfMockPath = projectPath + "/sf-mock";
   export const projectSwaggerPath = projectPath + "/swagger";
   export const activityPath = "/activity";
+  export const iterativePath = "/iterative";
   export const routes: IRoute[] = [
     {
       path: rootPath,
@@ -66,6 +67,11 @@ export namespace NRouter {
     {
       path: activityPath,
       component: "." + activityPath,
+      wrappers: [rootComponentPath],
+    },
+    {
+      path: iterativePath,
+      component: "." + iterativePath,
       wrappers: [rootComponentPath],
     },
   ];
