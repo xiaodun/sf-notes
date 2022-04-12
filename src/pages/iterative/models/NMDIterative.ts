@@ -6,7 +6,8 @@ export namespace NMDIterative {
   export interface IState {
     rsp: NRsp<NIterative>;
     config: NIterative.IConfig;
-    iterative: NIterative;
+    roleList: NIterative.IRole[];
+    roleTagList: NIterative.IRoleTag[];
   }
   class Action<P> extends NModel.IAction<P> {
     namespace = NModel.ENames.MDIterative;
@@ -23,9 +24,9 @@ export default {
     rsp: {
       list: [],
     },
-    config: {
-    },
-    iterative: {},
+    config: {},
+    roleList: [],
+    roleTagList: [],
   },
   effects: {},
   reducers: {
