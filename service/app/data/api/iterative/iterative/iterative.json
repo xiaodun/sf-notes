@@ -1,0 +1,46 @@
+{
+    "iterativeList": [
+        {
+            "name": "金赛项目迭代",
+            "docUrl": "https://lanhuapp.com/url/Av5Xy",
+            "docPassword": "8rt0",
+            "id": 1649755114029
+        }
+    ],
+    "roleList": [
+        {
+            "name": "王旭",
+            "role": "front",
+            "id": 1649660472669,
+            "accountList": []
+        }
+    ],
+    "roleConfig": {
+        "list": [
+            {
+                "value": "front",
+                "label": "前端"
+            },
+            {
+                "value": "back",
+                "label": "后端"
+            },
+            {
+                "value": "UI",
+                "label": "UI"
+            },
+            {
+                "value": "test",
+                "label": "测试"
+            },
+            {
+                "value": "product",
+                "label": "产品"
+            },
+            {
+                "value": "projectManager",
+                "label": "项目负责人"
+            }
+        ]
+    }
+}
