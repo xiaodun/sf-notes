@@ -21,6 +21,16 @@
                             "script": "createTableModule"
                         }
                     ]
+                },
+                {
+                    "name": "模态框",
+                    "isGroup": true,
+                    "children": [
+                        {
+                            "name": "有表单验证",
+                            "script": "createWithFormModal"
+                        }
+                    ]
                 }
             ],
             "isDefaultCopySwagger": false
