@@ -5,24 +5,24 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { connect, ConnectRC, Link, NMDIterative } from "umi";
 import { Modal, Button, Form, Input, message, Select } from "antd";
 import produce from "immer";
 import NIterative from "../NIterative";
 import SIterative from "../SIterative";
 export interface IAddRoleModal {
-  showModal: (roleTagList: NIterative.ITag[]) => void;
+  showModal: () => void;
 }
 export interface IAddRoleModalProps {
+  MDIterative: NMDIterative.IState;
   onOk: () => void;
 }
 
 export interface IAddRoleModalState {
   visible: boolean;
-  roleTagList: NIterative.ITag[];
 }
 const defaultState: IAddRoleModalState = {
   visible: false,
-  roleTagList: [],
 };
 const AddRoleModal: ForwardRefRenderFunction<
   IAddRoleModal,
@@ -31,13 +31,12 @@ const AddRoleModal: ForwardRefRenderFunction<
   const [state, setState] = useState<IAddRoleModalState>(defaultState);
   const [form] = Form.useForm();
   const firstInputRef = useRef<Input>();
-
+  const { MDIterative } = props;
   useImperativeHandle(ref, () => ({
-    showModal: (roleTagList: NIterative.ITag[]) => {
+    showModal: () => {
       setState(
         produce(state, (drafState) => {
           drafState.visible = true;
-          drafState.roleTagList = roleTagList;
         })
       );
       setTimeout(() => {
@@ -67,7 +66,7 @@ const AddRoleModal: ForwardRefRenderFunction<
         </Form.Item>
         <Form.Item name="role" label="角色" rules={[{ required: true }]}>
           <Select>
-            {state.roleTagList.map((item) => (
+            {MDIterative.roleTagList.map((item) => (
               <Select.Option key={item.value} value={item.value}>
                 {item.label}
               </Select.Option>
