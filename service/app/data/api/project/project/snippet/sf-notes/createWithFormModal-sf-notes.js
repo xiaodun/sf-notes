@@ -185,7 +185,7 @@ export default forwardRef(${argParams.modalName}Modal);
           getTemplate() {
             return `
           <${argParams.modalName}Modal
-            ref={${argParams.modalName}ModalRef}
+            ref={${_.lowerFirst(argParams.modalName)}ModalRef}
           ></${argParams.modalName}Modal>
             
             `;

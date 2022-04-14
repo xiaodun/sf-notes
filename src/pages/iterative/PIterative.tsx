@@ -23,15 +23,14 @@ const Iterative: ConnectRC<IIterativeProps> = (props) => {
   const { MDIterative } = props;
 
   useEffect(() => {
-    reqGetConfig();
-    reqGetList();
-    reqGetRoleTagList();
-    reqGetEnvTagList();
+    SIterative.getConfig();
+    SIterative.getRoleTagList();
+    SIterative.getEnvTagList();
   }, []);
 
   return (
     <div>
-      <Tabs defaultActiveKey="role" size="large" type="card">
+      <Tabs size="large" type="card">
         <Tabs.TabPane tab="迭代" key="iterative">
           <IterativeTabpane MDIterative={MDIterative}></IterativeTabpane>
         </Tabs.TabPane>
@@ -41,47 +40,6 @@ const Iterative: ConnectRC<IIterativeProps> = (props) => {
       </Tabs>
     </div>
   );
-
-  async function reqGetConfig() {
-    const rsp = await SIterative.getConfig();
-    if (rsp.success) {
-      NModel.dispatch(
-        new NMDIterative.ARSetState({
-          config: rsp.data,
-        })
-      );
-    }
-  }
-  async function reqGetList() {
-    const rsp = await SIterative.getIterativeList();
-    if (rsp.success) {
-      NModel.dispatch(
-        new NMDIterative.ARSetState({
-          rsp,
-        })
-      );
-    }
-  }
-  async function reqGetRoleTagList() {
-    const rsp = await SIterative.getRoleTagList();
-    if (rsp.success) {
-      NModel.dispatch(
-        new NMDIterative.ARSetState({
-          roleTagList: rsp.list,
-        })
-      );
-    }
-  }
-  async function reqGetEnvTagList() {
-    const rsp = await SIterative.getEnvTagList();
-    if (rsp.success) {
-      NModel.dispatch(
-        new NMDIterative.ARSetState({
-          envTagList: rsp.list,
-        })
-      );
-    }
-  }
 };
 export default connect(({ MDIterative }: NModel.IState) => ({
   MDIterative,

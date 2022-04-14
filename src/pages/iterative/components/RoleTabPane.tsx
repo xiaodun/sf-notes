@@ -22,22 +22,26 @@ export interface IRoleTabpaneProps {
 const RoleTabpane: FC<IRoleTabpaneProps> = (props) => {
   const { MDIterative } = props;
 
-  const EditAccountModalRef = useRef<IEditAccountModal>();
+  const editAccountModalRef = useRef<IEditAccountModal>();
 
-  const AddRoleModalRef = useRef<IAddRoleModal>();
+  const addRoleModalRef = useRef<IAddRoleModal>();
   useEffect(() => {
-    reqGetRoleList();
-    reqGetSystemTagList();
-    reqGetProjectList();
+    SIterative.getRoleList();
+    SIterative.getSystemTagList();
   }, []);
   return (
     <div>
       <EditAccountModal
-        ref={EditAccountModalRef}
-        onOk={reqGetRoleList}
+        MDIterative={MDIterative}
+        ref={editAccountModalRef}
+        onOk={SIterative.getRoleList}
       ></EditAccountModal>
 
-      <AddRoleModal ref={AddRoleModalRef} onOk={reqGetRoleList}></AddRoleModal>
+      <AddRoleModal
+        MDIterative={MDIterative}
+        ref={addRoleModalRef}
+        onOk={SIterative.getRoleList}
+      ></AddRoleModal>
       <div style={{ marginTop: "20px", marginBottom: "35px" }}>
         <Table
           rowKey="id"
@@ -72,7 +76,7 @@ const RoleTabpane: FC<IRoleTabpaneProps> = (props) => {
   );
 
   function onShowAddRoleModal(roleTagList: NIterative.ITag[]) {
-    AddRoleModalRef.current.showModal(roleTagList);
+    addRoleModalRef.current.showModal();
   }
 
   function renderNameColumn(name: string) {
@@ -89,42 +93,7 @@ const RoleTabpane: FC<IRoleTabpaneProps> = (props) => {
   }
 
   function onShowEditAccountModal(roles: NIterative.IRole) {
-    EditAccountModalRef.current.showModal(
-      MDIterative.systemTagList,
-      MDIterative.envTagList,
-      roles
-    );
-  }
-
-  async function reqGetRoleList() {
-    const rsp = await SIterative.getRoleList();
-    if (rsp.success) {
-      NModel.dispatch(
-        new NMDIterative.ARSetState({
-          roleList: rsp.list,
-        })
-      );
-    }
-  }
-  async function reqGetSystemTagList() {
-    const rsp = await SIterative.getSystemTagList();
-    if (rsp.success) {
-      NModel.dispatch(
-        new NMDIterative.ARSetState({
-          systemTagList: rsp.list,
-        })
-      );
-    }
-  }
-  async function reqGetProjectList() {
-    const rsp = await SIterative.getProjectList();
-    if (rsp.success) {
-      NModel.dispatch(
-        new NMDIterative.ARSetState({
-          projectList: rsp.list,
-        })
-      );
-    }
+    editAccountModalRef.current.showModal(roles);
   }
 };
 export default RoleTabpane;

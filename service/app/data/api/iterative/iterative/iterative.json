@@ -45,21 +45,24 @@
     "envConfig": {
         "list": [
             {
-                "value": "测试环境",
-                "label": "test"
+                "value": "test",
+                "label": "测试环境"
             },
             {
-                "value": "重构测试环境",
-                "label": "rebuild-test"
+                "value": "rebuild-test",
+                "label": "重构测试环境"
             },
             {
                 "value": "uat",
                 "label": "uat"
             },
             {
-                "value": "生产环境",
-                "label": "master"
+                "value": "master",
+                "label": "生产环境"
             }
         ]
+    },
+    "gitConfig": {
+        "newBranchDefaultPrefix": "feature/"
     }
 }

@@ -23,14 +23,16 @@ export interface IIterativeTabpaneProps {
 const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
   const { MDIterative } = props;
 
-  const CreateIterativeModalModalRef = useRef<ICreateIterativeModalModal>();
-
+  const createIterativeModalModalRef = useRef<ICreateIterativeModalModal>();
+  useEffect(() => {
+    SIterative.getIterativeList();
+  }, []);
   return (
     <div>
       <div style={{ marginTop: "20px", marginBottom: "35px" }}>
         <CreateIterativeModalModal
-          ref={CreateIterativeModalModalRef}
-          onOk={reqGetList}
+          ref={createIterativeModalModalRef}
+          onOk={SIterative.getIterativeList}
         ></CreateIterativeModalModal>
 
         <Table
@@ -74,7 +76,7 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
   );
 
   function onShowCreateIterativeModalModal() {
-    CreateIterativeModalModalRef.current.showModal();
+    createIterativeModalModalRef.current.showModal();
   }
 
   function renderNameColumn(name: string) {
@@ -92,17 +94,21 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
     return <div onClick={() => UCopy.copyStr(docPassword)}>{docPassword}</div>;
   }
   function renderOptionColumn(iterative: NIterative) {
-    return "";
-  }
-  async function reqGetList() {
-    const rsp = await SIterative.getIterativeList();
-    if (rsp.success) {
-      NModel.dispatch(
-        new NMDIterative.ARSetState({
-          rsp,
-        })
-      );
-    }
+    return (
+      <Space>
+        <Button type="link">
+          <Link
+            to={{
+              pathname: NRouter.iterativeReleasePath,
+              search: qs.stringify({ id: iterative.id }),
+            }}
+            target="_blank"
+          >
+            发版
+          </Link>
+        </Button>
+      </Space>
+    );
   }
 };
 export default IterativeTabpane;
