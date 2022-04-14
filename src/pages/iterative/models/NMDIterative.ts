@@ -7,11 +7,13 @@ export namespace NMDIterative {
   export interface IState {
     rsp: NRsp<NIterative>;
     config: NIterative.IConfig;
+    gitConfig: NIterative.IGitConfig;
     roleList: NIterative.IRole[];
     roleTagList: NIterative.ITag[];
     systemTagList: NIterative.ITag[];
     envTagList: NIterative.ITag[];
     projectList: NProject[];
+    iteratives: NIterative;
   }
   class Action<P> extends NModel.IAction<P> {
     namespace = NModel.ENames.MDIterative;
@@ -29,6 +31,14 @@ export default {
       list: [],
     },
     config: {},
+    gitConfig: {
+      newBranchDefaultPrefix: "",
+    },
+    iteratives: {
+      name: "",
+      docPassword: "",
+      docUrl: "",
+    },
     roleList: [],
     roleTagList: [],
     systemTagList: [],

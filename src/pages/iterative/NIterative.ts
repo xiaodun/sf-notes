@@ -1,4 +1,5 @@
 export interface NIterative {
+  id?: number;
   name: string;
   docPassword: string;
   docUrl: string;
@@ -6,6 +7,12 @@ export interface NIterative {
 export namespace NIterative {
   export interface IConfig {}
 
+  export interface IUrlQuery {
+    id: number;
+  }
+  export interface IGitConfig {
+    newBranchDefaultPrefix: string;
+  }
   export interface IAccount {
     system: string;
     account: string;

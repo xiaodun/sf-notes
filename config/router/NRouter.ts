@@ -13,6 +13,7 @@ export namespace NRouter {
   export const projectSwaggerPath = projectPath + "/swagger";
   export const activityPath = "/activity";
   export const iterativePath = "/iterative";
+  export const iterativeReleasePath = iterativePath + "/release";
   export const routes: IRoute[] = [
     {
       path: rootPath,
@@ -72,6 +73,11 @@ export namespace NRouter {
     {
       path: iterativePath,
       component: "." + iterativePath,
+      wrappers: [rootComponentPath],
+    },
+    {
+      path: iterativeReleasePath,
+      component: "." + iterativeReleasePath,
       wrappers: [rootComponentPath],
     },
   ];
