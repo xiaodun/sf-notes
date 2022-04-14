@@ -10,29 +10,25 @@ import produce from "immer";
 import NIterative from "../NIterative";
 import NProject from "@/pages/project/NProject";
 import SIterative from "../SIterative";
+import { NMDIterative } from "umi";
+
 export interface IEditAccountModal {
-  showModal: (
-    systemTagList: NIterative.ITag[],
-    envTagList: NIterative.ITag[],
-    roles: NIterative.IRole
-  ) => void;
+  showModal: (roles: NIterative.IRole) => void;
 }
 export interface IEditAccountModalProps {
+  MDIterative: NMDIterative.IState;
+
   onOk: () => void;
 }
 
 export interface IEditAccountModalState {
   visible: boolean;
-  systemTagList: NIterative.ITag[];
-  projectList: NProject[];
-  envTagList: NIterative.ITag[];
+
   roles: NIterative.IRole;
 }
 const defaultState: IEditAccountModalState = {
   visible: false,
-  systemTagList: [],
-  projectList: [],
-  envTagList: [],
+
   roles: null,
 };
 const EditAccountModal: ForwardRefRenderFunction<
@@ -42,18 +38,12 @@ const EditAccountModal: ForwardRefRenderFunction<
   const [state, setState] = useState<IEditAccountModalState>(defaultState);
   const [form] = Form.useForm();
   const firstInputRef = useRef<Input>();
-
+  const { MDIterative } = props;
   useImperativeHandle(ref, () => ({
-    showModal: (
-      systemTagList: NIterative.ITag[],
-      envTagList: NIterative.ITag[],
-      roles: NIterative.IRole
-    ) => {
+    showModal: (roles: NIterative.IRole) => {
       setState(
         produce(state, (drafState) => {
           drafState.visible = true;
-          drafState.systemTagList = systemTagList;
-          drafState.envTagList = envTagList;
           drafState.roles = roles;
         })
       );
@@ -87,7 +77,7 @@ const EditAccountModal: ForwardRefRenderFunction<
             }
             optionFilterProp="children"
           >
-            {state.systemTagList.map((item) => (
+            {MDIterative.systemTagList.map((item) => (
               <Select.Option key={item.value} value={item.value}>
                 {item.label}
               </Select.Option>
@@ -109,7 +99,7 @@ const EditAccountModal: ForwardRefRenderFunction<
             }
             optionFilterProp="children"
           >
-            {state.envTagList.map((item) => (
+            {MDIterative.envTagList.map((item) => (
               <Select.Option key={item.value} value={item.value}>
                 {item.label}
               </Select.Option>
