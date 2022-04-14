@@ -9,6 +9,7 @@ export interface NProject {
   isDefaultAjaxCode: boolean;
   isDefaultCopySwagger: boolean;
   closeAjaxCode: boolean;
+  notJoinIterative?: boolean;
   sfMock: {
     programUrl: string;
     startPort: number;

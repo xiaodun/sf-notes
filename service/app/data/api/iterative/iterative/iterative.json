@@ -2,6 +2,64 @@
     "iterativeList": [],
     "roleList": [],
     "roleConfig": {
-        "list": []
+        "list": [
+            {
+                "value": "front",
+                "label": "前端"
+            },
+            {
+                "value": "back",
+                "label": "后端"
+            },
+            {
+                "value": "UI",
+                "label": "UI"
+            },
+            {
+                "value": "test",
+                "label": "测试"
+            },
+            {
+                "value": "product",
+                "label": "产品"
+            },
+            {
+                "value": "projectManager",
+                "label": "项目负责人"
+            }
+        ]
+    },
+    "systemConfig": {
+        "list": [
+            {
+                "value": "computer",
+                "label": "个人电脑"
+            },
+            {
+                "value": "gitlab",
+                "label": "gitlab",
+                "url": "http://10.200.0.140/dashboard/projects"
+            }
+        ]
+    },
+    "envConfig": {
+        "list": [
+            {
+                "value": "测试环境",
+                "label": "test"
+            },
+            {
+                "value": "重构测试环境",
+                "label": "rebuild-test"
+            },
+            {
+                "value": "uat",
+                "label": "uat"
+            },
+            {
+                "value": "生产环境",
+                "label": "master"
+            }
+        ]
     }
 }

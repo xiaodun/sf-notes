@@ -26,11 +26,12 @@ const Iterative: ConnectRC<IIterativeProps> = (props) => {
     reqGetConfig();
     reqGetList();
     reqGetRoleTagList();
+    reqGetEnvTagList();
   }, []);
 
   return (
     <div>
-      <Tabs size="large" type="card">
+      <Tabs defaultActiveKey="role" size="large" type="card">
         <Tabs.TabPane tab="迭代" key="iterative">
           <IterativeTabpane MDIterative={MDIterative}></IterativeTabpane>
         </Tabs.TabPane>
@@ -67,6 +68,16 @@ const Iterative: ConnectRC<IIterativeProps> = (props) => {
       NModel.dispatch(
         new NMDIterative.ARSetState({
           roleTagList: rsp.list,
+        })
+      );
+    }
+  }
+  async function reqGetEnvTagList() {
+    const rsp = await SIterative.getEnvTagList();
+    if (rsp.success) {
+      NModel.dispatch(
+        new NMDIterative.ARSetState({
+          envTagList: rsp.list,
         })
       );
     }

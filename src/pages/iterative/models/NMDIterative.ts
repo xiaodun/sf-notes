@@ -1,5 +1,6 @@
 import NModel from "@/common/namespace/NModel";
 import NRsp from "@/common/namespace/NRsp";
+import NProject from "@/pages/project/NProject";
 import NIterative from "../NIterative";
 
 export namespace NMDIterative {
@@ -7,7 +8,10 @@ export namespace NMDIterative {
     rsp: NRsp<NIterative>;
     config: NIterative.IConfig;
     roleList: NIterative.IRole[];
-    roleTagList: NIterative.IRoleTag[];
+    roleTagList: NIterative.ITag[];
+    systemTagList: NIterative.ITag[];
+    envTagList: NIterative.ITag[];
+    projectList: NProject[];
   }
   class Action<P> extends NModel.IAction<P> {
     namespace = NModel.ENames.MDIterative;
@@ -27,6 +31,9 @@ export default {
     config: {},
     roleList: [],
     roleTagList: [],
+    systemTagList: [],
+    projectList: [],
+    envTagList: [],
   },
   effects: {},
   reducers: {
