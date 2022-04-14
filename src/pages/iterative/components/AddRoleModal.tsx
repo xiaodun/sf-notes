@@ -10,7 +10,7 @@ import produce from "immer";
 import NIterative from "../NIterative";
 import SIterative from "../SIterative";
 export interface IAddRoleModal {
-  showModal: (roleTagList: NIterative.IRoleTag[]) => void;
+  showModal: (roleTagList: NIterative.ITag[]) => void;
 }
 export interface IAddRoleModalProps {
   onOk: () => void;
@@ -18,7 +18,7 @@ export interface IAddRoleModalProps {
 
 export interface IAddRoleModalState {
   visible: boolean;
-  roleTagList: NIterative.IRoleTag[];
+  roleTagList: NIterative.ITag[];
 }
 const defaultState: IAddRoleModalState = {
   visible: false,
@@ -33,7 +33,7 @@ const AddRoleModal: ForwardRefRenderFunction<
   const firstInputRef = useRef<Input>();
 
   useImperativeHandle(ref, () => ({
-    showModal: (roleTagList: NIterative.IRoleTag[]) => {
+    showModal: (roleTagList: NIterative.ITag[]) => {
       setState(
         produce(state, (drafState) => {
           drafState.visible = true;
@@ -68,7 +68,9 @@ const AddRoleModal: ForwardRefRenderFunction<
         <Form.Item name="role" label="角色" rules={[{ required: true }]}>
           <Select>
             {state.roleTagList.map((item) => (
-              <Select.Option value={item.value}>{item.label}</Select.Option>
+              <Select.Option key={item.value} value={item.value}>
+                {item.label}
+              </Select.Option>
             ))}
           </Select>
         </Form.Item>
