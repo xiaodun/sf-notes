@@ -8,7 +8,6 @@ import {
   InputNumber,
   Menu,
   message,
-  Modal,
   Row,
   Select,
   Space,
@@ -37,6 +36,7 @@ import { NSystem } from "@/common/namespace/NSystem";
 import { CopyOutlined } from "@ant-design/icons";
 import { isEmpty, uniqueId } from "lodash";
 import SBase from "@/common/service/SBase";
+import { UModal } from "@/common/utils/modal/UModal";
 export interface IPProjectSnippetProps {
   MDProject: NMDProject.IState;
   MDGlobal: NMDGlobal.IState;
@@ -255,19 +255,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
         }
       );
       if (rsp.success) {
-        Modal.info({
-          icon: null,
-          content: rsp.list.map((item, index) => (
-            <div key={index} className={SelfStyle.writeOsResult}>
-              <div className="title">{item.title}</div>
-              {item.success ? (
-                <div className="success">成功</div>
-              ) : (
-                <div className="fail">{item.errorMsg}</div>
-              )}
-            </div>
-          )),
-        });
+        UModal.showExecResult(rsp.list);
       }
     });
   }

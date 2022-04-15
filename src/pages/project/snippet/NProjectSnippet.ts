@@ -23,11 +23,6 @@ export namespace NProjectSnippet {
     basePath: string;
     usePathChoose: boolean;
   }
-  export interface IWriteResult {
-    title: string;
-    success: boolean;
-    errorMsg: string;
-  }
   export interface IParam {
     name: string;
     label: string;
