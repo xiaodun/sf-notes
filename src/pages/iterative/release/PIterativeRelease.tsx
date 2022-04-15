@@ -1,6 +1,6 @@
 import { PageFooter } from "@/common/components/page";
 import NModel from "@/common/namespace/NModel";
-import { Button } from "antd";
+import { Button, Space, Table } from "antd";
 import React, { useEffect, useRef } from "react";
 import { connect, ConnectRC, NMDIterative } from "umi";
 import SelfStyle from "./LIterativeRelease.less";
@@ -28,7 +28,8 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
   useEffect(() => {
     SIterative.getProjectList();
     SIterative.getGitConfig();
-    SIterative.getIterative(urlQuery.id);
+
+    reqGetIterative();
   }, []);
 
   return (
@@ -36,15 +37,67 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
       <AddProjectModal
         MDIterative={MDIterative}
         ref={addProjectModalRef}
-        onOk={() => SIterative.getIterative(urlQuery.id)}
+        onOk={reqGetIterative}
       ></AddProjectModal>
+      <Table
+        rowKey="name"
+        columns={[
+          {
+            title: "项目名",
+            key: "name",
+            dataIndex: "name",
+            render: renderNameColumn,
+          },
+          {
+            title: "分支名",
+            key: "branchName",
+            dataIndex: "branchName",
+            render: renderBranchNameColumn,
+          },
 
+          {
+            title: "操作",
+            key: "_option",
+            render: renderOptionColumn,
+          },
+        ]}
+        dataSource={MDIterative.iteratives.projectList}
+        pagination={false}
+      ></Table>
       <PageFooter>
         <Button onClick={() => onShowAddProjectModal()}>添加项目</Button>
       </PageFooter>
     </div>
   );
-
+  function reqGetIterative() {
+    SIterative.getIterative(urlQuery.id).then((rsp) => {
+      document.title = rsp.data.name;
+    });
+  }
+  function renderNameColumn(name: string) {
+    return <div onClick={() => UCopy.copyStr(name)}>{name}</div>;
+  }
+  function renderBranchNameColumn(branchName: string) {
+    return <div onClick={() => UCopy.copyStr(branchName)}>{branchName}</div>;
+  }
+  function renderOptionColumn(iterative: NIterative) {
+    return (
+      <Space>
+        <Button type="link" onClick={() => onRemoveProject(iterative.name)}>
+          删除
+        </Button>
+      </Space>
+    );
+  }
+  async function onRemoveProject(name: string) {
+    const rsp = await SIterative.removeProject({
+      iterativeId: MDIterative.iteratives.id,
+      name,
+    });
+    if (rsp.success) {
+      reqGetIterative();
+    }
+  }
   function onShowAddProjectModal() {
     addProjectModalRef.current.showModal();
   }

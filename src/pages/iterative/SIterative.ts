@@ -5,6 +5,7 @@ import NProject from "../project/NProject";
 import SProject from "../project/SProject";
 import NModel from "@/common/namespace/NModel";
 import { NMDIterative } from "umi";
+import { NModal } from "@/common/utils/modal/NModal";
 
 namespace SIterative {
   export async function getConfig() {
@@ -187,7 +188,10 @@ namespace SIterative {
       return rsp;
     });
   }
-  export async function addProjectList(id: number, projectList: string[]) {
+  export async function addProjectList(
+    id: number,
+    projectList: NIterative.IProject[]
+  ): Promise<NRsp<NModal.IOptionExecMessage[]>> {
     return request({
       url: "/iterative/addProjectList",
       method: "post",
@@ -195,6 +199,16 @@ namespace SIterative {
         id,
         projectList,
       },
+    });
+  }
+  export async function removeProject(data: {
+    iterativeId: number;
+    name: string;
+  }) {
+    return request({
+      url: "/iterative/removeProject",
+      method: "post",
+      data,
     });
   }
 }

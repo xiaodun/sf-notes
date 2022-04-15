@@ -38,6 +38,7 @@ export default {
       name: "",
       docPassword: "",
       docUrl: "",
+      projectList: [],
     },
     roleList: [],
     roleTagList: [],
