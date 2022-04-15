@@ -63,6 +63,7 @@
     "classnames": "^2.2.6",
     "dva": "^2.4.0",
     "gg-editor": "^2.0.2",
+    "isomorphic-git": "^1.17.0",
     "lodash": "^4.17.11",
     "lodash-decorators": "^6.0.0",
     "memoize-one": "^5.1.1",

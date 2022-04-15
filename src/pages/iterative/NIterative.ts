@@ -3,8 +3,14 @@ export interface NIterative {
   name: string;
   docPassword: string;
   docUrl: string;
+  projectList: NIterative.IProject[];
 }
 export namespace NIterative {
+  export interface IProject {
+    name: string;
+    dir: string;
+    branchName: string;
+  }
   export interface IConfig {}
 
   export interface IUrlQuery {

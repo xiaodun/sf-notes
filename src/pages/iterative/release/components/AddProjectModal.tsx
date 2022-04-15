@@ -11,6 +11,7 @@ import NProject from "@/pages/project/NProject";
 import NIterative from "../../NIterative";
 import SIterative from "../../SIterative";
 import { NMDIterative } from "umi";
+import { UModal } from "@/common/utils/modal/UModal";
 export interface IAddProjectModal {
   showModal: () => void;
 }
@@ -90,9 +91,23 @@ const AddProjectModal: ForwardRefRenderFunction<
         <Form.Item
           label="分支名"
           name={"branchName"}
-          rules={[{ required: true }]}
+          rules={[
+            { required: true },
+            ({}) => ({
+              validator(_, value) {
+                if (
+                  value &&
+                  value === MDIterative.gitConfig.newBranchDefaultPrefix
+                ) {
+                  return Promise.reject(new Error("不能使用默认前缀"));
+                } else {
+                  return Promise.resolve();
+                }
+              },
+            }),
+          ]}
         >
-          <Input></Input>
+          <Input onPressEnter={onOk}></Input>
         </Form.Item>
       </Form>
     </Modal>
@@ -104,18 +119,30 @@ const AddProjectModal: ForwardRefRenderFunction<
   }
 
   async function onOk() {
-    form.validateFields().then(async (values) => {
-      // const rsp = await SIterative.addProjectList({
-      //   id: state.project.id,
-      //   isGroup: true,
-      // });
-      // if (rsp.success) {
-      //   onCancel();
-      //   props.onOk();
-      // } else {
-      //   message.error(rsp.message);
-      // }
-    });
+    form
+      .validateFields()
+      .then(async (values: { projectList: string[]; branchName: string }) => {
+        const rsp = await SIterative.addProjectList(
+          MDIterative.iteratives.id,
+          values.projectList.map((name) => {
+            const project = MDIterative.projectList.find(
+              (item) => item.name === name
+            );
+            return {
+              name,
+              dir: project.rootPath,
+              branchName: values.branchName,
+            };
+          })
+        );
+        if (rsp.success) {
+          onCancel();
+          props.onOk();
+          UModal.showExecResult(rsp.list);
+        } else {
+          message.error(rsp.message);
+        }
+      });
   }
 };
 export default forwardRef(AddProjectModal);

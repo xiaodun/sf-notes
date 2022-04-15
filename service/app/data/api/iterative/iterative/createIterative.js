@@ -15,8 +15,9 @@
       };
     } else {
       argParams.id = Date.now();
+      argParams.projectList = [];
       argData.iterativeList.push(argParams);
-      console.log("wx", argData);
+
       return {
         isWrite: true,
         data: argData,
