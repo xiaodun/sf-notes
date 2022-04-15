@@ -3,6 +3,7 @@ import NProject from "./NProject";
 import request from "@/utils/request";
 import { TEnterSwaggerModalWay } from "./swagger/components/EnterSwaggerModal";
 import NProjectSnippet from "./snippet/NProjectSnippet";
+import { NModal } from "@/common/utils/modal/NModal";
 
 namespace SProject {
   export async function delSwaggerDomain(
@@ -78,7 +79,7 @@ namespace SProject {
       id: number;
     },
     values: any
-  ): Promise<NRsp<NProjectSnippet.IWriteResult>> {
+  ): Promise<NRsp<NModal.IOptionExecMessage>> {
     return request({
       url: "/project/writeSnippetOs",
       method: "post",
