@@ -1,7 +1,7 @@
 import { PageFooter } from "@/common/components/page";
 import NModel from "@/common/namespace/NModel";
 import { Button, Space, Table } from "antd";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { connect, ConnectRC, NMDIterative } from "umi";
 import SelfStyle from "./LIterativeRelease.less";
 import NIterative from "../NIterative";
@@ -20,7 +20,7 @@ export interface IIterativeReleaseProps {
 }
 const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
   const { MDIterative } = props;
-
+  const [selectRowKeys, setSelectRowKeys] = useState<number[]>([]);
   const addProjectModalRef = useRef<IAddProjectModal>();
   const urlQuery = qs.parse(window.location.search, {
     ignoreQueryPrefix: true,
@@ -39,7 +39,19 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
         ref={addProjectModalRef}
         onOk={reqGetIterative}
       ></AddProjectModal>
+      <div style={{ marginBottom: 20 }}>
+        <Space size={30}>
+          <Button>部署</Button>
+        </Space>
+      </div>
       <Table
+        style={{ marginBottom: 20 }}
+        rowSelection={{
+          type: "checkbox",
+          onChange: (selectedRowKeys: React.Key[]) => {
+            setSelectRowKeys(selectedRowKeys as number[]);
+          },
+        }}
         rowKey="name"
         columns={[
           {

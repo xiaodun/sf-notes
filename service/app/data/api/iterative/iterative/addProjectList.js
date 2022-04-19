@@ -1,8 +1,6 @@
 (function () {
   return function (argData, argParams, external) {
-    const git = require("isomorphic-git");
-    const fs = require("fs");
-    const http = require("http");
+    const child_process = require("child_process");
     const iteratives = argData.iterativeList.find((item) => item.id);
     let sameNameList = [];
     argParams.projectList.forEach((project) => {
@@ -23,43 +21,43 @@
     } else {
       iteratives.projectList.push(...argParams.projectList);
       const execResultList = [];
-      async function batchCreateBranch() {
-        for (let i = 0; i < argParams.projectList.length; i++) {
-          const item = argParams.projectList[i];
 
-          await git
-            .branch({ fs, dir: item.dir, ref: item.branchName })
-            .then(() => {
-              execResultList.push({
-                title: item.name,
-                success: true,
-              });
-            })
-            .catch((error) => {
-              execResultList.push({
-                title: item.name,
-                success: false,
-                errorMsg: error.message,
-              });
-            });
+      for (let i = 0; i < argParams.projectList.length; i++) {
+        const item = argParams.projectList[i];
+
+        const currentBranceName = external.getCurrentBranchName(item.dir);
+        let argList = [];
+        if (currentBranceName !== "master") {
+          //缓存当前分支代码 并且换到master分支
+          argList = ["stash", "checkout master"];
+        }
+        // 拉取主分支 并创建新分支
+        argList.push(...["pull", `checkout -b ${item.branchName}`]);
+        const errorMsgList = external.execGitCommad(argList, item.dir);
+
+        if (errorMsgList.length > 0) {
+          execResultList.push({
+            success: false,
+            title: item.name,
+            errorMsg: errorMsgList.join("\n"),
+          });
+        } else {
+          execResultList.push({
+            success: true,
+            title: item.name,
+          });
         }
       }
 
-      batchCreateBranch().then(() => {
-        external.response.end(
-          JSON.stringify({
-            success: true,
-            list: execResultList,
-          })
-        );
-      });
-
       return {
-        async: true,
         isWrite: true,
         data: argData,
         response: {
           code: 200,
+          data: {
+            success: true,
+            list: execResultList,
+          },
         },
       };
     }

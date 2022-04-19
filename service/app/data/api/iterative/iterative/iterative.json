@@ -38,7 +38,12 @@
             {
                 "value": "gitlab",
                 "label": "gitlab",
-                "url": "http://10.200.0.140/dashboard/projects"
+                "url": ""
+            },
+            {
+                "value": "devops",
+                "label": "devops",
+                "url": ""
             }
         ]
     },
