@@ -4,15 +4,7 @@
     const prettier = require("prettier");
     const path = require("path");
     const fs = require("fs");
-    const babelParser = require("@babel/parser");
-    const { default: babelTraverse } = require("@babel/traverse");
-    const { baseParse: vueParse } = require("@vue/compiler-core");
 
-    function getBaseNameInfo() {
-      return {
-        routeFilePath: path.join(argParams.writeOsPath, "router", "index.js"),
-      };
-    }
     return {
       writeOs: {
         open: true,
@@ -61,7 +53,6 @@ export interface I${argParams.modalName}Modal {
   showModal: () => void;
 }
 export interface I${argParams.modalName}ModalProps {
-  onOk: () => void;
 }
 
 export interface I${argParams.modalName}ModalState {
@@ -77,9 +68,6 @@ const ${argParams.modalName}Modal: ForwardRefRenderFunction<
   I${argParams.modalName}ModalProps
 > = (props, ref) => {
   const [state, setState] = useState<I${argParams.modalName}ModalState>(defaultState);
-  const [form] = Form.useForm();
-  const firstInputRef = useRef<Input>();
-
   useImperativeHandle(ref, () => ({
     showModal: () => {
       setState(
@@ -88,9 +76,7 @@ const ${argParams.modalName}Modal: ForwardRefRenderFunction<
          
         })
       );
-      setTimeout(() => {
-        firstInputRef.current?.focus();
-      }, 20);
+      
     },
   }));
 
@@ -102,38 +88,20 @@ const ${argParams.modalName}Modal: ForwardRefRenderFunction<
       bodyStyle={{ maxHeight: "100%" }}
       visible={state.visible}
       footer={
-        <Button type="primary" onClick={onOk}>
-          确定
+        <Button type="primary" onClick={onCancel}>
+          关闭
         </Button>
       }
       onCancel={onCancel}
       centered
     >
-      <Form form={form} name="basic" layout="vertical" autoComplete="off">
-        
-      </Form>
+
+    
     </Modal>
   );
 
   function onCancel() {
     setState(defaultState);
-    form.resetFields();
-  }
-
-  async function onOk() {
-    form.validateFields().then(async (values) => {
-      // const rsp = await SProject.createSnippetGroup({
-      //   ...values,
-      //   id: state.project.id,
-      //   isGroup: true,
-      // });
-      // if (rsp.success) {
-      //   onCancel();
-      //   props.onOk();
-      // } else {
-      //   message.error(rsp.message);
-      // }
-    });
   }
 };
 export default forwardRef(${argParams.modalName}Modal);

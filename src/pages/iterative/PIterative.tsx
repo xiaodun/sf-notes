@@ -26,6 +26,9 @@ const Iterative: ConnectRC<IIterativeProps> = (props) => {
     SIterative.getConfig();
     SIterative.getRoleTagList();
     SIterative.getEnvTagList();
+    SIterative.getSystemTagList();
+    SIterative.getRoleList();
+    SIterative.getIterativeList();
   }, []);
 
   return (

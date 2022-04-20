@@ -55,7 +55,7 @@
             },
             {
                 "value": "rebuild-test",
-                "label": "重构测试环境"
+                "label": "重构测试"
             },
             {
                 "value": "uat",
@@ -63,7 +63,7 @@
             },
             {
                 "value": "master",
-                "label": "生产环境"
+                "label": "生产"
             }
         ]
     },
