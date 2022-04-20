@@ -1,4 +1,5 @@
 (function () {
+  const url = require("url");
   return function () {
     const child_process = require("child_process");
 
@@ -33,6 +34,22 @@
           );
 
           return spawn.stdout.toString().trim();
+        };
+        external.getEnvUrl = function (systemTagConfig, env) {
+          const urlInfos = new URL(systemTagConfig.url);
+          if (env !== "master") {
+            const hostBodyList = urlInfos.host.split(".");
+            let newHost;
+            if (systemTagConfig.addEnvTagToHead) {
+              hostBodyList.unshift(env);
+              newHost = hostBodyList.join(".");
+            } else {
+              hostBodyList[0] += "-" + env;
+              newHost = hostBodyList.join(".");
+            }
+            urlInfos.host = newHost;
+          }
+          systemTagConfig.address[env] = urlInfos.toString();
         };
       },
     };

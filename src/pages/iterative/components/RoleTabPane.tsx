@@ -25,10 +25,6 @@ const RoleTabpane: FC<IRoleTabpaneProps> = (props) => {
   const editAccountModalRef = useRef<IEditAccountModal>();
 
   const addRoleModalRef = useRef<IAddRoleModal>();
-  useEffect(() => {
-    SIterative.getRoleList();
-    SIterative.getSystemTagList();
-  }, []);
   return (
     <div>
       <EditAccountModal

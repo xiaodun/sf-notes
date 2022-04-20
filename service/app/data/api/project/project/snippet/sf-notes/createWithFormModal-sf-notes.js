@@ -176,7 +176,9 @@ export default forwardRef(${argParams.modalName}Modal);
           title: "ref语句",
           getTemplate() {
             return `
-            const ${argParams.modalName}ModalRef = useRef<I${argParams.modalName}Modal>();
+            const ${_.lowerFirst(argParams.modalName)}ModalRef = useRef<I${
+              argParams.modalName
+            }Modal>();
             `;
           },
         },
@@ -196,7 +198,7 @@ export default forwardRef(${argParams.modalName}Modal);
           getTemplate() {
             return `
             function onShow${argParams.modalName}Modal() {
-              ${argParams.modalName}ModalRef.current.showModal(
+              ${_.lowerFirst(argParams.modalName)}ModalRef.current.showModal(
                
               );
             }            

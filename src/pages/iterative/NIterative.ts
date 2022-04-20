@@ -35,6 +35,11 @@ export namespace NIterative {
   export interface ITag {
     value: string;
     label: string;
+    url?: string;
+    moreEnv?: string;
+    address?: {
+      [key: string]: string;
+    };
   }
 }
 export default NIterative;
