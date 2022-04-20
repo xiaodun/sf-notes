@@ -29,6 +29,10 @@
                         {
                             "name": "有表单验证",
                             "script": "createWithFormModal"
+                        },
+                        {
+                            "name": "信息展示",
+                            "script": "createShowContentModal"
                         }
                     ]
                 }
