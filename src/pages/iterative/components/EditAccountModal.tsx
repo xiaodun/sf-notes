@@ -5,26 +5,24 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Modal, Button, Form, Input, message, Radio, Select } from "antd";
+import { Modal, Button, Form, Input, message, Select } from "antd";
 import produce from "immer";
 import NIterative from "../NIterative";
-import NProject from "@/pages/project/NProject";
 import SIterative from "../SIterative";
 import { NMDIterative } from "umi";
 
 export interface IEditAccountModal {
-  showModal: (roles: NIterative.IRole) => void;
+  showModal: (roles: NIterative.IPerson) => void;
 }
 export interface IEditAccountModalProps {
   MDIterative: NMDIterative.IState;
 
   onOk: () => void;
 }
-
 export interface IEditAccountModalState {
   visible: boolean;
 
-  roles: NIterative.IRole;
+  roles: NIterative.IPerson;
 }
 const defaultState: IEditAccountModalState = {
   visible: false,
@@ -40,7 +38,7 @@ const EditAccountModal: ForwardRefRenderFunction<
   const firstInputRef = useRef<Input>();
   const { MDIterative } = props;
   useImperativeHandle(ref, () => ({
-    showModal: (roles: NIterative.IRole) => {
+    showModal: (roles: NIterative.IPerson) => {
       setState(
         produce(state, (drafState) => {
           drafState.visible = true;
@@ -69,7 +67,7 @@ const EditAccountModal: ForwardRefRenderFunction<
       centered
     >
       <Form form={form} name="basic" layout="vertical" autoComplete="off">
-        <Form.Item label="系统" name="system" rules={[{ required: true }]}>
+        <Form.Item label="系统" name="systemId" rules={[{ required: true }]}>
           <Select
             showSearch
             filterOption={(input, option) =>
@@ -77,31 +75,36 @@ const EditAccountModal: ForwardRefRenderFunction<
             }
             optionFilterProp="children"
           >
-            {MDIterative.systemTagList.map((item) => (
-              <Select.Option key={item.value} value={item.value}>
-                {item.label}
+            {MDIterative.systemList.map((item) => (
+              <Select.Option key={item.id} value={item.id}>
+                {item.systemName}
               </Select.Option>
             ))}
           </Select>
         </Form.Item>
 
-        <Form.Item label="账号" name={"account"} rules={[{ required: true }]}>
+        <Form.Item
+          label="用户名"
+          name={"userName"}
+          rules={[{ required: true }]}
+        >
           <Input></Input>
         </Form.Item>
         <Form.Item label="密码" name={"password"} rules={[{ required: true }]}>
           <Input></Input>
         </Form.Item>
-        <Form.Item label="环境" name="env">
+        <Form.Item label="环境" name="envIdList">
           <Select
+            mode="tags"
             showSearch
             filterOption={(input, option) =>
               option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }
             optionFilterProp="children"
           >
-            {MDIterative.envTagList.map((item) => (
-              <Select.Option key={item.value} value={item.value}>
-                {item.label}
+            {MDIterative.envList.map((item) => (
+              <Select.Option key={item.id} value={item.id}>
+                {item.envName}
               </Select.Option>
             ))}
           </Select>
