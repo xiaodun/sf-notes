@@ -1,34 +1,16 @@
 (function () {
   return function (argData, argParams) {
-    const isExist = argData.roleList.some(
-      (item) => item.name === argParams.name
-    );
-    if (isExist) {
-      return {
-        response: {
-          code: 200,
-          data: {
-            success: false,
-            message: "姓名重复",
-          },
+    argParams.id = Date.now();
+    argData.roleConfig.list.push(argParams);
+    return {
+      isWrite: true,
+      data: argData,
+      response: {
+        code: 200,
+        data: {
+          success: true,
         },
-      };
-    } else {
-      argData.roleList.push({
-        ...argParams,
-        id: Date.now(),
-        accountList: [],
-      });
-      return {
-        isWrite: true,
-        data: argData,
-        response: {
-          code: 200,
-          data: {
-            success: true,
-          },
-        },
-      };
-    }
+      },
+    };
   };
 })();

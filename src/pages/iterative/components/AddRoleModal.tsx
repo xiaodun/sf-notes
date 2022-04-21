@@ -5,19 +5,14 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { connect, ConnectRC, Link, NMDIterative } from "umi";
-import { Modal, Button, Form, Input, message, Select } from "antd";
+import { Modal, Button, Form, Input, message } from "antd";
 import produce from "immer";
-import NIterative from "../NIterative";
 import SIterative from "../SIterative";
+import NIterative from "../NIterative";
 export interface IAddRoleModal {
   showModal: () => void;
 }
-export interface IAddRoleModalProps {
-  MDIterative: NMDIterative.IState;
-  onOk: () => void;
-}
-
+export interface IAddRoleModalProps {}
 export interface IAddRoleModalState {
   visible: boolean;
 }
@@ -31,7 +26,7 @@ const AddRoleModal: ForwardRefRenderFunction<
   const [state, setState] = useState<IAddRoleModalState>(defaultState);
   const [form] = Form.useForm();
   const firstInputRef = useRef<Input>();
-  const { MDIterative } = props;
+
   useImperativeHandle(ref, () => ({
     showModal: () => {
       setState(
@@ -61,17 +56,12 @@ const AddRoleModal: ForwardRefRenderFunction<
       centered
     >
       <Form form={form} name="basic" layout="vertical" autoComplete="off">
-        <Form.Item name="name" label="姓名" rules={[{ required: true }]}>
-          <Input ref={firstInputRef} onPressEnter={onOk}></Input>
-        </Form.Item>
-        <Form.Item name="role" label="角色" rules={[{ required: true }]}>
-          <Select>
-            {MDIterative.roleTagList.map((item) => (
-              <Select.Option key={item.value} value={item.value}>
-                {item.label}
-              </Select.Option>
-            ))}
-          </Select>
+        <Form.Item
+          label={"角色名"}
+          name="roleName"
+          rules={[{ required: true }]}
+        >
+          <Input ref={firstInputRef}></Input>
         </Form.Item>
       </Form>
     </Modal>
@@ -87,7 +77,7 @@ const AddRoleModal: ForwardRefRenderFunction<
       const rsp = await SIterative.addRole(values);
       if (rsp.success) {
         onCancel();
-        props.onOk();
+        SIterative.getRoleList();
       } else {
         message.error(rsp.message);
       }
