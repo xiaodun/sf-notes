@@ -5,30 +5,29 @@ import React, {
   useState,
 } from "react";
 import { Modal, Button, Tabs, Form, Input } from "antd";
-import SelfStyle from "./ShowSystemInfoModal.less";
+import SelfStyle from "./SystemInfoModal.less";
 import produce from "immer";
 import { NMDIterative } from "umi";
 import UCopy from "@/common/utils/UCopy";
-export interface IShowSystemInfoModalModal {
+export interface ISystemInfoModal {
   showModal: () => void;
 }
-export interface IShowSystemInfoModalModalProps {
+export interface ISystemInfoModalProps {
   MDIterative: NMDIterative.IState;
 }
 
-export interface IShowSystemInfoModalModalState {
+export interface ISystemInfoModalState {
   visible: boolean;
 }
-const defaultState: IShowSystemInfoModalModalState = {
+const defaultState: ISystemInfoModalState = {
   visible: false,
 };
 const ShowSystemInfoModalModal: ForwardRefRenderFunction<
-  IShowSystemInfoModalModal,
-  IShowSystemInfoModalModalProps
+  ISystemInfoModal,
+  ISystemInfoModalProps
 > = (props, ref) => {
   const { MDIterative } = props;
-  const [state, setState] =
-    useState<IShowSystemInfoModalModalState>(defaultState);
+  const [state, setState] = useState<ISystemInfoModalState>(defaultState);
   useImperativeHandle(ref, () => ({
     showModal: () => {
       setState(
@@ -55,29 +54,26 @@ const ShowSystemInfoModalModal: ForwardRefRenderFunction<
       centered
     >
       <Tabs tabPosition="left">
-        {MDIterative.systemTagList
+        {MDIterative.systemList
           .filter((systemTag) => systemTag.url)
           .map((systemTag) => (
-            <Tabs.TabPane tab={systemTag.label} key={systemTag.label}>
-              {systemTag.moreEnv ? (
+            <Tabs.TabPane tab={systemTag.systemName} key={systemTag.id}>
+              {systemTag.isMoreEnv ? (
                 <>
-                  {MDIterative.envTagList.map((envTag) => (
-                    <div className={SelfStyle.addressWrap} key={envTag.value}>
-                      <div className="label">{envTag.label}</div>
-                      <Input value={systemTag.address[envTag.value]}></Input>
+                  {MDIterative.envList.map((env) => (
+                    <div className={SelfStyle.addressWrap} key={env.id}>
+                      <div className="label">{env.envName}</div>
+                      <Input value={systemTag.address[env.branch]}></Input>
                       <Button
                         className="copy-btn"
                         onClick={() =>
-                          UCopy.copyStr(systemTag.address[envTag.value])
+                          UCopy.copyStr(systemTag.address[env.branch])
                         }
                       >
                         复制
                       </Button>
                       <Button className="jump-btn">
-                        <a
-                          href={systemTag.address[envTag.value]}
-                          target="_blank"
-                        >
+                        <a href={systemTag.address[env.branch]} target="_blank">
                           访问
                         </a>
                       </Button>
