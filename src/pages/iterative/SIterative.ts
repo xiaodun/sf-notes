@@ -1,7 +1,6 @@
 import NRsp from "@/common/namespace/NRsp";
 import NIterative from "./NIterative";
 import request from "@/utils/request";
-import NProject from "../project/NProject";
 import SProject from "../project/SProject";
 import NModel from "@/common/namespace/NModel";
 import { NMDIterative } from "umi";
@@ -60,31 +59,6 @@ namespace SIterative {
       return rsp;
     });
   }
-  export async function getRoleTagList() {
-    return (
-      request({
-        url: "/iterative/getRoleTagList",
-      }) as Promise<NRsp<NIterative.ITag>>
-    ).then((rsp) => {
-      if (rsp.success) {
-        NModel.dispatch(
-          new NMDIterative.ARSetState({
-            roleTagList: rsp.list,
-          })
-        );
-      }
-      return rsp;
-    });
-  }
-  export async function addRole(
-    data: NIterative.IRole
-  ): Promise<NRsp<NIterative.IRole>> {
-    return request({
-      url: "/iterative/addRole",
-      method: "post",
-      data,
-    });
-  }
   export async function getRoleList() {
     return (
       request({
@@ -101,6 +75,38 @@ namespace SIterative {
       return rsp;
     });
   }
+  export async function addRole(data: NIterative.IRole): Promise<NRsp<null>> {
+    return request({
+      url: "/iterative/addRole",
+      method: "post",
+      data,
+    });
+  }
+  export async function addPerson(
+    data: NIterative.IPerson
+  ): Promise<NRsp<NIterative.IPerson>> {
+    return request({
+      url: "/iterative/addPerson",
+      method: "post",
+      data,
+    });
+  }
+  export async function getPersonList() {
+    return (
+      request({
+        url: "/iterative/getPersonList",
+      }) as Promise<NRsp<NIterative.IPerson>>
+    ).then((rsp) => {
+      if (rsp.success) {
+        NModel.dispatch(
+          new NMDIterative.ARSetState({
+            personList: rsp.list,
+          })
+        );
+      }
+      return rsp;
+    });
+  }
   export async function createIterative(
     data: NIterative
   ): Promise<NRsp<NIterative>> {
@@ -110,17 +116,17 @@ namespace SIterative {
       data,
     });
   }
-  export async function getSystemTagList() {
+  export async function getSystemList() {
     return (
       request({
-        url: "/iterative/getSystemTagList",
+        url: "/iterative/getSystemList",
         method: "get",
-      }) as Promise<NRsp<NIterative.ITag>>
+      }) as Promise<NRsp<NIterative.ISystem>>
     ).then((rsp) => {
       if (rsp.success) {
         NModel.dispatch(
           new NMDIterative.ARSetState({
-            systemTagList: rsp.list,
+            systemList: rsp.list,
           })
         );
       }
@@ -156,16 +162,16 @@ namespace SIterative {
       },
     });
   }
-  export async function getEnvTagList() {
+  export async function getEnvList() {
     return (
       request({
-        url: "/iterative/getEnvTagList",
-      }) as Promise<NRsp<NIterative.ITag>>
+        url: "/iterative/getEnvList",
+      }) as Promise<NRsp<NIterative.IEnv>>
     ).then((rsp) => {
       if (rsp.success) {
         NModel.dispatch(
           new NMDIterative.ARSetState({
-            envTagList: rsp.list,
+            envList: rsp.list,
           })
         );
       }
@@ -191,7 +197,7 @@ namespace SIterative {
   export async function addProjectList(
     id: number,
     projectList: NIterative.IProject[]
-  ): Promise<NRsp<NModal.IOptionExecMessage[]>> {
+  ): Promise<NRsp<NModal.IOptionExecMessage>> {
     return request({
       url: "/iterative/addProjectList",
       method: "post",
@@ -207,6 +213,20 @@ namespace SIterative {
   }) {
     return request({
       url: "/iterative/removeProject",
+      method: "post",
+      data,
+    });
+  }
+  export async function addEnv(data: NIterative.IEnv) {
+    return request({
+      url: "/iterative/addEnv",
+      method: "post",
+      data,
+    });
+  }
+  export async function addSystem(data: NIterative.ISystem) {
+    return request({
+      url: "/iterative/addSystem",
       method: "post",
       data,
     });
