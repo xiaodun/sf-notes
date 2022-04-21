@@ -83,7 +83,6 @@ const CreateIterativeModalModal: ForwardRefRenderFunction<
   );
   function onContentChange(value: string) {
     const pattern = RegExp(
-      // `(https?://[-A-Za-z0-9+&@#/%?=~_|!:,.;\u4e00-\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5])[\\w\\W]?*密码:(\\w*)`,
       `(https?://[-A-Za-z0-9+&@#/%?=~_|!:,.;\u4e00-\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5])[\\w\\W]*?相关项目: ([-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]*)[\\w\\W]*?密码: (\\w*)`,
       "g"
     );

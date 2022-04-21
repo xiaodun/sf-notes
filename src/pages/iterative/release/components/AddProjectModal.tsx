@@ -7,8 +7,6 @@ import React, {
 } from "react";
 import { Modal, Button, Form, Input, message, Select } from "antd";
 import produce from "immer";
-import NProject from "@/pages/project/NProject";
-import NIterative from "../../NIterative";
 import SIterative from "../../SIterative";
 import { NMDIterative } from "umi";
 import { UModal } from "@/common/utils/modal/UModal";
