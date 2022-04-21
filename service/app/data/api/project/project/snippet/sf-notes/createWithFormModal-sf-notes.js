@@ -26,7 +26,7 @@
           type: "input",
           props: {
             placeholder:
-              "示例:GroupModal,选择components上一级路基即可,没有components会自动创建",
+              "示例:Group,选择components上一级路基即可,没有components会自动创建",
           },
           style: {
             width: 500,
