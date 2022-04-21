@@ -20,26 +20,39 @@ export namespace NIterative {
     newBranchDefaultPrefix: string;
   }
   export interface IAccount {
-    system: string;
+    systemId: string;
     account: string;
     password: string;
     url: string;
-    env?: string;
+    systemName: string;
+    envIdList?: string[];
+    envNameList?: string[];
   }
-  export interface IRole {
+  export interface IPerson {
     id?: number;
     name: string;
-    role: string;
+    roleId: string;
+    roleName: string;
     accountList: IAccount[];
   }
-  export interface ITag {
-    value: string;
-    label: string;
+  export interface IEnv {
+    id?: number;
+    envName: string;
+    branch: string;
+  }
+  export interface ISystem {
+    id?: number;
+    systemName: string;
     url?: string;
-    moreEnv?: string;
+    isMoreEnv?: boolean;
+    isAddHead?: boolean;
     address?: {
       [key: string]: string;
     };
+  }
+  export interface IRole {
+    id?: number;
+    roleName: string;
   }
 }
 export default NIterative;

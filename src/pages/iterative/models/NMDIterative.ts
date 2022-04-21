@@ -8,10 +8,10 @@ export namespace NMDIterative {
     rsp: NRsp<NIterative>;
     config: NIterative.IConfig;
     gitConfig: NIterative.IGitConfig;
+    personList: NIterative.IPerson[];
     roleList: NIterative.IRole[];
-    roleTagList: NIterative.ITag[];
-    systemTagList: NIterative.ITag[];
-    envTagList: NIterative.ITag[];
+    systemList: NIterative.ISystem[];
+    envList: NIterative.IEnv[];
     projectList: NProject[];
     iteratives: NIterative;
   }
@@ -40,11 +40,11 @@ export default {
       docUrl: "",
       projectList: [],
     },
+    personList: [],
     roleList: [],
-    roleTagList: [],
-    systemTagList: [],
+    systemList: [],
     projectList: [],
-    envTagList: [],
+    envList: [],
   },
   effects: {},
   reducers: {

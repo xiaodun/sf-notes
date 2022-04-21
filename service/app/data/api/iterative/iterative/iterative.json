@@ -1,71 +1,14 @@
 {
     "iterativeList": [],
-    "roleList": [],
+    "personList": [],
     "roleConfig": {
-        "list": [
-            {
-                "value": "front",
-                "label": "前端"
-            },
-            {
-                "value": "back",
-                "label": "后端"
-            },
-            {
-                "value": "UI",
-                "label": "UI"
-            },
-            {
-                "value": "test",
-                "label": "测试"
-            },
-            {
-                "value": "product",
-                "label": "产品"
-            },
-            {
-                "value": "projectManager",
-                "label": "项目负责人"
-            }
-        ]
+        "list": []
     },
     "systemConfig": {
-        "list": [
-            {
-                "value": "computer",
-                "label": "个人电脑"
-            },
-            {
-                "value": "gitlab",
-                "label": "gitlab",
-                "url": ""
-            },
-            {
-                "value": "devops",
-                "label": "devops",
-                "url": ""
-            }
-        ]
+        "list": []
     },
     "envConfig": {
-        "list": [
-            {
-                "value": "test",
-                "label": "测试环境"
-            },
-            {
-                "value": "rebuild-test",
-                "label": "重构测试"
-            },
-            {
-                "value": "uat",
-                "label": "uat"
-            },
-            {
-                "value": "master",
-                "label": "生产"
-            }
-        ]
+        "list": []
     },
     "gitConfig": {
         "newBranchDefaultPrefix": "feature/"

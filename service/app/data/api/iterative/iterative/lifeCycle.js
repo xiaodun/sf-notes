@@ -40,7 +40,7 @@
           if (env !== "master") {
             const hostBodyList = urlInfos.host.split(".");
             let newHost;
-            if (systemTagConfig.addEnvTagToHead) {
+            if (systemTagConfig.isAddHead) {
               hostBodyList.unshift(env);
               newHost = hostBodyList.join(".");
             } else {
