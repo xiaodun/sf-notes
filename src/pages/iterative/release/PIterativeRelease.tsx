@@ -3,18 +3,13 @@ import NModel from "@/common/namespace/NModel";
 import { Button, Space, Table } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { connect, ConnectRC, NMDIterative } from "umi";
-import SelfStyle from "./LIterativeRelease.less";
 import NIterative from "../NIterative";
 import SIterative from "../SIterative";
 import qs from "qs";
-
-import { cloneDeep } from "lodash";
 import UCopy from "@/common/utils/UCopy";
-
 import AddProjectModal, {
   IAddProjectModal,
 } from "./components/AddProjectModal";
-
 export interface IIterativeReleaseProps {
   MDIterative: NMDIterative.IState;
 }

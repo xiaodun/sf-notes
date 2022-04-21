@@ -1,6 +1,5 @@
 (function () {
   return function (argData, argParams, external) {
-    const child_process = require("child_process");
     const iteratives = argData.iterativeList.find((item) => item.id);
     let sameNameList = [];
     argParams.projectList.forEach((project) => {
