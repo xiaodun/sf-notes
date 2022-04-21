@@ -1,6 +1,6 @@
 (function () {
   return function (argData, argParams) {
-    const roles = argData.roleList.find((item) => item.id === argParams.id);
+    const roles = argData.personList.find((item) => item.id === argParams.id);
     argParams.account.id = Date.now();
     roles.accountList.push(argParams.account);
     return {
