@@ -12,16 +12,24 @@ import CreateIterativeModalModal, {
 } from "./components/CreateIterativeModal";
 import { CopyOutlined } from "@ant-design/icons";
 
+import ViewContentModal, {
+  IViewContentModal,
+} from "./components/ViewContentModal";
+
 export interface IIterativeTabpaneProps {
   MDIterative: NMDIterative.IState;
 }
 const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
   const { MDIterative } = props;
 
+  const viewContentModalRef = useRef<IViewContentModal>();
+
   const createIterativeModalModalRef = useRef<ICreateIterativeModalModal>();
 
   return (
     <div>
+      <ViewContentModal ref={viewContentModalRef}></ViewContentModal>
+
       <div style={{ marginTop: "20px", marginBottom: "35px" }}>
         <CreateIterativeModalModal
           ref={createIterativeModalModalRef}
@@ -72,6 +80,10 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
     createIterativeModalModalRef.current.showModal();
   }
 
+  function onShowViewContentModal(iterative: NIterative) {
+    viewContentModalRef.current.showModal(iterative.content);
+  }
+
   function renderNameColumn(name: string) {
     return <div onClick={() => UCopy.copyStr(name)}>{name}</div>;
   }
@@ -99,6 +111,9 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
           >
             发版
           </Link>
+        </Button>
+        <Button type="link" onClick={() => onShowViewContentModal(iterative)}>
+          信息展示
         </Button>
       </Space>
     );

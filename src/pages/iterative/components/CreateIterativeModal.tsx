@@ -104,10 +104,8 @@ const CreateIterativeModalModal: ForwardRefRenderFunction<
   }
 
   async function onOk() {
-    form.validateFields().then(async (values) => {
-      const { content, ...restParams } = values;
-      const data = restParams as NIterative;
-      const rsp = await SIterative.createIterative(data);
+    form.validateFields().then(async (values: NIterative) => {
+      const rsp = await SIterative.createIterative(values);
       if (rsp.success) {
         onCancel();
         props.onOk();
