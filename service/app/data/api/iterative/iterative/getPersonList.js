@@ -21,9 +21,11 @@
           list: argData.personList.map((person) => {
             person.accountList.forEach((account) => {
               account.systemName = systemInfos[account.systemId].systemName;
-              account.envNameList = account.envIdList.map(
-                (id) => envInfos[id].envName
-              );
+              if (account.envIdList) {
+                account.envNameList = account.envIdList.map(
+                  (id) => envInfos[id].envName
+                );
+              }
             });
             return {
               roleName: roleInfos[person.roleId].roleName,

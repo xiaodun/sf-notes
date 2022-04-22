@@ -11,17 +11,12 @@ import CreateIterativeModalModal, {
   ICreateIterativeModalModal,
 } from "./components/CreateIterativeModal";
 import { CopyOutlined } from "@ant-design/icons";
-import ShowSystemInfoModalModal, {
-  ISystemInfoModal,
-} from "./components/SystemInfoModal";
 
 export interface IIterativeTabpaneProps {
   MDIterative: NMDIterative.IState;
 }
 const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
   const { MDIterative } = props;
-
-  const showSystemInfoModalModalRef = useRef<ISystemInfoModal>();
 
   const createIterativeModalModalRef = useRef<ICreateIterativeModalModal>();
 
@@ -32,11 +27,6 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
           ref={createIterativeModalModalRef}
           onOk={SIterative.getIterativeList}
         ></CreateIterativeModalModal>
-
-        <ShowSystemInfoModalModal
-          MDIterative={MDIterative}
-          ref={showSystemInfoModalModalRef}
-        ></ShowSystemInfoModalModal>
 
         <Table
           rowKey="id"
@@ -74,17 +64,9 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
         <Button onClick={() => onShowCreateIterativeModalModal()}>
           创建迭代
         </Button>
-
-        <Button onClick={() => onShowShowSystemInfoModalModal()}>
-          系统信息
-        </Button>
       </PageFooter>
     </div>
   );
-
-  function onShowShowSystemInfoModalModal() {
-    showSystemInfoModalModalRef.current.showModal();
-  }
 
   function onShowCreateIterativeModalModal() {
     createIterativeModalModalRef.current.showModal();

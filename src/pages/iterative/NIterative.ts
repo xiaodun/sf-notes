@@ -21,7 +21,7 @@ export namespace NIterative {
   }
   export interface IAccount {
     systemId: string;
-    account: string;
+    userName: string;
     password: string;
     url: string;
     systemName: string;

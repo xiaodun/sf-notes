@@ -4,7 +4,7 @@ import React, {
   useImperativeHandle,
   useState,
 } from "react";
-import { Modal, Button, Tabs, Input, Tag } from "antd";
+import { Modal, Button, Tabs, Input, Tag, Space } from "antd";
 import produce from "immer";
 import { NMDIterative } from "umi";
 import NIterative from "../NIterative";
@@ -71,38 +71,55 @@ const RoleAccontInfoModal: ForwardRefRenderFunction<
         <div className={SelfStyle.noData}>没有账号信息</div>
       )}
       <Tabs tabPosition="left">
-        {Object.keys(state.accountInfos).map((systemName) => (
-          <Tabs.TabPane tab={systemName} key={systemName}>
-            {state.accountInfos[systemName].map((item) => (
-              <div className={SelfStyle.accountWrap}>
-                <div className="info-wrap">
-                  {item.envNameList.length > 0 && (
-                    <div className="tags-wrap">
-                      {item.envNameList.map((env) => (
-                        <Tag> {env} </Tag>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="line-block">
-                    <div className="label">账号</div>
-                    <Input value={item.account}></Input>
-                    <Button onClick={() => UCopy.copyStr(item.account)}>
-                      复制
+        {Object.keys(state.accountInfos).map((id) => {
+          const accountList = state.accountInfos[id];
+          return (
+            <Tabs.TabPane tab={accountList[0].systemName} key={id}>
+              {accountList.map((item, accountIndex) => (
+                <div className={SelfStyle.accountWrap} key={accountIndex}>
+                  <div className="able-wrap">
+                    <Button
+                      type="link"
+                      onClick={() =>
+                        UCopy.copyStr(item.userName + "\n" + item.password)
+                      }
+                    >
+                      分享
                     </Button>
                   </div>
-                  <div className="line-block">
-                    <div className="label">密码</div>
-                    <Input value={item.password}></Input>
-                    <Button onClick={() => UCopy.copyStr(item.password)}>
-                      复制
-                    </Button>
+                  <div className="info-wrap">
+                    {item.envNameList?.length > 0 && (
+                      <div className="tags-wrap">
+                        <Space>
+                          {item.envNameList.map((env) => (
+                            <Tag color={"#5bd1d7"} key={env}>
+                              {env}
+                            </Tag>
+                          ))}
+                        </Space>
+                      </div>
+                    )}
+
+                    <div className="line-block">
+                      <div className="label">用户名</div>
+                      <Input value={item.userName}></Input>
+                      <Button onClick={() => UCopy.copyStr(item.userName)}>
+                        复制
+                      </Button>
+                    </div>
+                    <div className="line-block">
+                      <div className="label">密码</div>
+                      <Input value={item.password}></Input>
+                      <Button onClick={() => UCopy.copyStr(item.password)}>
+                        复制
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </Tabs.TabPane>
-        ))}
+              ))}
+            </Tabs.TabPane>
+          );
+        })}
       </Tabs>
     </Modal>
   );
