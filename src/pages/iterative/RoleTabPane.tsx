@@ -1,5 +1,5 @@
 import { PageFooter } from "@/common/components/page";
-import { Button, Space, Table } from "antd";
+import { Button, Dropdown, Menu, Space, Table } from "antd";
 import React, { FC, useRef } from "react";
 import { NMDIterative } from "umi";
 import NIterative from "./NIterative";
@@ -89,10 +89,19 @@ const RoleTabpane: FC<IRoleTabpaneProps> = (props) => {
         ></Table>
       </div>
       <PageFooter>
-        <Button onClick={() => onShowAddEnvModal()}>添加环境</Button>
-        <Button onClick={() => onShowAddRoleModal()}>添加角色</Button>
-        <Button onClick={() => onShowAddSystemModal()}>添加系统</Button>
-        <Button onClick={() => onShowAddPersonModal()}>添加人员</Button>
+        <Dropdown.Button
+          overlay={
+            <Menu>
+              <Menu.Item onClick={() => onShowAddEnvModal()}>环境</Menu.Item>
+              <Menu.Item onClick={() => onShowAddRoleModal()}>角色</Menu.Item>
+              <Menu.Item onClick={() => onShowAddSystemModal()}>系统</Menu.Item>
+              <Menu.Item onClick={() => onShowAddPersonModal()}>人员</Menu.Item>
+            </Menu>
+          }
+        >
+          添加
+        </Dropdown.Button>
+
         <Button onClick={() => onShowShowSystemInfoModalModal()}>
           系统信息
         </Button>
