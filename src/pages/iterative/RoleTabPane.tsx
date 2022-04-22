@@ -92,10 +92,18 @@ const RoleTabpane: FC<IRoleTabpaneProps> = (props) => {
         <Dropdown.Button
           overlay={
             <Menu>
-              <Menu.Item onClick={() => onShowAddEnvModal()}>环境</Menu.Item>
-              <Menu.Item onClick={() => onShowAddRoleModal()}>角色</Menu.Item>
-              <Menu.Item onClick={() => onShowAddSystemModal()}>系统</Menu.Item>
-              <Menu.Item onClick={() => onShowAddPersonModal()}>人员</Menu.Item>
+              <Menu.Item key={"env"} onClick={() => onShowAddEnvModal()}>
+                环境
+              </Menu.Item>
+              <Menu.Item key={"role"} onClick={() => onShowAddRoleModal()}>
+                角色
+              </Menu.Item>
+              <Menu.Item key={"system"} onClick={() => onShowAddSystemModal()}>
+                系统
+              </Menu.Item>
+              <Menu.Item key={"person"} onClick={() => onShowAddPersonModal()}>
+                人员
+              </Menu.Item>
             </Menu>
           }
         >
