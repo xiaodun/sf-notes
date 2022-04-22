@@ -110,7 +110,7 @@ const RoleTabpane: FC<IRoleTabpaneProps> = (props) => {
           添加
         </Dropdown.Button>
 
-        <Button onClick={() => onShowShowSystemInfoModalModal()}>
+        <Button onClick={() => onShowShowSystemInfoModalModal()} >
           系统信息
         </Button>
       </PageFooter>

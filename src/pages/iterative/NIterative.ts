@@ -1,6 +1,7 @@
 export interface NIterative {
   id?: number;
   name: string;
+  content: string;
   docPassword: string;
   docUrl: string;
   projectList: NIterative.IProject[];

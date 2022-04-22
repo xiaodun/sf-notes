@@ -25,7 +25,7 @@ const Iterative: ConnectRC<IIterativeProps> = (props) => {
 
   return (
     <div>
-      <Tabs size="large" defaultActiveKey="role" type="card">
+      <Tabs size="large" type="card">
         <Tabs.TabPane tab="迭代" key="iterative">
           <IterativeTabpane MDIterative={MDIterative}></IterativeTabpane>
         </Tabs.TabPane>
