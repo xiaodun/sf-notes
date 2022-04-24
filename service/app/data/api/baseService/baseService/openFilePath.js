@@ -3,7 +3,7 @@
     const file_os = require("fs");
     const exec = require("child_process").exec;
 
-    const cmdFileName = "command.bat";
+    const cmdFileName = "openFile.bat";
     const commandList = [];
     commandList.push(`code -r ${argParams.filePath}`);
     file_os.writeFileSync(cmdFileName, commandList.join("\n"));

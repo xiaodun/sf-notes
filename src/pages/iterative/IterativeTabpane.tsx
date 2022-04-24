@@ -49,6 +49,7 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
               title: "文档链接",
               key: "docUrl",
               dataIndex: "docUrl",
+              ellipsis: true,
               render: renderDocUrlColumn,
             },
             {

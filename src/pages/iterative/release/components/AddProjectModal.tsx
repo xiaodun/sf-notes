@@ -20,9 +20,11 @@ export interface IAddProjectModalProps {
 
 export interface IAddProjectModalState {
   visible: boolean;
+  loading: boolean;
 }
 const defaultState: IAddProjectModalState = {
   visible: false,
+  loading: false,
 };
 const AddProjectModal: ForwardRefRenderFunction<
   IAddProjectModal,
@@ -56,7 +58,7 @@ const AddProjectModal: ForwardRefRenderFunction<
       bodyStyle={{ maxHeight: "100%" }}
       visible={state.visible}
       footer={
-        <Button type="primary" onClick={onOk}>
+        <Button type="primary" onClick={onOk} loading={state.loading}>
           确定
         </Button>
       }
@@ -120,6 +122,11 @@ const AddProjectModal: ForwardRefRenderFunction<
     form
       .validateFields()
       .then(async (values: { projectList: string[]; branchName: string }) => {
+        setState(
+          produce(state, (drafState) => {
+            drafState.loading = true;
+          })
+        );
         const rsp = await SIterative.addProjectList(
           MDIterative.iteratives.id,
           values.projectList.map((name) => {
@@ -131,6 +138,12 @@ const AddProjectModal: ForwardRefRenderFunction<
               dir: project.rootPath,
               branchName: values.branchName,
             };
+          })
+        );
+
+        setState(
+          produce(state, (drafState) => {
+            drafState.loading = false;
           })
         );
         if (rsp.success) {
