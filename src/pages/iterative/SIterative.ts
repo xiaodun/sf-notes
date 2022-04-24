@@ -238,5 +238,59 @@ namespace SIterative {
       data: { id },
     });
   }
+  export async function pullMaster(
+    id: number,
+    projectList: NIterative.IProject[]
+  ): Promise<NRsp<NModal.IOptionExecMessage>> {
+    return request({
+      url: "/iterative/pullMaster",
+      method: "post",
+      data: {
+        id,
+        projectList,
+      },
+    });
+  }
+  export async function mergeTo(
+    id: number,
+    targetBranchId: number,
+    projectList: NIterative.IProject[]
+  ): Promise<NRsp<NModal.IOptionExecMessage>> {
+    return request({
+      url: "/iterative/mergeTo",
+      method: "post",
+      data: {
+        id,
+        targetBranchId,
+        projectList,
+      },
+    });
+  }
+  export async function switchToFeatureBranch(
+    id: number,
+    projectList: NIterative.IProject[]
+  ): Promise<NRsp<NModal.IOptionExecMessage>> {
+    return request({
+      url: "/iterative/switchToFeatureBranch",
+      method: "post",
+      data: {
+        id,
+        projectList,
+      },
+    });
+  }
+  export async function checkConflict(
+    id: number,
+    projectList: NIterative.IProject[]
+  ): Promise<NRsp<NModal.IOptionExecMessage>> {
+    return request({
+      url: "/iterative/checkConflict",
+      method: "post",
+      data: {
+        id,
+        projectList,
+      },
+    });
+  }
 }
 export default SIterative;
