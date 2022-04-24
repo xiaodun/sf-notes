@@ -8,17 +8,30 @@
         external.execGitCommad = function (argList = [], cwd) {
           const list = [];
           for (let i = 0; i < argList.length; i++) {
+            //统一转换为对象
+            const item =
+              typeof argList[i] === "string"
+                ? { commond: argList[i] }
+                : argList[i];
             const spawn = child_process.spawnSync(
               "git",
-              argList[i].split(" ").filter(Boolean),
+              item.commond.split(" ").filter(Boolean),
               {
                 cwd,
               }
             );
 
-            const errorMsg = spawn.stderr.toString().trim();
-            if (errorMsg) {
-              list.push(errorMsg);
+            if (item.isRecordStdout) {
+              //记录执行正确的信息
+              const successMsg = spawn.stdout.toString().trim();
+              if (successMsg) {
+                list.push(successMsg);
+              }
+            } else {
+              const errorMsg = spawn.stderr.toString().trim();
+              if (errorMsg) {
+                list.push(errorMsg);
+              }
             }
           }
 
