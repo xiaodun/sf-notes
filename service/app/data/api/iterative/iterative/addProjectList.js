@@ -21,9 +21,7 @@
       iteratives.projectList.push(...argParams.projectList);
       const execResultList = [];
 
-      for (let i = 0; i < argParams.projectList.length; i++) {
-        const item = argParams.projectList[i];
-
+      argParams.projectList.forEach((item) => {
         const currentBranceName = external.getCurrentBranchName(item.dir);
         let argList = [];
         if (currentBranceName !== "master") {
@@ -46,7 +44,7 @@
             title: item.name,
           });
         }
-      }
+      });
 
       return {
         isWrite: true,
