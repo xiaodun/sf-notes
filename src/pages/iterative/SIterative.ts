@@ -231,5 +231,12 @@ namespace SIterative {
       data,
     });
   }
+  export async function delIterative(id: number) {
+    return request({
+      url: "/iterative/delIterative",
+      method: "post",
+      data: { id },
+    });
+  }
 }
 export default SIterative;

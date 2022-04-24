@@ -57,6 +57,11 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
               dataIndex: "docPassword",
               render: renderDocPasswordColumn,
             },
+            {
+              title: "分享人",
+              key: "sharePerson",
+              dataIndex: "sharePerson",
+            },
 
             {
               title: "操作",
@@ -112,11 +117,21 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
             发版
           </Link>
         </Button>
+
         <Button type="link" onClick={() => onShowViewContentModal(iterative)}>
           信息展示
         </Button>
+        <Button type="link" onClick={() => onDel(iterative)}>
+          删除
+        </Button>
       </Space>
     );
+  }
+  async function onDel(iterative: NIterative) {
+    const rsp = await SIterative.delIterative(iterative.id);
+    if (rsp.success) {
+      SIterative.getIterativeList();
+    }
   }
 };
 export default IterativeTabpane;
