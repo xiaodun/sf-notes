@@ -88,6 +88,7 @@ const ViewContentModal: ForwardRefRenderFunction<
           {link}
         </a>
       );
+      index++;
 
       lastIndex = result.index + link.length;
     }

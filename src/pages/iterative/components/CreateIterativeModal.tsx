@@ -78,24 +78,28 @@ const CreateIterativeModalModal: ForwardRefRenderFunction<
         <Form.Item label="文档密码" name={"docPassword"}>
           <Input></Input>
         </Form.Item>
+        <Form.Item label="分享人" name={"sharePerson"}>
+          <Input></Input>
+        </Form.Item>
       </Form>
     </Modal>
   );
   function onContentChange(value: string) {
-    const pattern = RegExp(
-      `(https?://[-A-Za-z0-9+&@#/%?=~_|!:,.;\u4e00-\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5])[\\w\\W]*?相关项目: ([-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]*)[\\w\\W]*?密码: (\\w*)`,
-      "g"
+    const docUrlPattern = new RegExp(`(https?://lanhuapp.com/url/\\w+)`);
+    const namePattern = new RegExp(
+      `相关项目: ([-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]*)`
     );
-
+    const docPasswordPattern = new RegExp(`密码: (\\w*)`);
+    const sharePersonPattern = new RegExp(
+      `分享人: ([-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]*)`
+    );
     if (value) {
-      const result = pattern.exec(value);
-      if (result) {
-        form.setFieldsValue({
-          docUrl: result[1],
-          name: result[2],
-          docPassword: result[3],
-        });
-      }
+      form.setFieldsValue({
+        docUrl: docUrlPattern.exec(value)?.[1],
+        name: namePattern.exec(value)?.[1],
+        sharePerson: sharePersonPattern.exec(value)?.[1],
+        docPassword: docPasswordPattern.exec(value)?.[1],
+      });
     }
   }
   function onCancel() {

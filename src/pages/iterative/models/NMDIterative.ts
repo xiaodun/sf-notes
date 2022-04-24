@@ -9,6 +9,7 @@ export namespace NMDIterative {
     config: NIterative.IConfig;
     gitConfig: NIterative.IGitConfig;
     personList: NIterative.IPerson[];
+    productList: NIterative.IPerson[];
     roleList: NIterative.IRole[];
     systemList: NIterative.ISystem[];
     envList: NIterative.IEnv[];
@@ -31,10 +32,12 @@ export default {
       list: [],
     },
     config: {},
+    productList: [],
     gitConfig: {
       newBranchDefaultPrefix: "",
     },
     iteratives: {
+      content: "",
       name: "",
       docPassword: "",
       docUrl: "",
