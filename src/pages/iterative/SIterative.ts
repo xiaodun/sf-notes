@@ -292,5 +292,16 @@ namespace SIterative {
       },
     });
   }
+  export async function saveIteraitve(
+    iterative: NIterative
+  ): Promise<NRsp<NModal.IOptionExecMessage>> {
+    return request({
+      url: "/iterative/saveIteraitve",
+      method: "post",
+      data: {
+        iterative,
+      },
+    });
+  }
 }
 export default SIterative;

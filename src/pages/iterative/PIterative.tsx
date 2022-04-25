@@ -24,7 +24,7 @@ const Iterative: ConnectRC<IIterativeProps> = (props) => {
   }, []);
 
   return (
-    <div>
+    <div className={SelfStyle.main}>
       <Tabs size="large" type="card">
         <Tabs.TabPane tab="迭代" key="iterative">
           <IterativeTabpane MDIterative={MDIterative}></IterativeTabpane>
