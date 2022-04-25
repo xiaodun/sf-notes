@@ -62,6 +62,7 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
               key: "ajaxUrl",
               dataIndex: "ajaxUrl",
               render: renderAjaxUrlColumn,
+              ellipsis: true,
             },
             {
               title: "分享人",
@@ -96,7 +97,12 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
   }
 
   function renderAjaxUrlColumn(ajaxUrl: string) {
-    return <div onClick={() => UCopy.copyStr(ajaxUrl)}>{ajaxUrl}</div>;
+    return (
+      <div>
+        <CopyOutlined onClick={() => UCopy.copyStr(ajaxUrl)}></CopyOutlined>
+        &nbsp;&nbsp;<a href={ajaxUrl}>{ajaxUrl}</a>
+      </div>
+    );
   }
   function renderNameColumn(name: string) {
     return <div onClick={() => UCopy.copyStr(name)}>{name}</div>;
