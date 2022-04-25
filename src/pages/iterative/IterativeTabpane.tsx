@@ -15,7 +15,6 @@ import { CopyOutlined } from "@ant-design/icons";
 import ViewContentModal, {
   IViewContentModal,
 } from "./components/ViewContentModal";
-
 export interface IIterativeTabpaneProps {
   MDIterative: NMDIterative.IState;
 }
@@ -59,6 +58,12 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
               render: renderDocPasswordColumn,
             },
             {
+              title: "接口地址",
+              key: "ajaxUrl",
+              dataIndex: "ajaxUrl",
+              render: renderAjaxUrlColumn,
+            },
+            {
               title: "分享人",
               key: "sharePerson",
               dataIndex: "sharePerson",
@@ -82,14 +87,17 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
     </div>
   );
 
-  function onShowCreateIterativeModalModal() {
-    createIterativeModalModalRef.current.showModal();
+  function onShowCreateIterativeModalModal(iterative?: NIterative) {
+    createIterativeModalModalRef.current.showModal(iterative);
   }
 
   function onShowViewContentModal(iterative: NIterative) {
     viewContentModalRef.current.showModal(iterative.content);
   }
 
+  function renderAjaxUrlColumn(ajaxUrl: string) {
+    return <div onClick={() => UCopy.copyStr(ajaxUrl)}>{ajaxUrl}</div>;
+  }
   function renderNameColumn(name: string) {
     return <div onClick={() => UCopy.copyStr(name)}>{name}</div>;
   }
@@ -121,6 +129,12 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
 
         <Button type="link" onClick={() => onShowViewContentModal(iterative)}>
           信息展示
+        </Button>
+        <Button
+          type="link"
+          onClick={() => onShowCreateIterativeModalModal(iterative)}
+        >
+          修改
         </Button>
         <Button type="link" onClick={() => onDel(iterative)}>
           删除

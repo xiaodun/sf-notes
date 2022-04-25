@@ -10,7 +10,7 @@ import produce from "immer";
 import NIterative from "../NIterative";
 import SIterative from "../SIterative";
 export interface ICreateIterativeModalModal {
-  showModal: () => void;
+  showModal: (iteratives?: NIterative) => void;
 }
 export interface ICreateIterativeModalModalProps {
   onOk: () => void;
@@ -18,9 +18,11 @@ export interface ICreateIterativeModalModalProps {
 
 export interface ICreateIterativeModalModalState {
   visible: boolean;
+  iterative: NIterative;
 }
 const defaultState: ICreateIterativeModalModalState = {
   visible: false,
+  iterative: null,
 };
 const CreateIterativeModalModal: ForwardRefRenderFunction<
   ICreateIterativeModalModal,
@@ -32,10 +34,12 @@ const CreateIterativeModalModal: ForwardRefRenderFunction<
   const firstInputRef = useRef<Input>();
 
   useImperativeHandle(ref, () => ({
-    showModal: () => {
+    showModal: (iteratives?: NIterative) => {
       setState(
         produce(state, (drafState) => {
           drafState.visible = true;
+          drafState.iterative = iteratives;
+          form.setFieldsValue(iteratives);
         })
       );
       setTimeout(() => {
@@ -47,7 +51,7 @@ const CreateIterativeModalModal: ForwardRefRenderFunction<
   return (
     <Modal
       width="500px"
-      title="创建迭代"
+      title={state.iterative ? "修改迭代" : "创建迭代"}
       maskClosable={false}
       bodyStyle={{ maxHeight: "100%" }}
       visible={state.visible}
@@ -65,7 +69,9 @@ const CreateIterativeModalModal: ForwardRefRenderFunction<
             rows={6}
             ref={firstInputRef}
             onPressEnter={onOk}
-            onChange={(e) => onContentChange(e.target.value)}
+            onChange={(e) =>
+              state.iterative ? onContentChange(e.target.value) : () => {}
+            }
             placeholder="黏贴蓝湖信息文本,将自动解析"
           ></Input.TextArea>
         </Form.Item>
@@ -79,6 +85,9 @@ const CreateIterativeModalModal: ForwardRefRenderFunction<
           <Input></Input>
         </Form.Item>
         <Form.Item label="分享人" name={"sharePerson"}>
+          <Input></Input>
+        </Form.Item>
+        <Form.Item label="接口文档" name={"ajaxUrl"}>
           <Input></Input>
         </Form.Item>
       </Form>
@@ -109,7 +118,12 @@ const CreateIterativeModalModal: ForwardRefRenderFunction<
 
   async function onOk() {
     form.validateFields().then(async (values: NIterative) => {
-      const rsp = await SIterative.createIterative(values);
+      const rsp = state.iterative
+        ? await SIterative.saveIteraitve({ ...state.iterative, ...values })
+        : await SIterative.createIterative({
+            ...{ content: "", ajaxUrl: "", name: "" },
+            ...values,
+          });
       if (rsp.success) {
         onCancel();
         props.onOk();
