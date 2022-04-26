@@ -51,7 +51,7 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
               </Menu>
             }
           >
-            git
+            Git
           </Dropdown.Button>
           <Button>部署</Button>
         </Space>
