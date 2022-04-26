@@ -98,10 +98,12 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
 
   function renderAjaxUrlColumn(ajaxUrl: string) {
     return (
-      <div>
-        <CopyOutlined onClick={() => UCopy.copyStr(ajaxUrl)}></CopyOutlined>
-        &nbsp;&nbsp;<a href={ajaxUrl}>{ajaxUrl}</a>
-      </div>
+      ajaxUrl && (
+        <div>
+          <CopyOutlined onClick={() => UCopy.copyStr(ajaxUrl)}></CopyOutlined>
+          &nbsp;&nbsp;<a href={ajaxUrl}>{ajaxUrl}</a>
+        </div>
+      )
     );
   }
   function renderNameColumn(name: string) {
@@ -109,10 +111,12 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
   }
   function renderDocUrlColumn(docUrl: string) {
     return (
-      <div>
-        <CopyOutlined onClick={() => UCopy.copyStr(docUrl)}></CopyOutlined>
-        &nbsp;&nbsp;<a href={docUrl}>{docUrl}</a>
-      </div>
+      docUrl && (
+        <div>
+          <CopyOutlined onClick={() => UCopy.copyStr(docUrl)}></CopyOutlined>
+          &nbsp;&nbsp;<a href={docUrl}>{docUrl}</a>
+        </div>
+      )
     );
   }
   function renderDocPasswordColumn(docPassword: string) {
