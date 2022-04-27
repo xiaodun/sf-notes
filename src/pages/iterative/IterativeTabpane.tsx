@@ -7,10 +7,11 @@ import SIterative from "./SIterative";
 import qs from "qs";
 import UCopy from "@/common/utils/UCopy";
 import NIterative from "./NIterative";
-import CreateIterativeModalModal, {
-  ICreateIterativeModalModal,
+import CreateIterativeModal, {
+  ICreateIterativeModal,
 } from "./components/CreateIterativeModal";
 import { CopyOutlined } from "@ant-design/icons";
+import AddEnvModal, { IAddEnvModal } from "./components/AddEnvModal";
 
 import ViewContentModal, {
   IViewContentModal,
@@ -22,19 +23,20 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
   const { MDIterative } = props;
 
   const viewContentModalRef = useRef<IViewContentModal>();
+  const addEnvModalRef = useRef<IAddEnvModal>();
 
-  const createIterativeModalModalRef = useRef<ICreateIterativeModalModal>();
+  const createIterativeModalRef = useRef<ICreateIterativeModal>();
 
   return (
     <div>
       <ViewContentModal ref={viewContentModalRef}></ViewContentModal>
+      <AddEnvModal ref={addEnvModalRef}></AddEnvModal>
+      <CreateIterativeModal
+        ref={createIterativeModalRef}
+        onOk={SIterative.getIterativeList}
+      ></CreateIterativeModal>
 
       <div style={{ marginTop: "20px", marginBottom: "35px" }}>
-        <CreateIterativeModalModal
-          ref={createIterativeModalModalRef}
-          onOk={SIterative.getIterativeList}
-        ></CreateIterativeModalModal>
-
         <Table
           rowKey="id"
           columns={[
@@ -84,12 +86,16 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
         <Button onClick={() => onShowCreateIterativeModalModal()}>
           创建迭代
         </Button>
+        <Button onClick={() => onShowAddEnvModal()}>添加环境</Button>
       </PageFooter>
     </div>
   );
+  function onShowAddEnvModal() {
+    addEnvModalRef.current.showModal();
+  }
 
   function onShowCreateIterativeModalModal(iterative?: NIterative) {
-    createIterativeModalModalRef.current.showModal(iterative);
+    createIterativeModalRef.current.showModal(iterative);
   }
 
   function onShowViewContentModal(iterative: NIterative) {

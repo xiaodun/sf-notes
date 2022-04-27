@@ -12,7 +12,6 @@ import AddPersonModal, { IAddPersonModal } from "./components/AddPersonModal";
 import RoleAccontInfoModal, {
   IRoleAccontInfoModal,
 } from "./components/RoleAccontInfoModal";
-import AddEnvModal, { IAddEnvModal } from "./components/AddEnvModal";
 import AddSystemModal, { IAddSystemModal } from "./components/AddSystemModal";
 import AddRoleModal, { IAddRoleModal } from "./components/AddRoleModal";
 import ShowSystemInfoModalModal, {
@@ -24,7 +23,6 @@ export interface IRoleTabpaneProps {
 }
 const RoleTabpane: FC<IRoleTabpaneProps> = (props) => {
   const { MDIterative } = props;
-  const addEnvModalRef = useRef<IAddEnvModal>();
 
   const editAccountModalRef = useRef<IEditAccountModal>();
   const addPersonModalRef = useRef<IAddPersonModal>();
@@ -39,8 +37,6 @@ const RoleTabpane: FC<IRoleTabpaneProps> = (props) => {
         MDIterative={MDIterative}
         ref={showSystemInfoModalModalRef}
       ></ShowSystemInfoModalModal>
-
-      <AddEnvModal ref={addEnvModalRef}></AddEnvModal>
 
       <AddSystemModal ref={addSystemModalRef}></AddSystemModal>
 
@@ -92,9 +88,6 @@ const RoleTabpane: FC<IRoleTabpaneProps> = (props) => {
         <Dropdown.Button
           overlay={
             <Menu>
-              <Menu.Item key={"env"} onClick={() => onShowAddEnvModal()}>
-                环境
-              </Menu.Item>
               <Menu.Item key={"role"} onClick={() => onShowAddRoleModal()}>
                 角色
               </Menu.Item>
@@ -126,9 +119,6 @@ const RoleTabpane: FC<IRoleTabpaneProps> = (props) => {
     addRoleModalRef.current.showModal();
   }
 
-  function onShowAddEnvModal() {
-    addEnvModalRef.current.showModal();
-  }
   function onShowAddPersonModal() {
     addPersonModalRef.current.showModal();
   }
