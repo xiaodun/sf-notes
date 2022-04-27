@@ -9,27 +9,26 @@ import { Modal, Button, Form, Input, message } from "antd";
 import produce from "immer";
 import NIterative from "../NIterative";
 import SIterative from "../SIterative";
-export interface ICreateIterativeModalModal {
+export interface ICreateIterativeModal {
   showModal: (iteratives?: NIterative) => void;
 }
-export interface ICreateIterativeModalModalProps {
+export interface ICreateIterativeModalProps {
   onOk: () => void;
 }
 
-export interface ICreateIterativeModalModalState {
+export interface ICreateIterativeModalState {
   visible: boolean;
   iterative: NIterative;
 }
-const defaultState: ICreateIterativeModalModalState = {
+const defaultState: ICreateIterativeModalState = {
   visible: false,
   iterative: null,
 };
-const CreateIterativeModalModal: ForwardRefRenderFunction<
-  ICreateIterativeModalModal,
-  ICreateIterativeModalModalProps
+const CreateIterativeModal: ForwardRefRenderFunction<
+  ICreateIterativeModal,
+  ICreateIterativeModalProps
 > = (props, ref) => {
-  const [state, setState] =
-    useState<ICreateIterativeModalModalState>(defaultState);
+  const [state, setState] = useState<ICreateIterativeModalState>(defaultState);
   const [form] = Form.useForm();
   const firstInputRef = useRef<Input>();
 
@@ -133,4 +132,4 @@ const CreateIterativeModalModal: ForwardRefRenderFunction<
     });
   }
 };
-export default forwardRef(CreateIterativeModalModal);
+export default forwardRef(CreateIterativeModal);

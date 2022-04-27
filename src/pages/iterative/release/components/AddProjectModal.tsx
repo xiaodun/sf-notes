@@ -128,7 +128,7 @@ const AddProjectModal: ForwardRefRenderFunction<
           })
         );
         const rsp = await SIterative.addProjectList(
-          MDIterative.iteratives.id,
+          MDIterative.iterative.id,
           values.projectList.map((name) => {
             const project = MDIterative.projectList.find(
               (item) => item.name === name
