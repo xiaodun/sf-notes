@@ -5,6 +5,7 @@ export interface NIterative {
   docPassword: string;
   docUrl: string;
   projectList: NIterative.IProject[];
+  lastOperationEnvId?: number;
 }
 export namespace NIterative {
   export interface IProject {
