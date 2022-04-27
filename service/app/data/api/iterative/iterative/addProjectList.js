@@ -1,6 +1,8 @@
 (function () {
   return function (argData, argParams, external) {
-    const iteratives = argData.iterativeList.find((item) => item.id);
+    const iteratives = argData.iterativeList.find(
+      (item) => item.id == argParams.id
+    );
     let sameNameList = [];
     argParams.projectList.forEach((project) => {
       if (iteratives.projectList.find((item) => item.name === project.name)) {
