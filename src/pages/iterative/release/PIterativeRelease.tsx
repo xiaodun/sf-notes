@@ -12,14 +12,21 @@ import AddProjectModal, {
 } from "./components/AddProjectModal";
 import { UModal } from "@/common/utils/modal/UModal";
 import SBase from "@/common/service/SBase";
+
+import MergeToModal, { IMergeToModal } from "./components/MergeToModal";
+
 export interface IIterativeReleaseProps {
   MDIterative: NMDIterative.IState;
 }
+
 const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
   const { MDIterative } = props;
   const [selectProjectList, setSelectProjectList] = useState<
     NIterative.IProject[]
   >([]);
+
+  const mergeToModalRef = useRef<IMergeToModal>();
+
   const addProjectModalRef = useRef<IAddProjectModal>();
   const urlQuery = qs.parse(window.location.search, {
     ignoreQueryPrefix: true,
@@ -27,7 +34,7 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
   useEffect(() => {
     SIterative.getProjectList();
     SIterative.getGitConfig();
-
+    SIterative.getEnvList();
     reqGetIterative();
   }, []);
 
@@ -38,6 +45,13 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
         ref={addProjectModalRef}
         onOk={reqGetIterative}
       ></AddProjectModal>
+
+      <MergeToModal
+        ref={mergeToModalRef}
+        MDIterative={MDIterative}
+        onOk={onMergetTo}
+      ></MergeToModal>
+
       <div style={{ marginBottom: 20 }}>
         <Space size={30}>
           <Dropdown.Button
@@ -46,8 +60,12 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
                 <Menu.Item key={"pullMaster"} onClick={() => onPullMaster()}>
                   从主分支拉取
                 </Menu.Item>
-                <Menu.Item key={"merge"}>合并到</Menu.Item>
-                <Menu.Item key={"person"}>切换到迭代分支</Menu.Item>
+                <Menu.Item key={"merge"} onClick={() => onShowMergeToModal()}>
+                  合并到
+                </Menu.Item>
+                <Menu.Item key={"person"} onClick={() => onCheckoutToFeature()}>
+                  切换到迭代分支
+                </Menu.Item>
               </Menu>
             }
           >
@@ -64,7 +82,7 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
             setSelectProjectList(
               (selectedRowKeys as string[]).reduce((pre, cur) => {
                 pre.push(
-                  MDIterative.iteratives.projectList.find(
+                  MDIterative.iterative.projectList.find(
                     (item) => item.name === cur
                   )
                 );
@@ -95,7 +113,7 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
             render: renderOptionColumn,
           },
         ]}
-        dataSource={MDIterative.iteratives.projectList}
+        dataSource={MDIterative.iterative.projectList}
         pagination={false}
       ></Table>
       <PageFooter>
@@ -103,15 +121,25 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
       </PageFooter>
     </div>
   );
-  async function onCheckConflict() {
+
+  function onShowMergeToModal() {
+    if (selectProjectList.length) {
+      mergeToModalRef.current.showModal();
+    }
+  }
+
+  async function onCheckConflict(
+    noConflictOkText = "关闭",
+    noConflictOnOk = () => {}
+  ) {
     const rsp = await SIterative.checkConflict(
-      MDIterative.iteratives.id,
+      MDIterative.iterative.id,
       selectProjectList
     );
     if (rsp.success) {
       const hasConflict = rsp.list.some((item) => item.errorMsg);
       UModal.showExecResult(rsp.list, {
-        okText: hasConflict ? "打开冲突文件" : "关闭",
+        okText: hasConflict ? "打开冲突文件" : noConflictOkText,
         onOk: () => {
           if (hasConflict) {
             const filePathList = rsp.list.reduce((pre, cur) => {
@@ -128,22 +156,41 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
             }, []);
 
             SBase.openFile(filePathList.join(" "));
+          } else {
+            noConflictOnOk();
           }
         },
       });
     }
   }
-  async function onPullMaster() {
-    const rsp = await SIterative.pullMaster(
-      MDIterative.iteratives.id,
+  async function onCheckoutToFeature() {}
+  async function onMergetTo(envId: number) {
+    const rsp = await SIterative.mergeTo(
+      MDIterative.iterative.id,
+      envId,
       selectProjectList
     );
     if (rsp.success) {
       UModal.showExecResult(rsp.list, {
         width: 760,
         okText: "检测冲突",
-        onOk: onCheckConflict,
+        onOk: () => onCheckConflict("切换到迭代分支", onCheckoutToFeature),
       });
+    }
+  }
+  async function onPullMaster() {
+    if (selectProjectList.length) {
+      const rsp = await SIterative.pullMaster(
+        MDIterative.iterative.id,
+        selectProjectList
+      );
+      if (rsp.success) {
+        UModal.showExecResult(rsp.list, {
+          width: 760,
+          okText: "检测冲突",
+          onOk: onCheckConflict,
+        });
+      }
     }
   }
   function reqGetIterative() {
@@ -168,7 +215,7 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
   }
   async function onRemoveProject(name: string) {
     const rsp = await SIterative.removeProject({
-      iterativeId: MDIterative.iteratives.id,
+      iterativeId: MDIterative.iterative.id,
       name,
     });
     if (rsp.success) {

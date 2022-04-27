@@ -52,7 +52,7 @@ namespace SIterative {
       if (rsp.success) {
         NModel.dispatch(
           new NMDIterative.ARSetState({
-            iteratives: rsp.data,
+            iterative: rsp.data,
           })
         );
       }
@@ -135,7 +135,9 @@ namespace SIterative {
   export async function getProjectList() {
     return SProject.getProjectList()
       .then((rsp) => {
-        rsp.list = rsp.list.filter((item) => item.notJoinIterative !== true);
+        rsp.list = rsp.list.filter(
+          (item) => item.notJoinIterative !== true && item.name !== "sf-notes"
+        );
         return rsp;
       })
       .then((rsp) => {
@@ -253,7 +255,7 @@ namespace SIterative {
   }
   export async function mergeTo(
     id: number,
-    targetBranchId: number,
+    envId: number,
     projectList: NIterative.IProject[]
   ): Promise<NRsp<NModal.IOptionExecMessage>> {
     return request({
@@ -261,7 +263,7 @@ namespace SIterative {
       method: "post",
       data: {
         id,
-        targetBranchId,
+        envId,
         projectList,
       },
     });
