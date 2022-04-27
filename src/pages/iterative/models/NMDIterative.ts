@@ -14,7 +14,7 @@ export namespace NMDIterative {
     systemList: NIterative.ISystem[];
     envList: NIterative.IEnv[];
     projectList: NProject[];
-    iteratives: NIterative;
+    iterative: NIterative;
   }
   class Action<P> extends NModel.IAction<P> {
     namespace = NModel.ENames.MDIterative;
@@ -36,7 +36,7 @@ export default {
     gitConfig: {
       newBranchDefaultPrefix: "",
     },
-    iteratives: {
+    iterative: {
       content: "",
       name: "",
       docPassword: "",
