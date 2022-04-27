@@ -5,6 +5,7 @@ import SProject from "../project/SProject";
 import NModel from "@/common/namespace/NModel";
 import { NMDIterative } from "umi";
 import { NModal } from "@/common/utils/modal/NModal";
+import { UModal } from "@/common/utils/modal/UModal";
 
 namespace SIterative {
   export async function getConfig() {
@@ -268,17 +269,21 @@ namespace SIterative {
       },
     });
   }
-  export async function switchToFeatureBranch(
-    id: number,
+  export async function switchToIterativeBranch(
     projectList: NIterative.IProject[]
-  ): Promise<NRsp<NModal.IOptionExecMessage>> {
-    return request({
-      url: "/iterative/switchToFeatureBranch",
-      method: "post",
-      data: {
-        id,
-        projectList,
-      },
+  ) {
+    return (
+      request({
+        url: "/iterative/switchToIterativeBranch",
+        method: "post",
+        data: {
+          projectList,
+        },
+      }) as Promise<NRsp<NModal.IOptionExecMessage>>
+    ).then((rsp) => {
+      if (rsp.success) {
+        UModal.showExecResult(rsp.list);
+      }
     });
   }
   export async function checkConflict(
