@@ -63,7 +63,12 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
                 <Menu.Item key={"merge"} onClick={() => onShowMergeToModal()}>
                   合并到
                 </Menu.Item>
-                <Menu.Item key={"person"} onClick={() => onCheckoutToFeature()}>
+                <Menu.Item
+                  key={"person"}
+                  onClick={() =>
+                    SIterative.switchToIterativeBranch(selectProjectList)
+                  }
+                >
                   切换到迭代分支
                 </Menu.Item>
               </Menu>
@@ -163,7 +168,6 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
       });
     }
   }
-  async function onCheckoutToFeature() {}
   async function onMergetTo(envId: number) {
     const rsp = await SIterative.mergeTo(
       MDIterative.iterative.id,
@@ -174,7 +178,10 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
       UModal.showExecResult(rsp.list, {
         width: 760,
         okText: "检测冲突",
-        onOk: () => onCheckConflict("切换到迭代分支", onCheckoutToFeature),
+        onOk: () =>
+          onCheckConflict("切换到迭代分支", () =>
+            SIterative.switchToIterativeBranch(selectProjectList)
+          ),
       });
     }
   }
