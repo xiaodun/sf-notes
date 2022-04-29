@@ -13,9 +13,5 @@
     "gitConfig": {
         "newBranchDefaultPrefix": "feature/"
     },
-    "releaseConfig": {
-        "lastOperationSystemId": 1650527535482,
-        "lastOperationBuildAccountId": 1650527597204,
-        "lastOperationDeployAccountId": 1651136479563
-    }
+    "releaseConfig": {}
 }
