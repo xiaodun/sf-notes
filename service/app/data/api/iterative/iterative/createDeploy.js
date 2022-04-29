@@ -5,17 +5,15 @@
     );
     // 在迭代李记录上次操作信息
     iterative.lastOperationEnvId = argParams.envId;
-    iterative.lastOperationSystemId = argParams.systemId;
     iterative.lastOperationReleasePersonIdList = argParams.releasePersonIdList;
-
+    iterative.lastOperationDeployPersonIdList = argParams.deployPersonIdList;
     //在发版配置李记录上次操作
 
+    argData.releaseConfig.lastOperationSystemId = argParams.systemId;
     argData.releaseConfig.lastOperationBuildAccountId =
       argParams.buildAccount.id;
     argData.releaseConfig.lastOperationDeployAccountId =
       argParams.deployAccount?.id;
-    argData.releaseConfig.lastOperationDeployPersonIdList =
-      argParams.deployPersonIdList;
 
     //组合发给构建工具的数据
 
