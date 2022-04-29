@@ -1,6 +1,6 @@
 (function () {
   return function (argData, argParams) {
-    const iteratives = argData.iterativeList.find(
+    const iterative = argData.iterativeList.find(
       (item) => item.id == argParams.id
     );
     return {
@@ -8,7 +8,7 @@
         code: 200,
         data: {
           success: true,
-          data: iteratives,
+          data: iterative,
         },
       },
     };

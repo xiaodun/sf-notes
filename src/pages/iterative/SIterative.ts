@@ -197,6 +197,22 @@ namespace SIterative {
       return rsp;
     });
   }
+  export async function getReleaseConfig() {
+    return (
+      request({
+        url: "/iterative/getReleaseConfig",
+      }) as Promise<NRsp<NIterative.IReleaseConfig>>
+    ).then((rsp) => {
+      if (rsp.success) {
+        NModel.dispatch(
+          new NMDIterative.ARSetState({
+            releaseConfig: rsp.data,
+          })
+        );
+      }
+      return rsp;
+    });
+  }
   export async function addProjectList(
     id: number,
     projectList: NIterative.IProject[]
@@ -308,6 +324,45 @@ namespace SIterative {
       data: {
         iterative,
       },
+    });
+  }
+  export async function getSystemAccountList(
+    systemId: number
+  ): Promise<NRsp<NIterative.IAccount>> {
+    return request({
+      url: "/iterative/getSystemAccountList",
+      method: "post",
+      data: {
+        systemId,
+      },
+    });
+  }
+  export async function createDeploy(data: {
+    id: number;
+    systemId: number;
+    envId: number;
+    projectList: NIterative.IProject[];
+    deployPersonIdList: number[];
+    releasePersonIdList: number[];
+
+    buildAccount: NIterative.IAccount;
+    deployAccount: NIterative.IAccount;
+  }) {
+    return (
+      request({
+        url: "/iterative/createDeploy",
+        method: "post",
+        data,
+      }) as Promise<NRsp<NIterative>>
+    ).then((rsp) => {
+      if (rsp.success) {
+        NModel.dispatch(
+          new NMDIterative.ARSetState({
+            iterative: rsp.data,
+          })
+        );
+      }
+      return rsp;
     });
   }
 }
