@@ -6,6 +6,9 @@ export interface NIterative {
   docUrl: string;
   projectList: NIterative.IProject[];
   lastOperationEnvId?: number;
+
+  lastOperationDeployPersonIdList?: number[];
+  lastOperationReleasePersonIdList?: number[];
 }
 export namespace NIterative {
   export interface IProject {
@@ -13,7 +16,11 @@ export namespace NIterative {
     dir: string;
     branchName: string;
   }
-  export interface IConfig {}
+  export interface IReleaseConfig {
+    lastOperationSystemId?: number;
+    lastOperationBuildAccountId?: number;
+    lastOperationDeployAccountId?: number;
+  }
 
   export interface IUrlQuery {
     id: number;
@@ -22,9 +29,11 @@ export namespace NIterative {
     newBranchDefaultPrefix: string;
   }
   export interface IAccount {
+    id?: number;
     systemId: string;
     userName: string;
     password: string;
+    personName: string;
     url: string;
     systemName: string;
     envIdList?: string[];

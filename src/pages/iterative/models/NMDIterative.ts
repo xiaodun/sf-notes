@@ -6,7 +6,7 @@ import NIterative from "../NIterative";
 export namespace NMDIterative {
   export interface IState {
     rsp: NRsp<NIterative>;
-    config: NIterative.IConfig;
+    releaseConfig: NIterative.IReleaseConfig;
     gitConfig: NIterative.IGitConfig;
     personList: NIterative.IPerson[];
     productList: NIterative.IPerson[];
@@ -31,7 +31,7 @@ export default {
     rsp: {
       list: [],
     },
-    config: {},
+    releaseConfig: {},
     productList: [],
     gitConfig: {
       newBranchDefaultPrefix: "",
