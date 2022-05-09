@@ -26,6 +26,7 @@ import {
   CloseOutlined,
   CopyOutlined,
   DownloadOutlined,
+  ReloadOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
 import UCopy from "@/common/utils/UCopy";
@@ -711,12 +712,20 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                         <div className="domainTitleWrap">
                           <div className="title">{domainItem.domain}</div>
                           <div className="able">
-                            <Button
-                              onClick={(e) => onDelDomain(e, domainItem)}
-                              shape="circle"
-                              size="small"
-                              icon={<CloseOutlined />}
-                            ></Button>
+                            <Space direction="horizontal" size={8}>
+                              <Button
+                                onClick={(e) => onReload(domainItem)}
+                                shape="circle"
+                                size="small"
+                                icon={<ReloadOutlined />}
+                              ></Button>
+                              <Button
+                                onClick={(e) => onDelDomain(e, domainItem)}
+                                shape="circle"
+                                size="small"
+                                icon={<CloseOutlined />}
+                              ></Button>
+                            </Space>
                           </div>
                         </div>
                       }
@@ -955,6 +964,9 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         {renderPathUrl(pathMenuCheckbox.pathUrl)}
       </Menu.Item>
     );
+  }
+  function onReload(domainItem: NProject.IDomainSwagger) {
+    swaggerModalRef.current.reload(domainItem.domain);
   }
   async function onDelDomain(
     event: React.MouseEvent,
