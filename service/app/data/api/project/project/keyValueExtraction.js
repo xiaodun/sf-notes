@@ -2,8 +2,8 @@
   return function (argData, argParams) {
     let enumList = [];
     let values = {};
-    if (argParams.strategy === "onlyEnglish") {
-      //只有英文
+    if (argParams.strategy === "onlyValue") {
+      //只有值
       const pattern = /[a-zA-z]+/g;
       let result;
       while ((result = pattern.exec(argParams.content)) != null) {
@@ -15,8 +15,8 @@
         separator = "\\s*[-:]?\\s*",
         english = "([0-9a-zA-Z_]+)";
       let result;
-      if (argParams.strategy === "chineseEnglish") {
-        //中文前英文后
+      if (argParams.strategy === "describeValue") {
+        //描述在前值在后
         const chineseStartPattern = new RegExp(
           chinese + separator + english,
           "g"
@@ -25,8 +25,8 @@
           values[result[2]] = result[1];
           enumList.push(result[2]);
         }
-      } else if (argParams.strategy === "englishChinese") {
-        //英文前中文后
+      } else if (argParams.strategy === "valueDescribe") {
+        //值在前描述在后
         const englishStartPattern = new RegExp(
           english + separator + chinese,
           "g"
