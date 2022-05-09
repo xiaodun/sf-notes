@@ -1,8 +1,6 @@
 import React, {
   forwardRef,
   ForwardRefRenderFunction,
-  ReactNode,
-  useEffect,
   useImperativeHandle,
   useRef,
   useState,
@@ -84,14 +82,14 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
         </Form.Item>
         <Form.Item>
           <Space size={30}>
-            <Button onClick={() => reqKeyValueExtraction("onlyEnglish")}>
+            <Button onClick={() => reqKeyValueExtraction("onlyValue")}>
               提取英文
             </Button>
-            <Button onClick={() => reqKeyValueExtraction("englishChinese")}>
-              英文前中文后
+            <Button onClick={() => reqKeyValueExtraction("valueDescribe")}>
+              值前描述后
             </Button>
-            <Button onClick={() => reqKeyValueExtraction("chineseEnglish")}>
-              中文前英文后
+            <Button onClick={() => reqKeyValueExtraction("describeValue")}>
+              描述前值后
             </Button>
           </Space>
         </Form.Item>
@@ -106,12 +104,12 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
     </Modal>
   );
   function generateEnumCode() {
-    if (state.strategy === "onlyEnglish") {
+    if (state.strategy === "onlyValue") {
       if (state.enumList) {
         onCancel();
         props.onEnumCode(state.enumList);
       }
-    } else if (state.strategy === "englishChinese") {
+    } else if (state.strategy === "valueDescribe") {
       if (state.values) {
         onCancel();
         props.onEnumCode(state.enumList, state.values);
@@ -120,7 +118,7 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
   }
   function renderExtractionResult() {
     const noResult = <span style={{ color: "#C00000" }}> 没有提取到</span>;
-    if (state.strategy === "onlyEnglish") {
+    if (state.strategy === "onlyValue") {
       if (state.enumList) {
         return (
           <div className="content">
@@ -140,8 +138,6 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
       }
       return noResult;
     }
-
-    return "";
   }
   async function reqKeyValueExtraction(strategy: string) {
     form.validateFields().then(async (values) => {

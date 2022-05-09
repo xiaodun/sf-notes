@@ -7,7 +7,6 @@ import React, {
 import { Modal, Button, Form, Input, Tabs, message } from "antd";
 import produce from "immer";
 import SelfStyle from "./GenerateEnumCodeModal.less";
-import NProject from "../../NProject";
 import SProject from "../../SProject";
 import UCopy from "@/common/utils/UCopy";
 import SyntaxHighlighter from "react-syntax-highlighter";
