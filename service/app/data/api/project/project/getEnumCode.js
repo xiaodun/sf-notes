@@ -5,6 +5,9 @@
     let singleVarStatementStr =
       argParams.enumList
         .map((key) => {
+          if (typeof +key === "number") {
+            return `${key}:${key},`;
+          }
           return `${key}:"${key}",`;
         })
         .join("\n") + "\n";
