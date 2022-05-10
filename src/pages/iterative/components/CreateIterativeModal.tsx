@@ -68,9 +68,7 @@ const CreateIterativeModal: ForwardRefRenderFunction<
             rows={6}
             ref={firstInputRef}
             onPressEnter={onOk}
-            onChange={(e) =>
-              state.iterative ? onContentChange(e.target.value) : () => {}
-            }
+            onChange={(e) => onContentChange(e.target.value)}
             placeholder="黏贴蓝湖信息文本,将自动解析"
           ></Input.TextArea>
         </Form.Item>
@@ -101,6 +99,7 @@ const CreateIterativeModal: ForwardRefRenderFunction<
     const sharePersonPattern = new RegExp(
       `分享人: ([-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]*)`
     );
+
     if (value) {
       form.setFieldsValue({
         docUrl: docUrlPattern.exec(value)?.[1],
