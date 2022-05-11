@@ -15,7 +15,6 @@ const Iterative: ConnectRC<IIterativeProps> = (props) => {
   const { MDIterative } = props;
 
   useEffect(() => {
-    SIterative.getConfig();
     SIterative.getRoleList();
     SIterative.getEnvList();
     SIterative.getSystemList();
