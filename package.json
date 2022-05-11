@@ -57,7 +57,7 @@
     "@babel/traverse": "^7.16.7",
     "@types/react-syntax-highlighter": "^11.0.4",
     "antd": "^4.0.0",
-    "axios": "^0.20.0",
+    "axios": "^0.21.2",
     "bizcharts": "^3.5.3-beta.0",
     "bizcharts-plugin-slider": "^2.1.1-beta.1",
     "classnames": "^2.2.6",
