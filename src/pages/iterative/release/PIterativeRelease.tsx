@@ -25,9 +25,8 @@ export interface IIterativeReleaseProps {
 
 const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
   const { MDIterative } = props;
-  const [selectProjectList, setSelectProjectList] = useState<
-    NIterative.IProject[]
-  >([]);
+  const [selectProjectList, setSelectProjectList] =
+    useState<NIterative.IProject[]>();
 
   const markTagModalRef = useRef<IMarkTagModal>();
   const mergeToModalRef = useRef<IMergeToModal>();
@@ -37,7 +36,6 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
     ignoreQueryPrefix: true,
   }) as {} as NIterative.IUrlQuery;
   useEffect(() => {
-    SIterative.getProjectList();
     SIterative.getGitConfig();
     SIterative.getEnvList();
     SIterative.getSystemList();
@@ -109,22 +107,26 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
       )}
       <Table
         style={{ marginBottom: 20 }}
-        rowSelection={{
-          type: "checkbox",
-          onChange: (selectedRowKeys: React.Key[]) => {
-            setSelectProjectList(
-              (selectedRowKeys as string[]).reduce((pre, cur) => {
-                pre.push(
-                  MDIterative.iterative.projectList.find(
-                    (item) => item.name === cur
-                  )
-                );
+        rowSelection={
+          MDIterative.iterative.projectList.length > 1
+            ? {
+                type: "checkbox",
+                onChange: (selectedRowKeys: React.Key[]) => {
+                  setSelectProjectList(
+                    (selectedRowKeys as string[]).reduce((pre, cur) => {
+                      pre.push(
+                        MDIterative.iterative.projectList.find(
+                          (item) => item.name === cur
+                        )
+                      );
 
-                return pre;
-              }, [])
-            );
-          },
-        }}
+                      return pre;
+                    }, [])
+                  );
+                },
+              }
+            : null
+        }
         rowKey="name"
         columns={[
           {
@@ -173,6 +175,7 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
   }
 
   function onShowMergeToModal() {
+    console.log("wx", selectProjectList);
     if (selectProjectList.length) {
       mergeToModalRef.current.showModal();
     }
@@ -248,6 +251,10 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
   function reqGetIterative() {
     SIterative.getIterative(urlQuery.id).then((rsp) => {
       document.title = rsp.data.name;
+      if (rsp.data.projectList.length === 1) {
+        //如果只有一个则是默认选中
+        setSelectProjectList(rsp.data.projectList);
+      }
     });
   }
   function renderNameColumn(name: string) {
