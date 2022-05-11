@@ -2,11 +2,11 @@ export interface NIterative {
   id?: number;
   name: string;
   content: string;
+  markTags: NIterative.IMarkTag;
   docPassword: string;
   docUrl: string;
   projectList: NIterative.IProject[];
   lastOperationEnvId?: number;
-
   lastOperationDeployPersonIdList?: number[];
   lastOperationReleasePersonIdList?: number[];
 }
@@ -15,6 +15,9 @@ export namespace NIterative {
     name: string;
     dir: string;
     branchName: string;
+  }
+  export interface IMarkTag {
+    envIdList: number[];
   }
   export interface IReleaseConfig {
     lastOperationSystemId?: number;

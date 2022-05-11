@@ -1,6 +1,6 @@
 import { PageFooter } from "@/common/components/page";
 import NModel from "@/common/namespace/NModel";
-import { Button, Dropdown, Menu, message, Space, Table } from "antd";
+import { Alert, Button, Dropdown, Menu, message, Space, Table } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { connect, ConnectRC, NMDIterative } from "umi";
 import NIterative from "../NIterative";
@@ -17,6 +17,8 @@ import CreateDeployModal, {
 } from "./components/CreateDeployModal";
 import MergeToModal, { IMergeToModal } from "./components/MergeToModal";
 
+import MarkTagModal, { IMarkTagModal } from "./components/MarkTagModal";
+
 export interface IIterativeReleaseProps {
   MDIterative: NMDIterative.IState;
 }
@@ -27,6 +29,7 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
     NIterative.IProject[]
   >([]);
 
+  const markTagModalRef = useRef<IMarkTagModal>();
   const mergeToModalRef = useRef<IMergeToModal>();
   const createDeployModalRef = useRef<ICreateDeployModal>();
   const addProjectModalRef = useRef<IAddProjectModal>();
@@ -42,13 +45,25 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
     SIterative.getReleaseConfig();
     reqGetIterative();
   }, []);
-
+  let markTagMessage = "";
+  if (MDIterative.iterative.markTags?.envIdList?.length > 0) {
+    markTagMessage = "环境: ";
+    markTagMessage += MDIterative.iterative.markTags?.envIdList
+      .map(
+        (envId) => MDIterative.envList.find((item) => envId === item.id).envName
+      )
+      .join("、");
+  }
   return (
     <div>
+      <MarkTagModal
+        MDIterative={MDIterative}
+        ref={markTagModalRef}
+      ></MarkTagModal>
+
       <CreateDeployModal
         MDIterative={MDIterative}
         ref={createDeployModalRef}
-        onOk={onCreateDeploy}
       ></CreateDeployModal>
 
       <AddProjectModal
@@ -74,12 +89,7 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
                 <Menu.Item key={"merge"} onClick={() => onShowMergeToModal()}>
                   合并到
                 </Menu.Item>
-                <Menu.Item
-                  key={"person"}
-                  onClick={() =>
-                    SIterative.switchToIterativeBranch(selectProjectList)
-                  }
-                >
+                <Menu.Item key={"person"} onClick={onSwitchIterativeBranch}>
                   切换到迭代分支
                 </Menu.Item>
               </Menu>
@@ -90,6 +100,13 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
           <Button onClick={() => onShowCreateDeployModal()}>部署</Button>
         </Space>
       </div>
+      {markTagMessage && (
+        <Alert
+          style={{ marginTop: 20, marginBottom: 25 }}
+          type="info"
+          message={markTagMessage}
+        ></Alert>
+      )}
       <Table
         style={{ marginBottom: 20 }}
         rowSelection={{
@@ -134,35 +151,24 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
       ></Table>
       <PageFooter>
         <Button onClick={() => onShowAddProjectModal()}>添加项目</Button>
+
+        <Button onClick={() => onShowMarkTagModal()}>打标签</Button>
       </PageFooter>
     </div>
   );
 
-  async function onCreateDeploy(
-    buildAccount: NIterative.IAccount,
-    deployAccount: NIterative.IAccount,
-    deployPersonIdList: number[],
-    releasePersonIdList: number[],
-    envId: number,
-    systemId: number
-  ) {
-    const rsp = await SIterative.createDeploy({
-      id: MDIterative.iterative.id,
-      buildAccount,
-      deployAccount,
-      deployPersonIdList,
-      releasePersonIdList,
-      projectList: selectProjectList,
-      systemId,
-      envId,
-    });
-    if (rsp.message) {
-      message.success(rsp.message);
+  function onShowMarkTagModal() {
+    markTagModalRef.current.showModal();
+  }
+
+  function onSwitchIterativeBranch() {
+    if (selectProjectList.length > 0) {
+      SIterative.switchToIterativeBranch(selectProjectList);
     }
   }
   function onShowCreateDeployModal() {
     if (selectProjectList.length > 0) {
-      createDeployModalRef.current.showModal();
+      createDeployModalRef.current.showModal(selectProjectList);
     }
   }
 

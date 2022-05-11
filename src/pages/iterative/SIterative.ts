@@ -8,23 +8,6 @@ import { NModal } from "@/common/utils/modal/NModal";
 import { UModal } from "@/common/utils/modal/UModal";
 
 namespace SIterative {
-  export async function getConfig() {
-    return (
-      request({
-        url: "/iterative/getConfig",
-        method: "get",
-      }) as Promise<NRsp<NIterative.IConfig>>
-    ).then((rsp) => {
-      if (rsp.success) {
-        NModel.dispatch(
-          new NMDIterative.ARSetState({
-            config: rsp.data,
-          })
-        );
-      }
-      return rsp;
-    });
-  }
   export async function getIterativeList() {
     return (
       request({
@@ -337,6 +320,27 @@ namespace SIterative {
       },
     });
   }
+  export async function markTag(id: number, markTags: NIterative.IMarkTag) {
+    return (
+      request({
+        url: "/iterative/markTag",
+        method: "post",
+        data: {
+          id,
+          markTags,
+        },
+      }) as Promise<NRsp<NIterative>>
+    ).then((rsp) => {
+      if (rsp.success) {
+        NModel.dispatch(
+          new NMDIterative.ARSetState({
+            iterative: rsp.data,
+          })
+        );
+      }
+      return rsp;
+    });
+  }
   export async function createDeploy(data: {
     id: number;
     systemId: number;
@@ -344,7 +348,6 @@ namespace SIterative {
     projectList: NIterative.IProject[];
     deployPersonIdList: number[];
     releasePersonIdList: number[];
-
     buildAccount: NIterative.IAccount;
     deployAccount: NIterative.IAccount;
   }) {
@@ -355,13 +358,11 @@ namespace SIterative {
         data,
       }) as Promise<NRsp<NIterative>>
     ).then((rsp) => {
-      if (rsp.success) {
-        NModel.dispatch(
-          new NMDIterative.ARSetState({
-            iterative: rsp.data,
-          })
-        );
-      }
+      NModel.dispatch(
+        new NMDIterative.ARSetState({
+          iterative: rsp.data,
+        })
+      );
       return rsp;
     });
   }

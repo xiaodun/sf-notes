@@ -31,6 +31,7 @@ export default {
     rsp: {
       list: [],
     },
+
     releaseConfig: {},
     productList: [],
     gitConfig: {
@@ -42,6 +43,9 @@ export default {
       docPassword: "",
       docUrl: "",
       projectList: [],
+      markTags: {
+        envIdList: [],
+      },
     },
     personList: [],
     roleList: [],
