@@ -120,7 +120,10 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
       docUrl && (
         <div>
           <CopyOutlined onClick={() => UCopy.copyStr(docUrl)}></CopyOutlined>
-          &nbsp;&nbsp;<a href={docUrl}>{docUrl}</a>
+          &nbsp;&nbsp;
+          <a target="_blank" href={docUrl}>
+            {docUrl}
+          </a>
         </div>
       )
     );

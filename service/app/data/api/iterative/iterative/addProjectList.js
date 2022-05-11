@@ -33,7 +33,13 @@
             argList = ["stash", "checkout master"];
           }
           // 拉取主分支 并创建新分支
-          argList.push(...["pull", `checkout -b ${item.branchName}`]);
+          argList.push(
+            ...[
+              "pull",
+              `checkout -b ${item.branchName}`,
+              `push --set-upstream origin ${item.branchName}`,
+            ]
+          );
           const errorMsgList = external.execGitCommad(argList, item.dir);
 
           if (errorMsgList.length > 0) {
