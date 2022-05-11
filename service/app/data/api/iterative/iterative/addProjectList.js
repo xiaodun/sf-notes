@@ -26,24 +26,33 @@
       argParams.projectList.forEach((item) => {
         const currentBranceName = external.getCurrentBranchName(item.dir);
         let argList = [];
-        if (currentBranceName !== "master") {
-          //缓存当前分支代码 并且换到master分支
-          argList = ["stash", "checkout master"];
-        }
-        // 拉取主分支 并创建新分支
-        argList.push(...["pull", `checkout -b ${item.branchName}`]);
-        const errorMsgList = external.execGitCommad(argList, item.dir);
+        //
+        if (currentBranceName !== item.branchName) {
+          if (currentBranceName !== "master") {
+            //缓存当前分支代码 并且换到master分支
+            argList = ["stash", "checkout master"];
+          }
+          // 拉取主分支 并创建新分支
+          argList.push(...["pull", `checkout -b ${item.branchName}`]);
+          const errorMsgList = external.execGitCommad(argList, item.dir);
 
-        if (errorMsgList.length > 0) {
+          if (errorMsgList.length > 0) {
+            execResultList.push({
+              success: false,
+              title: item.name,
+              errorMsg: errorMsgList.join("\n"),
+            });
+          } else {
+            execResultList.push({
+              success: true,
+              title: item.name,
+            });
+          }
+        } else {
           execResultList.push({
             success: false,
             title: item.name,
-            errorMsg: errorMsgList.join("\n"),
-          });
-        } else {
-          execResultList.push({
-            success: true,
-            title: item.name,
+            errorMsg: "当前分支就是迭代分支",
           });
         }
       });
