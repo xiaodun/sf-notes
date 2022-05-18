@@ -109,7 +109,7 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
         onCancel();
         props.onEnumCode(state.enumList);
       }
-    } else if (state.strategy === "valueDescribe") {
+    } else {
       if (state.values) {
         onCancel();
         props.onEnumCode(state.enumList, state.values);
