@@ -34,9 +34,7 @@ export namespace NProject {
     addBasePath: string;
     showEnumList: false;
   }
-  export interface IAjaxCodeWrap {
-    [key: string]: IAjaxCode[];
-  }
+
   export interface IAjaxCode {
     name: string;
     data: string;

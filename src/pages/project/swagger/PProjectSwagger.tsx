@@ -187,7 +187,10 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
           reqGetAttentionList(false);
         }}
       ></EnterSwaggerModal>
-      <GenerateAjaxCodeModal ref={generateAjaxCodeRef}></GenerateAjaxCodeModal>
+      <GenerateAjaxCodeModal
+        projectName={currentCopySwaggerProject?.name}
+        ref={generateAjaxCodeRef}
+      ></GenerateAjaxCodeModal>
       <GenerateEnumCodeModal ref={generateEnumCodeRef}></GenerateEnumCodeModal>
       <KeyValueExtractionModal
         onEnumCode={onEnumCode}
@@ -332,7 +335,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         <div ref={apiDocWrapRef} className={SelfStyle.apiDoc}>
           <div className={SelfStyle.ableWrap}>
             <div className="left-wrap">
-              {projectList.length && (
+              {projectList.length ? (
                 <Select
                   value={currentCopySwaggerProject?.id}
                   style={{ width: 250 }}
@@ -344,6 +347,8 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                     </Select.Option>
                   ))}
                 </Select>
+              ) : (
+                ""
               )}
             </div>
             <div className="right-wrap">
@@ -550,7 +555,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
           </div>
           <div className="able-wrap">
             <Space direction="horizontal" size={20}>
-              {projectList.length && (
+              {projectList.length ? (
                 <Button
                   type="primary"
                   onClick={() =>
@@ -560,6 +565,8 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                 >
                   按项目复制
                 </Button>
+              ) : (
+                ""
               )}
               <Button
                 className="default-copy"
