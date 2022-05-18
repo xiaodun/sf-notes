@@ -18,8 +18,11 @@
 
       argList.push(
         ...[
-          `checkout  ${branch}`, //切换到特性分支
-          `merge ${item.branchName}`, //混合master代码
+          `push`,
+          `checkout  ${branch}`, //切换到合并分支
+          `pull`,
+          `merge ${item.branchName}`, //混合代码
+          `push`,
         ]
       );
       const errorMsgList = external.execGitCommad(argList, item.dir);
