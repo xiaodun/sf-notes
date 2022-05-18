@@ -436,7 +436,9 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
         }
       });
       setSnippetConfig(rsp.data);
-
+      if (MDProject.project.name) {
+        document.title = MDProject.project.name;
+      }
       setTimeout(() => {
         const input = document.getElementById("firstGlobalParamInputId");
         if (input) {
@@ -489,7 +491,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
         reqGetSnippetConfig(currentSnippet, false);
         setSelectedKeys([currentSnippet.script]);
       }
-      document.title = "代码片段 - " + projectRsp.data.name;
+      document.title = projectRsp.data.name;
     }
   }
 };
