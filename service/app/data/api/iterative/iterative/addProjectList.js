@@ -30,7 +30,7 @@
         if (currentBranceName !== item.branchName) {
           if (currentBranceName !== "master") {
             //缓存当前分支代码 并且换到master分支
-            argList = ["stash", "checkout master"];
+            argList = ["checkout master"];
           }
           // 拉取主分支 并创建新分支
           argList.push(

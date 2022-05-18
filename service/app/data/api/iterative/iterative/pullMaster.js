@@ -7,7 +7,7 @@
       let argList = [];
       if (currentBranceName !== "master") {
         //缓存当前分支代码 并且换到master分支
-        argList = ["stash", "checkout master"];
+        argList = ["checkout master"];
       }
 
       argList.push(
@@ -15,11 +15,11 @@
           "pull", // 拉取主分支
           `checkout  ${item.branchName}`, //切换到特性分支
           "merge master", //混合master代码
+          "push",
           {
             commond: "diff --name-only --diff-filter=U", //检测冲突
             isRecordStdout: true,
           },
-          "stash pop", //读取存储
         ]
       );
       const errorMsgList = external.execGitCommad(argList, item.dir);
