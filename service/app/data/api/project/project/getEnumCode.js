@@ -5,7 +5,7 @@
     let singleVarStatementStr =
       argParams.enumList
         .map((key) => {
-          if (typeof +key === "number") {
+          if (!isNaN(+key)) {
             return `${key}:${key},`;
           }
           return `${key}:"${key}",`;

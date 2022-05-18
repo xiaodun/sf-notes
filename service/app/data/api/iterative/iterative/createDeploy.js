@@ -1,8 +1,9 @@
 (function () {
-  return function (argData, argParams) {
+  return function (argData, argParams, external) {
     const iterative = argData.iterativeList.find(
       (item) => item.id == argParams.id
     );
+
     // 在迭代李记录上次操作信息
     iterative.lastOperationEnvId = argParams.envId;
     iterative.lastOperationReleasePersonIdList = argParams.releasePersonIdList;
@@ -22,6 +23,9 @@
         userName: argParams.buildAccount.userName,
         password: argParams.buildAccount.password,
       },
+      systemUrl: argData.systemConfig.list.find(
+        (item) => item.id === argParams.systemId
+      ).url,
 
       projectList: argParams.projectList,
     };
@@ -32,10 +36,9 @@
       };
     }
 
-    console.log(helperParams);
-
     //记录构建信息,用于更新状态
     return {
+      async: true,
       isWrite: true,
       data: argData,
       response: {
