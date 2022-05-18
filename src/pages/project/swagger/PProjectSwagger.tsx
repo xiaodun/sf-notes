@@ -302,6 +302,24 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
           domainSwaggerList: rsp.list,
         })
       );
+
+      // //默认选中一个,便于调试界面
+      // const menuCheckbox: NProject.IMenuCheckbox = {
+      //   domain: "http://wenwo-cloud-adapter-doctor-rebuild-test.wenwo.cn",
+      //   groupName: "patient-H5",
+      //   tagName: "h5患者管理相关接口",
+      //   pathUrl: "/p/h5/patient/manage/findMassMessageDetails",
+      //   isPath: true,
+      // };
+      // const domainSwagger = rsp.list.find(
+      //   (item) => item.domain === menuCheckbox.domain
+      // );
+      // menuCheckbox.data =
+      //   domainSwagger.data[menuCheckbox.groupName].tags[
+      //     menuCheckbox.tagName
+      //   ].paths[menuCheckbox.pathUrl];
+      // setCurrentMenuCheckbox(menuCheckbox);
+      // setRenderMethodInfos(menuCheckbox.data);
     }
   }
   function onSearchSwagger(value: string) {
@@ -313,19 +331,36 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       contentNode = (
         <div ref={apiDocWrapRef} className={SelfStyle.apiDoc}>
           <div className={SelfStyle.ableWrap}>
-            {menuActiveTabKey === "attentionList" ? (
-              <Button type="default" onClick={onCancelAttentionPath}>
-                取消关注
-              </Button>
-            ) : (
-              <Button type="default" onClick={onAttentionPath}>
-                关注
-              </Button>
-            )}
+            <div className="left-wrap">
+              {projectList.length && (
+                <Select
+                  value={currentCopySwaggerProject?.id}
+                  style={{ width: 250 }}
+                  onChange={onChangeCopySwaggerProject}
+                >
+                  {projectList.map((item, index) => (
+                    <Select.Option value={item.id} key={index}>
+                      {item.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              )}
+            </div>
+            <div className="right-wrap">
+              {menuActiveTabKey === "attentionList" ? (
+                <Button type="default" onClick={onCancelAttentionPath}>
+                  取消关注
+                </Button>
+              ) : (
+                <Button type="default" onClick={onAttentionPath}>
+                  关注
+                </Button>
+              )}
 
-            <Button type="default" onClick={onGenerateAjaxCode}>
-              生成ajax代码
-            </Button>
+              <Button type="default" onClick={onGenerateAjaxCode}>
+                生成ajax代码
+              </Button>
+            </div>
           </div>
           <div className={SelfStyle.baseInfo}>
             <div className={SelfStyle.itemWrap}>
@@ -516,32 +551,15 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
           <div className="able-wrap">
             <Space direction="horizontal" size={20}>
               {projectList.length && (
-                <Input.Group compact>
-                  <Select
-                    size="small"
-                    value={currentCopySwaggerProject?.id}
-                    style={{ width: 200 }}
-                    onChange={onChangeCopySwaggerProject}
-                  >
-                    {projectList.map((item, index) => (
-                      <Select.Option value={item.id} key={index}>
-                        {item.name}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                  <Button
-                    type="primary"
-                    onClick={() =>
-                      onCopySwaggerDataByProject(
-                        rendMethodInfos.responses,
-                        true
-                      )
-                    }
-                    size="small"
-                  >
-                    复制
-                  </Button>
-                </Input.Group>
+                <Button
+                  type="primary"
+                  onClick={() =>
+                    onCopySwaggerDataByProject(rendMethodInfos.responses, true)
+                  }
+                  size="small"
+                >
+                  按项目复制
+                </Button>
               )}
               <Button
                 className="default-copy"
@@ -668,6 +686,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   ) {
     setRenderMethodInfos(rendMethodInfos);
     setCurrentMenuCheckbox(pathMenuCheckbox);
+
     if (apiDocWrapRef.current) {
       apiDocWrapRef.current.scrollTop = 0;
     }
