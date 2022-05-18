@@ -36,6 +36,7 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
     ignoreQueryPrefix: true,
   }) as {} as NIterative.IUrlQuery;
   useEffect(() => {
+    SIterative.getProjectList();
     SIterative.getGitConfig();
     SIterative.getEnvList();
     SIterative.getSystemList();
