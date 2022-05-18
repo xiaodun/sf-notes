@@ -11,26 +11,20 @@ import { NMDIterative } from "umi";
 import SIterative from "../../SIterative";
 import NIterative from "../../NIterative";
 export interface ICreateDeployModal {
-  showModal: () => void;
+  showModal: (projectList: NIterative.IProject[]) => void;
 }
 export interface ICreateDeployModalProps {
   MDIterative: NMDIterative.IState;
-  onOk: (
-    buildAccount: NIterative.IAccount,
-    deployAccount: NIterative.IAccount,
-    deployPersonIdList: number[],
-    releasePersonIdList: number[],
-    envId: number,
-    systemId: number
-  ) => void;
 }
 
 export interface ICreateDeployModalState {
   visible: boolean;
+  projectList: NIterative.IProject[];
   systemAccountList: NIterative.IAccount[];
 }
 const defaultState: ICreateDeployModalState = {
   visible: false,
+  projectList: [],
   systemAccountList: [],
 };
 const CreateDeployModal: ForwardRefRenderFunction<
@@ -41,13 +35,13 @@ const CreateDeployModal: ForwardRefRenderFunction<
   const { iterative, releaseConfig } = MDIterative;
   const [state, setState] = useState<ICreateDeployModalState>(defaultState);
   const [form] = Form.useForm();
-  const firstInputRef = useRef<Input>();
 
   useImperativeHandle(ref, () => ({
-    showModal: () => {
+    showModal: (projectList: NIterative.IProject[]) => {
       setState(
         produce(state, (drafState) => {
           drafState.visible = true;
+          drafState.projectList = projectList;
         })
       );
       form.setFieldsValue({
@@ -64,7 +58,7 @@ const CreateDeployModal: ForwardRefRenderFunction<
             setState(
               produce(state, (drafState) => {
                 drafState.visible = true;
-
+                drafState.projectList = projectList;
                 drafState.systemAccountList = rsp.list;
               })
             );
@@ -75,9 +69,6 @@ const CreateDeployModal: ForwardRefRenderFunction<
           }
         });
       }
-      setTimeout(() => {
-        firstInputRef.current?.focus();
-      }, 20);
     },
   }));
 
@@ -180,6 +171,7 @@ const CreateDeployModal: ForwardRefRenderFunction<
             </Form.Item>
           </>
         )}
+
         <Form.Item label="部署通知人员" name="deployPersonIdList">
           <Select
             mode="tags"
@@ -248,15 +240,21 @@ const CreateDeployModal: ForwardRefRenderFunction<
       const deployAccount = state.systemAccountList.find(
         (item) => item.id === values.deployAccountId
       );
-      onCancel();
-      props.onOk(
+      const rsp = await SIterative.createDeploy({
+        id: iterative.id,
         buildAccount,
         deployAccount,
-        values.deployPersonIdList,
-        values.releasePersonIdList,
-        values.envId,
-        values.systemId
-      );
+        deployPersonIdList: values.deployPersonIdList,
+        releasePersonIdList: values.releasePersonIdList,
+        projectList: state.projectList,
+        systemId: values.systemId,
+        envId: values.envId,
+      });
+      if (rsp.success) {
+        onCancel();
+      } else {
+        message.error(rsp.message);
+      }
     });
   }
 };
