@@ -306,23 +306,23 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         })
       );
 
-      // //默认选中一个,便于调试界面
-      // const menuCheckbox: NProject.IMenuCheckbox = {
-      //   domain: "http://wenwo-cloud-adapter-doctor-rebuild-test.wenwo.cn",
-      //   groupName: "patient-H5",
-      //   tagName: "h5患者管理相关接口",
-      //   pathUrl: "/p/h5/patient/manage/findMassMessageDetails",
-      //   isPath: true,
-      // };
-      // const domainSwagger = rsp.list.find(
-      //   (item) => item.domain === menuCheckbox.domain
-      // );
-      // menuCheckbox.data =
-      //   domainSwagger.data[menuCheckbox.groupName].tags[
-      //     menuCheckbox.tagName
-      //   ].paths[menuCheckbox.pathUrl];
-      // setCurrentMenuCheckbox(menuCheckbox);
-      // setRenderMethodInfos(menuCheckbox.data);
+      //默认选中一个,便于调试界面
+      const menuCheckbox: NProject.IMenuCheckbox = {
+        domain: "http://wenwo-cloud-adapter-doctor-rebuild-test.wenwo.cn",
+        groupName: "patient-H5",
+        tagName: "h5患者管理相关接口",
+        pathUrl: "/p/h5/patient/manage/findMassMessageDetails",
+        isPath: true,
+      };
+      const domainSwagger = rsp.list.find(
+        (item) => item.domain === menuCheckbox.domain
+      );
+      menuCheckbox.data =
+        domainSwagger.data[menuCheckbox.groupName].tags[
+          menuCheckbox.tagName
+        ].paths[menuCheckbox.pathUrl];
+      setCurrentMenuCheckbox(menuCheckbox);
+      setRenderMethodInfos(menuCheckbox.data);
     }
   }
   function onSearchSwagger(value: string) {
@@ -611,7 +611,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   async function onChangeCopySwaggerProject(id: number) {
     let project = projectList.find((project) => project.id == id);
     changeCurrentCopySwaggerProject(project);
-    await SProject.setDefaultCopySwaggerProject(project.id);
+    await SProject.setDefaultProject(project.id);
   }
   async function onCopySwaggerData(
     rspItemList: NProject.IRenderFormatInfo[],
@@ -631,9 +631,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     if (rsp.success) {
       const projectList = rsp.list.filter((project) => !project.closeAjaxCode);
       setProjectList(projectList);
-      let defaultProject = projectList.find(
-        (project) => project.isDefaultCopySwagger
-      );
+      let defaultProject = projectList.find((project) => project.isDefault);
       if (defaultProject) {
         changeCurrentCopySwaggerProject(defaultProject);
       } else {

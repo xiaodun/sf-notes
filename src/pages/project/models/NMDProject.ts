@@ -41,7 +41,7 @@ export default {
       isSfMock: false,
       isDefaultAjaxCode: false,
       closeAjaxCode: false,
-      isDefaultCopySwagger: false,
+      isDefault: false,
       sfMock: {
         serverList: [],
         programUrl: "",

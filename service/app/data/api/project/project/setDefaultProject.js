@@ -2,9 +2,9 @@
   return function (argData, argParams) {
     argData.projectList.forEach((item) => {
       if (item.id === argParams.id) {
-        item.isDefaultCopySwagger = true;
+        item.isDefault = true;
       } else {
-        item.isDefaultCopySwagger = false;
+        item.isDefault = false;
       }
     });
 
