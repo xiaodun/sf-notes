@@ -46,11 +46,9 @@ namespace SProject {
       data,
     });
   }
-  export async function setDefaultCopySwaggerProject(
-    id: number
-  ): Promise<NRsp<boolean>> {
+  export async function setDefaultProject(id: number): Promise<NRsp<boolean>> {
     return request({
-      url: "/project/setDefaultCopySwaggerProject",
+      url: "/project/setDefaultProject",
       method: "post",
       data: {
         id,

@@ -7,7 +7,7 @@ export interface NProject {
   rootPath: string;
   isSfMock: boolean;
   isDefaultAjaxCode: boolean;
-  isDefaultCopySwagger: boolean;
+  isDefault: boolean;
   closeAjaxCode: boolean;
   notJoinIterative?: boolean;
   sfMock: {
