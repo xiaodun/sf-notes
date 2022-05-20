@@ -305,24 +305,6 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
           domainSwaggerList: rsp.list,
         })
       );
-
-      //默认选中一个,便于调试界面
-      const menuCheckbox: NProject.IMenuCheckbox = {
-        domain: "http://wenwo-cloud-adapter-doctor-rebuild-test.wenwo.cn",
-        groupName: "patient-H5",
-        tagName: "h5患者管理相关接口",
-        pathUrl: "/p/h5/patient/manage/findMassMessageDetails",
-        isPath: true,
-      };
-      const domainSwagger = rsp.list.find(
-        (item) => item.domain === menuCheckbox.domain
-      );
-      menuCheckbox.data =
-        domainSwagger.data[menuCheckbox.groupName].tags[
-          menuCheckbox.tagName
-        ].paths[menuCheckbox.pathUrl];
-      setCurrentMenuCheckbox(menuCheckbox);
-      setRenderMethodInfos(menuCheckbox.data);
     }
   }
   function onSearchSwagger(value: string) {
