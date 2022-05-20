@@ -176,7 +176,6 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
   }
 
   function onShowMergeToModal() {
-    console.log("wx", selectProjectList);
     if (selectProjectList.length) {
       mergeToModalRef.current.showModal();
     }

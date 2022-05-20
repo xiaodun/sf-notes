@@ -41,6 +41,8 @@ import GenerateEnumCodeModal, {
 import KeyValueExtractionModal, {
   IKeyValueExtractionModal,
 } from "./components/KeyValueExtractionModal";
+import { UModal } from "@/common/utils/modal/UModal";
+import SBase from "@/common/service/SBase";
 
 export interface IPProjectSwaggerProps {
   MDProject: NMDProject.IState;
@@ -65,7 +67,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   const [myAttentionChecked, setMyAttentionChecked] = useState<boolean>(false);
   const [searchSwaggerValue, setSearchSwaggerValue] = useState<string>("");
   const [projectList, setProjectList] = useState<NProject[]>([]);
-  const [currentCopySwaggerProject, changeCurrentCopySwaggerProject] =
+  const [currentDefaultProject, changeCurrentDefaultProject] =
     useState<NProject>();
 
   const [checkedAttentionGroupNameList, setCheckedAttentionGroupNameList] =
@@ -188,7 +190,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         }}
       ></EnterSwaggerModal>
       <GenerateAjaxCodeModal
-        projectName={currentCopySwaggerProject?.name}
+        projectName={currentDefaultProject?.name}
         ref={generateAjaxCodeRef}
       ></GenerateAjaxCodeModal>
       <GenerateEnumCodeModal ref={generateEnumCodeRef}></GenerateEnumCodeModal>
@@ -206,17 +208,24 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                   <Menu.Item key="attention" onClick={onBatchPathAttention}>
                     关注
                   </Menu.Item>
-                  <Menu.Item
-                    key="cancelAttention"
-                    onClick={onBatchCancelPathAttention}
-                  >
-                    取消关注
-                  </Menu.Item>
+
                   <Menu.Item
                     onClick={onBatchCreateAjaxCode}
                     key="createAjaxCode"
                   >
                     生成ajax代码
+                  </Menu.Item>
+                  <Menu.Item
+                    onClick={() => onGenerateMockFile(true)}
+                    key="createMockFile"
+                  >
+                    生成mock文件
+                  </Menu.Item>
+                  <Menu.Item
+                    key="cancelAttention"
+                    onClick={onBatchCancelPathAttention}
+                  >
+                    取消关注
                   </Menu.Item>
                   <Menu.Item
                     key="cancelMenuChecked"
@@ -305,6 +314,24 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
           domainSwaggerList: rsp.list,
         })
       );
+
+      //默认选中一个,便于调试界面
+      // const menuCheckbox: NProject.IMenuCheckbox = {
+      //   domain: "http://wenwo-cloud-adapter-doctor-rebuild-test.wenwo.cn",
+      //   groupName: "patient-H5",
+      //   tagName: "h5患者管理相关接口",
+      //   pathUrl: "/p/h5/patient/manage/findMassMessageDetails",
+      //   isPath: true,
+      // };
+      // const domainSwagger = rsp.list.find(
+      //   (item) => item.domain === menuCheckbox.domain
+      // );
+      // menuCheckbox.data =
+      //   domainSwagger.data[menuCheckbox.groupName].tags[
+      //     menuCheckbox.tagName
+      //   ].paths[menuCheckbox.pathUrl];
+      // setCurrentMenuCheckbox(menuCheckbox);
+      // setRenderMethodInfos(menuCheckbox.data);
     }
   }
   function onSearchSwagger(value: string) {
@@ -319,9 +346,9 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
             <div className="left-wrap">
               {projectList.length ? (
                 <Select
-                  value={currentCopySwaggerProject?.id}
+                  value={currentDefaultProject?.id}
                   style={{ width: 250 }}
-                  onChange={onChangeCopySwaggerProject}
+                  onChange={onChangeDefaultProject}
                 >
                   {projectList.map((item, index) => (
                     <Select.Option value={item.id} key={index}>
@@ -347,6 +374,9 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
               <Button type="default" onClick={onGenerateAjaxCode}>
                 生成ajax代码
               </Button>
+              <Button type="default" onClick={() => onGenerateMockFile()}>
+                生成mock文件
+              </Button>
             </div>
           </div>
           <div className={SelfStyle.baseInfo}>
@@ -368,7 +398,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                 >
                   复制
                 </Button>
-                {getPrefixByPathUrl(currentMenuCheckbox.pathUrl) && (
+                {getPrefixByPathUrl(currentMenuCheckbox) && (
                   <Button
                     type="link"
                     onClick={() =>
@@ -468,6 +498,9 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
             domain: menuCheckedInfos.domain,
             tagName: menuCheckedInfos.tagName,
             groupName: menuCheckedInfos.groupName,
+            data: domainSwagger.data[menuCheckedInfos.groupName].tags[
+              menuCheckedInfos.tagName
+            ].paths[pathUrl],
             pathUrl,
             isPath: true,
           });
@@ -503,6 +536,33 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   function onGenerateAjaxCode() {
     showGenerateAjaxCodeModal([currentMenuCheckbox]);
   }
+  async function onGenerateMockFile(isBatch: boolean = false) {
+    const menuCheckboxList = isBatch
+      ? getMenuCheckedPathUrlList()
+      : [currentMenuCheckbox];
+    const pathList = menuCheckboxList.map(
+      (item) => getPrefixByPathUrl(item) + item.pathUrl
+    );
+    const rsp = await SProject.getProjectSendPath(
+      currentDefaultProject.name,
+      pathList
+    );
+    UModal.showConfirmOperation(rsp.data, {
+      title: "请检查这些路径,点击执行后它们会被发往sf-mock创建对应的mock文件",
+      width: "860px",
+      onOk() {
+        menuCheckboxList.forEach(async (menuCheckbox, index) => {
+          const mockFileData = menuCheckbox.data?.responses?.[0].type
+            ? await reqCopySwaggerDataByProject(
+                menuCheckbox.data.responses,
+                true
+              )
+            : "";
+          SBase.sendOtherDomainUrl(rsp.data.list[index], { mockFileData });
+        });
+      },
+    });
+  }
   function onCancelAttentionPath() {
     reqCanclePathAttention([currentMenuCheckbox]);
     setRenderMethodInfos(null);
@@ -523,7 +583,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   function onCopyPathUrl(pathUrl: string, withPrefix: boolean) {
     let content = pathUrl;
     if (withPrefix) {
-      content = getPrefixByPathUrl(pathUrl) + pathUrl;
+      content = getPrefixByPathUrl(currentMenuCheckbox) + pathUrl;
     }
     UCopy.copyStr(content);
   }
@@ -578,21 +638,28 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     rspItemList: NProject.IRenderFormatInfo[],
     isRsp: boolean
   ) {
+    const data = await reqCopySwaggerDataByProject(rspItemList, isRsp);
+
+    UCopy.copyStr(JSON.stringify(data));
+  }
+  async function reqCopySwaggerDataByProject(
+    rspItemList: NProject.IRenderFormatInfo[],
+    isRsp: boolean
+  ) {
     let project = projectList.find(
-      (project) => project.id == currentCopySwaggerProject.id
+      (project) => project.id == currentDefaultProject.id
     );
     const rsp = await SProject.copySwaggerDataWithProject({
       rspItemList,
       name: project.name,
       isRsp,
     });
-    if (rsp.success) {
-      UCopy.copyStr(rsp.data);
-    }
+
+    return rsp.data;
   }
-  async function onChangeCopySwaggerProject(id: number) {
+  async function onChangeDefaultProject(id: number) {
     let project = projectList.find((project) => project.id == id);
-    changeCurrentCopySwaggerProject(project);
+    changeCurrentDefaultProject(project);
     await SProject.setDefaultProject(project.id);
   }
   async function onCopySwaggerData(
@@ -611,43 +678,44 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   async function reqGetProjectList() {
     const rsp = await SProject.getProjectList();
     if (rsp.success) {
-      const projectList = rsp.list.filter((project) => !project.closeAjaxCode);
-      setProjectList(projectList);
-      let defaultProject = projectList.find((project) => project.isDefault);
+      setProjectList(rsp.list);
+      let defaultProject = rsp.list.find((project) => project.isDefault);
       if (defaultProject) {
-        changeCurrentCopySwaggerProject(defaultProject);
+        changeCurrentDefaultProject(defaultProject);
       } else {
-        if (projectList.length) {
-          changeCurrentCopySwaggerProject(rsp.list[0]);
+        if (rsp.list.length) {
+          changeCurrentDefaultProject(rsp.list[0]);
         }
       }
     }
   }
-  function getPrefixByPathUrl(pathUrl: string) {
+  function getPrefixByPathUrl(menuCheckbox: NProject.IMenuCheckbox) {
     let prefix: string;
     if (MDProject.apiPrefixs) {
       const matchDomian = Object.keys(MDProject.apiPrefixs).find((domian) => {
         const regexp = new RegExp(domian);
-        if (regexp.test(currentMenuCheckbox.domain)) {
+        if (regexp.test(menuCheckbox.domain)) {
           return true;
         }
+        return false;
       });
       const prefixConfigs =
-        MDProject.apiPrefixs[matchDomian]?.[currentMenuCheckbox.groupName];
+        MDProject.apiPrefixs[matchDomian]?.[menuCheckbox.groupName];
       if (prefixConfigs) {
         Object.keys(prefixConfigs).find((item) => {
-          if (pathUrl.startsWith(item)) {
+          if (menuCheckbox.pathUrl.startsWith(item)) {
             let config = prefixConfigs[item];
             prefix = config.prefix;
             return true;
           }
+          return false;
         });
       }
     }
     return prefix;
   }
   function renderApiPrefix(pathUrl: string) {
-    const prefix = getPrefixByPathUrl(pathUrl);
+    const prefix = getPrefixByPathUrl(currentMenuCheckbox);
 
     if (prefix == undefined) {
       return <span style={{ color: "#ca3e47" }}>没有配置前缀</span>;
@@ -786,6 +854,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                                           groupName: groupItem.groupName,
                                           tagName: tagItem.tagName,
                                           pathUrl: pathItem.pathUrl,
+                                          data: pathItem,
                                           isPath: true,
                                         };
                                         return renderMenuPathUrl(
@@ -1064,7 +1133,12 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     }
   }
   function getMenuChecked(params: NProject.IMenuCheckbox) {
-    return MDProject.menuCheckedList.some((item) => isEqual(params, item));
+    const newParams = produce(params, (drafState) => {
+      if (params.isPath) {
+        drafState.data = null;
+      }
+    });
+    return MDProject.menuCheckedList.some((item) => isEqual(newParams, item));
   }
   function onMenuDomainCheckedChange(
     checked: boolean,

@@ -39,8 +39,6 @@ export default {
       name: "",
       rootPath: "",
       isSfMock: false,
-      isDefaultAjaxCode: false,
-      closeAjaxCode: false,
       isDefault: false,
       sfMock: {
         serverList: [],

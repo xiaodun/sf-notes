@@ -23,4 +23,29 @@ export namespace UModal {
       )),
     });
   }
+  export function showConfirmOperation(
+    data: NModal.IOptionConfirmMessage,
+    props: ModalFuncProps = {}
+  ) {
+    Modal.confirm({
+      closable: true,
+      icon: null,
+      cancelText: "取消",
+      okText: "执行",
+      ...props,
+      content: (
+        <div className={SelfStyle.confirmInfo}>
+          {data.errorMsg ? (
+            <div className="error-message">{data.errorMsg}</div>
+          ) : (
+            data.list.map((item, index) => (
+              <div key={index} className="info">
+                {item}
+              </div>
+            ))
+          )}
+        </div>
+      ),
+    });
+  }
 }
