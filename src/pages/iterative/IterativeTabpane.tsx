@@ -60,13 +60,6 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
               render: renderDocPasswordColumn,
             },
             {
-              title: "接口地址",
-              key: "ajaxUrl",
-              dataIndex: "ajaxUrl",
-              render: renderAjaxUrlColumn,
-              ellipsis: true,
-            },
-            {
               title: "分享人",
               key: "sharePerson",
               dataIndex: "sharePerson",
@@ -75,6 +68,8 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
             {
               title: "操作",
               key: "_option",
+              fixed: "right",
+              width: 300,
               render: renderOptionColumn,
             },
           ]}
@@ -100,17 +95,6 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
 
   function onShowViewContentModal(iterative: NIterative) {
     viewContentModalRef.current.showModal(iterative.content);
-  }
-
-  function renderAjaxUrlColumn(ajaxUrl: string) {
-    return (
-      ajaxUrl && (
-        <div>
-          <CopyOutlined onClick={() => UCopy.copyStr(ajaxUrl)}></CopyOutlined>
-          &nbsp;&nbsp;<a href={ajaxUrl}>{ajaxUrl}</a>
-        </div>
-      )
-    );
   }
   function renderNameColumn(name: string) {
     return <div onClick={() => UCopy.copyStr(name)}>{name}</div>;

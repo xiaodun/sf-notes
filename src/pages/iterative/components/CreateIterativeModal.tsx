@@ -84,9 +84,6 @@ const CreateIterativeModal: ForwardRefRenderFunction<
         <Form.Item label="分享人" name={"sharePerson"}>
           <Input></Input>
         </Form.Item>
-        <Form.Item label="接口文档" name={"ajaxUrl"}>
-          <Input></Input>
-        </Form.Item>
       </Form>
     </Modal>
   );
@@ -119,7 +116,7 @@ const CreateIterativeModal: ForwardRefRenderFunction<
       const rsp = state.iterative
         ? await SIterative.saveIteraitve({ ...state.iterative, ...values })
         : await SIterative.createIterative({
-            ...{ content: "", ajaxUrl: "", name: "" },
+            ...{ content: "", name: "" },
             ...values,
           });
       if (rsp.success) {
