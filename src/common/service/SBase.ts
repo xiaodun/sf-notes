@@ -12,12 +12,29 @@ namespace SBase {
       },
     });
   }
-  export async function featchOtherDomainUrl<T>(url: string): Promise<NRsp<T>> {
+  export async function featchOtherDomainUrl<T>(
+    url: string,
+    data?: any
+  ): Promise<NRsp<T>> {
     return request({
       url: "/baseService/featchOtherDomainUrl",
       method: "post",
       data: {
         url,
+        data,
+      },
+    });
+  }
+  export async function sendOtherDomainUrl<T>(
+    url: string,
+    data?: any
+  ): Promise<NRsp<T>> {
+    return request({
+      url: "/baseService/sendOtherDomainUrl",
+      method: "post",
+      data: {
+        url,
+        data,
       },
     });
   }

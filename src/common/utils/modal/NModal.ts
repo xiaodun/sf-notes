@@ -4,4 +4,8 @@ export namespace NModal {
     success?: boolean;
     errorMsg: string;
   }
+  export interface IOptionConfirmMessage {
+    list: string[];
+    errorMsg: string;
+  }
 }

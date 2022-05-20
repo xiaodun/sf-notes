@@ -46,6 +46,19 @@ namespace SProject {
       data,
     });
   }
+  export async function getProjectSendPath(
+    projectName: string,
+    list: string[]
+  ): Promise<NRsp<NModal.IOptionConfirmMessage>> {
+    return request({
+      url: "/project/getProjectSendPath",
+      method: "post",
+      data: {
+        projectName,
+        list,
+      },
+    });
+  }
   export async function setDefaultProject(id: number): Promise<NRsp<boolean>> {
     return request({
       url: "/project/setDefaultProject",

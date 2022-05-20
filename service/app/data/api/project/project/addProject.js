@@ -63,7 +63,6 @@
           if (item.name === "sf-mock") {
             //如果添加的项目是sf-mock
             item.isSfMock = true;
-            item.closeAjaxCode = true;
             item.sfMock = {
               programUrl: `http://localhost:${serviceConfigObj.startPort}`,
               startBatPath: path_os.join(item.rootPath, "bat", "sf-mock.bat"),
