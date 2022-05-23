@@ -12,11 +12,7 @@ import AddProjectModal, {
 } from "./components/AddProjectModal";
 import { UModal } from "@/common/utils/modal/UModal";
 import SBase from "@/common/service/SBase";
-import CreateDeployModal, {
-  ICreateDeployModal,
-} from "./components/CreateDeployModal";
 import MergeToModal, { IMergeToModal } from "./components/MergeToModal";
-
 import MarkTagModal, { IMarkTagModal } from "./components/MarkTagModal";
 
 export interface IIterativeReleaseProps {
@@ -30,7 +26,6 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
 
   const markTagModalRef = useRef<IMarkTagModal>();
   const mergeToModalRef = useRef<IMergeToModal>();
-  const createDeployModalRef = useRef<ICreateDeployModal>();
   const addProjectModalRef = useRef<IAddProjectModal>();
   const urlQuery = qs.parse(window.location.search, {
     ignoreQueryPrefix: true,
@@ -41,7 +36,6 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
     SIterative.getEnvList();
     SIterative.getSystemList();
     SIterative.getPersonList();
-    SIterative.getReleaseConfig();
     reqGetIterative();
   }, []);
   let markTagMessage = "";
@@ -60,11 +54,6 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
         ref={markTagModalRef}
       ></MarkTagModal>
 
-      <CreateDeployModal
-        MDIterative={MDIterative}
-        ref={createDeployModalRef}
-      ></CreateDeployModal>
-
       <AddProjectModal
         MDIterative={MDIterative}
         ref={addProjectModalRef}
@@ -79,24 +68,15 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
 
       <div style={{ marginBottom: 20 }}>
         <Space size={30}>
-          <Dropdown.Button
-            overlay={
-              <Menu>
-                <Menu.Item key={"pullMaster"} onClick={() => onPullMaster()}>
-                  从主分支拉取
-                </Menu.Item>
-                <Menu.Item key={"merge"} onClick={() => onShowMergeToModal()}>
-                  合并到
-                </Menu.Item>
-                <Menu.Item key={"person"} onClick={onSwitchIterativeBranch}>
-                  切换到迭代分支
-                </Menu.Item>
-              </Menu>
-            }
-          >
-            Git
-          </Dropdown.Button>
-          <Button onClick={() => onShowCreateDeployModal()}>部署</Button>
+          <Button key={"pullMaster"} onClick={() => onPullMaster()}>
+            从主分支拉取
+          </Button>
+          <Button key={"merge"} onClick={() => onShowMergeToModal()}>
+            合并到
+          </Button>
+          <Button key={"person"} onClick={onSwitchIterativeBranch}>
+            切换到迭代分支
+          </Button>
         </Space>
       </div>
       {markTagMessage && (
@@ -167,11 +147,6 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
   function onSwitchIterativeBranch() {
     if (selectProjectList.length > 0) {
       SIterative.switchToIterativeBranch(selectProjectList);
-    }
-  }
-  function onShowCreateDeployModal() {
-    if (selectProjectList.length > 0) {
-      createDeployModalRef.current.showModal(selectProjectList);
     }
   }
 
