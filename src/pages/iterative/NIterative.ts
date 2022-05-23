@@ -7,8 +7,6 @@ export interface NIterative {
   docUrl: string;
   projectList: NIterative.IProject[];
   lastOperationEnvId?: number;
-  lastOperationDeployPersonIdList?: number[];
-  lastOperationReleasePersonIdList?: number[];
 }
 export namespace NIterative {
   export interface IProject {

@@ -341,30 +341,5 @@ namespace SIterative {
       return rsp;
     });
   }
-  export async function createDeploy(data: {
-    id: number;
-    systemId: number;
-    envId: number;
-    projectList: NIterative.IProject[];
-    deployPersonIdList: number[];
-    releasePersonIdList: number[];
-    buildAccount: NIterative.IAccount;
-    deployAccount: NIterative.IAccount;
-  }) {
-    return (
-      request({
-        url: "/iterative/createDeploy",
-        method: "post",
-        data,
-      }) as Promise<NRsp<NIterative>>
-    ).then((rsp) => {
-      NModel.dispatch(
-        new NMDIterative.ARSetState({
-          iterative: rsp.data,
-        })
-      );
-      return rsp;
-    });
-  }
 }
 export default SIterative;
