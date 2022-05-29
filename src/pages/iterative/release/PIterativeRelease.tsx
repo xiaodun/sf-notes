@@ -198,6 +198,7 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
       selectProjectList
     );
     if (rsp.success) {
+      reqGetIterative();
       UModal.showExecResult(rsp.list, {
         width: 760,
         okText: "检测冲突",
