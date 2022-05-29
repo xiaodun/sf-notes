@@ -214,18 +214,23 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                     关注
                   </Menu.Item>
 
-                  <Menu.Item
-                    onClick={onBatchCreateAjaxCode}
-                    key="createAjaxCode"
-                  >
-                    生成ajax代码
-                  </Menu.Item>
-                  <Menu.Item
-                    onClick={() => onGenerateMockFile(true)}
-                    key="createMockFile"
-                  >
-                    生成mock文件
-                  </Menu.Item>
+                  {projectList.length && (
+                    <>
+                      <Menu.Item
+                        onClick={onBatchCreateAjaxCode}
+                        key="createAjaxCode"
+                      >
+                        生成ajax代码
+                      </Menu.Item>
+                      <Menu.Item
+                        onClick={() => onGenerateMockFile(true)}
+                        key="createMockFile"
+                      >
+                        生成mock文件
+                      </Menu.Item>
+                    </>
+                  )}
+
                   <Menu.Item
                     key="cancelAttention"
                     onClick={onBatchCancelPathAttention}
@@ -263,494 +268,6 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       </div>
     </>
   );
-  async function reqGetProject() {
-    const rsp = await SProject.getConfig();
-    if (rsp.success) {
-      NModel.dispatch(
-        new NMDProject.ARSetState({
-          config: rsp.data,
-        })
-      );
-    }
-  }
-  function showKeyValueExtractionModal() {
-    keyValueExtractionRef.current.showModal();
-  }
-  function onEnumCode(enumList: string[], values: Object) {
-    generateEnumCodeRef.current.showModal(enumList, values);
-  }
-  function showGenerateAjaxCodeModal(
-    checkedPathList: NProject.IMenuCheckbox[]
-  ) {
-    generateAjaxCodeRef.current.showModal(checkedPathList);
-  }
-  async function reqGetAttentionList(isFirst: boolean) {
-    const rsp = await SProject.getAttentionList();
-    if (rsp.success) {
-      NModel.dispatch(
-        new NMDProject.ARSetState({
-          attentionInfos: rsp.data,
-        })
-      );
-      if (rsp.data.list.length && isFirst) {
-        setMenuActiveTabKey("attentionList");
-      }
-
-      if (menuActiveTabKey == "attentionList" && !rsp.data.list.length) {
-        setMenuActiveTabKey("domain");
-      }
-    }
-  }
-  async function reqGetApiPrefix() {
-    const rsp = await SProject.getApiPrefixs();
-    if (rsp.success) {
-      NModel.dispatch(
-        new NMDProject.ARSetState({
-          apiPrefixs: rsp.data,
-        })
-      );
-    }
-  }
-  async function reqGetSwagger() {
-    const rsp = await SProject.getSwaggerList();
-    if (rsp.success) {
-      NModel.dispatch(
-        new NMDProject.ARSetState({
-          domainSwaggerList: rsp.list,
-        })
-      );
-
-      //默认选中一个,便于调试界面
-      // const menuCheckbox: NProject.IMenuCheckbox = {
-      //   domain: "http://wenwo-cloud-adapter-doctor-rebuild-test.wenwo.cn",
-      //   groupName: "patient-H5",
-      //   tagName: "h5患者管理相关接口",
-      //   pathUrl: "/p/h5/patient/manage/findMassMessageDetails",
-      //   isPath: true,
-      // };
-      // const domainSwagger = rsp.list.find(
-      //   (item) => item.domain === menuCheckbox.domain
-      // );
-      // menuCheckbox.data =
-      //   domainSwagger.data[menuCheckbox.groupName].tags[
-      //     menuCheckbox.tagName
-      //   ].paths[menuCheckbox.pathUrl];
-      // setCurrentMenuCheckbox(menuCheckbox);
-      // setRenderMethodInfos(menuCheckbox.data);
-    }
-  }
-  function onSearchSwagger(value: string) {
-    setSearchSwaggerValue(value);
-  }
-  function renderSwaggerUI() {
-    let contentNode: ReactNode = null;
-    if (rendMethodInfos) {
-      contentNode = (
-        <div ref={apiDocWrapRef} className={SelfStyle.apiDoc}>
-          <div className={SelfStyle.ableWrap}>
-            <div className="left-wrap">
-              {projectList.length ? (
-                <Select
-                  value={currentDefaultProject?.id}
-                  style={{ width: 250 }}
-                  onChange={onChangeDefaultProject}
-                >
-                  {projectList.map((item, index) => (
-                    <Select.Option value={item.id} key={index}>
-                      {item.name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              ) : (
-                ""
-              )}
-            </div>
-            <div className="right-wrap">
-              {menuActiveTabKey === "attentionList" ? (
-                <Button type="default" onClick={onCancelAttentionPath}>
-                  取消关注
-                </Button>
-              ) : (
-                <Button type="default" onClick={onAttentionPath}>
-                  关注
-                </Button>
-              )}
-
-              <Button type="default" onClick={onGenerateAjaxCode}>
-                生成ajax代码
-              </Button>
-              <Button type="default" onClick={() => onGenerateMockFile()}>
-                生成mock文件
-              </Button>
-            </div>
-          </div>
-          <div className={SelfStyle.baseInfo}>
-            <div className={SelfStyle.itemWrap}>
-              <div className="label">前缀</div>
-              <div className="content">
-                {renderApiPrefix(currentMenuCheckbox.pathUrl)}
-              </div>
-            </div>
-            <div className={SelfStyle.itemWrap}>
-              <div className="label">路径</div>
-              <div className="content">
-                {currentMenuCheckbox.pathUrl}
-                <Button
-                  type="link"
-                  onClick={() =>
-                    onCopyPathUrl(currentMenuCheckbox.pathUrl, false)
-                  }
-                >
-                  复制
-                </Button>
-                {getPrefixByPathUrl(currentMenuCheckbox) && (
-                  <Button
-                    type="link"
-                    onClick={() =>
-                      onCopyPathUrl(currentMenuCheckbox.pathUrl, true)
-                    }
-                  >
-                    带前缀复制
-                  </Button>
-                )}
-              </div>
-            </div>
-            <div className={SelfStyle.itemWrap}>
-              <div className="label">描述</div>
-              <div className="content summary">{rendMethodInfos.summary}</div>
-            </div>
-            {(menuActiveTabKey === "attentionList" || searchSwaggerValue) && (
-              <>
-                <div className={SelfStyle.itemWrap}>
-                  <div className="label">域名</div>
-                  <div className="content">{currentMenuCheckbox.domain}</div>
-                </div>
-                <div className={SelfStyle.itemWrap}>
-                  <div className="label">分组</div>
-                  <div className="content">{currentMenuCheckbox.groupName}</div>
-                </div>
-                <div className={SelfStyle.itemWrap}>
-                  <div className="label">标签</div>
-                  <div className="content">{currentMenuCheckbox.tagName}</div>
-                </div>
-              </>
-            )}
-          </div>
-          {rendMethodInfos.notFound ? (
-            <div className="not-found">没有匹配到接口数据格式</div>
-          ) : (
-            <>
-              <div className={SelfStyle.paramInfo}>
-                {rendMethodInfos.parameters ? (
-                  <>
-                    <div className={SelfStyle.title}>
-                      <div className="desc">
-                        <UploadOutlined />
-                        请求参数
-                      </div>
-                      <div className="able-wrap">
-                        <Button
-                          className="default-copy"
-                          type="primary"
-                          shape="round"
-                          size="small"
-                          onClick={() =>
-                            onCopySwaggerData(rendMethodInfos.parameters, false)
-                          }
-                        >
-                          复制
-                        </Button>
-                      </div>
-                    </div>
-                    <Table
-                      {...swaggerTableProps}
-                      key={Math.random()}
-                      className={SelfStyle.table}
-                      dataSource={rendMethodInfos.parameters}
-                    ></Table>
-                  </>
-                ) : (
-                  <Alert message="无需传参" type="success" showIcon />
-                )}
-              </div>
-
-              <div key={Math.random()} className={SelfStyle.responseInfo}>
-                {getResponseUI()}
-              </div>
-            </>
-          )}
-        </div>
-      );
-    }
-    return contentNode;
-  }
-  function getMenuCheckedPathUrlList() {
-    const list: NProject.IMenuCheckbox[] = [];
-    MDProject.menuCheckedList.forEach((menuCheckedInfos) => {
-      if (menuCheckedInfos.isPath) {
-        list.push(menuCheckedInfos);
-      } else {
-        const domainSwagger = MDProject.domainSwaggerList.find(
-          (domainSwagger) => domainSwagger.domain === menuCheckedInfos.domain
-        );
-
-        Object.keys(
-          domainSwagger.data[menuCheckedInfos.groupName].tags[
-            menuCheckedInfos.tagName
-          ].paths
-        ).forEach((pathUrl) => {
-          list.push({
-            domain: menuCheckedInfos.domain,
-            tagName: menuCheckedInfos.tagName,
-            groupName: menuCheckedInfos.groupName,
-            data: domainSwagger.data[menuCheckedInfos.groupName].tags[
-              menuCheckedInfos.tagName
-            ].paths[pathUrl],
-            pathUrl,
-            isPath: true,
-          });
-        });
-      }
-    });
-    return list;
-  }
-  function onBatchCancelPathAttention() {
-    const list = getMenuCheckedPathUrlList();
-
-    if (list.length) {
-      reqCanclePathAttention(list);
-      setRenderMethodInfos(null);
-    }
-  }
-
-  function onBatchCreateAjaxCode() {
-    const list = getMenuCheckedPathUrlList();
-
-    showGenerateAjaxCodeModal(list);
-  }
-  function onBatchPathAttention() {
-    const list = getMenuCheckedPathUrlList();
-
-    if (list.length) {
-      reqSetPathAttention(list);
-    }
-  }
-  function onAttentionPath() {
-    reqSetPathAttention([currentMenuCheckbox]);
-  }
-  function onGenerateAjaxCode() {
-    showGenerateAjaxCodeModal([currentMenuCheckbox]);
-  }
-  async function onGenerateMockFile(isBatch: boolean = false) {
-    const menuCheckboxList = isBatch
-      ? getMenuCheckedPathUrlList()
-      : [currentMenuCheckbox];
-    const pathList = menuCheckboxList.map(
-      (item) => getPrefixByPathUrl(item) + item.pathUrl
-    );
-    const rsp = await SProject.getProjectSendPath(
-      currentDefaultProject.name,
-      pathList
-    );
-    UModal.showConfirmOperation(rsp.data, {
-      title: "请检查这些路径,点击执行后它们会被发往sf-mock创建对应的mock文件",
-      width: "860px",
-      onOk() {
-        menuCheckboxList.forEach(async (menuCheckbox, index) => {
-          const mockFileData = menuCheckbox.data?.responses?.[0].type
-            ? await reqCopySwaggerDataByProject(
-                menuCheckbox.data.responses,
-                true
-              )
-            : "";
-          SBase.sendOtherDomainUrl(rsp.data.list[index], { mockFileData });
-        });
-      },
-    });
-  }
-  function onCancelAttentionPath() {
-    reqCanclePathAttention([currentMenuCheckbox]);
-    setRenderMethodInfos(null);
-  }
-  async function reqSetPathAttention(list: NProject.IMenuCheckbox[]) {
-    const rsp = await SProject.setPathAttention(list);
-    if (rsp.success) {
-      reqGetAttentionList(false);
-      message.success("关注成功");
-    }
-  }
-  async function reqCanclePathAttention(list: NProject.IMenuCheckbox[]) {
-    const rsp = await SProject.cancelPathAttention(list);
-    if (rsp.success) {
-      reqGetAttentionList(false);
-    }
-  }
-  function onCopyPathUrl(pathUrl: string, withPrefix: boolean) {
-    let content = pathUrl;
-    if (withPrefix) {
-      content = getPrefixByPathUrl(currentMenuCheckbox) + pathUrl;
-    }
-    UCopy.copyStr(content);
-  }
-  function getResponseUI() {
-    return rendMethodInfos.responses[0].type ? (
-      <>
-        <div className={SelfStyle.title}>
-          <div className="desc">
-            <DownloadOutlined />
-            返回格式
-          </div>
-          <div className="able-wrap">
-            <Space direction="horizontal" size={20}>
-              {projectList.length ? (
-                <Button
-                  type="primary"
-                  onClick={() =>
-                    onCopySwaggerDataByProject(rendMethodInfos.responses, true)
-                  }
-                  size="small"
-                >
-                  按项目复制
-                </Button>
-              ) : (
-                ""
-              )}
-              <Button
-                className="default-copy"
-                type="primary"
-                shape="round"
-                size="small"
-                onClick={() =>
-                  onCopySwaggerData(rendMethodInfos.responses, true)
-                }
-              >
-                复制
-              </Button>
-            </Space>
-          </div>
-        </div>
-        <Table
-          {...swaggerTableProps}
-          className={SelfStyle.table}
-          dataSource={rendMethodInfos.responses}
-        ></Table>
-      </>
-    ) : (
-      <Alert message="没有返回" type="error" showIcon />
-    );
-  }
-  async function onCopySwaggerDataByProject(
-    rspItemList: NProject.IRenderFormatInfo[],
-    isRsp: boolean
-  ) {
-    const data = await reqCopySwaggerDataByProject(rspItemList, isRsp);
-
-    UCopy.copyStr(JSON.stringify(data));
-  }
-  async function reqCopySwaggerDataByProject(
-    rspItemList: NProject.IRenderFormatInfo[],
-    isRsp: boolean
-  ) {
-    let project = projectList.find(
-      (project) => project.id == currentDefaultProject.id
-    );
-    const rsp = await SProject.copySwaggerDataWithProject({
-      rspItemList,
-      name: project.name,
-      isRsp,
-    });
-
-    return rsp.data;
-  }
-  async function onChangeDefaultProject(id: number) {
-    let project = projectList.find((project) => project.id == id);
-    changeCurrentDefaultProject(project);
-    await SProject.setDefaultProject(project.id);
-  }
-  async function onCopySwaggerData(
-    rspItemList: NProject.IRenderFormatInfo[],
-    isRsp: boolean
-  ) {
-    const rsp = await SProject.copySwaggerData({
-      rspItemList,
-      isRsp,
-    });
-
-    if (rsp.success) {
-      UCopy.copyStr(rsp.data);
-    }
-  }
-  async function reqGetProjectList() {
-    const rsp = await SProject.getProjectList();
-    if (rsp.success) {
-      setProjectList(rsp.list);
-      let defaultProject = rsp.list.find((project) => project.isDefault);
-      if (defaultProject) {
-        changeCurrentDefaultProject(defaultProject);
-      } else {
-        if (rsp.list.length) {
-          changeCurrentDefaultProject(rsp.list[0]);
-        }
-      }
-    }
-  }
-  function getPrefixByPathUrl(menuCheckbox: NProject.IMenuCheckbox) {
-    let prefix: string;
-    if (MDProject.apiPrefixs) {
-      const matchDomian = Object.keys(MDProject.apiPrefixs).find((domian) => {
-        const regexp = new RegExp(domian);
-        if (regexp.test(menuCheckbox.domain)) {
-          return true;
-        }
-        return false;
-      });
-      const prefixConfigs =
-        MDProject.apiPrefixs[matchDomian]?.[menuCheckbox.groupName];
-      if (prefixConfigs) {
-        Object.keys(prefixConfigs).find((item) => {
-          if (menuCheckbox.pathUrl.startsWith(item)) {
-            let config = prefixConfigs[item];
-            prefix = config.prefix;
-            return true;
-          }
-          return false;
-        });
-      }
-    }
-    return prefix;
-  }
-  function renderApiPrefix(pathUrl: string) {
-    const prefix = getPrefixByPathUrl(currentMenuCheckbox);
-
-    if (prefix == undefined) {
-      return <span style={{ color: "#ca3e47" }}>没有配置前缀</span>;
-    } else if (prefix == "") {
-      return <span style={{ color: "#1ee3cf" }}>没有前缀</span>;
-    } else {
-      return <span style={{ color: "rgba(23,34,59,1)" }}>{prefix}</span>;
-    }
-  }
-  function renderPathUrl(pathUrl: string) {
-    const list = pathUrl.split("/").filter(Boolean);
-    const item = list[list.length - 1];
-    return (
-      <>
-        <CopyOutlined onClick={() => UCopy.copyStr(item)} />
-        <span className={SelfStyle.pathValue}>{item}</span>
-      </>
-    );
-  }
-  function onSelectApi(
-    rendMethodInfos: NProject.IRenderMethodInfo,
-    pathMenuCheckbox: NProject.IMenuCheckbox
-  ) {
-    setRenderMethodInfos(rendMethodInfos);
-    setCurrentMenuCheckbox(pathMenuCheckbox);
-
-    if (apiDocWrapRef.current) {
-      apiDocWrapRef.current.scrollTop = 0;
-    }
-  }
   function getApiMenu() {
     return (
       <>
@@ -942,6 +459,535 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       </>
     );
   }
+
+  function renderSwaggerUI() {
+    let contentNode: ReactNode = null;
+    if (rendMethodInfos) {
+      contentNode = (
+        <div ref={apiDocWrapRef} className={SelfStyle.apiDoc}>
+          <div className={SelfStyle.ableWrap}>
+            <div className="left-wrap">
+              {projectList.length ? (
+                <Select
+                  value={currentDefaultProject?.id}
+                  style={{ width: 250 }}
+                  onChange={onChangeDefaultProject}
+                >
+                  {projectList.map((item, index) => (
+                    <Select.Option value={item.id} key={index}>
+                      {item.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              ) : (
+                ""
+              )}
+            </div>
+            <div className="right-wrap">
+              {menuActiveTabKey === "attentionList" ? (
+                <Button type="default" onClick={onCancelAttentionPath}>
+                  取消关注
+                </Button>
+              ) : (
+                <Button type="default" onClick={onAttentionPath}>
+                  关注
+                </Button>
+              )}
+
+              {projectList.length && (
+                <>
+                  <Button type="default" onClick={onGenerateAjaxCode}>
+                    生成ajax代码
+                  </Button>
+                  <Button type="default" onClick={() => onGenerateMockFile()}>
+                    生成mock文件
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+          <div className={SelfStyle.baseInfo}>
+            <div className={SelfStyle.itemWrap}>
+              <div className="label">前缀</div>
+              <div className="content">
+                {renderApiPrefix(currentMenuCheckbox.pathUrl)}
+              </div>
+            </div>
+            <div className={SelfStyle.itemWrap}>
+              <div className="label">路径</div>
+              <div className="content">
+                {currentMenuCheckbox.pathUrl}
+                <Button
+                  type="link"
+                  onClick={() =>
+                    onCopyPathUrl(currentMenuCheckbox.pathUrl, false)
+                  }
+                >
+                  复制
+                </Button>
+                {getPrefixByPathUrl(currentMenuCheckbox) && (
+                  <Button
+                    type="link"
+                    onClick={() =>
+                      onCopyPathUrl(currentMenuCheckbox.pathUrl, true)
+                    }
+                  >
+                    带前缀复制
+                  </Button>
+                )}
+              </div>
+            </div>
+            <div className={SelfStyle.itemWrap}>
+              <div className="label">描述</div>
+              <div className="content summary">{rendMethodInfos.summary}</div>
+            </div>
+            {(menuActiveTabKey === "attentionList" || searchSwaggerValue) && (
+              <>
+                <div className={SelfStyle.itemWrap}>
+                  <div className="label">域名</div>
+                  <div className="content">{currentMenuCheckbox.domain}</div>
+                </div>
+                <div className={SelfStyle.itemWrap}>
+                  <div className="label">分组</div>
+                  <div className="content">{currentMenuCheckbox.groupName}</div>
+                </div>
+                <div className={SelfStyle.itemWrap}>
+                  <div className="label">标签</div>
+                  <div className="content">{currentMenuCheckbox.tagName}</div>
+                </div>
+              </>
+            )}
+          </div>
+          {rendMethodInfos.notFound ? (
+            <div className="not-found">没有匹配到接口数据格式</div>
+          ) : (
+            <>
+              <div className={SelfStyle.paramInfo}>
+                {rendMethodInfos.parameters ? (
+                  <>
+                    <div className={SelfStyle.title}>
+                      <div className="desc">
+                        <UploadOutlined />
+                        请求参数
+                      </div>
+                      <div className="able-wrap">
+                        <Button
+                          className="default-copy"
+                          type="primary"
+                          shape="round"
+                          size="small"
+                          onClick={() =>
+                            onCopySwaggerData(rendMethodInfos.parameters, false)
+                          }
+                        >
+                          复制
+                        </Button>
+                      </div>
+                    </div>
+                    <Table
+                      {...swaggerTableProps}
+                      key={Math.random()}
+                      className={SelfStyle.table}
+                      dataSource={rendMethodInfos.parameters}
+                    ></Table>
+                  </>
+                ) : (
+                  <Alert message="无需传参" type="success" showIcon />
+                )}
+              </div>
+
+              <div key={Math.random()} className={SelfStyle.responseInfo}>
+                {getResponseUI()}
+              </div>
+            </>
+          )}
+        </div>
+      );
+    }
+    return contentNode;
+  }
+  function getResponseUI() {
+    return rendMethodInfos.responses[0].type ? (
+      <>
+        <div className={SelfStyle.title}>
+          <div className="desc">
+            <DownloadOutlined />
+            返回格式
+          </div>
+          <div className="able-wrap">
+            <Space direction="horizontal" size={20}>
+              {projectList.length ? (
+                <Button
+                  type="primary"
+                  onClick={() =>
+                    onCopySwaggerDataByProject(rendMethodInfos.responses, true)
+                  }
+                  size="small"
+                >
+                  按项目复制
+                </Button>
+              ) : (
+                ""
+              )}
+              <Button
+                className="default-copy"
+                type="primary"
+                shape="round"
+                size="small"
+                onClick={() =>
+                  onCopySwaggerData(rendMethodInfos.responses, true)
+                }
+              >
+                复制
+              </Button>
+            </Space>
+          </div>
+        </div>
+        <Table
+          {...swaggerTableProps}
+          className={SelfStyle.table}
+          dataSource={rendMethodInfos.responses}
+        ></Table>
+      </>
+    ) : (
+      <Alert message="没有返回" type="error" showIcon />
+    );
+  }
+  function renderMenuPathUrl(
+    pathMenuCheckbox: NProject.IMenuCheckbox,
+    pathItem: NProject.IRenderMethodInfo
+  ) {
+    return (
+      <Menu.Item
+        onClick={() => {
+          onSelectApi(pathItem, pathMenuCheckbox);
+        }}
+        key={
+          pathMenuCheckbox.domain +
+          pathMenuCheckbox.groupName +
+          pathMenuCheckbox.tagName +
+          pathMenuCheckbox.pathUrl
+        }
+      >
+        <Checkbox
+          checked={getMenuChecked(pathMenuCheckbox)}
+          onChange={(e) =>
+            onMenuDomainCheckedChange(e.target.checked, pathMenuCheckbox)
+          }
+          className={SelfStyle.pathCheckbox}
+        ></Checkbox>
+        {pathItem.notFound ? (
+          <Tag color="#a39e9e">失效</Tag>
+        ) : (
+          <Tag className="path-tag" color="#87d068">
+            {pathItem.method.substring(-4)}
+          </Tag>
+        )}
+        {renderPathUrl(pathMenuCheckbox.pathUrl)}
+      </Menu.Item>
+    );
+  }
+  async function reqGetProject() {
+    const rsp = await SProject.getConfig();
+    if (rsp.success) {
+      NModel.dispatch(
+        new NMDProject.ARSetState({
+          config: rsp.data,
+        })
+      );
+    }
+  }
+  function showKeyValueExtractionModal() {
+    keyValueExtractionRef.current.showModal();
+  }
+  function onEnumCode(enumList: string[], values: Object) {
+    generateEnumCodeRef.current.showModal(enumList, values);
+  }
+  function showGenerateAjaxCodeModal(
+    checkedPathList: NProject.IMenuCheckbox[]
+  ) {
+    generateAjaxCodeRef.current.showModal(checkedPathList);
+  }
+  async function reqGetAttentionList(isFirst: boolean) {
+    const rsp = await SProject.getAttentionList();
+    if (rsp.success) {
+      NModel.dispatch(
+        new NMDProject.ARSetState({
+          attentionInfos: rsp.data,
+        })
+      );
+      if (rsp.data.list.length && isFirst) {
+        setMenuActiveTabKey("attentionList");
+      }
+
+      if (menuActiveTabKey == "attentionList" && !rsp.data.list.length) {
+        setMenuActiveTabKey("domain");
+      }
+    }
+  }
+  async function reqGetApiPrefix() {
+    const rsp = await SProject.getApiPrefixs();
+    if (rsp.success) {
+      NModel.dispatch(
+        new NMDProject.ARSetState({
+          apiPrefixs: rsp.data,
+        })
+      );
+    }
+  }
+  async function reqGetSwagger() {
+    const rsp = await SProject.getSwaggerList();
+    if (rsp.success) {
+      NModel.dispatch(
+        new NMDProject.ARSetState({
+          domainSwaggerList: rsp.list,
+        })
+      );
+
+      //默认选中一个,便于调试界面
+      // const menuCheckbox: NProject.IMenuCheckbox = {
+      //   domain: "http://wenwo-cloud-adapter-doctor-rebuild-test.wenwo.cn",
+      //   groupName: "patient-H5",
+      //   tagName: "h5患者管理相关接口",
+      //   pathUrl: "/p/h5/patient/manage/findMassMessageDetails",
+      //   isPath: true,
+      // };
+      // const domainSwagger = rsp.list.find(
+      //   (item) => item.domain === menuCheckbox.domain
+      // );
+      // menuCheckbox.data =
+      //   domainSwagger.data[menuCheckbox.groupName].tags[
+      //     menuCheckbox.tagName
+      //   ].paths[menuCheckbox.pathUrl];
+      // setCurrentMenuCheckbox(menuCheckbox);
+      // setRenderMethodInfos(menuCheckbox.data);
+    }
+  }
+  function onSearchSwagger(value: string) {
+    setSearchSwaggerValue(value);
+  }
+  function getMenuCheckedPathUrlList() {
+    const list: NProject.IMenuCheckbox[] = [];
+    MDProject.menuCheckedList.forEach((menuCheckedInfos) => {
+      if (menuCheckedInfos.isPath) {
+        list.push(menuCheckedInfos);
+      } else {
+        const domainSwagger = MDProject.domainSwaggerList.find(
+          (domainSwagger) => domainSwagger.domain === menuCheckedInfos.domain
+        );
+
+        Object.keys(
+          domainSwagger.data[menuCheckedInfos.groupName].tags[
+            menuCheckedInfos.tagName
+          ].paths
+        ).forEach((pathUrl) => {
+          list.push({
+            domain: menuCheckedInfos.domain,
+            tagName: menuCheckedInfos.tagName,
+            groupName: menuCheckedInfos.groupName,
+            data: domainSwagger.data[menuCheckedInfos.groupName].tags[
+              menuCheckedInfos.tagName
+            ].paths[pathUrl],
+            pathUrl,
+            isPath: true,
+          });
+        });
+      }
+    });
+    return list;
+  }
+  function onBatchCancelPathAttention() {
+    const list = getMenuCheckedPathUrlList();
+
+    if (list.length) {
+      reqCanclePathAttention(list);
+      setRenderMethodInfos(null);
+    }
+  }
+
+  function onBatchCreateAjaxCode() {
+    const list = getMenuCheckedPathUrlList();
+
+    showGenerateAjaxCodeModal(list);
+  }
+  function onBatchPathAttention() {
+    const list = getMenuCheckedPathUrlList();
+
+    if (list.length) {
+      reqSetPathAttention(list);
+    }
+  }
+  function onAttentionPath() {
+    reqSetPathAttention([currentMenuCheckbox]);
+  }
+  function onGenerateAjaxCode() {
+    showGenerateAjaxCodeModal([currentMenuCheckbox]);
+  }
+  async function onGenerateMockFile(isBatch: boolean = false) {
+    const menuCheckboxList = isBatch
+      ? getMenuCheckedPathUrlList()
+      : [currentMenuCheckbox];
+    const pathList = menuCheckboxList.map(
+      (item) => getPrefixByPathUrl(item) + item.pathUrl
+    );
+    const rsp = await SProject.getProjectSendPath(
+      currentDefaultProject.name,
+      pathList
+    );
+    UModal.showConfirmOperation(rsp.data, {
+      title: "请检查这些路径,点击执行后它们会被发往sf-mock创建对应的mock文件",
+      width: "860px",
+      onOk() {
+        menuCheckboxList.forEach(async (menuCheckbox, index) => {
+          const mockFileData = menuCheckbox.data?.responses?.[0].type
+            ? await reqCopySwaggerDataByProject(
+                menuCheckbox.data.responses,
+                true
+              )
+            : "";
+          SBase.sendOtherDomainUrl(rsp.data.list[index], { mockFileData });
+        });
+      },
+    });
+  }
+  function onCancelAttentionPath() {
+    reqCanclePathAttention([currentMenuCheckbox]);
+    setRenderMethodInfos(null);
+  }
+  async function reqSetPathAttention(list: NProject.IMenuCheckbox[]) {
+    const rsp = await SProject.setPathAttention(list);
+    if (rsp.success) {
+      reqGetAttentionList(false);
+      message.success("关注成功");
+    }
+  }
+  async function reqCanclePathAttention(list: NProject.IMenuCheckbox[]) {
+    const rsp = await SProject.cancelPathAttention(list);
+    if (rsp.success) {
+      reqGetAttentionList(false);
+    }
+  }
+  function onCopyPathUrl(pathUrl: string, withPrefix: boolean) {
+    let content = pathUrl;
+    if (withPrefix) {
+      content = getPrefixByPathUrl(currentMenuCheckbox) + pathUrl;
+    }
+    UCopy.copyStr(content);
+  }
+
+  async function onCopySwaggerDataByProject(
+    rspItemList: NProject.IRenderFormatInfo[],
+    isRsp: boolean
+  ) {
+    const data = await reqCopySwaggerDataByProject(rspItemList, isRsp);
+
+    UCopy.copyStr(JSON.stringify(data));
+  }
+  async function reqCopySwaggerDataByProject(
+    rspItemList: NProject.IRenderFormatInfo[],
+    isRsp: boolean
+  ) {
+    let project = projectList.find(
+      (project) => project.id == currentDefaultProject.id
+    );
+    const rsp = await SProject.copySwaggerDataWithProject({
+      rspItemList,
+      name: project.name,
+      isRsp,
+    });
+
+    return rsp.data;
+  }
+  async function onChangeDefaultProject(id: number) {
+    let project = projectList.find((project) => project.id == id);
+    changeCurrentDefaultProject(project);
+    await SProject.setDefaultProject(project.id);
+  }
+  async function onCopySwaggerData(
+    rspItemList: NProject.IRenderFormatInfo[],
+    isRsp: boolean
+  ) {
+    const rsp = await SProject.copySwaggerData({
+      rspItemList,
+      isRsp,
+    });
+
+    if (rsp.success) {
+      UCopy.copyStr(rsp.data);
+    }
+  }
+  async function reqGetProjectList() {
+    const rsp = await SProject.getProjectList();
+    if (rsp.success) {
+      setProjectList(rsp.list);
+      let defaultProject = rsp.list.find((project) => project.isDefault);
+      if (defaultProject) {
+        changeCurrentDefaultProject(defaultProject);
+      } else {
+        if (rsp.list.length) {
+          changeCurrentDefaultProject(rsp.list[0]);
+        }
+      }
+    }
+  }
+  function getPrefixByPathUrl(menuCheckbox: NProject.IMenuCheckbox) {
+    let prefix: string;
+    if (MDProject.apiPrefixs) {
+      const matchDomian = Object.keys(MDProject.apiPrefixs).find((domian) => {
+        const regexp = new RegExp(domian);
+        if (regexp.test(menuCheckbox.domain)) {
+          return true;
+        }
+        return false;
+      });
+      const prefixConfigs =
+        MDProject.apiPrefixs[matchDomian]?.[menuCheckbox.groupName];
+      if (prefixConfigs) {
+        Object.keys(prefixConfigs).find((item) => {
+          if (menuCheckbox.pathUrl.startsWith(item)) {
+            let config = prefixConfigs[item];
+            prefix = config.prefix;
+            return true;
+          }
+          return false;
+        });
+      }
+    }
+    return prefix;
+  }
+  function renderApiPrefix(pathUrl: string) {
+    const prefix = getPrefixByPathUrl(currentMenuCheckbox);
+
+    if (prefix == undefined) {
+      return <span style={{ color: "#ca3e47" }}>没有配置前缀</span>;
+    } else if (prefix == "") {
+      return <span style={{ color: "#1ee3cf" }}>没有前缀</span>;
+    } else {
+      return <span style={{ color: "rgba(23,34,59,1)" }}>{prefix}</span>;
+    }
+  }
+  function renderPathUrl(pathUrl: string) {
+    const list = pathUrl.split("/").filter(Boolean);
+    const item = list[list.length - 1];
+    return (
+      <>
+        <CopyOutlined onClick={() => UCopy.copyStr(item)} />
+        <span className={SelfStyle.pathValue}>{item}</span>
+      </>
+    );
+  }
+  function onSelectApi(
+    rendMethodInfos: NProject.IRenderMethodInfo,
+    pathMenuCheckbox: NProject.IMenuCheckbox
+  ) {
+    setRenderMethodInfos(rendMethodInfos);
+    setCurrentMenuCheckbox(pathMenuCheckbox);
+
+    if (apiDocWrapRef.current) {
+      apiDocWrapRef.current.scrollTop = 0;
+    }
+  }
+
   function filterAttentionPathList() {
     return MDProject.attentionInfos.list.filter((item) =>
       JSON.stringify(item).includes(searchSwaggerValue)
@@ -1011,40 +1057,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       })
     );
   }
-  function renderMenuPathUrl(
-    pathMenuCheckbox: NProject.IMenuCheckbox,
-    pathItem: NProject.IRenderMethodInfo
-  ) {
-    return (
-      <Menu.Item
-        onClick={() => {
-          onSelectApi(pathItem, pathMenuCheckbox);
-        }}
-        key={
-          pathMenuCheckbox.domain +
-          pathMenuCheckbox.groupName +
-          pathMenuCheckbox.tagName +
-          pathMenuCheckbox.pathUrl
-        }
-      >
-        <Checkbox
-          checked={getMenuChecked(pathMenuCheckbox)}
-          onChange={(e) =>
-            onMenuDomainCheckedChange(e.target.checked, pathMenuCheckbox)
-          }
-          className={SelfStyle.pathCheckbox}
-        ></Checkbox>
-        {pathItem.notFound ? (
-          <Tag color="#a39e9e">失效</Tag>
-        ) : (
-          <Tag className="path-tag" color="#87d068">
-            {pathItem.method.substring(-4)}
-          </Tag>
-        )}
-        {renderPathUrl(pathMenuCheckbox.pathUrl)}
-      </Menu.Item>
-    );
-  }
+
   function onReload(domainItem: NProject.IDomainSwagger) {
     swaggerModalRef.current.reload(domainItem.domain);
   }
@@ -1138,12 +1151,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     }
   }
   function getMenuChecked(params: NProject.IMenuCheckbox) {
-    const newParams = produce(params, (drafState) => {
-      if (params.isPath) {
-        drafState.data = null;
-      }
-    });
-    return MDProject.menuCheckedList.some((item) => isEqual(newParams, item));
+    return MDProject.menuCheckedList.some((item) => isEqual(params, item));
   }
   function onMenuDomainCheckedChange(
     checked: boolean,
