@@ -122,9 +122,19 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
           if (record.enum) {
             node = (
               <>
-                <div>{record.description} </div>
+                <div
+                  onClick={() => {
+                    UCopy.copyStr(record.description);
+                  }}
+                >
+                  {record.description}
+                </div>
                 {MDProject.config.showEnumList && (
-                  <div>
+                  <div
+                    onClick={() => {
+                      UCopy.copyStr(record.enum.join(" "));
+                    }}
+                  >
                     枚举:
                     {record.enum.map((item, index) => {
                       return (
@@ -146,12 +156,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
             );
           }
           return (
-            <div
-              style={{ width: desColumnWidth, wordBreak: "keep-all" }}
-              onClick={() => {
-                UCopy.copyStr(record.description);
-              }}
-            >
+            <div style={{ width: desColumnWidth, wordBreak: "keep-all" }}>
               {node ? node : <span style={{ color: "#5bd1d7" }}>没有描述</span>}
             </div>
           );
