@@ -616,30 +616,41 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
           </div>
           <div className="able-wrap">
             <Space direction="horizontal" size={20}>
-              {projectList.length ? (
-                <Button
-                  type="primary"
-                  onClick={() =>
-                    onCopySwaggerDataByProject(rendMethodInfos.responses, true)
-                  }
-                  size="small"
-                >
-                  按项目复制
-                </Button>
-              ) : (
-                ""
-              )}
-              <Button
-                className="default-copy"
-                type="primary"
-                shape="round"
+              <Dropdown.Button
                 size="small"
-                onClick={() =>
-                  onCopySwaggerData(rendMethodInfos.responses, true)
+                overlay={
+                  <Menu>
+                    {projectList.length && (
+                      <Menu.Item
+                        onClick={() =>
+                          onCopySwaggerDataByProject(
+                            rendMethodInfos.responses,
+                            true
+                          )
+                        }
+                      >
+                        按项目
+                      </Menu.Item>
+                    )}
+
+                    <Menu.Item
+                      onClick={() =>
+                        onCopySwaggerData(rendMethodInfos.responses, true)
+                      }
+                    >
+                      自动填充
+                    </Menu.Item>
+                  </Menu>
                 }
               >
-                复制
-              </Button>
+                <span
+                  onClick={() =>
+                    onCopySwaggerData(rendMethodInfos.responses, false)
+                  }
+                >
+                  复制
+                </span>
+              </Dropdown.Button>
             </Space>
           </div>
         </div>
