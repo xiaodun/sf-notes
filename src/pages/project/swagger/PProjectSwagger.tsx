@@ -135,7 +135,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                     UCopy.copyStr(record.description);
                   }}
                 >
-                  {record.description} 12
+                  {record.description}
                 </div>
                 {MDProject.config.showEnumList && (
                   <div
