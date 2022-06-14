@@ -1,46 +1,46 @@
 {
-  "config": {
-    "addBasePath": "",
-    "showEnumList": false
-  },
-  "projectList": [
-    {
-      "rootPath": "",
-      "name": "sf-notes",
-      "id": 1634522259207,
-      "isSfMock": false,
-      "closeAjaxCode": true,
-      "sfMock": {},
-      "snippetList": [
+    "config": {
+        "addBasePath": "",
+        "showEnumList": false
+    },
+    "projectList": [
         {
-          "name": "一个模块",
-          "isGroup": true,
-          "children": [
-            {
-              "name": "创建列表模块",
-              "script": "createTableModule"
-            }
-          ]
-        },
-        {
-          "name": "模态框",
-          "isGroup": true,
-          "children": [
-            {
-              "name": "有表单验证",
-              "script": "createWithFormModal"
-            },
-            {
-              "name": "信息展示",
-              "script": "createShowContentModal"
-            }
-          ]
+            "rootPath": "D://github//sf-notes",
+            "name": "sf-notes",
+            "id": 1634522259207,
+            "isSfMock": false,
+            "closeAjaxCode": true,
+            "sfMock": {},
+            "snippetList": [
+                {
+                    "name": "一个模块",
+                    "isGroup": true,
+                    "children": [
+                        {
+                            "name": "创建列表模块",
+                            "script": "createTableModule"
+                        }
+                    ]
+                },
+                {
+                    "name": "模态框",
+                    "isGroup": true,
+                    "children": [
+                        {
+                            "name": "有表单验证",
+                            "script": "createWithFormModal"
+                        },
+                        {
+                            "name": "信息展示",
+                            "script": "createShowContentModal"
+                        }
+                    ]
+                }
+            ],
+            "isDefaultCopySwagger": false
         }
-      ],
-      "isDefaultCopySwagger": false
-    }
-  ],
-  "swaggerList": [],
-  "apiPrefixs": {},
-  "attentionPathList": []
+    ],
+    "swaggerList": [],
+    "apiPrefixs": {},
+    "attentionPathList": []
 }
