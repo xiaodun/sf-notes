@@ -67,7 +67,7 @@ const AddProjectModal: ForwardRefRenderFunction<
     >
       <Form form={form} name="basic" layout="vertical" autoComplete="off">
         <Form.Item
-          label="涉及项目"
+          label="项目"
           name={"projectList"}
           rules={[{ required: true }]}
         >

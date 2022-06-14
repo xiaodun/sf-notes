@@ -118,7 +118,15 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         width: desColumnWidth,
         key: "description",
         render: (text: any, record: NProject.IRenderFormatInfo) => {
-          let node: ReactNode = record.description;
+          let node: ReactNode = (
+            <div
+              onClick={() => {
+                UCopy.copyStr(record.description);
+              }}
+            >
+              {record.description}
+            </div>
+          );
           if (record.enum) {
             node = (
               <>
@@ -127,7 +135,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                     UCopy.copyStr(record.description);
                   }}
                 >
-                  {record.description}
+                  {record.description} 12
                 </div>
                 {MDProject.config.showEnumList && (
                   <div
