@@ -73,6 +73,9 @@ const AddPersonModal: ForwardRefRenderFunction<
             ))}
           </Select>
         </Form.Item>
+        <Form.Item name="phone" label="手机号" rules={[{ required: true }]}>
+          <Input onPressEnter={onOk}></Input>
+        </Form.Item>
       </Form>
     </Modal>
   );
