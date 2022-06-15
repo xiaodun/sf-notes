@@ -6,6 +6,8 @@ export interface NIterative {
   docPassword: string;
   docUrl: string;
   projectList: NIterative.IProject[];
+  webhook: string;
+  secret: string;
   lastOperationEnvId?: number;
 }
 export namespace NIterative {
@@ -45,6 +47,7 @@ export namespace NIterative {
     name: string;
     roleId: string;
     roleName: string;
+    phone: string;
     accountList: IAccount[];
   }
   export interface IEnv {

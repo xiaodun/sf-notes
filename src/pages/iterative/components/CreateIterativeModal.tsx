@@ -72,6 +72,7 @@ const CreateIterativeModal: ForwardRefRenderFunction<
             placeholder="黏贴蓝湖信息文本,将自动解析"
           ></Input.TextArea>
         </Form.Item>
+
         <Form.Item label="迭代名" name={"name"}>
           <Input></Input>
         </Form.Item>
@@ -82,6 +83,12 @@ const CreateIterativeModal: ForwardRefRenderFunction<
           <Input></Input>
         </Form.Item>
         <Form.Item label="分享人" name={"sharePerson"}>
+          <Input></Input>
+        </Form.Item>
+        <Form.Item label="钉钉webhook" name={"webhook"}>
+          <Input></Input>
+        </Form.Item>
+        <Form.Item label="钉钉secret" name={"secret"}>
           <Input></Input>
         </Form.Item>
       </Form>
