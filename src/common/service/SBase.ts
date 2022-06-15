@@ -47,6 +47,19 @@ namespace SBase {
       },
     });
   }
+  export async function sendDingMsg(
+    url: string,
+    data: object
+  ): Promise<NRsp<boolean>> {
+    return request({
+      url: "/baseService/sendDingMsg",
+      method: "post",
+      data: {
+        url,
+        data,
+      },
+    });
+  }
 }
 
 export default SBase;
