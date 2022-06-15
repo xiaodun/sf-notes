@@ -67,12 +67,19 @@ const RoleTabpane: FC<IRoleTabpaneProps> = (props) => {
               title: "姓名",
               key: "name",
               dataIndex: "name",
-              render: renderNameColumn,
+              render: renderCopyableColumn,
             },
             {
               title: "角色",
               key: "roleName",
               dataIndex: "roleName",
+              render: renderNameColumn,
+            },
+            {
+              title: "手机号",
+              key: "phone",
+              dataIndex: "phone",
+              render: renderCopyableColumn,
             },
             {
               title: "操作",
@@ -128,8 +135,16 @@ const RoleTabpane: FC<IRoleTabpaneProps> = (props) => {
   }
 
   function renderNameColumn(name: string) {
-    return <div onClick={() => UCopy.copyStr(name)}>{name}</div>;
+    return (
+      <div style={{ color: "#f9bcdd" }} onClick={() => UCopy.copyStr(name)}>
+        {name}
+      </div>
+    );
   }
+  function renderCopyableColumn(value: string) {
+    return <div onClick={() => UCopy.copyStr(value)}>{value}</div>;
+  }
+
   function renderOptionColumn(roles: NIterative.IPerson) {
     return (
       <Space>
