@@ -14,8 +14,6 @@ import moment from "moment";
 import SNotes from "../../SNotes";
 import produce from "immer";
 import UDate from "@/common/utils/UDate";
-import NModel from "@/common/namespace/NModel";
-import { NMDNotes } from "umi";
 import NRsp from "@/common/namespace/NRsp";
 import { USelection } from "@/common/utils/USelection";
 import { TextAreaRef } from "antd/lib/input/TextArea";
@@ -77,21 +75,6 @@ export const EditModal: ForwardRefRenderFunction<
       setState(newState);
     },
   }));
-  useEffect(() => {
-    if (state.visible) {
-      setTimeout(() => {
-        if (state.added) {
-          USelection.end(
-            document.getElementById(noteTitleId) as HTMLTextAreaElement
-          );
-        } else {
-          USelection.end(
-            document.getElementById(noteEditId) as HTMLTextAreaElement
-          );
-        }
-      });
-    }
-  }, [state.visible]);
 
   const title = state.added ? "添加记事" : "编辑记事";
   const titlePlaceholder = `标题 默认为${moment().format(UDate.ymdhms)}`;
