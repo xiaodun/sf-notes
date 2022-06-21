@@ -18,7 +18,6 @@
 
       argList.push(
         ...[
-          `push`,
           `checkout  ${branch}`, //切换到合并分支
           `pull`,
           `merge ${item.branchName}`, //混合代码
