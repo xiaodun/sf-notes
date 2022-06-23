@@ -67,7 +67,6 @@ const CreateIterativeModal: ForwardRefRenderFunction<
           <Input.TextArea
             rows={6}
             ref={firstInputRef}
-            onPressEnter={onOk}
             onChange={(e) => onContentChange(e.target.value)}
             placeholder="黏贴蓝湖信息文本,将自动解析"
           ></Input.TextArea>
