@@ -223,22 +223,21 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                   </Menu.Item>
 
                   {projectList.length && (
-                    <>
-                      <Menu.Item
-                        onClick={onBatchCreateAjaxCode}
-                        key="createAjaxCode"
-                      >
-                        生成ajax代码
-                      </Menu.Item>
-                      <Menu.Item
-                        onClick={() => onGenerateMockFile(true)}
-                        key="createMockFile"
-                      >
-                        生成mock文件
-                      </Menu.Item>
-                    </>
+                    <Menu.Item
+                      onClick={onBatchCreateAjaxCode}
+                      key="createAjaxCode"
+                    >
+                      生成ajax代码
+                    </Menu.Item>
                   )}
-
+                  {projectList.length && (
+                    <Menu.Item
+                      onClick={() => onGenerateMockFile(true)}
+                      key="createMockFile"
+                    >
+                      生成mock文件
+                    </Menu.Item>
+                  )}
                   <Menu.Item
                     key="cancelAttention"
                     onClick={onBatchCancelPathAttention}
