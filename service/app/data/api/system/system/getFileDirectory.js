@@ -1,7 +1,6 @@
 (function () {
   const fs = require("fs");
   const path = require("path");
-  const os = require("os");
   const execSync = require("child_process").execSync;
   return function (argData, argParams) {
     if (argParams.path) {
