@@ -25,7 +25,7 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
     useState<NIterative.IProject[]>();
 
   const markTagModalRef = useRef<IMarkTagModal>();
-  const SelectEnvModalRef = useRef<ISelectEnvModal>();
+  const selectEnvModalRef = useRef<ISelectEnvModal>();
   const addProjectModalRef = useRef<IAddProjectModal>();
   const urlQuery = qs.parse(window.location.search, {
     ignoreQueryPrefix: true,
@@ -61,7 +61,7 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
       ></AddProjectModal>
 
       <SelectEnvModal
-        ref={SelectEnvModalRef}
+        ref={selectEnvModalRef}
         MDIterative={MDIterative}
         onOk={onMergetTo}
       ></SelectEnvModal>
@@ -152,7 +152,7 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
 
   function onShowSelectEnvModal() {
     if (selectProjectList.length) {
-      SelectEnvModalRef.current.showModal();
+      selectEnvModalRef.current.showModal();
     }
   }
 
