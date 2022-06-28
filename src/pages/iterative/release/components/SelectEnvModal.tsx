@@ -8,26 +8,26 @@ import React, {
 import { Modal, Button, Form, Input, Select } from "antd";
 import produce from "immer";
 import { NMDIterative } from "umi";
-export interface IMergeToModal {
+export interface ISelectEnvModal {
   showModal: () => void;
 }
-export interface IMergeToModalProps {
+export interface ISelectEnvModalProps {
   MDIterative: NMDIterative.IState;
   onOk: (envId: number) => void;
 }
 
-export interface IMergeToModalState {
+export interface ISelectEnvModalState {
   visible: boolean;
 }
-const defaultState: IMergeToModalState = {
+const defaultState: ISelectEnvModalState = {
   visible: false,
 };
-const MergeToModal: ForwardRefRenderFunction<
-  IMergeToModal,
-  IMergeToModalProps
+const SelectEnvModal: ForwardRefRenderFunction<
+  ISelectEnvModal,
+  ISelectEnvModalProps
 > = (props, ref) => {
   const { MDIterative } = props;
-  const [state, setState] = useState<IMergeToModalState>(defaultState);
+  const [state, setState] = useState<ISelectEnvModalState>(defaultState);
   const [form] = Form.useForm();
 
   useImperativeHandle(ref, () => ({
@@ -99,4 +99,4 @@ const MergeToModal: ForwardRefRenderFunction<
     });
   }
 };
-export default forwardRef(MergeToModal);
+export default forwardRef(SelectEnvModal);

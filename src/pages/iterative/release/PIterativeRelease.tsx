@@ -12,7 +12,7 @@ import AddProjectModal, {
 } from "./components/AddProjectModal";
 import { UModal } from "@/common/utils/modal/UModal";
 import SBase from "@/common/service/SBase";
-import MergeToModal, { IMergeToModal } from "./components/MergeToModal";
+import SelectEnvModal, { ISelectEnvModal } from "./components/SelectEnvModal";
 import MarkTagModal, { IMarkTagModal } from "./components/MarkTagModal";
 
 export interface IIterativeReleaseProps {
@@ -25,7 +25,7 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
     useState<NIterative.IProject[]>();
 
   const markTagModalRef = useRef<IMarkTagModal>();
-  const mergeToModalRef = useRef<IMergeToModal>();
+  const SelectEnvModalRef = useRef<ISelectEnvModal>();
   const addProjectModalRef = useRef<IAddProjectModal>();
   const urlQuery = qs.parse(window.location.search, {
     ignoreQueryPrefix: true,
@@ -60,18 +60,18 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
         onOk={reqGetIterative}
       ></AddProjectModal>
 
-      <MergeToModal
-        ref={mergeToModalRef}
+      <SelectEnvModal
+        ref={SelectEnvModalRef}
         MDIterative={MDIterative}
         onOk={onMergetTo}
-      ></MergeToModal>
+      ></SelectEnvModal>
 
       <div style={{ marginBottom: 20 }}>
         <Space size={30}>
           <Button key={"pullMaster"} onClick={() => onPullMaster()}>
             从主分支拉取
           </Button>
-          <Button key={"merge"} onClick={() => onShowMergeToModal()}>
+          <Button key={"merge"} onClick={() => onShowSelectEnvModal()}>
             合并到
           </Button>
           <Button key={"person"} onClick={onSwitchIterativeBranch}>
@@ -150,9 +150,9 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
     }
   }
 
-  function onShowMergeToModal() {
+  function onShowSelectEnvModal() {
     if (selectProjectList.length) {
-      mergeToModalRef.current.showModal();
+      SelectEnvModalRef.current.showModal();
     }
   }
 
