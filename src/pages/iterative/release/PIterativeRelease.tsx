@@ -12,10 +12,7 @@ import AddProjectModal, {
 } from "./components/AddProjectModal";
 import { UModal } from "@/common/utils/modal/UModal";
 import SBase from "@/common/service/SBase";
-import SelectEnvModal, {
-  ISelectEnvModal,
-  TSelectModalTarget,
-} from "./components/SelectEnvModal";
+import SelectEnvModal, { ISelectEnvModal } from "./components/SelectEnvModal";
 import MarkTagModal, { IMarkTagModal } from "./components/MarkTagModal";
 
 export interface IIterativeReleaseProps {
