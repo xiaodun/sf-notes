@@ -12,8 +12,12 @@ import AddProjectModal, {
 } from "./components/AddProjectModal";
 import { UModal } from "@/common/utils/modal/UModal";
 import SBase from "@/common/service/SBase";
-import SelectEnvModal, { ISelectEnvModal } from "./components/SelectEnvModal";
+import SelectEnvModal, {
+  ISelectEnvModal,
+  TSelectModalTarget,
+} from "./components/SelectEnvModal";
 import MarkTagModal, { IMarkTagModal } from "./components/MarkTagModal";
+import NDevops from "@/pages/devops/NDevops";
 
 export interface IIterativeReleaseProps {
   MDIterative: NMDIterative.IState;
@@ -76,6 +80,9 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
           </Button>
           <Button key={"person"} onClick={onSwitchIterativeBranch}>
             切换到迭代分支
+          </Button>
+          <Button key={"build"} onClick={onBuildProject}>
+            构建
           </Button>
         </Space>
       </div>
@@ -144,6 +151,11 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
     markTagModalRef.current.showModal();
   }
 
+  function onBuildProject() {
+    if (selectProjectList.length > 0) {
+      selectEnvModalRef.current.showModal("build");
+    }
+  }
   function onSwitchIterativeBranch() {
     if (selectProjectList.length > 0) {
       SIterative.switchToIterativeBranch(selectProjectList);
@@ -152,7 +164,7 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
 
   function onShowSelectEnvModal() {
     if (selectProjectList.length) {
-      selectEnvModalRef.current.showModal();
+      selectEnvModalRef.current.showModal("merge");
     }
   }
 
@@ -191,22 +203,39 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
       });
     }
   }
-  async function onMergetTo(envId: number) {
-    const rsp = await SIterative.mergeTo(
-      MDIterative.iterative.id,
-      envId,
-      selectProjectList
-    );
-    if (rsp.success) {
-      reqGetIterative();
-      UModal.showExecResult(rsp.list, {
-        width: 760,
-        okText: "检测冲突",
-        onOk: () =>
-          onCheckConflict("切换到迭代分支", () =>
-            SIterative.switchToIterativeBranch(selectProjectList)
-          ),
+
+  async function onMergetTo(envId: number, target: TSelectModalTarget) {
+    if (target === "merge") {
+      const rsp = await SIterative.mergeTo(
+        MDIterative.iterative.id,
+        envId,
+        selectProjectList
+      );
+      if (rsp.success) {
+        UModal.showExecResult(rsp.list, {
+          width: 760,
+          okText: "检测冲突",
+          onOk: () =>
+            onCheckConflict("切换到迭代分支", () =>
+              SIterative.switchToIterativeBranch(selectProjectList)
+            ),
+        });
+      }
+    } else if (target === "build") {
+      const autoTaskList: NDevops.IAutoTask[] =
+        JSON.parse(localStorage.autoTaskList || null) || [];
+      autoTaskList.push({
+        projectList: selectProjectList.map((item) => ({
+          name: item.name,
+          auditStatus: null,
+          buildStatus: null,
+        })),
+        envId,
+        status: "isAwaitBuild",
+        taget: "autoBuild",
       });
+
+      localStorage.autoTaskList = JSON.stringify(autoTaskList);
     }
   }
   async function onPullMaster() {
