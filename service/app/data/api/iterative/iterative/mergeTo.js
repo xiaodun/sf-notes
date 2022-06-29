@@ -1,14 +1,9 @@
 (function () {
   return function (argData, argParams, external) {
-    const iterative = argData.iterativeList.find(
-      (item) => item.id == argParams.id
-    );
     const envInfos = argData.envConfig.list.reduce((total, cur) => {
       total[cur.id] = cur;
       return total;
     }, {});
-
-    iterative.lastOperationEnvId = argParams.envId;
 
     const { branch } = envInfos[argParams.envId];
     const execResultList = [];

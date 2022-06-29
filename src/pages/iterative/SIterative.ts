@@ -43,6 +43,30 @@ namespace SIterative {
       return rsp;
     });
   }
+  export async function updateIterative(
+    id: number,
+    values: Partial<NIterative>
+  ) {
+    return (
+      request({
+        url: "/iterative/updateIterative",
+        method: "post",
+        data: {
+          id,
+          values,
+        },
+      }) as Promise<NRsp<NIterative>>
+    ).then((rsp) => {
+      if (rsp.success) {
+        NModel.dispatch(
+          new NMDIterative.ARSetState({
+            iterative: rsp.data,
+          })
+        );
+      }
+      return rsp;
+    });
+  }
   export async function getRoleList() {
     return (
       request({
