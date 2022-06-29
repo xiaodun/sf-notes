@@ -9,22 +9,19 @@ import { Modal, Button, Form, Input, Select } from "antd";
 import produce from "immer";
 import { NMDIterative } from "umi";
 import SIterative from "../../SIterative";
-export type TSelectModalTarget = "merge" | "build";
 export interface ISelectEnvModal {
-  showModal: (target: TSelectModalTarget) => void;
+  showModal: () => void;
 }
 export interface ISelectEnvModalProps {
   MDIterative: NMDIterative.IState;
-  onOk: (envId: number, target: TSelectModalTarget) => void;
+  onOk: (envId: number) => void;
 }
 
 export interface ISelectEnvModalState {
   visible: boolean;
-  target: TSelectModalTarget;
 }
 const defaultState: ISelectEnvModalState = {
   visible: false,
-  target: null,
 };
 const SelectEnvModal: ForwardRefRenderFunction<
   ISelectEnvModal,
@@ -35,11 +32,10 @@ const SelectEnvModal: ForwardRefRenderFunction<
   const [form] = Form.useForm();
 
   useImperativeHandle(ref, () => ({
-    showModal: (target: TSelectModalTarget) => {
+    showModal: () => {
       setState(
         produce(state, (drafState) => {
           drafState.visible = true;
-          drafState.target = target;
         })
       );
 
@@ -99,7 +95,7 @@ const SelectEnvModal: ForwardRefRenderFunction<
 
   async function onOk() {
     form.validateFields().then(async (values) => {
-      props.onOk(values.envId, state.target);
+      props.onOk(values.envId);
       SIterative.updateIterative(MDIterative.iterative.id, {
         lastOperationEnvId: values.envId,
       });
