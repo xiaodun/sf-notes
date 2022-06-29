@@ -24,8 +24,9 @@ export interface IIterativeReleaseProps {
 
 const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
   const { MDIterative } = props;
-  const [selectProjectList, setSelectProjectList] =
-    useState<NIterative.IProject[]>();
+  const [selectProjectList, setSelectProjectList] = useState<
+    NIterative.IProject[]
+  >([]);
 
   const markTagModalRef = useRef<IMarkTagModal>();
   const selectEnvModalRef = useRef<ISelectEnvModal>();
