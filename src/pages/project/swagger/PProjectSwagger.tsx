@@ -43,6 +43,7 @@ import KeyValueExtractionModal, {
 } from "./components/KeyValueExtractionModal";
 import { UModal } from "@/common/utils/modal/UModal";
 import SBase from "@/common/service/SBase";
+import NSwagger from "@/common/namespace/NSwagger";
 
 export interface IPProjectSwaggerProps {
   MDProject: NMDProject.IState;
@@ -762,23 +763,21 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         })
       );
 
-      //默认选中一个,便于调试界面
-      // const menuCheckbox: NProject.IMenuCheckbox = {
-      //   domain: "http://wenwo-cloud-adapter-doctor-rebuild-test.wenwo.cn",
-      //   groupName: "patient-H5",
-      //   tagName: "h5患者管理相关接口",
-      //   pathUrl: "/p/h5/patient/manage/findMassMessageDetails",
-      //   isPath: true,
-      // };
-      // const domainSwagger = rsp.list.find(
-      //   (item) => item.domain === menuCheckbox.domain
-      // );
-      // menuCheckbox.data =
-      //   domainSwagger.data[menuCheckbox.groupName].tags[
-      //     menuCheckbox.tagName
-      //   ].paths[menuCheckbox.pathUrl];
-      // setCurrentMenuCheckbox(menuCheckbox);
-      // setRenderMethodInfos(menuCheckbox.data);
+      const selectMenuCheckbox: NProject.IMenuCheckbox =
+        JSON.parse(localStorage.currentSelectApi || null) || {};
+      if (selectMenuCheckbox.domain) {
+        const domainSwagger = rsp.list.find(
+          (item) => item.domain === selectMenuCheckbox.domain
+        );
+        selectMenuCheckbox.data =
+          domainSwagger?.data?.[selectMenuCheckbox.groupName]?.tags?.[
+            selectMenuCheckbox.tagName
+          ]?.paths?.[selectMenuCheckbox.pathUrl];
+        if (selectMenuCheckbox.data) {
+          setCurrentMenuCheckbox(selectMenuCheckbox);
+          setRenderMethodInfos(selectMenuCheckbox.data);
+        }
+      }
     }
   }
   function onSearchSwagger(value: string) {
@@ -998,6 +997,11 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     rendMethodInfos: NProject.IRenderMethodInfo,
     pathMenuCheckbox: NProject.IMenuCheckbox
   ) {
+    localStorage.currentSelectApi = JSON.stringify(
+      produce(pathMenuCheckbox, (drafData) => {
+        drafData.data = null;
+      })
+    );
     setRenderMethodInfos(rendMethodInfos);
     setCurrentMenuCheckbox(pathMenuCheckbox);
 
