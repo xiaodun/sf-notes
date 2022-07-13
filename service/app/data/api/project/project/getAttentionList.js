@@ -26,6 +26,11 @@
           notFound: true,
         };
       }
+      if (!pathInfos.data) {
+        pathInfos.data = {
+          notFound: true,
+        };
+      }
     });
     let tagInfos = {};
     let hasMoreTag = false;
