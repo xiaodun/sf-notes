@@ -17,6 +17,7 @@ import UDate from "@/common/utils/UDate";
 import NRsp from "@/common/namespace/NRsp";
 import { USelection } from "@/common/utils/USelection";
 import { TextAreaRef } from "antd/lib/input/TextArea";
+import { RefSelectProps } from "antd/lib/select";
 
 export interface IEditModalProps {
   rsp: NRsp<NNotes>;
@@ -52,6 +53,7 @@ export const EditModal: ForwardRefRenderFunction<
 > = (props, ref) => {
   const [state, setState] = useState<Partial<IEditModalState>>(defaultState);
   const textAreaRef = useRef<TextAreaRef>();
+  const autoCompleteRef = useRef<RefSelectProps>();
   const loadCountRef = useRef<number>(0);
   const noteTitleId = "noteTitleId";
   const noteEditId = "noteEditId";
@@ -72,7 +74,15 @@ export const EditModal: ForwardRefRenderFunction<
           drafState.added = true;
         }
       });
+
       setState(newState);
+      setTimeout(() => {
+        if (data) {
+          textAreaRef.current.focus();
+        } else {
+          autoCompleteRef.current.focus();
+        }
+      }, 20);
     },
   }));
 
@@ -105,13 +115,13 @@ export const EditModal: ForwardRefRenderFunction<
         </Radio.Group>
         {state.added ? (
           <AutoComplete
+            ref={autoCompleteRef}
             id={noteTitleId}
             options={titleOptions}
             style={{ width: "100%" }}
             value={state.data.title}
             onSelect={onSelectTitle}
             onSearch={onSelectExistTitle}
-            autoFocus
             onBlur={onBlurTitle}
             onChange={(title) =>
               onDataChange({
@@ -124,7 +134,6 @@ export const EditModal: ForwardRefRenderFunction<
           <Input
             id={noteTitleId}
             value={state.data.title}
-            autoFocus
             onChange={(e) =>
               onDataChange({
                 title: e.target.value,
