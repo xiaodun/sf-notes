@@ -142,7 +142,7 @@
                       }
                     } else if (item.type === "boolean") {
                       wrap[item.name] = Math.random() > 0.5 ? true : false;
-                    } else if (item.type === "integer") {
+                    } else if (item.type === "integer" || item.type === "number") {
                       wrap[item.name] = 0;
                     } else if (item.type === "string") {
                       if (isRsp) {
