@@ -898,7 +898,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   ) {
     const data = await reqCopySwaggerDataByProject(rspItemList, isRsp);
 
-    UCopy.copyStr(JSON.stringify(data));
+    UCopy.copyStr(JSON.stringify(data, null, 2));
   }
   async function reqCopySwaggerDataByProject(
     rspItemList: NProject.IRenderFormatInfo[],
@@ -930,7 +930,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     });
 
     if (rsp.success) {
-      UCopy.copyStr(rsp.data);
+      UCopy.copyStr(JSON.stringify(rsp.data, null, 2));
     }
   }
   async function reqGetProjectList() {
