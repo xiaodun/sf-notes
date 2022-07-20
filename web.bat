@@ -1,1 +1,1 @@
-cnpm run dev
+npm run dev
