@@ -69,8 +69,8 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
 
       <div style={{ marginBottom: 20 }}>
         <Space size={30}>
-          <Button key={"pullMaster"} onClick={() => onPullMaster()}>
-            从主分支拉取
+          <Button key={"pullMaster"} onClick={() => onMergeMasterToCurrent()}>
+            将主分支混合到当前
           </Button>
           <Button key={"merge"} onClick={() => onShowSelectEnvModal()}>
             合并到
@@ -210,9 +210,9 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
       });
     }
   }
-  async function onPullMaster() {
+  async function onMergeMasterToCurrent() {
     if (selectProjectList.length) {
-      const rsp = await SIterative.pullMaster(
+      const rsp = await SIterative.mergeMasterToCurrent(
         MDIterative.iterative.id,
         selectProjectList
       );

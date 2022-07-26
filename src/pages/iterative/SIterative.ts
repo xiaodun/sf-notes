@@ -264,12 +264,12 @@ namespace SIterative {
       data: { id },
     });
   }
-  export async function pullMaster(
+  export async function mergeMasterToCurrent(
     id: number,
     projectList: NIterative.IProject[]
   ): Promise<NRsp<NModal.IOptionExecMessage>> {
     return request({
-      url: "/iterative/pullMaster",
+      url: "/iterative/mergeMasterToCurrent",
       method: "post",
       data: {
         id,
