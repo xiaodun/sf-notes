@@ -59,7 +59,8 @@
           fs_os.readFileSync(serviceConfigPath, "utf-8")
         );
         // 对已添加的项目统一处理
-        argData.projectList.forEach((item) => {
+        for (let i = 0; i < argData.projectList.length; i++) {
+          let item = argData.projectList[i];
           if (item.name === "sf-mock") {
             //如果添加的项目是sf-mock
             item.isSfMock = true;
@@ -69,6 +70,18 @@
             };
           } else {
             const mockConfig = programConfigObj[item.name];
+            if (!mockConfig) {
+              return {
+                response: {
+                  code: 200,
+                  data: {
+                    success: false,
+                    message: `sf-mock的programConfig.js文件缺少${item.name}的基础配置`,
+                  },
+                },
+              };
+            }
+
             //写入启动命令的地址
             item.sfMock.serverList = (mockConfig.serverList || []).map(
               (item) => {
@@ -102,7 +115,7 @@
               }
             }
           }
-        });
+        }
       }
       return {
         isWrite: true,
