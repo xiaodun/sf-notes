@@ -78,7 +78,7 @@ const AddRoleModal: ForwardRefRenderFunction<
       if (rsp.success) {
         onCancel();
         SIterative.getRoleList();
-      } else {
+      } else if (!rsp.isHaveReadMsg) {
         message.error(rsp.message);
       }
     });

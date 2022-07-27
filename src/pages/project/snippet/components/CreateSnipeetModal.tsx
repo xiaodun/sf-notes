@@ -113,7 +113,7 @@ const CreateSnipeetModal: ForwardRefRenderFunction<
       if (rsp.success) {
         onCancel();
         props.onOk();
-      } else {
+      } else if (!rsp.isHaveReadMsg) {
         message.error(rsp.message);
       }
     });

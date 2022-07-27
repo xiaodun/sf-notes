@@ -5,6 +5,7 @@ export interface NRsp<T = null> {
   message?: string;
   list?: T[];
   data?: T;
+  isHaveReadMsg?: boolean;
 }
 export namespace NRsp {
   export function delItem<T>(rsp: NRsp<T>, del: (item: T) => boolean) {

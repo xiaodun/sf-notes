@@ -26,7 +26,7 @@ namespace UDing {
 
     if (rsp.success) {
       message.success("发送钉钉消息成功");
-    } else {
+    } else if (!rsp.isHaveReadMsg) {
       message.error(rsp.message);
     }
   }

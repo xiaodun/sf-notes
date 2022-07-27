@@ -100,7 +100,7 @@ const MarkTagModal: ForwardRefRenderFunction<
       const rsp = await SIterative.markTag(MDIterative.iterative.id, values);
       if (rsp.success) {
         onCancel();
-      } else {
+      } else if (!rsp.isHaveReadMsg) {
         message.error(rsp.message);
       }
     });

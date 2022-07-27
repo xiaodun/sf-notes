@@ -72,7 +72,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     });
     if (addRsp.success) {
       reqGetList();
-    } else {
+    } else if (!addRsp.isHaveReadMsg) {
       message.error(addRsp.message);
     }
   }

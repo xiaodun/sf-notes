@@ -150,7 +150,7 @@ const AddProjectModal: ForwardRefRenderFunction<
           onCancel();
           props.onOk();
           UModal.showExecResult(rsp.list);
-        } else {
+        } else if (!rsp.isHaveReadMsg) {
           message.error(rsp.message);
         }
       });
