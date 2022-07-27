@@ -67,6 +67,6 @@ export default function request(config: AxiosRequestConfig) {
           message: '网络异常',
         });
       }
-      return response;
+      return { success: false, isHaveReadMsg: true } as NRsp;
     });
 }

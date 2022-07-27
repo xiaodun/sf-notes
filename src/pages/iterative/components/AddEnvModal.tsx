@@ -79,7 +79,7 @@ const AddEnvModal: ForwardRefRenderFunction<IAddEnvModal, IAddEnvModalProps> = (
         onCancel();
         SIterative.getEnvList();
         SIterative.getSystemList();
-      } else {
+      } else if (!rsp.isHaveReadMsg) {
         message.error(rsp.message);
       }
     });
