@@ -24,6 +24,12 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
   const [selectProjectList, setSelectProjectList] = useState<
     NIterative.IProject[]
   >([]);
+  const [mergeCurrentToOtherLoading, setMergeCurrentToOtherLoading] =
+    useState(false);
+  const [mergeMasterToCurreentLoading, setMergeMasterToCurreentLoading] =
+    useState(false);
+  const [switchIterativeBranchLoading, setSwitchIterativeBranchLoading] =
+    useState(false);
 
   const markTagModalRef = useRef<IMarkTagModal>();
   const selectEnvModalRef = useRef<ISelectEnvModal>();
@@ -69,13 +75,25 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
 
       <div style={{ marginBottom: 20 }}>
         <Space size={30}>
-          <Button key={"pullMaster"} onClick={() => onMergeMasterToCurrent()}>
+          <Button
+            key={"pullMaster"}
+            loading={mergeMasterToCurreentLoading}
+            onClick={() => onMergeMasterToCurrent()}
+          >
             将主分支混合到当前
           </Button>
-          <Button key={"merge"} onClick={() => onShowSelectEnvModal()}>
+          <Button
+            key={"merge"}
+            loading={mergeCurrentToOtherLoading}
+            onClick={() => onShowSelectEnvModal()}
+          >
             合并到
           </Button>
-          <Button key={"person"} onClick={onSwitchIterativeBranch}>
+          <Button
+            key={"person"}
+            loading={switchIterativeBranchLoading}
+            onClick={onSwitchIterativeBranch}
+          >
             切换到迭代分支
           </Button>
         </Space>
@@ -147,7 +165,9 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
 
   function onSwitchIterativeBranch() {
     if (selectProjectList.length > 0) {
-      SIterative.switchToIterativeBranch(selectProjectList);
+      setSwitchIterativeBranchLoading(true);
+      await SIterative.switchToIterativeBranch(selectProjectList);
+      setSwitchIterativeBranchLoading(false);
     }
   }
 
@@ -194,11 +214,13 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
   }
 
   async function onMergetTo(envId: number) {
+    setMergeCurrentToOtherLoading(true);
     const rsp = await SIterative.mergeTo(
       MDIterative.iterative.id,
       envId,
       selectProjectList
     );
+    setMergeCurrentToOtherLoading(false);
     if (rsp.success) {
       UModal.showExecResult(rsp.list, {
         width: 760,
@@ -211,11 +233,13 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
     }
   }
   async function onMergeMasterToCurrent() {
+    setMergeMasterToCurreentLoading(true);
     if (selectProjectList.length) {
       const rsp = await SIterative.mergeMasterToCurrent(
         MDIterative.iterative.id,
         selectProjectList
       );
+      setMergeMasterToCurreentLoading(false);
       if (rsp.success) {
         UModal.showExecResult(rsp.list, {
           width: 760,
