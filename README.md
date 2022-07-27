@@ -1,4 +1,29 @@
-此项目主要用于提升技术和工作体验
+# 启动项目
+
+## 方式一
+```
+npm start
+```
+或者直接点击 startByCmd.bat
+
+## 方式二
+
+**启动前端**
+```
+npm run dev
+```
+或者直接点击cmd下start-web.bat
+
+**启动node服务器**
+
+进入到service/app目录，执行：
+
+```
+node service.js
+```
+
+或者直接点击cmd下的start-service.bat
+
 
 # 提升工作体验
 
