@@ -95,12 +95,12 @@ const Project: ConnectRC<IProjectProps> = (props) => {
           let envList = project.sfMock.serverList.filter(
             (item) => !item.isMock
           );
-          openBlock = (
-            <Dropdown.Button
-              overlay={
-                <Menu>
-                  {envList.length > 0 ? (
-                    envList.map((item) => {
+          openBlock =
+            project.sfMock.serverList.length > 1 ? (
+              <Dropdown.Button
+                overlay={
+                  <Menu>
+                    {envList.map((item) => {
                       return (
                         <Menu.Item key={item.openUrl}>
                           <a target="_blank" href={item.openUrl}>
@@ -108,18 +108,24 @@ const Project: ConnectRC<IProjectProps> = (props) => {
                           </a>
                         </Menu.Item>
                       );
-                    })
-                  ) : (
-                    <Menu.Item>没有其它环境</Menu.Item>
-                  )}
-                </Menu>
-              }
-            >
-              <a target="_blank" href={mockService.openUrl}>
-                打开
-              </a>
-            </Dropdown.Button>
-          );
+                    })}
+                  </Menu>
+                }
+              >
+                <a target="_blank" href={mockService?.openUrl}>
+                  打开
+                </a>
+              </Dropdown.Button>
+            ) : (
+              <Button>
+                <a
+                  target="_blank"
+                  href={mockService ? mockService.openUrl : envList[0].openUrl}
+                >
+                  打开
+                </a>
+              </Button>
+            );
         }
       } else if (project.sfMock.programUrl) {
         startBlock = (

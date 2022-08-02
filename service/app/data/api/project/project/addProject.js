@@ -81,18 +81,22 @@
                 },
               };
             }
-
             //写入启动命令的地址
             item.sfMock.serverList = (mockConfig.serverList || []).map(
-              (item) => {
+              (serverConfig) => {
                 return {
-                  ...item,
-                  openUrl: `http://${ip}:${item.port}${
+                  ...serverConfig,
+                  openUrl: `http://${ip}:${serverConfig.port}${
                     mockConfig.addressPath || ""
                   }`,
                 };
               }
             );
+
+            item.sfMock.serverList.push({
+              name: "本地链接",
+              openUrl: mockConfig.programUrl + (mockConfig.addressPath || ""),
+            });
             if (
               mockConfig.WindowsTerminal &&
               mockConfig.WindowsTerminal.tabList
