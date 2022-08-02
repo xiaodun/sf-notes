@@ -130,7 +130,7 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
         rowKey="name"
         columns={[
           {
-            title: "项目名",
+            title: renderTitleColumn,
             key: "name",
             dataIndex: "name",
             render: renderNameColumn,
@@ -158,6 +158,27 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
       </PageFooter>
     </div>
   );
+  function renderTitleColumn() {
+    return (
+      <>
+        项目名
+        {MDIterative.iterative.projectList.length && (
+          <Button
+            onClick={onCopyProjectName}
+            style={{ marginLeft: 5 }}
+            size="small"
+          >
+            复制
+          </Button>
+        )}
+      </>
+    );
+  }
+  function onCopyProjectName() {
+    if (selectProjectList.length > 0) {
+      UCopy.copyStr(selectProjectList.map((item) => item.name).join("、"));
+    }
+  }
 
   function onShowMarkTagModal() {
     markTagModalRef.current.showModal();

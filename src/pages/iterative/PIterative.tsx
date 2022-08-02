@@ -1,8 +1,8 @@
 import { PageFooter } from "@/common/components/page";
 import NModel from "@/common/namespace/NModel";
 import { Tabs } from "antd";
-import React, { useEffect, useRef } from "react";
-import { connect, ConnectRC, Link, NMDIterative } from "umi";
+import React, { useEffect } from "react";
+import { connect, ConnectRC, NMDIterative } from "umi";
 import SelfStyle from "./LIterative.less";
 import SIterative from "./SIterative";
 import IterativeTabpane from "./IterativeTabpane";
