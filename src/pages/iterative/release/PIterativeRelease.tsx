@@ -186,7 +186,7 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
     markTagModalRef.current.showModal();
   }
 
-  function onSwitchIterativeBranch() {
+  async function onSwitchIterativeBranch() {
     if (selectProjectList.length > 0) {
       setSwitchIterativeBranchLoading(true);
       await SIterative.switchToIterativeBranch(selectProjectList);
