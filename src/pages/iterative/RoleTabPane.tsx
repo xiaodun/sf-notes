@@ -93,6 +93,7 @@ const RoleTabpane: FC<IRoleTabpaneProps> = (props) => {
       </div>
       <PageFooter>
         <Dropdown.Button
+          placement="topCenter"
           overlay={
             <Menu>
               <Menu.Item key={"role"} onClick={() => onShowAddRoleModal()}>

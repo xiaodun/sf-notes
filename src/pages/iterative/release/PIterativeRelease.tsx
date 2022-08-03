@@ -162,7 +162,7 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
     return (
       <>
         项目名
-        {MDIterative.iterative.projectList.length && (
+        {MDIterative.iterative.projectList.length ? (
           <Button
             onClick={onCopyProjectName}
             style={{ marginLeft: 5 }}
@@ -170,6 +170,8 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
           >
             复制
           </Button>
+        ) : (
+          ""
         )}
       </>
     );
