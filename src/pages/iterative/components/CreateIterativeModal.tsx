@@ -94,7 +94,9 @@ const CreateIterativeModal: ForwardRefRenderFunction<
     </Modal>
   );
   function onContentChange(value: string) {
-    const docUrlPattern = new RegExp(`(https?://lanhuapp.com/url/\\w+)`);
+    const docUrlPattern = new RegExp(
+      `(https?://((lanhuapp.com/url/)|(share.lanhuapp.com/))[\\w\\?=#/]+)`
+    );
     const namePattern = new RegExp(
       `相关项目: ([-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]*)`
     );
