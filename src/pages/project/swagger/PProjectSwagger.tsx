@@ -698,11 +698,13 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         {pathItem.notFound ? (
           <Tag color="#a39e9e">失效</Tag>
         ) : (
-          <Tag className="path-tag" color="#87d068">
-            {pathItem.method.substring(-4)}
-          </Tag>
+          <>
+            <Tag className="path-tag" color="#87d068">
+              {pathItem.method.substring(-4)}
+            </Tag>
+          </>
         )}
-        {renderPathUrl(pathMenuCheckbox.pathUrl)}
+        {renderPathUrl(pathMenuCheckbox.pathUrl)} - {pathItem.summary}
       </Menu.Item>
     );
   }
@@ -948,7 +950,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     }
   }
   function getPrefixByPathUrl(menuCheckbox: NProject.IMenuCheckbox) {
-    let prefix: string;
+    let prefix: string = "";
     if (MDProject.apiPrefixs) {
       const matchDomian = Object.keys(MDProject.apiPrefixs).find((domian) => {
         const regexp = new RegExp(domian);
