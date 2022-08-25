@@ -17,6 +17,7 @@ import produce from "immer";
 import NRsp from "@/common/namespace/NRsp";
 import { cloneDeep } from "lodash";
 import UCopy from "@/common/utils/UCopy";
+import UGitlab from "@/common/utils/UGitlab";
 
 export interface IProjectProps {
   MDProject: NMDProject.IState;
@@ -169,6 +170,49 @@ const Project: ConnectRC<IProjectProps> = (props) => {
             </>
           )}
           {openBlock}
+          {MDProject.config.gitlabBasePath && !project.isSfMock && (
+            <>
+              <Dropdown.Button
+                overlay={
+                  <Menu>
+                    <Menu.Item>
+                      <a
+                        target="_blank"
+                        href={UGitlab.getNewMergeUrl(
+                          MDProject.config.gitlabBasePath,
+                          project.name
+                        )}
+                      >
+                        创建合并
+                      </a>
+                    </Menu.Item>
+
+                    <Menu.Item>
+                      <a
+                        target="_blank"
+                        href={UGitlab.getMergeUrl(
+                          MDProject.config.gitlabBasePath,
+                          project.name
+                        )}
+                      >
+                        处理合并
+                      </a>
+                    </Menu.Item>
+                  </Menu>
+                }
+              >
+                <a
+                  target="_blank"
+                  href={UGitlab.getProjectUrl(
+                    MDProject.config.gitlabBasePath,
+                    project.name
+                  )}
+                >
+                  去主页
+                </a>
+              </Dropdown.Button>
+            </>
+          )}
         </Space>
       </div>
     );
@@ -195,13 +239,13 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       message.success("已执行");
       setTimeout(
         () => {
-          reqProjecStart(project, cloneDeep(MDProject.rsp));
+          reqProjectStart(project, cloneDeep(MDProject.rsp));
         },
         project.isSfMock ? 3000 : 30000
       );
     }
   }
-  async function reqProjecStart(
+  async function reqProjectStart(
     project: NProject,
     projectRsp: NRsp<NProject>,
     retryCount = 0
@@ -213,7 +257,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     if (startRsp.success) {
       if (startRsp.data.isError) {
         if (retryCount < 2) {
-          reqProjecStart(project, projectRsp, ++retryCount);
+          reqProjectStart(project, projectRsp, ++retryCount);
           return;
         }
       }
@@ -249,7 +293,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       rsp.list.forEach((item, index) => {
         if (item.web.isStart == null) {
           if (item.sfMock.programUrl) {
-            reqProjecStart(item, newRsp);
+            reqProjectStart(item, newRsp);
           } else {
             newRsp.list[index].web.isStart = false;
             NModel.dispatch(
