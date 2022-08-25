@@ -31,6 +31,7 @@ export namespace NProject {
   export interface IConfig {
     addBasePath: string;
     showEnumList: false;
+    gitlabBasePath: string;
   }
 
   export interface IAjaxCode {

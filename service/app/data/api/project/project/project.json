@@ -1,7 +1,8 @@
 {
     "config": {
         "addBasePath": "",
-        "showEnumList": false
+        "showEnumList": false,
+        "gitlabBasePath": ""
     },
     "projectList": [
         {
