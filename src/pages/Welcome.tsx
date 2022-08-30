@@ -3,7 +3,7 @@ import SelfStyle from "./Welcome.less";
 import { Layout, Space, Button, Modal, BackTop } from "antd";
 import moment from "moment";
 import UDate from "@/common/utils/UDate";
-import { IRouteComponentProps, ConnectRC, connect, NMDGlobal } from "umi";
+import { IRouteComponentProps, ConnectRC, connect, NMDGlobal, Link } from "umi";
 import NRouter from "@/../config/router/NRouter";
 import { HomeFilled, QrcodeOutlined } from "@ant-design/icons";
 import NApp from "./app/NApp";
@@ -66,9 +66,13 @@ export const Welcome: ConnectRC<IWelcomeProps> = (props) => {
     >
       <Layout.Header className={classNames([SelfStyle.header])}>
         {!NRouter.isHomePage(props.match.path) && (
-          <div onClick={NRouter.toHomePage} className={SelfStyle.home}>
+          <Link
+            to={NRouter.rootPath}
+            target="_blank"
+            className={SelfStyle.home}
+          >
             <HomeFilled />
-          </div>
+          </Link>
         )}
         <div className={SelfStyle.actions}>
           <Space size={24}>
