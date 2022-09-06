@@ -11,7 +11,7 @@ const PApp: ConnectRC<IPAppProps> = () => {
         {NApp.list.map((item) => (
           <Card.Grid className={SelfStyle.gird} key={item.path}>
             <div className={SelfStyle.app}>
-              <Link to={item.path} target="_blank">
+              <Link to={item.path}>
                 <h2>{item.name}</h2>
               </Link>
             </div>
