@@ -66,11 +66,7 @@ export const Welcome: ConnectRC<IWelcomeProps> = (props) => {
     >
       <Layout.Header className={classNames([SelfStyle.header])}>
         {!NRouter.isHomePage(props.match.path) && (
-          <Link
-            to={NRouter.rootPath}
-            target="_blank"
-            className={SelfStyle.home}
-          >
+          <Link to={NRouter.rootPath} className={SelfStyle.home}>
             <HomeFilled />
           </Link>
         )}
