@@ -30,6 +30,11 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   useEffect(() => {
     reqGetProject();
     reqGetList();
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        reqGetList();
+      }
+    });
   }, []);
 
   return (
