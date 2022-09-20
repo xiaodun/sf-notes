@@ -65,7 +65,7 @@
             //如果添加的项目是sf-mock
             item.isSfMock = true;
             item.sfMock = {
-              programUrl: `http://localhost:${serviceConfigObj.startPort}`,
+              programUrl: `http://localhost:${serviceConfigObj.startPort}/example/sfNotesTestStart`,
               startBatPath: path_os.join(item.rootPath, "bat", "sf-mock.bat"),
             };
           } else {
