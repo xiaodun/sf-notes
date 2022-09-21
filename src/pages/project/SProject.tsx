@@ -4,6 +4,8 @@ import request from "@/utils/request";
 import { TEnterSwaggerModalWay } from "./swagger/components/EnterSwaggerModal";
 import NProjectSnippet from "./snippet/NProjectSnippet";
 import { NModal } from "@/common/utils/modal/NModal";
+import NModel from "@/common/namespace/NModel";
+import { NMDProject } from "umi";
 
 namespace SProject {
   export async function delSwaggerDomain(
@@ -82,6 +84,17 @@ namespace SProject {
     return request({
       url: "/project/getConfig",
       method: "get",
+    });
+  }
+  export async function updateConfig(config: Partial<NProject.IConfig>) {
+    return (
+      request({
+        url: "/project/updateConfig",
+        method: "post",
+        data: { config },
+      }) as Promise<NRsp<NProject.IConfig>>
+    ).then((rsp) => {
+      NModel.dispatch(new NMDProject.ARSetState({ config: rsp.data }));
     });
   }
   export async function writeSnippetOs(
