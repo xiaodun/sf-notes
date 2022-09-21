@@ -1,7 +1,17 @@
 import { PageFooter } from "@/common/components/page";
 import NModel from "@/common/namespace/NModel";
 import NRouter from "@/../config/router/NRouter";
-import { Button, Dropdown, Menu, message, Space, Table, Tag } from "antd";
+import {
+  Button,
+  Dropdown,
+  Menu,
+  message,
+  Radio,
+  Select,
+  Space,
+  Table,
+  Tag,
+} from "antd";
 import React, { useEffect, useRef } from "react";
 import { connect, ConnectRC, Link, NMDProject } from "umi";
 import SelfStyle from "./LProject.less";
@@ -69,9 +79,20 @@ const Project: ConnectRC<IProjectProps> = (props) => {
             Swagger
           </Link>
         </Button>
+        <Radio.Group
+          value={MDProject.config.nginxVisitWay}
+          onChange={(e) => onChangeConfig({ nginxVisitWay: e.target.value })}
+        >
+          <Radio.Button value="ip">IP</Radio.Button>
+          <Radio.Button value="domain">域名</Radio.Button>
+        </Radio.Group>
       </PageFooter>
     </div>
   );
+
+  function onChangeConfig(config: Partial<NProject.IConfig>) {
+    SProject.updateConfig(config);
+  }
   async function onSelectDirectory(pathInfos: NSystem.IDirectory) {
     const addRsp = await SProject.addProject({
       rootPath: pathInfos.path,
@@ -93,14 +114,16 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         startBlock = <Button loading={true} type="link"></Button>;
       } else if (project.web.isStart) {
         startBlock = <Tag color="#87d068">已启动</Tag>;
-
         if (!project.isSfMock && project.sfMock.serverList?.length) {
-          const mockService = project.sfMock.serverList.find(
-            (item) => item.isMock
-          );
-          let envList = project.sfMock.serverList.filter(
-            (item) => !item.isMock
-          );
+          const serverList = project.sfMock.serverList.map((item) => ({
+            ...item,
+            webOpenUrl:
+              MDProject.config.nginxVisitWay === "domain"
+                ? item.openDomainUrl
+                : item.openUrl,
+          }));
+          const mockService = serverList.find((item) => item.isMock);
+          let envList = serverList.filter((item) => !item.isMock);
           openBlock =
             project.sfMock.serverList.length > 1 ? (
               <Dropdown.Button
@@ -109,7 +132,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
                     {envList.map((item) => {
                       return (
                         <Menu.Item key={item.openUrl}>
-                          <a target="_blank" href={item.openUrl}>
+                          <a target="_blank" href={item.webOpenUrl}>
                             {item.name || item.openUrl}
                           </a>
                         </Menu.Item>
@@ -118,7 +141,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
                   </Menu>
                 }
               >
-                <a target="_blank" href={mockService?.openUrl}>
+                <a target="_blank" href={mockService.webOpenUrl}>
                   打开
                 </a>
               </Dropdown.Button>
@@ -126,7 +149,9 @@ const Project: ConnectRC<IProjectProps> = (props) => {
               <Button>
                 <a
                   target="_blank"
-                  href={mockService ? mockService.openUrl : envList[0].openUrl}
+                  href={
+                    mockService ? mockService.webOpenUrl : envList[0].webOpenUrl
+                  }
                 >
                   打开
                 </a>

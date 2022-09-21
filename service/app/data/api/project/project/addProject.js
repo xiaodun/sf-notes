@@ -47,6 +47,11 @@
           "config",
           "programConfig.js"
         );
+        const commonUtils = require(path_os.join(
+          sfMockPrject.rootPath,
+          "utils",
+          "commonUtils.js"
+        ));
         const programConfigObj = eval(
           fs_os.readFileSync(programConfigPath, "utf-8")
         );
@@ -81,14 +86,20 @@
                 },
               };
             }
+
             //写入启动命令的地址
             item.sfMock.serverList = (mockConfig.serverList || []).map(
               (serverConfig) => {
+                const getVisitUrl = (url) =>
+                  `http://${url}:${serverConfig.port}${
+                    mockConfig.addressPath || ""
+                  }`;
                 return {
                   ...serverConfig,
-                  openUrl: `http://${ip}:${serverConfig.port}${
-                    mockConfig.addressPath || ""
-                  }`,
+                  openUrl: getVisitUrl(ip),
+                  openDomainUrl: getVisitUrl(
+                    commonUtils.getProxyDomain(serverConfig, item.name)
+                  ),
                 };
               }
             );

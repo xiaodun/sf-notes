@@ -32,7 +32,9 @@ export default {
       list: [],
     },
     config: {
+      gitlabBasePath: "",
       addBasePath: "",
+      nginxVisitWay: "ip",
       showEnumList: false,
     },
     project: {

@@ -15,6 +15,8 @@ export interface NProject {
     serverList: {
       name: string;
       openUrl: string;
+      openDomainUrl: string;
+      webOpenUrl?: string;
       isMock?: boolean;
       port?: number;
     }[];
@@ -30,6 +32,7 @@ export namespace NProject {
   export type TMenuTabKey = "attention" | "domain";
   export interface IConfig {
     addBasePath: string;
+    nginxVisitWay: "ip" | "domain";
     showEnumList: false;
     gitlabBasePath: string;
   }
