@@ -2,7 +2,8 @@
     "config": {
         "addBasePath": "",
         "showEnumList": false,
-        "gitlabBasePath": ""
+        "gitlabBasePath": "",
+        "nginxVisitWay": "ip"
     },
     "projectList": [
         {
