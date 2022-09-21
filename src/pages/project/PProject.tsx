@@ -176,6 +176,8 @@ const Project: ConnectRC<IProjectProps> = (props) => {
             webOpenUrl:
               MDProject.config.nginxVisitWay === "domain"
                 ? item.openDomainUrl
+                  ? item.openDomainUrl
+                  : item.openUrl
                 : item.openUrl,
           }));
           const mockService = serverList.find((item) => item.isMock);
