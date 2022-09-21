@@ -1,6 +1,12 @@
 import { PageFooter } from "@/common/components/page";
 import NModel from "@/common/namespace/NModel";
 import NRouter from "@/../config/router/NRouter";
+import type { SortableContainerProps, SortEnd } from "react-sortable-hoc";
+import {
+  SortableContainer,
+  SortableElement,
+  SortableHandle,
+} from "react-sortable-hoc";
 import {
   Button,
   Dropdown,
@@ -28,7 +34,7 @@ import NRsp from "@/common/namespace/NRsp";
 import { cloneDeep } from "lodash";
 import UCopy from "@/common/utils/UCopy";
 import UGitlab from "@/common/utils/UGitlab";
-
+import { MenuOutlined } from "@ant-design/icons";
 export interface IProjectProps {
   MDProject: NMDProject.IState;
 }
@@ -46,12 +52,56 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       }
     });
   }, []);
+  const DragHandle = SortableHandle(() => (
+    <MenuOutlined style={{ cursor: "grab", color: "#999" }} />
+  ));
+  const SortableItem = SortableElement(
+    (props: React.HTMLAttributes<HTMLTableRowElement>) => <tr {...props} />
+  );
+  const SortableBody = SortableContainer(
+    (props: React.HTMLAttributes<HTMLTableSectionElement>) => (
+      <tbody {...props} />
+    )
+  );
+  const onSortEnd = ({ oldIndex, newIndex }: SortEnd) => {
+    if (oldIndex !== newIndex) {
+      SProject.sortProjectList(oldIndex, newIndex, MDProject.rsp.list);
+    }
+  };
 
+  const DraggableContainer = (props: SortableContainerProps) => (
+    <SortableBody
+      useDragHandle
+      disableAutoscroll
+      helperClass="row-dragging"
+      onSortEnd={onSortEnd}
+      {...props}
+    />
+  );
+
+  const DraggableBodyRow: React.FC<any> = ({
+    className,
+    style,
+    ...restProps
+  }) => {
+    // function findIndex base on Table rowKey props and should always be a right array index
+    const index = MDProject.rsp.list.findIndex(
+      (x) => x.id === restProps["data-row-key"]
+    );
+    return <SortableItem index={index} {...restProps} />;
+  };
   return (
     <div>
       <Table
         rowKey="id"
         columns={[
+          {
+            title: "",
+            dataIndex: "_sort",
+            width: 30,
+            className: "drag-visible",
+            render: () => <DragHandle />,
+          },
           {
             title: "项目名",
             key: "name",
@@ -66,6 +116,12 @@ const Project: ConnectRC<IProjectProps> = (props) => {
           },
         ]}
         dataSource={MDProject.rsp.list}
+        components={{
+          body: {
+            wrapper: DraggableContainer,
+            row: DraggableBodyRow,
+          },
+        }}
         pagination={false}
       ></Table>
       <DirectoryModal

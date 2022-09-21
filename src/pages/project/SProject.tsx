@@ -95,6 +95,7 @@ namespace SProject {
       }) as Promise<NRsp<NProject.IConfig>>
     ).then((rsp) => {
       NModel.dispatch(new NMDProject.ARSetState({ config: rsp.data }));
+      return rsp;
     });
   }
   export async function writeSnippetOs(
@@ -286,6 +287,30 @@ namespace SProject {
     });
   }
 
+  export async function sortProjectList(
+    oldIndex: number,
+    newIndex: number,
+    projectList: NProject[]
+  ): Promise<NRsp<NProject>> {
+    return request({
+      url: "/project/sortProjectList",
+      method: "post",
+      data: {
+        oldIndex,
+        newIndex,
+      },
+    }).then((rsp: NRsp<NProject>) => {
+      rsp.list = rsp.list.map((item) => {
+        const webProject = projectList.find((el) => item.id == el.id);
+        return {
+          ...item,
+          web: webProject.web,
+        };
+      });
+      NModel.dispatch(new NMDProject.ARSetState({ rsp }));
+      return rsp;
+    });
+  }
   export async function getProjectList(): Promise<NRsp<NProject>> {
     return request({
       url: "/project/getProjectList",
