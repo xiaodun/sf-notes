@@ -338,7 +338,11 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     projectRsp: NRsp<NProject>,
     retryCount = 0
   ) {
-    const startRsp = await SProject.isProjectStart(project.sfMock.programUrl);
+    let checkUrl = project.sfMock.programUrl;
+    if (project.isSfMock) {
+      checkUrl = project.sfMock.programUrl + "/example/sfNotesTestStart";
+    }
+    const startRsp = await SProject.isProjectStart(checkUrl);
     const index = projectRsp.list.findIndex(
       (item) => item.name === project.name
     );
