@@ -35,6 +35,7 @@ export namespace NProject {
     nginxVisitWay: "ip" | "domain";
     showEnumList: false;
     gitlabBasePath: string;
+    swaggerPathShowWay: "path" | "desc";
   }
 
   export interface IAjaxCode {
