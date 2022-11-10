@@ -50,6 +50,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
   const createSnipeetModalRef = useRef<ICreateSnipeetModal>();
   const createGroupModalRef = useRef<ICreateGroupModal>();
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  const [writeLoading, setWriteLoading] = useState<boolean>(false);
   const [snippetConfig, setSnippetConfig] =
     useState<NProjectSnippet.IConfig>(null);
   const [snippet, setSnippet] = useState<NProjectSnippet>(null);
@@ -129,6 +130,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
                       onClick={() => onWriteOs(snippetConfig)}
                       type="primary"
                       style={{ width: 120 }}
+                      loading={writeLoading}
                     >
                       写入
                     </Button>
@@ -244,6 +246,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
   }
   function reqWriteSnippetOs(writeOsPath?: string) {
     globalform.validateFields().then(async (values) => {
+      setWriteLoading(true);
       const rsp = await SProject.writeSnippetOs(
         {
           id: urlQuery.id,
@@ -255,6 +258,8 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
         }
       );
       if (rsp.success) {
+        setWriteLoading(false);
+
         UModal.showExecResult(rsp.list);
       }
     });
