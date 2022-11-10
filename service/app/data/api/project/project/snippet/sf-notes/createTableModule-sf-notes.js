@@ -9,18 +9,19 @@
     const { baseParse: vueParse } = require("@vue/compiler-core");
 
     function getBaseNameInfo() {
+      let writeOsPath = argParams.writeOsPath || "";
       const upperFirstModuleName = _.upperFirst(argParams.moduleName);
-      const pagesFolderPath = path.join(argParams.writeOsPath, "src", "pages");
+      const pagesFolderPath = path.join(writeOsPath, "src", "pages");
 
       const NModuleFilePath = path.join(
-        argParams.writeOsPath,
+        writeOsPath,
         "src",
         "common",
         "namespace",
         "NModel.ts"
       );
       const NRouterFilePath = path.join(
-        argParams.writeOsPath,
+        writeOsPath,
         "config",
         "router",
         "NRouter.ts"
