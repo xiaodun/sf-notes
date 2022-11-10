@@ -13,6 +13,7 @@ import {
   Tabs,
   Tag,
   Select,
+  Radio,
 } from "antd";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { connect, ConnectRC, NMDGlobal, NMDProject } from "umi";
@@ -266,6 +267,15 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
               enterButton
             />
             <Button onClick={showKeyValueExtractionModal}> 键值提取</Button>
+            <Radio.Group
+              value={MDProject.config.swaggerPathShowWay}
+              onChange={(e) =>
+                onChangeConfig({ swaggerPathShowWay: e.target.value })
+              }
+            >
+              <Radio.Button value="path">路径</Radio.Button>
+              <Radio.Button value="desc">描述</Radio.Button>
+            </Radio.Group>
           </Space>
         </div>
         <div className={SelfStyle.contentWrap}>
@@ -467,7 +477,9 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       </>
     );
   }
-
+  function onChangeConfig(config: Partial<NProject.IConfig>) {
+    SProject.updateConfig(config);
+  }
   function renderSwaggerUI() {
     let contentNode: ReactNode = null;
     if (rendMethodInfos) {
@@ -704,7 +716,9 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
             </Tag>
           </>
         )}
-        {renderPathUrl(pathMenuCheckbox.pathUrl)} - {pathItem.summary}
+        {MDProject.config.swaggerPathShowWay == "path"
+          ? renderPathUrl(pathMenuCheckbox.pathUrl)
+          : pathItem.summary}
       </Menu.Item>
     );
   }

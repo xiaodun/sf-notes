@@ -36,6 +36,7 @@ export default {
       addBasePath: "",
       nginxVisitWay: "ip",
       showEnumList: false,
+      swaggerPathShowWay: "path",
     },
     project: {
       name: "",
