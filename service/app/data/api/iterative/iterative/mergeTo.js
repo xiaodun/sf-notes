@@ -8,6 +8,19 @@
     const { branch } = envInfos[argParams.envId];
     const execResultList = [];
 
+    const iterativeInfos = argData.iterativeList.find(
+      (item) => item.id === argParams.id
+    );
+    if (iterativeInfos.markTags?.envIdList) {
+      iterativeInfos.markTags.envIdList = [
+        ...new Set([...iterativeInfos.markTags.envIdList, argParams.envId]),
+      ];
+    } else {
+      iterativeInfos.markTags = {
+        envIdList: [argParams.envId],
+      };
+    }
+
     argParams.projectList.forEach((item) => {
       let argList = [];
 

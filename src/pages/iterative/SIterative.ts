@@ -282,6 +282,7 @@ namespace SIterative {
     envId: number,
     projectList: NIterative.IProject[]
   ): Promise<NRsp<NModal.IOptionExecMessage>> {
+    getIterative(id);
     return request({
       url: "/iterative/mergeTo",
       method: "post",
