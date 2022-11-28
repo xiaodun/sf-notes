@@ -1,9 +1,14 @@
-import NSwagger from "@/common/namespace/NSwagger";
 import request from "@/utils/request";
 import NRsp from "@/common/namespace/NRsp";
 
 namespace SBase {
-  export async function getBase64(imgSrc: string): Promise<NRsp<String>> {
+  export async function getIpv4(): Promise<NRsp<string>> {
+    return request({
+      url: "/baseService/getIpv4",
+      method: "post",
+    });
+  }
+  export async function getBase64(imgSrc: string): Promise<NRsp<string>> {
     return request({
       url: "/baseService/getBase64",
       method: "post",

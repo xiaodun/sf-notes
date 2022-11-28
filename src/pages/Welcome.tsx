@@ -11,6 +11,7 @@ import { enableMapSet } from "immer";
 import NModel from "@/common/namespace/NModel";
 import classNames from "classnames";
 import Browser from "@/utils/browser";
+import SBase from "@/common/service/SBase";
 enableMapSet();
 if (Browser.isMobile()) {
   const VConsole = require("vconsole");
@@ -107,12 +108,19 @@ const DateTimeArea = () => {
 const QRCodeBtn = () => {
   const QRCode = require("qrcode.react");
   return <Button icon={<QrcodeOutlined />} onClick={showQRcode}></Button>;
-  function showQRcode() {
+  async function showQRcode() {
+    const rsp = await SBase.getIpv4();
     Modal.info({
       icon: null,
       content: (
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <QRCode size={256} value={window.location.href} />
+          <QRCode
+            size={256}
+            value={window.location.href.replace(
+              window.location.hostname,
+              rsp.data
+            )}
+          />
         </div>
       ),
       okText: "关闭",
