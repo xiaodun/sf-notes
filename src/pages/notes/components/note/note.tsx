@@ -65,7 +65,7 @@ const Note: FC<INoteProps> = (props) => {
       {MDNotes.isTitleModel && !isExpand ? (
         <Card
           size="small"
-          title={data.title}
+          title={getTitle(data.title)}
           style={{ backgroundColor: data.titleColor }}
           className={classNames(SelfStyle.noteWrapper, SelfStyle.titleModel)}
           extra={
@@ -88,7 +88,7 @@ const Note: FC<INoteProps> = (props) => {
           {renderActionWrap(SelfStyle.top, data.titleColor)}
           <Card
             size="small"
-            title={data.title}
+            title={getTitle(data.title)}
             className={SelfStyle.noteWrapper}
             extra={
               <Button
@@ -104,6 +104,9 @@ const Note: FC<INoteProps> = (props) => {
       )}
     </div>
   );
+  function getTitle(title: string) {
+    return <div onClick={() => UCopy.copyStr(title)}>{title}</div>;
+  }
   function onUpdateNote(data: NNotes) {
     props.editModalRef.current.showModal(data);
   }
