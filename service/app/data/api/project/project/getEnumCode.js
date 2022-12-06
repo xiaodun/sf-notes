@@ -22,7 +22,7 @@
       .join("\n");
     let enumInfoStr = `
     
-    (function(){
+   export default (function(){
         let obj = {
             ${singleVarStatementStr}
         }
