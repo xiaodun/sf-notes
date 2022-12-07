@@ -75,7 +75,7 @@
     "path-to-regexp": "2.4.0",
     "prop-types": "^15.5.10",
     "qrcode.react": "^1.0.1",
-    "qs": "^6.9.0",
+    "qs": "^6.9.7",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-fittext": "^1.0.0",
