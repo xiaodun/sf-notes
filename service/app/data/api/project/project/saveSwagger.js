@@ -3,6 +3,14 @@
     const fs = require("fs");
     const path = require("path");
 
+    argData.inExcludeGroups[argParams.domain] = argParams.checkGroupNameList;
+    let oldData = argParams.data;
+    argParams.data = {};
+    Object.keys(oldData).forEach((groupName) => {
+      if (argParams.checkGroupNameList.includes(groupName)) {
+        argParams.data[groupName] = oldData[groupName];
+      }
+    });
     let swaggerInfo;
     if (argParams.way === "add") {
       const index = argData.swaggerList.findIndex(

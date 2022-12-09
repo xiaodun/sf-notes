@@ -10,6 +10,7 @@ export namespace NMDProject {
     project: NProject;
     snippetGroupList: NProjectSnippet[];
     domainSwaggerList: NProject.IDomainSwagger[];
+    inExcludeGroups: NProject.IInExcludeGroups;
     apiPrefixs: NProject.IApiWithPrefix;
     menuCheckedList: NProject.IMenuCheckbox[];
     attentionInfos: NProject.IAttentionInfo;
@@ -24,13 +25,13 @@ export namespace NMDProject {
 
 export default {
   namespace: NModel.ENames.MDProject,
-
   state: {
     apiPrefixs: null,
     domainSwaggerList: [],
     rsp: {
       list: [],
     },
+    inExcludeGroups: {},
     config: {
       gitlabBasePath: "",
       addBasePath: "",

@@ -2,12 +2,20 @@ import React, {
   forwardRef,
   ForwardRefRenderFunction,
   ReactNode,
-  useEffect,
   useImperativeHandle,
   useRef,
   useState,
 } from "react";
-import { Modal, Button, Form, Input, Radio, Select } from "antd";
+import {
+  Modal,
+  Button,
+  Form,
+  Input,
+  Radio,
+  Select,
+  Checkbox,
+  message,
+} from "antd";
 import produce from "immer";
 import SBase from "@/common/service/SBase";
 import urlParse from "url-parse";
@@ -17,7 +25,10 @@ import SelfStyle from "./EnterSwaggerModal.less";
 import NProject from "../../NProject";
 import SProject from "../../SProject";
 export interface IEnterSwaggerModal {
-  showModal: (domainSwaggerList: NProject.IDomainSwagger[]) => void;
+  showModal: (
+    domainSwaggerList: NProject.IDomainSwagger[],
+    inExcludeGroups: NProject.IInExcludeGroups
+  ) => void;
   reload: (url: string) => void;
 }
 export interface IEnterSwaggerModalProps {
@@ -25,12 +36,24 @@ export interface IEnterSwaggerModalProps {
 }
 export type TEnterSwaggerModalWay = "add" | "update";
 export interface IEnterSwaggerModalState {
+  checkGroupNameList: string[];
+  excludeGroups: NProject.IInExcludeGroups;
+  formDomainName: string;
+  renderSwaggerInfos: NProject.IRenderSwaggerInfo;
+  domain: string;
+  isEnterLoading: boolean;
   visible: boolean;
   isAnalysisMode: boolean;
   parseNodeList: ReactNode[];
   way: TEnterSwaggerModalWay;
 }
 const defaultState: IEnterSwaggerModalState = {
+  checkGroupNameList: [],
+  excludeGroups: {},
+  formDomainName: "",
+  renderSwaggerInfos: null,
+  domain: "",
+  isEnterLoading: true,
   visible: false,
   isAnalysisMode: false,
   parseNodeList: [],
@@ -46,12 +69,15 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
   const urlInputRef = useRef<Input>();
 
   useImperativeHandle(ref, () => ({
-    showModal: (domainSwaggerList: NProject.IDomainSwagger[]) => {
+    showModal: (
+      domainSwaggerList: NProject.IDomainSwagger[],
+      excludeGroups: NProject.IInExcludeGroups
+    ) => {
       setDomainNameList(domainSwaggerList.map((item) => item.domain));
       setState(
         produce(state, (drafState) => {
           drafState.visible = true;
-
+          drafState.excludeGroups = excludeGroups;
           setTimeout(() => {
             if (urlInputRef.current) {
               urlInputRef.current.focus();
@@ -127,18 +153,36 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
       bodyStyle={{ maxHeight: "100%" }}
       visible={state.visible}
       footer={
-        <Button type="primary" onClick={onCancel}>
-          关闭
-        </Button>
+        <>
+          <Button onClick={onCancel}>关闭</Button>
+          <Button
+            type="primary"
+            onClick={onSaveSwagger}
+            loading={state.isEnterLoading}
+          >
+            确定
+          </Button>
+        </>
       }
       onCancel={onCancel}
       centered
     >
-      {state.parseNodeList.map((item, index) => (
-        <div className={SelfStyle.textWrap} key={index}>
-          {item}
-        </div>
-      ))}
+      <Checkbox.Group
+        value={state.checkGroupNameList}
+        onChange={(list) => {
+          setState(
+            produce(state, (drafState) => {
+              drafState.checkGroupNameList = list as string[];
+            })
+          );
+        }}
+      >
+        {state.parseNodeList.map((item, index) => (
+          <div className={SelfStyle.textWrap} key={index}>
+            {item}
+          </div>
+        ))}
+      </Checkbox.Group>
     </Modal>
   );
 
@@ -166,11 +210,13 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
     let newData = produce(state, (drafState) => {
       drafState.visible = true;
       drafState.isAnalysisMode = true;
+      drafState.checkGroupNameList = drafState.excludeGroups?.[url] || [];
     });
+
     setState(newData);
 
     const featchGroupUrl = USwagger.getUrlByGroup(url);
-    const groupListRsp = await SBase.featchOtherDomainUrl<NSwagger.IGroup[]>(
+    const groupListRsp = await SBase.fetchOtherDomainUrl<NSwagger.IGroup[]>(
       featchGroupUrl
     );
     if (groupListRsp.success) {
@@ -191,13 +237,14 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
       newData = produce(newData, (drafState) => {
         drafState.parseNodeList.push(
           <span>
-            开始解析
-            <span style={{ fontWeight: "bold" }}>{group.name}</span>
+            <Checkbox style={{ marginRight: 10 }} value={group.name}>
+              <span style={{ fontWeight: "bold" }}>{group.name}</span>
+            </Checkbox>
           </span>
         );
       });
       setState(newData);
-      const groupRsp = await SBase.featchOtherDomainUrl<NSwagger.IGroupApis>(
+      const groupRsp = await SBase.fetchOtherDomainUrl<NSwagger.IGroupApis>(
         url + group.url
       );
       if (groupRsp.success) {
@@ -230,18 +277,34 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
         });
       });
     });
-    const saveRsp = await SProject.saveSwagger(
+
+    setState(
+      produce(newData, (drafState) => {
+        drafState.domain = url;
+        drafState.renderSwaggerInfos = renderSwaggerInfos;
+        drafState.formDomainName = formValues.domainName;
+        drafState.isEnterLoading = false;
+      })
+    );
+  }
+  async function onSaveSwagger() {
+    if (!state.checkGroupNameList.length) {
+      message.error("请勾选分组");
+
+      return;
+    }
+    await SProject.saveSwagger(
       {
-        data: renderSwaggerInfos,
-        domain: url,
+        data: state.renderSwaggerInfos,
+        domain: state.domain,
       },
       state.way,
-      formValues.domainName
+      state.formDomainName,
+      state.checkGroupNameList
     );
-    if (saveRsp.success) {
-      onCancel();
-      props.onOk();
-    }
+
+    props.onOk();
+    onCancel();
   }
   function onOk() {
     form.validateFields().then(async (values) => {

@@ -17,7 +17,7 @@ namespace SBase {
       },
     });
   }
-  export async function featchOtherDomainUrl<T>(
+  export async function fetchOtherDomainUrl<T>(
     url: string,
     data?: any
   ): Promise<NRsp<T>> {
