@@ -1098,7 +1098,10 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   }
 
   function onReload(domainItem: NProject.IDomainSwagger) {
-    swaggerModalRef.current.reload(domainItem.domain);
+    swaggerModalRef.current.reload(
+      domainItem.domain,
+      props.MDProject.inExcludeGroups
+    );
   }
   async function onDelDomain(
     event: React.MouseEvent,
@@ -1218,7 +1221,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   function openEnterSwaggerModal() {
     swaggerModalRef.current.showModal(
       props.MDProject.domainSwaggerList,
-      props.MDProject.inExcludeGroups
+      props.MDProject
     );
   }
 };
