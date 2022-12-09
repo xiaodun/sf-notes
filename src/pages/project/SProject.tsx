@@ -8,6 +8,16 @@ import NModel from "@/common/namespace/NModel";
 import { NMDProject } from "umi";
 
 namespace SProject {
+  export async function getInExcludeGroups() {
+    return request({
+      url: "/project/getInExcludeGroups",
+      method: "post",
+    }).then((rsp: NRsp<NProject.IInExcludeGroups>) => {
+      NModel.dispatch(new NMDProject.ARSetState({ inExcludeGroups: rsp.data }));
+
+      return rsp;
+    });
+  }
   export async function delSwaggerDomain(
     domainItem: NProject.IDomainSwagger
   ): Promise<NRsp<boolean>> {
@@ -245,7 +255,8 @@ namespace SProject {
   export async function saveSwagger(
     data: NProject.IDomainSwagger,
     way: TEnterSwaggerModalWay,
-    oldDomainName: string
+    oldDomainName: string,
+    checkGroupNameList: string[]
   ): Promise<NRsp<boolean>> {
     return request({
       url: "/project/saveSwagger",
@@ -254,6 +265,7 @@ namespace SProject {
         ...data,
         way,
         oldDomainName,
+        checkGroupNameList,
       },
     });
   }

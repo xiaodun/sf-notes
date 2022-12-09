@@ -30,6 +30,9 @@ export interface NProject {
 }
 export namespace NProject {
   export type TMenuTabKey = "attention" | "domain";
+  export interface IInExcludeGroups {
+    [key: string]: string[];
+  }
   export interface IConfig {
     addBasePath: string;
     nginxVisitWay: "ip" | "domain";

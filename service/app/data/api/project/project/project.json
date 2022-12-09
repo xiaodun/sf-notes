@@ -43,6 +43,7 @@
             "isDefaultCopySwagger": false
         }
     ],
+    "inExcludeGroups": {},
     "swaggerList": [],
     "apiPrefixs": {},
     "attentionPathList": []

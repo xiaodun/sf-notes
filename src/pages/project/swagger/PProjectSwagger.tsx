@@ -44,7 +44,6 @@ import KeyValueExtractionModal, {
 } from "./components/KeyValueExtractionModal";
 import { UModal } from "@/common/utils/modal/UModal";
 import SBase from "@/common/service/SBase";
-import NSwagger from "@/common/namespace/NSwagger";
 
 export interface IPProjectSwaggerProps {
   MDProject: NMDProject.IState;
@@ -80,6 +79,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     reqGetSwagger();
     reqGetAttentionList(true);
     reqGetProjectList();
+    SProject.getInExcludeGroups();
     setTimeout(() => {
       document.title = "Swagger文档";
     }, 1000);
@@ -202,6 +202,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         onOk={() => {
           reqGetSwagger();
           reqGetAttentionList(false);
+          SProject.getInExcludeGroups();
         }}
       ></EnterSwaggerModal>
       <GenerateAjaxCodeModal
@@ -1215,7 +1216,10 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     return MDProject.menuCheckedList.some((item) => isEqual(params, item));
   }
   function openEnterSwaggerModal() {
-    swaggerModalRef.current.showModal(props.MDProject.domainSwaggerList);
+    swaggerModalRef.current.showModal(
+      props.MDProject.domainSwaggerList,
+      props.MDProject.inExcludeGroups
+    );
   }
 };
 export default connect(({ MDProject, MDGlobal }: NModel.IState) => ({
