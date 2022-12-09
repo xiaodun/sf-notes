@@ -38,6 +38,7 @@ export default {
       nginxVisitWay: "ip",
       showEnumList: false,
       swaggerPathShowWay: "path",
+      lastOptionSwaggerDomain: "",
     },
     project: {
       name: "",

@@ -3,6 +3,7 @@
     const fs = require("fs");
     const path = require("path");
 
+    argData.config.lastOptionSwaggerDomain = argParams.domain;
     argData.inExcludeGroups[argParams.domain] = argParams.checkGroupNameList;
     let oldData = argParams.data;
     argParams.data = {};
