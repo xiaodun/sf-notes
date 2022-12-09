@@ -24,12 +24,14 @@ import NSwagger from "@/common/namespace/NSwagger";
 import SelfStyle from "./EnterSwaggerModal.less";
 import NProject from "../../NProject";
 import SProject from "../../SProject";
+import { NMDProject } from "umi";
+
 export interface IEnterSwaggerModal {
   showModal: (
     domainSwaggerList: NProject.IDomainSwagger[],
-    inExcludeGroups: NProject.IInExcludeGroups
+    MDProject: NMDProject.IState
   ) => void;
-  reload: (url: string) => void;
+  reload: (url: string, inExcludeGroups: NProject.IInExcludeGroups) => void;
 }
 export interface IEnterSwaggerModalProps {
   onOk: () => void;
@@ -37,22 +39,26 @@ export interface IEnterSwaggerModalProps {
 export type TEnterSwaggerModalWay = "add" | "update";
 export interface IEnterSwaggerModalState {
   checkGroupNameList: string[];
-  excludeGroups: NProject.IInExcludeGroups;
-  formDomainName: string;
-  renderSwaggerInfos: NProject.IRenderSwaggerInfo;
-  domain: string;
   isEnterLoading: boolean;
   visible: boolean;
   isAnalysisMode: boolean;
   parseNodeList: ReactNode[];
   way: TEnterSwaggerModalWay;
 }
+interface ITempData {
+  domain: string;
+  formDomainName: string;
+  inExcludeGroups: NProject.IInExcludeGroups;
+  renderSwaggerInfos: NProject.IRenderSwaggerInfo;
+}
+const defaultTempData: ITempData = {
+  inExcludeGroups: {},
+  formDomainName: "",
+  domain: "",
+  renderSwaggerInfos: null,
+};
 const defaultState: IEnterSwaggerModalState = {
   checkGroupNameList: [],
-  excludeGroups: {},
-  formDomainName: "",
-  renderSwaggerInfos: null,
-  domain: "",
   isEnterLoading: true,
   visible: false,
   isAnalysisMode: false,
@@ -64,6 +70,7 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
   IEnterSwaggerModalProps
 > = (props, ref) => {
   const [state, setState] = useState<IEnterSwaggerModalState>(defaultState);
+  const tempDataRef = useRef<ITempData>(defaultTempData);
   const [domainNameList, setDomainNameList] = useState<string[]>([]);
   const [form] = Form.useForm();
   const urlInputRef = useRef<Input>();
@@ -71,13 +78,16 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
   useImperativeHandle(ref, () => ({
     showModal: (
       domainSwaggerList: NProject.IDomainSwagger[],
-      excludeGroups: NProject.IInExcludeGroups
+      MDProject: NMDProject.IState
     ) => {
       setDomainNameList(domainSwaggerList.map((item) => item.domain));
       setState(
         produce(state, (drafState) => {
           drafState.visible = true;
-          drafState.excludeGroups = excludeGroups;
+          tempDataRef.current.inExcludeGroups = MDProject.inExcludeGroups;
+          form.setFieldsValue({
+            url: MDProject.config.lastOptionSwaggerDomain,
+          });
           setTimeout(() => {
             if (urlInputRef.current) {
               urlInputRef.current.focus();
@@ -86,7 +96,9 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
         })
       );
     },
-    reload: (url: string) => {
+    reload: async (url: string, inExcludeGroups: NProject.IInExcludeGroups) => {
+      tempDataRef.current.inExcludeGroups = inExcludeGroups;
+
       fetchSwaggerDoc(url, {});
     },
   }));
@@ -188,6 +200,7 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
 
   function onCancel() {
     setState(defaultState);
+    tempDataRef.current = defaultTempData;
     form.resetFields();
   }
   function onWayChange(way: TEnterSwaggerModalWay) {
@@ -210,7 +223,8 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
     let newData = produce(state, (drafState) => {
       drafState.visible = true;
       drafState.isAnalysisMode = true;
-      drafState.checkGroupNameList = drafState.excludeGroups?.[url] || [];
+      drafState.checkGroupNameList =
+        tempDataRef.current.inExcludeGroups?.[url] || [];
     });
 
     setState(newData);
@@ -278,11 +292,11 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
       });
     });
 
+    tempDataRef.current.domain = url;
+    tempDataRef.current.renderSwaggerInfos = renderSwaggerInfos;
+    tempDataRef.current.formDomainName = formValues.domainName;
     setState(
       produce(newData, (drafState) => {
-        drafState.domain = url;
-        drafState.renderSwaggerInfos = renderSwaggerInfos;
-        drafState.formDomainName = formValues.domainName;
         drafState.isEnterLoading = false;
       })
     );
@@ -295,11 +309,11 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
     }
     await SProject.saveSwagger(
       {
-        data: state.renderSwaggerInfos,
-        domain: state.domain,
+        data: tempDataRef.current.renderSwaggerInfos,
+        domain: tempDataRef.current.domain,
       },
       state.way,
-      state.formDomainName,
+      tempDataRef.current.formDomainName,
       state.checkGroupNameList
     );
 
