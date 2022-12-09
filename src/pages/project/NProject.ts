@@ -38,6 +38,7 @@ export namespace NProject {
     nginxVisitWay: "ip" | "domain";
     showEnumList: false;
     gitlabBasePath: string;
+    lastOptionSwaggerDomain: string;
     swaggerPathShowWay: "path" | "desc";
   }
 
