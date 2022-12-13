@@ -1,6 +1,15 @@
 import { PageFooter } from "@/common/components/page";
 import NModel from "@/common/namespace/NModel";
-import { Alert, Button, Dropdown, Menu, message, Space, Table } from "antd";
+import {
+  Alert,
+  Button,
+  Dropdown,
+  Menu,
+  message,
+  Space,
+  Table,
+  Tag,
+} from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { connect, ConnectRC, NMDIterative } from "umi";
 import NIterative from "../NIterative";
@@ -45,14 +54,11 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
     SIterative.getPersonList();
     reqGetIterative();
   }, []);
-  let markTagMessage = "";
+  let markEnvList: NIterative.IEnv[] = [];
   if (MDIterative.iterative.markTags?.envIdList?.length > 0) {
-    markTagMessage = "环境: ";
-    markTagMessage += MDIterative.iterative.markTags?.envIdList
-      .map(
-        (envId) => MDIterative.envList.find((item) => envId === item.id).envName
-      )
-      .join("、");
+    markEnvList = MDIterative.iterative.markTags?.envIdList.map((envId) =>
+      MDIterative.envList.find((item) => envId === item.id)
+    );
   }
   return (
     <div>
@@ -98,11 +104,26 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
           </Button>
         </Space>
       </div>
-      {markTagMessage && (
+      {markEnvList.length > 0 && (
         <Alert
           style={{ marginTop: 20, marginBottom: 25 }}
           type="info"
-          message={markTagMessage}
+          message={
+            <Space>
+              环境：
+              {markEnvList.map((env) => (
+                <Tag
+                  key={env.id}
+                  closable
+                  onClose={() =>
+                    SIterative.delIterativeEnv(env.id, urlQuery.id)
+                  }
+                >
+                  {env.envName}
+                </Tag>
+              ))}
+            </Space>
+          }
         ></Alert>
       )}
       <Table
