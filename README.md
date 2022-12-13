@@ -43,7 +43,7 @@ node service.js
 
 ## 全局功能
 
-生成当前页面的二维码,方便手机访问
+生成当前页面的二维码,方便手机访问，即便程序以localhost访问，展开二维码的时候还是会获取ip地址。
 
 ![扫描二维码](./manual/images/scanQrcode.png)
 
