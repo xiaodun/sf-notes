@@ -8,6 +8,23 @@ import { NModal } from "@/common/utils/modal/NModal";
 import { UModal } from "@/common/utils/modal/UModal";
 
 namespace SIterative {
+  export async function delIterativeEnv(envId: number, iterativeId: number) {
+    return (
+      request({
+        method: "post",
+        data: {
+          envId,
+          iterativeId,
+        },
+        url: "/iterative/delIterativeEnv",
+      }) as Promise<NRsp<boolean>>
+    ).then((rsp) => {
+      if (rsp.success) {
+        getIterative(iterativeId);
+      }
+      return rsp;
+    });
+  }
   export async function getIterativeList() {
     return (
       request({
