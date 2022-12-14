@@ -4,11 +4,12 @@ import React, {
   useImperativeHandle,
   useState,
 } from "react";
-import { Modal, Button, Tabs, Form, Input } from "antd";
+import { Modal, Button, Tabs, Input } from "antd";
 import SelfStyle from "./SystemInfoModal.less";
 import produce from "immer";
 import { NMDIterative } from "umi";
 import UCopy from "@/common/utils/UCopy";
+import NIterative from "../NIterative";
 export interface ISystemInfoModal {
   showModal: () => void;
 }
@@ -60,6 +61,13 @@ const ShowSystemInfoModalModal: ForwardRefRenderFunction<
             <Tabs.TabPane tab={systemTag.systemName} key={systemTag.id}>
               {systemTag.isMoreEnv ? (
                 <>
+                  <Button
+                    style={{ marginBottom: 30 }}
+                    type="primary"
+                    onClick={() => onCopy(systemTag)}
+                  >
+                    全部复制
+                  </Button>
                   {MDIterative.envList.map((env) => (
                     <div className={SelfStyle.addressWrap} key={env.id}>
                       <div className="label">{env.envName}</div>
@@ -101,7 +109,13 @@ const ShowSystemInfoModalModal: ForwardRefRenderFunction<
       </Tabs>
     </Modal>
   );
-
+  function onCopy(systemTag: NIterative.ISystem) {
+    UCopy.copyStr(
+      MDIterative.envList
+        .map((env) => `${env.envName} : ${systemTag.address[env.branch]}`)
+        .join("\n")
+    );
+  }
   function onCancel() {
     setState(defaultState);
   }
