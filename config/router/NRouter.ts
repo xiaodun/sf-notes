@@ -14,6 +14,8 @@ export namespace NRouter {
   export const activityPath = "/activity";
   export const iterativePath = "/iterative";
   export const iterativeReleasePath = iterativePath + "/release";
+  export const footballPath = "/football";
+  export const footballPredictPath = footballPath + "/predict";
   export const routes: IRoute[] = [
     {
       path: rootPath,
@@ -78,6 +80,17 @@ export namespace NRouter {
     {
       path: iterativeReleasePath,
       component: "." + iterativeReleasePath,
+      wrappers: [rootComponentPath],
+    },
+
+    {
+      path: footballPath,
+      component: "." + footballPath,
+      wrappers: [rootComponentPath],
+    },
+    {
+      path: footballPredictPath,
+      component: "." + footballPredictPath,
       wrappers: [rootComponentPath],
     },
   ];

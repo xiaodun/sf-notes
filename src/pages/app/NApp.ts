@@ -25,6 +25,10 @@ namespace NApp {
       name: "活动领取",
       path: NRouter.activityPath,
     },
+    // {
+    //   name: "足球",
+    //   path: NRouter.footballPath,
+    // },
     {
       name: "二维码",
       path: NRouter.qrCodePath,
