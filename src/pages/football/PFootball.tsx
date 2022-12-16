@@ -12,34 +12,44 @@ import produce from "immer";
 import NRsp from "@/common/namespace/NRsp";
 import { cloneDeep } from "lodash";
 import UCopy from "@/common/utils/UCopy";
+import moment from "moment";
 export interface IFootballProps {
   MDFootball: NMDFootball.IState;
 }
 import AddPredictModal, {
   IAddPredictModal,
 } from "./components/AddPredictModal";
+import UFootball from "./UFootball";
 
 const Football: ConnectRC<IFootballProps> = (props) => {
   const { MDFootball } = props;
   const addPredictModalRef = useRef<IAddPredictModal>();
 
   useEffect(() => {
-    reqGetConfig();
-    reqGetList();
+    SFootball.getPredictList();
   }, []);
 
   return (
     <div>
-      <AddPredictModal ref={addPredictModalRef}></AddPredictModal>
+      <AddPredictModal
+        ref={addPredictModalRef}
+        onOk={onAddOk}
+      ></AddPredictModal>
 
       <Table
         rowKey="id"
         columns={[
           {
+            title: "名称",
+            key: "name",
+            dataIndex: "name",
+            render: renderNameColumn,
+          },
+          {
             title: "日期",
-            key: "date",
-            dataIndex: "date",
-            render: renderDateColumn,
+            key: "time",
+            dataIndex: "time",
+            render: renderTimeColumn,
           },
 
           {
@@ -52,41 +62,44 @@ const Football: ConnectRC<IFootballProps> = (props) => {
         pagination={false}
       ></Table>
       <PageFooter>
-        <Button onClick={onAdd}>添加</Button>
+        <Button onClick={showAddModal}>添加</Button>
       </PageFooter>
     </div>
   );
 
-  function onAdd() {
+  function showAddModal() {
     addPredictModalRef.current.showModal();
   }
 
-  function renderDateColumn(date: string) {
-    return <div onClick={() => UCopy.copyStr(date)}>{date}</div>;
-  }
-  function renderOptionColumn(football: NFootball) {
-    return "";
+  function onAddOk() {
+    SFootball.getPredictList();
   }
 
-  async function reqGetConfig() {
-    const rsp = await SFootball.getConfig();
-    if (rsp.success) {
-      NModel.dispatch(
-        new NMDFootball.ARSetState({
-          config: rsp.data,
-        })
-      );
-    }
+  function renderNameColumn(name: string) {
+    return <div onClick={() => UCopy.copyStr(name)}>{name}</div>;
   }
-  async function reqGetList() {
-    const rsp = await SFootball.getFootballList();
-    if (rsp.success) {
-      NModel.dispatch(
-        new NMDFootball.ARSetState({
-          rsp,
-        })
-      );
-    }
+  function renderTimeColumn(time: number) {
+    return (
+      <div onClick={() => UCopy.copyStr(time + "")}>
+        {moment(time).format(UFootball.timeFormatStr)}
+      </div>
+    );
+  }
+  function renderOptionColumn(football: NFootball) {
+    return (
+      <Space>
+        <Button type="link">
+          <Link
+            to={{
+              pathname: NRouter.footballPredictPath,
+              search: qs.stringify({ id: football.id }),
+            }}
+          >
+            编辑
+          </Link>
+        </Button>
+      </Space>
+    );
   }
 };
 export default connect(({ MDFootball }: NModel.IState) => ({

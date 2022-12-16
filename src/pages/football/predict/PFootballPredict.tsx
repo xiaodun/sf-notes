@@ -35,63 +35,46 @@ import { isEmpty, uniqueId } from "lodash";
 import SBase from "@/common/service/SBase";
 import { UModal } from "@/common/utils/modal/UModal";
 import { PageFooter } from "@/common/components/page";
+
+import FootballOddsModal, {
+  IFootballOddsModal,
+} from "../components/FootballOddsModal";
+
 export interface IPFootballPredictProps {
   MDFootball: NMDFootball.IState;
   MDGlobal: NMDGlobal.IState;
 }
 import useRefreshView from "@/common/hooks/useRefreshView";
 
-import { RcCustomRequestOptions } from "antd/lib/upload/interface";
-
 const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
   const { MDFootball } = props;
   const refreshView = useRefreshView();
+
+  const footballOddsModalRef = useRef<IFootballOddsModal>();
+
   useEffect(() => {
     document.title = "结果";
   }, []);
-
+  const urlQuery = qs.parse(window.location.search, {
+    ignoreQueryPrefix: true,
+  }) as {} as NFootball.IUrlQuery;
+  urlQuery.id = +urlQuery.id;
   return (
     <div className={SelfStyle.main}>
-      <Tabs tabPosition="left">
-        <Tabs.TabPane tab="录入" key="record">
-          <Space className="record-wrap" size={100}>
-            <Upload.Dragger
-              accept=".xls"
-              className="upload-wrapper"
-              customRequest={customRequestOdds}
-              showUploadList={false}
-            >
-              <p className="ant-upload-text">赔率录入</p>
-            </Upload.Dragger>
-            <Upload.Dragger
-              accept=".xls"
-              className="upload-wrapper"
-              customRequest={customRequestResult}
-              showUploadList={false}
-            >
-              <p className="ant-upload-text">结果录入</p>
-            </Upload.Dragger>
-          </Space>
-        </Tabs.TabPane>
-      </Tabs>
+      <FootballOddsModal
+        onOk={onUpdateOdds}
+        ref={footballOddsModalRef}
+      ></FootballOddsModal>
+
+      <PageFooter>
+        <Button onClick={showOddsModal}>录入</Button>
+      </PageFooter>
     </div>
   );
-  function customRequestOdds({ file }: RcCustomRequestOptions) {
-    // uploadConfigMapRef.current = produce(
-    //   uploadConfigMapRef.current,
-    //   (drafData) => {
-    //     drafData.set(file, {
-    //       uploadLoading: true,
-    //       loaded: 0,
-    //       total: file.size,
-    //       name: file.name,
-    //     });
-    //   }
-    // );
-    // refreshView();
-    // addItem(file);
+  function showOddsModal() {
+    footballOddsModalRef.current.showModal(urlQuery.id);
   }
-  function customRequestResult({ file }: RcCustomRequestOptions) {}
+  function onUpdateOdds() {}
 };
 export default connect(({ MDFootball, MDGlobal }: NModel.IState) => ({
   MDFootball,
