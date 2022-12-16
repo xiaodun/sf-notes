@@ -15,6 +15,7 @@ import {
   Select,
   Checkbox,
   message,
+  DatePicker,
 } from "antd";
 import produce from "immer";
 import SBase from "@/common/service/SBase";
@@ -22,8 +23,8 @@ import urlParse from "url-parse";
 import USwagger from "@/common/utils/USwagger";
 import NSwagger from "@/common/namespace/NSwagger";
 import SelfStyle from "./AddPredictModal.less";
-import NFootball from "../../NFootball";
-import SFootball from "../../SFootball";
+import NFootball from "../NFootball";
+import SFootball from "../SFootball";
 import { NMDFootball } from "umi";
 import moment from "moment";
 
@@ -33,7 +34,7 @@ export interface IAddPredictModal {
 export interface IAddPredictModalProps {
   onOk: () => void;
 }
-
+import UFootball from "../UFootball";
 export interface IAddPredictModalState {
   visible: boolean;
 }
@@ -54,7 +55,7 @@ const AddPredictModal: ForwardRefRenderFunction<
         produce(state, (drafState) => {
           drafState.visible = true;
           form.setFieldsValue({
-            date: moment().format("yyyy-MM-DD"),
+            name: moment().format(UFootball.dateFormatStr),
           });
           setTimeout(() => {
             if (urlInputRef.current) {
@@ -82,8 +83,14 @@ const AddPredictModal: ForwardRefRenderFunction<
       centered
     >
       <Form form={form} name="basic" layout="vertical" autoComplete="off">
-        <Form.Item label="名字" name="date" rules={[{ required: true }]}>
+        <Form.Item label="名字" name="name" rules={[{ required: true }]}>
           <Input ref={urlInputRef} onPressEnter={onOk} />
+        </Form.Item>
+        <Form.Item label="时间" name="time" rules={[{ required: true }]}>
+          <DatePicker
+            showTime={{ format: UFootball.hourFormatStr }}
+            format={UFootball.timeFormatStr}
+          />
         </Form.Item>
       </Form>
     </Modal>
@@ -94,7 +101,12 @@ const AddPredictModal: ForwardRefRenderFunction<
     form.resetFields();
   }
   function onOk() {
-    form.validateFields().then(async (values) => {});
+    form.validateFields().then(async (values: NFootball) => {
+      values.time = +moment(values.time);
+      await SFootball.createPredict(values);
+      props.onOk();
+      onCancel();
+    });
   }
 };
 export default forwardRef(AddPredictModal);
