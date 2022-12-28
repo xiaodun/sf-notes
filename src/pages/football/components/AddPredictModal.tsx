@@ -1,27 +1,12 @@
 import React, {
   forwardRef,
   ForwardRefRenderFunction,
-  ReactNode,
   useImperativeHandle,
   useRef,
   useState,
 } from "react";
-import {
-  Modal,
-  Button,
-  Form,
-  Input,
-  Radio,
-  Select,
-  Checkbox,
-  message,
-  DatePicker,
-} from "antd";
+import { Modal, Button, Form, Input, DatePicker } from "antd";
 import produce from "immer";
-import SBase from "@/common/service/SBase";
-import urlParse from "url-parse";
-import USwagger from "@/common/utils/USwagger";
-import NSwagger from "@/common/namespace/NSwagger";
 import SelfStyle from "./AddPredictModal.less";
 import NFootball from "../NFootball";
 import SFootball from "../SFootball";

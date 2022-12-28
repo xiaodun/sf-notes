@@ -58,7 +58,6 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
   const urlQuery = qs.parse(window.location.search, {
     ignoreQueryPrefix: true,
   }) as {} as NFootball.IUrlQuery;
-  urlQuery.id = +urlQuery.id;
   return (
     <div className={SelfStyle.main}>
       <FootballOddsModal
