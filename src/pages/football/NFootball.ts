@@ -12,25 +12,44 @@ export namespace NFootball {
     draw: number;
     lose: number;
   }
+  export interface IScoreOdds {
+    home: number;
+    visiting: number;
+    odd?: number;
+    isOther?: boolean;
+    otherDesc?: string;
+  }
+  // export interface IGoalOdds {
+  //   homeTeamDesc: string;
+  //   visitingTeamDesc: string;
+
+  //   odd: number;
+  // }
+  export interface IGoalOdds {
+    count: number;
+    desc: string;
+    odd?: number;
+    isOther?: boolean;
+  }
+  export interface IHalfVictoryOdds {
+    home: string;
+    visiting: string;
+    odd?: number;
+  }
 
   export interface IGameOdds {
     singleVictory: IVictoryOdds;
     handicapVictory: IVictoryOdds;
     score: {
-      home: number;
-      visiting: number;
-      odd: number;
+      winList: Array<IScoreOdds>;
+      drawList: Array<IScoreOdds>;
+      loseList: Array<IScoreOdds>;
     };
-    goal: {
-      [key: number]: number;
-    };
-    halfVictory: {
-      home: string;
-      visiting: string;
-      odd: number;
-    };
+    goalList: Array<IGoalOdds>;
+    halfVictoryList: Array<IHalfVictoryOdds>;
   }
   export interface ITeamOdds {
+    openVictory: boolean;
     homeTeam: string;
     visitingTeam: string;
     handicapCount: number;

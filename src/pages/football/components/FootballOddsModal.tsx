@@ -16,9 +16,12 @@ import {
   InputNumber,
   Row,
   Col,
+  Switch,
 } from "antd";
 import produce from "immer";
 import NFootball from "../NFootball";
+import UFootball from "../UFootball";
+import SFootball from "../SFootball";
 export interface IFootballOddsModal {
   showModal: (id: number) => void;
 }
@@ -41,6 +44,7 @@ const defaultTempData: ITempData = {
   defaultFormData: {
     isLet: true,
     handicapCount: 1,
+    openVictory: false,
   },
 };
 const defaultState: IFootballOddsModalState = {
@@ -97,10 +101,26 @@ const FootballOddsModal: ForwardRefRenderFunction<
         autoComplete="off"
         initialValues={tempDataRef.current.defaultFormData}
       >
-        <Form.Item label="主队名" name="homeTeam">
+        <Form.Item
+          label="主队名"
+          rules={[
+            {
+              required: true,
+            },
+          ]}
+          name="homeTeam"
+        >
           <Mentions ref={firstInputRef} style={{ width: "100%" }} />
         </Form.Item>
-        <Form.Item label="客队名" name="visitingTeam">
+        <Form.Item
+          label="客队名"
+          rules={[
+            {
+              required: true,
+            },
+          ]}
+          name="visitingTeam"
+        >
           <Mentions style={{ width: "100%" }} />
         </Form.Item>
         <Form.Item label="是否为让" name="isLet">
@@ -115,19 +135,50 @@ const FootballOddsModal: ForwardRefRenderFunction<
             <Radio.Button value={2}>2</Radio.Button>
           </Radio.Group>
         </Form.Item>
+        <Form.Item
+          label="允许单买胜平负"
+          name="openVictory"
+          valuePropName="checked"
+        >
+          <Switch></Switch>
+        </Form.Item>
         <Row gutter={2}>
           <Col span={4}>
-            <Form.Item label="胜" name={["oddsInfos", "singleVictory", "win"]}>
+            <Form.Item
+              label="胜"
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+              name={["oddsInfos", "singleVictory", "win"]}
+            >
               <InputNumber></InputNumber>
             </Form.Item>
           </Col>
           <Col span={4}>
-            <Form.Item label="平" name={["oddsInfos", "singleVictory", "draw"]}>
+            <Form.Item
+              label="平"
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+              name={["oddsInfos", "singleVictory", "draw"]}
+            >
               <InputNumber></InputNumber>
             </Form.Item>
           </Col>
           <Col span={4}>
-            <Form.Item label="负" name={["oddsInfos", "singleVictory", "lose"]}>
+            <Form.Item
+              label="负"
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+              name={["oddsInfos", "singleVictory", "lose"]}
+            >
               <InputNumber></InputNumber>
             </Form.Item>
           </Col>
@@ -136,6 +187,11 @@ const FootballOddsModal: ForwardRefRenderFunction<
           <Col span={4}>
             <Form.Item
               label={state.handicapWinLabel}
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
               name={["oddsInfos", "handicapVictory", "win"]}
             >
               <InputNumber></InputNumber>
@@ -144,6 +200,11 @@ const FootballOddsModal: ForwardRefRenderFunction<
           <Col span={4}>
             <Form.Item
               label={state.handicapDrawLabel}
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
               name={["oddsInfos", "handicapVictory", "draw"]}
             >
               <InputNumber></InputNumber>
@@ -152,11 +213,113 @@ const FootballOddsModal: ForwardRefRenderFunction<
           <Col span={4}>
             <Form.Item
               label={state.handicapLoseLabel}
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
               name={["oddsInfos", "handicapVictory", "lose"]}
             >
               <InputNumber></InputNumber>
             </Form.Item>
           </Col>
+        </Row>
+        <Row gutter={2}>
+          {UFootball.scoreWinOddList.map((item, i) => (
+            <Col span={4} key={i}>
+              <Form.Item
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+                label={
+                  item.isOther
+                    ? item.otherDesc
+                    : item.home + ":" + item.visiting
+                }
+                name={["oddsInfos", "score", "winList", i, "odd"]}
+              >
+                <InputNumber></InputNumber>
+              </Form.Item>
+            </Col>
+          ))}
+        </Row>
+        <Row gutter={2}>
+          {UFootball.scoreDrawOddList.map((item, i) => (
+            <Col span={4} key={i}>
+              <Form.Item
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+                label={
+                  item.isOther
+                    ? item.otherDesc
+                    : item.home + ":" + item.visiting
+                }
+                name={["oddsInfos", "score", "drawList", i, "odd"]}
+              >
+                <InputNumber></InputNumber>
+              </Form.Item>
+            </Col>
+          ))}
+        </Row>
+        <Row gutter={2}>
+          {UFootball.scoreLoseOddList.map((item, i) => (
+            <Col span={4} key={i}>
+              <Form.Item
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+                label={
+                  item.isOther
+                    ? item.otherDesc
+                    : item.home + ":" + item.visiting
+                }
+                name={["oddsInfos", "score", "loseList", i, "odd"]}
+              >
+                <InputNumber></InputNumber>
+              </Form.Item>
+            </Col>
+          ))}
+        </Row>
+        <Row gutter={2}>
+          {UFootball.goalOddList.map((item, i) => (
+            <Col span={4} key={i}>
+              <Form.Item
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+                label={item.desc}
+                name={["oddsInfos", "goalList", i, "odd"]}
+              >
+                <InputNumber></InputNumber>
+              </Form.Item>
+            </Col>
+          ))}
+        </Row>
+        <Row gutter={2}>
+          {UFootball.halfVictoryOddList.map((item, i) => (
+            <Col span={4} key={i}>
+              <Form.Item
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+                label={item.home + "/" + item.visiting}
+                name={["oddsInfos", "halfVictoryList", i, "odd"]}
+              >
+                <InputNumber></InputNumber>
+              </Form.Item>
+            </Col>
+          ))}
         </Row>
       </Form>
     </Modal>
@@ -189,19 +352,50 @@ const FootballOddsModal: ForwardRefRenderFunction<
   }
 
   async function onOk() {
-    form.validateFields().then(async (values) => {
-      console.log("wx", values);
-      // const rsp = await SProject.createSnippetGroup({
-      //   ...values,
-      //   id: state.project.id,
-      //   isGroup: true,
-      // });
-      // if (rsp.success) {
-      //   onCancel();
-      //   props.onOk();
-      // } else {
-      //   message.error(rsp.message);
-      // }
+    form.validateFields().then(async (values: NFootball.ITeamOdds) => {
+      values.oddsInfos.score.winList = UFootball.scoreWinOddList.map(
+        (item, i) => {
+          return {
+            ...item,
+            odd: values.oddsInfos.score.winList[i].odd,
+          };
+        }
+      );
+      values.oddsInfos.score.drawList = UFootball.scoreDrawOddList.map(
+        (item, i) => {
+          return {
+            ...item,
+            odd: values.oddsInfos.score.drawList[i].odd,
+          };
+        }
+      );
+      values.oddsInfos.score.loseList = UFootball.scoreLoseOddList.map(
+        (item, i) => {
+          return {
+            ...item,
+            odd: values.oddsInfos.score.loseList[i].odd,
+          };
+        }
+      );
+      values.oddsInfos.goalList = UFootball.goalOddList.map((item, i) => {
+        return {
+          ...item,
+          odd: values.oddsInfos.goalList[i].odd,
+        };
+      });
+      values.oddsInfos.halfVictoryList = UFootball.halfVictoryOddList.map(
+        (item, i) => {
+          return {
+            ...item,
+            odd: values.oddsInfos.halfVictoryList[i].odd,
+          };
+        }
+      );
+      const rsp = await SFootball.saveTeamOdds(tempDataRef.current.id, values);
+      if (rsp.success) {
+        onCancel();
+        props.onOk();
+      }
     });
   }
 };

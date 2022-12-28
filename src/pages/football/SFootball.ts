@@ -5,6 +5,19 @@ import NModel from "@/common/namespace/NModel";
 import { NMDFootball } from "umi";
 
 namespace SFootball {
+  export async function saveTeamOdds(
+    id: number,
+    teamOdds: NFootball.ITeamOdds
+  ): Promise<NRsp<boolean>> {
+    return request({
+      url: "/football/saveTeamOdds",
+      method: "post",
+      data: {
+        id,
+        teamOdds,
+      },
+    });
+  }
   export async function createPredict(data: NFootball): Promise<NRsp<boolean>> {
     return request({
       url: "/football/createPredict",
