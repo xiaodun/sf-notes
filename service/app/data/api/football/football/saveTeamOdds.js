@@ -5,8 +5,15 @@
     const predictInfo = argData.predictList.find(
       (item) => item.id == argParams.id
     );
-    let teamOddId = Date.now() + "";
-    predictInfo.teamOddList.push(teamOddId);
+    let teamOddId;
+    if (argParams.teamOdds.id) {
+      teamOddId = argParams.teamOdds.id;
+    } else {
+      //新增
+      teamOddId = Date.now() + "";
+      argParams.teamOdds.id = teamOddId;
+      predictInfo.teamOddList.push(teamOddId);
+    }
     const teamOddFilePath = path.join(
       external.getPredictDataFolderPath(argParams.id),
       teamOddId + ".json"

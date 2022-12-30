@@ -12,6 +12,7 @@ import {
   Select,
   Space,
   Switch,
+  Table,
   Tabs,
   Upload,
 } from "antd";
@@ -45,35 +46,78 @@ export interface IPFootballPredictProps {
   MDGlobal: NMDGlobal.IState;
 }
 import useRefreshView from "@/common/hooks/useRefreshView";
+import moment from "moment";
+import UFootball from "../UFootball";
 
 const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
   const { MDFootball } = props;
   const refreshView = useRefreshView();
 
   const footballOddsModalRef = useRef<IFootballOddsModal>();
-
-  useEffect(() => {
-    document.title = "结果";
-  }, []);
   const urlQuery = qs.parse(window.location.search, {
     ignoreQueryPrefix: true,
   }) as {} as NFootball.IUrlQuery;
+  useEffect(() => {
+    document.title = "结果";
+    SFootball.getTeamOddList(urlQuery.id);
+  }, []);
+
   return (
     <div className={SelfStyle.main}>
       <FootballOddsModal
         onOk={onUpdateOdds}
         ref={footballOddsModalRef}
       ></FootballOddsModal>
-
+      <Table
+        style={{ marginBottom: 30 }}
+        rowKey={(record) => record.id}
+        size="small"
+        columns={[
+          {
+            title: "场次",
+            key: "team",
+            render: renderTeamColumn,
+          },
+          {
+            title: "时间",
+            key: "time",
+            render: renderTimeColumn,
+          },
+          {
+            title: "操作",
+            key: "option",
+            render: renderOptionColumn,
+          },
+        ]}
+        dataSource={MDFootball.teamOddList}
+        pagination={false}
+      ></Table>
       <PageFooter>
-        <Button onClick={showOddsModal}>录入</Button>
+        <Button onClick={() => showOddsModal(null)}>录入</Button>
       </PageFooter>
     </div>
   );
-  function showOddsModal() {
-    footballOddsModalRef.current.showModal(urlQuery.id);
+  function showOddsModal(teamOdds: NFootball.ITeamOdds) {
+    footballOddsModalRef.current.showModal(urlQuery.id, teamOdds);
   }
-  function onUpdateOdds() {}
+  function onUpdateOdds() {
+    SFootball.getTeamOddList(urlQuery.id);
+  }
+  function renderTeamColumn(teamOdds: NFootball.ITeamOdds) {
+    return `${teamOdds.homeTeam} VS ${teamOdds.visitingTeam}`;
+  }
+  function renderTimeColumn(teamOdds: NFootball.ITeamOdds) {
+    return moment(teamOdds.time).format(UFootball.timeFormatStr);
+  }
+  function renderOptionColumn(teamOdds: NFootball.ITeamOdds) {
+    return (
+      <Space>
+        <Button onClick={() => showOddsModal(teamOdds)} type="link">
+          编辑
+        </Button>
+      </Space>
+    );
+  }
 };
 export default connect(({ MDFootball, MDGlobal }: NModel.IState) => ({
   MDFootball,

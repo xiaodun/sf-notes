@@ -17,13 +17,15 @@ import {
   Row,
   Col,
   Switch,
+  DatePicker,
 } from "antd";
 import produce from "immer";
 import NFootball from "../NFootball";
 import UFootball from "../UFootball";
 import SFootball from "../SFootball";
+import moment from "moment";
 export interface IFootballOddsModal {
-  showModal: (id: number) => void;
+  showModal: (id: number, teamOdds: NFootball.ITeamOdds) => void;
 }
 export interface IFootballOddsModalProps {
   onOk: () => void;
@@ -35,23 +37,26 @@ export interface ITempData {
 }
 export interface IFootballOddsModalState {
   visible: boolean;
+  loading: boolean;
   handicapWinLabel: string;
   handicapDrawLabel: string;
   handicapLoseLabel: string;
 }
-const defaultTempData: ITempData = {
+const getDefaultTempData = (): ITempData => ({
   id: null,
   defaultFormData: {
     isLet: true,
     handicapCount: 1,
     openVictory: false,
+    time: null,
   },
-};
+});
 const defaultState: IFootballOddsModalState = {
   visible: false,
   handicapWinLabel: null,
   handicapLoseLabel: null,
   handicapDrawLabel: null,
+  loading: false,
 };
 const FootballOddsModal: ForwardRefRenderFunction<
   IFootballOddsModal,
@@ -59,11 +64,12 @@ const FootballOddsModal: ForwardRefRenderFunction<
 > = (props, ref) => {
   const [state, setState] = useState<IFootballOddsModalState>(defaultState);
   const [form] = Form.useForm();
-  const firstInputRef = useRef<Mentions>();
-  const tempDataRef = useRef<ITempData>(defaultTempData);
+  const firstInputRef = useRef();
+  const tempDataRef = useRef<ITempData>(getDefaultTempData());
   useImperativeHandle(ref, () => ({
-    showModal: (id: number) => {
+    showModal: (id: number, teamOdds: NFootball.ITeamOdds) => {
       tempDataRef.current.id = id;
+
       setState(
         produce(state, (drafState) => {
           drafState.visible = true;
@@ -71,9 +77,21 @@ const FootballOddsModal: ForwardRefRenderFunction<
           Object.keys(infos).forEach((key) => {
             drafState[key] = infos[key];
           });
+          if (teamOdds) {
+            let data = {
+              ...teamOdds,
+              //@ts-ignore
+              time: moment(teamOdds.time),
+            };
+            form.setFieldsValue(data);
+            tempDataRef.current.defaultFormData = teamOdds;
+          } else {
+            form.setFieldsValue(tempDataRef.current.defaultFormData);
+          }
         })
       );
       setTimeout(() => {
+        // @ts-ignore
         firstInputRef.current?.focus();
       }, 20);
     },
@@ -94,13 +112,7 @@ const FootballOddsModal: ForwardRefRenderFunction<
       onCancel={onCancel}
       centered
     >
-      <Form
-        form={form}
-        name="basic"
-        layout="vertical"
-        autoComplete="off"
-        initialValues={tempDataRef.current.defaultFormData}
-      >
+      <Form form={form} name="basic" layout="vertical" autoComplete="off">
         <Form.Item
           label="主队名"
           rules={[
@@ -122,6 +134,23 @@ const FootballOddsModal: ForwardRefRenderFunction<
           name="visitingTeam"
         >
           <Mentions style={{ width: "100%" }} />
+        </Form.Item>
+        <Form.Item
+          label="编码"
+          rules={[
+            {
+              required: true,
+            },
+          ]}
+          name="code"
+        >
+          <Input style={{ width: "100%" }} />
+        </Form.Item>
+        <Form.Item label="时间" name="time" rules={[{ required: true }]}>
+          <DatePicker
+            showTime={{ format: UFootball.hourFormatStr }}
+            format={UFootball.timeFormatStr}
+          />
         </Form.Item>
         <Form.Item label="是否为让" name="isLet">
           <Radio.Group onChange={onHandicapLabelChange}>
@@ -347,12 +376,21 @@ const FootballOddsModal: ForwardRefRenderFunction<
     };
   }
   function onCancel() {
+    tempDataRef.current.defaultFormData = getDefaultTempData().defaultFormData;
+    tempDataRef.current.id = null;
     setState(defaultState);
     form.resetFields();
   }
 
   async function onOk() {
     form.validateFields().then(async (values: NFootball.ITeamOdds) => {
+      setState(
+        produce(state, (drafState) => {
+          drafState.loading = true;
+        })
+      );
+      values.id = tempDataRef.current.defaultFormData.id;
+      values.time = +moment(values.time);
       values.oddsInfos.score.winList = UFootball.scoreWinOddList.map(
         (item, i) => {
           return {
@@ -392,6 +430,11 @@ const FootballOddsModal: ForwardRefRenderFunction<
         }
       );
       const rsp = await SFootball.saveTeamOdds(tempDataRef.current.id, values);
+      setState(
+        produce(state, (drafState) => {
+          drafState.loading = false;
+        })
+      );
       if (rsp.success) {
         onCancel();
         props.onOk();

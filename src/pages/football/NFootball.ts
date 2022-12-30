@@ -19,12 +19,7 @@ export namespace NFootball {
     isOther?: boolean;
     otherDesc?: string;
   }
-  // export interface IGoalOdds {
-  //   homeTeamDesc: string;
-  //   visitingTeamDesc: string;
 
-  //   odd: number;
-  // }
   export interface IGoalOdds {
     count: number;
     desc: string;
@@ -49,7 +44,10 @@ export namespace NFootball {
     halfVictoryList: Array<IHalfVictoryOdds>;
   }
   export interface ITeamOdds {
+    id?: string;
+    time: number;
     openVictory: boolean;
+    code: string;
     homeTeam: string;
     visitingTeam: string;
     handicapCount: number;
