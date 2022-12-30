@@ -7,6 +7,7 @@ export namespace NMDFootball {
     rsp: NRsp<NFootball>;
     config: NFootball.IConfig;
     football: NFootball;
+    teamOddList: Array<NFootball.ITeamOdds>;
   }
   class Action<P> extends NModel.IAction<P> {
     namespace = NModel.ENames.MDFootball;
@@ -23,9 +24,9 @@ export default {
     rsp: {
       list: [],
     },
-    config: {
-    },
-    football: {},
+    config: {},
+    football: {} as any,
+    teamOddList: [],
   },
   effects: {},
   reducers: {
