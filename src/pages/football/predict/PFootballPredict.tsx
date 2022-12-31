@@ -1,40 +1,11 @@
 import NModel from "@/common/namespace/NModel";
-import {
-  Affix,
-  Button,
-  Col,
-  Form,
-  Input,
-  InputNumber,
-  Menu,
-  message,
-  Row,
-  Select,
-  Space,
-  Switch,
-  Table,
-  Tabs,
-  Upload,
-} from "antd";
+import { Button, Space, Table } from "antd";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { connect, ConnectRC, NMDGlobal, NMDFootball } from "umi";
 import SelfStyle from "./LFootballPredict.less";
 import SFootball from "../SFootball";
 import qs from "qs";
 import NFootball from "../NFootball";
-
-import NFootballPredict from "./NFootballPredict";
-import SyntaxHighlighter from "react-syntax-highlighter";
-import produce from "immer";
-import UCopy from "@/common/utils/UCopy";
-import DirectoryModal, {
-  IDirectoryModal,
-} from "@/common/components/directory/combination/modal/DirectoryModal";
-import { NSystem } from "@/common/namespace/NSystem";
-import { CopyOutlined } from "@ant-design/icons";
-import { isEmpty, uniqueId } from "lodash";
-import SBase from "@/common/service/SBase";
-import { UModal } from "@/common/utils/modal/UModal";
 import { PageFooter } from "@/common/components/page";
 
 import FootballOddsModal, {
@@ -49,11 +20,14 @@ import useRefreshView from "@/common/hooks/useRefreshView";
 import moment from "moment";
 import UFootball from "../UFootball";
 
+import BonusPreviewModal, {
+  IBonusPreviewModal,
+} from "../components/BonusPreviewModal";
+
 const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
   const { MDFootball } = props;
-  const refreshView = useRefreshView();
-
   const footballOddsModalRef = useRef<IFootballOddsModal>();
+  const bonusPreviewModalRef = useRef<IBonusPreviewModal>();
   const urlQuery = qs.parse(window.location.search, {
     ignoreQueryPrefix: true,
   }) as {} as NFootball.IUrlQuery;
@@ -68,6 +42,9 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
         onOk={onUpdateOdds}
         ref={footballOddsModalRef}
       ></FootballOddsModal>
+
+      <BonusPreviewModal ref={bonusPreviewModalRef}></BonusPreviewModal>
+
       <Table
         style={{ marginBottom: 30 }}
         rowKey={(record) => record.id}
@@ -94,22 +71,28 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
       ></Table>
       <PageFooter>
         <Button onClick={() => showOddsModal(null)}>录入</Button>
+        <Button onClick={() => onShowBonusPreviewModal()}>选赔率</Button>
       </PageFooter>
     </div>
   );
-  function showOddsModal(teamOdds: NFootball.ITeamOdds) {
+
+  function onShowBonusPreviewModal() {
+    bonusPreviewModalRef.current.showModal(urlQuery.id, MDFootball.teamOddList);
+  }
+
+  function showOddsModal(teamOdds: NFootball.ITeamRecordOdds) {
     footballOddsModalRef.current.showModal(urlQuery.id, teamOdds);
   }
   function onUpdateOdds() {
     SFootball.getTeamOddList(urlQuery.id);
   }
-  function renderTeamColumn(teamOdds: NFootball.ITeamOdds) {
+  function renderTeamColumn(teamOdds: NFootball.ITeamRecordOdds) {
     return `${teamOdds.homeTeam} VS ${teamOdds.visitingTeam}`;
   }
-  function renderTimeColumn(teamOdds: NFootball.ITeamOdds) {
+  function renderTimeColumn(teamOdds: NFootball.ITeamRecordOdds) {
     return moment(teamOdds.time).format(UFootball.timeFormatStr);
   }
-  function renderOptionColumn(teamOdds: NFootball.ITeamOdds) {
+  function renderOptionColumn(teamOdds: NFootball.ITeamRecordOdds) {
     return (
       <Space>
         <Button onClick={() => showOddsModal(teamOdds)} type="link">

@@ -25,15 +25,15 @@ import UFootball from "../UFootball";
 import SFootball from "../SFootball";
 import moment from "moment";
 export interface IFootballOddsModal {
-  showModal: (id: number, teamOdds: NFootball.ITeamOdds) => void;
+  showModal: (id: string, teamOdds: NFootball.ITeamRecordOdds) => void;
 }
 export interface IFootballOddsModalProps {
   onOk: () => void;
 }
 
 export interface ITempData {
-  id: number;
-  defaultFormData: Partial<NFootball.ITeamOdds>;
+  id: string;
+  defaultFormData: Partial<NFootball.ITeamRecordOdds>;
 }
 export interface IFootballOddsModalState {
   visible: boolean;
@@ -67,7 +67,7 @@ const FootballOddsModal: ForwardRefRenderFunction<
   const firstInputRef = useRef();
   const tempDataRef = useRef<ITempData>(getDefaultTempData());
   useImperativeHandle(ref, () => ({
-    showModal: (id: number, teamOdds: NFootball.ITeamOdds) => {
+    showModal: (id: string, teamOdds: NFootball.ITeamRecordOdds) => {
       tempDataRef.current.id = id;
 
       setState(
@@ -383,7 +383,7 @@ const FootballOddsModal: ForwardRefRenderFunction<
   }
 
   async function onOk() {
-    form.validateFields().then(async (values: NFootball.ITeamOdds) => {
+    form.validateFields().then(async (values: NFootball.ITeamRecordOdds) => {
       setState(
         produce(state, (drafState) => {
           drafState.loading = true;
