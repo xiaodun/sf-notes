@@ -5,7 +5,7 @@ export interface NFootball {
 }
 export namespace NFootball {
   export interface IUrlQuery {
-    id: number;
+    id: string;
   }
   export interface IVictoryOdds {
     win: number;
@@ -31,7 +31,11 @@ export namespace NFootball {
     visiting: string;
     odd?: number;
   }
-
+  export interface IOddResult {
+    list: Array<ITeamResultOdds>;
+    count: number;
+    base: number;
+  }
   export interface IGameOdds {
     singleVictory: IVictoryOdds;
     handicapVictory: IVictoryOdds;
@@ -45,13 +49,19 @@ export namespace NFootball {
   }
   export interface ITeamOdds {
     id?: string;
-    time: number;
-    openVictory: boolean;
     code: string;
     homeTeam: string;
     visitingTeam: string;
-    handicapCount: number;
     isLet: boolean;
+    handicapCount: number;
+  }
+  export interface ITeamResultOdds extends ITeamOdds {
+    resultDesc: string;
+    odd: number;
+  }
+  export interface ITeamRecordOdds extends ITeamOdds {
+    time: number;
+    openVictory: boolean;
     oddsInfos: IGameOdds;
   }
   export interface IConfig {}

@@ -5,21 +5,30 @@ import NModel from "@/common/namespace/NModel";
 import { NMDFootball } from "umi";
 
 namespace SFootball {
-  export async function getTeamOddList(id: number) {
+  export async function getOddResultList(id: string) {
+    return request({
+      url: "/football/getOddResultList",
+      method: "post",
+      data: {
+        id,
+      },
+    });
+  }
+  export async function getTeamOddList(id: string) {
     return request({
       url: "/football/getTeamOddList",
       method: "post",
       data: {
         id,
       },
-    }).then((rsp: NRsp<NFootball.ITeamOdds>) => {
+    }).then((rsp: NRsp<NFootball.ITeamRecordOdds>) => {
       NModel.dispatch(new NMDFootball.ARSetState({ teamOddList: rsp.list }));
       return rsp;
     });
   }
   export async function saveTeamOdds(
     id: number,
-    teamOdds: NFootball.ITeamOdds
+    teamOdds: NFootball.ITeamRecordOdds
   ): Promise<NRsp<boolean>> {
     return request({
       url: "/football/saveTeamOdds",
