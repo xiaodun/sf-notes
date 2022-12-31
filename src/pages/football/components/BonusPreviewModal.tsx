@@ -9,6 +9,7 @@ import { Modal, Button, Form, Input, message, Table } from "antd";
 import produce from "immer";
 import SFootball from "../SFootball";
 import NFootball from "../NFootball";
+import UCopy from "@/common/utils/UCopy";
 export interface IBonusPreviewModal {
   showModal: (
     id: string,
@@ -84,7 +85,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
           },
         ]}
         dataSource={state.oddResultList}
-        pagination={{ pageSize: 10 }}
+        pagination={{ pageSize: 100, showQuickJumper: true }}
       ></Table>
     </Modal>
   );
@@ -115,18 +116,21 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         odd: oddsInfos.singleVictory.win,
         allowSingle: item.openVictory,
         resultDesc: `${data.homeTeam} 胜 ${data.visitingTeam} @${oddsInfos.singleVictory.win}`,
+        codeDesc: `${data.code} 胜`,
       });
       list.push({
         ...data,
         allowSingle: item.openVictory,
         odd: oddsInfos.singleVictory.draw,
         resultDesc: `${data.homeTeam} 平 ${data.visitingTeam} @${oddsInfos.singleVictory.draw}`,
+        codeDesc: `${data.code} 平`,
       });
       list.push({
         ...data,
         odd: oddsInfos.singleVictory.lose,
         allowSingle: item.openVictory,
         resultDesc: `${data.homeTeam} 负 ${data.visitingTeam} @${oddsInfos.singleVictory.lose}`,
+        codeDesc: `${data.code} 负`,
       });
 
       let handicapDesc;
@@ -141,18 +145,21 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         allowSingle: false,
         odd: oddsInfos.handicapVictory.win,
         resultDesc: `${data.homeTeam} ${handicapDesc} 胜 ${data.visitingTeam} @${oddsInfos.handicapVictory.win}`,
+        codeDesc: `${data.code} ${handicapDesc} 胜`,
       });
       list.push({
         ...data,
         allowSingle: false,
         odd: oddsInfos.handicapVictory.draw,
         resultDesc: `${data.homeTeam} ${handicapDesc} 平 ${data.visitingTeam} @${oddsInfos.handicapVictory.draw}`,
+        codeDesc: `${data.code} ${handicapDesc} 平`,
       });
       list.push({
         ...data,
         allowSingle: false,
         odd: oddsInfos.handicapVictory.lose,
         resultDesc: `${data.homeTeam} ${handicapDesc} 负 ${data.visitingTeam} @${oddsInfos.handicapVictory.lose}`,
+        codeDesc: `${data.code} ${handicapDesc} 负`,
       });
       [
         ...oddsInfos.score.winList,
@@ -165,13 +172,18 @@ const BonusPreviewModal: ForwardRefRenderFunction<
           resultDesc: el.isOther
             ? `${data.homeTeam} ${el.otherDesc} ${data.visitingTeam} @${el.odd}`
             : `${data.homeTeam} ${el.home}:${el.visiting} ${data.visitingTeam} @${el.odd}`,
+
+          codeDesc: el.isOther
+            ? `${data.code} ${el.otherDesc}`
+            : `${data.code} ${el.home}:${el.visiting}`,
         });
       });
       oddsInfos.goalList.forEach((el) => {
         list.push({
           ...data,
           odd: el.odd,
-          resultDesc: `${data.homeTeam} 进${el.desc} ${data.visitingTeam} @${el.odd}`,
+          resultDesc: `${data.homeTeam} 总进${el.desc} ${data.visitingTeam} @${el.odd}`,
+          codeDesc: `${data.code} 总进${el.desc}`,
         });
       });
       oddsInfos.halfVictoryList.forEach((el) => {
@@ -179,6 +191,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
           ...data,
           odd: el.odd,
           resultDesc: `${data.homeTeam} ${el.home}/${el.visiting} ${data.visitingTeam} @${el.odd}`,
+          codeDesc: `${data.code} ${el.home}/${el.visiting} `,
         });
       });
       teamOddlist.push(list);
@@ -248,12 +261,15 @@ const BonusPreviewModal: ForwardRefRenderFunction<
     return oddResult.count.toLocaleString();
   }
   function renderResultColumn(oddResult: NFootball.IOddResult) {
+    let copyStr = oddResult.list.map((item) => item.resultDesc).join("\n");
+    copyStr += "\n-------------------------------------\n";
+    copyStr += oddResult.list.map((item) => item.codeDesc).join("\n");
     return (
-      <>
+      <div onClick={() => UCopy.copyStr(copyStr)}>
         {oddResult.list.map((item) => (
           <div>{item.resultDesc}</div>
         ))}
-      </>
+      </div>
     );
   }
   function onCancel() {
