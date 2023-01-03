@@ -57,6 +57,7 @@ export namespace NFootball {
   }
   export interface ITeamResultOdds extends ITeamOdds {
     resultDesc: string;
+    allowSingle?: boolean;
     codeDesc: string;
     odd: number;
   }

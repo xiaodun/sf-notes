@@ -44,9 +44,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         visible: true,
       };
       setState(newState);
-      setTimeout(() => {
-        getOddResultList(id, newState, teamOddList);
-      }, 100);
+      getOddResultList(id, newState, teamOddList);
     },
   }));
 
@@ -95,17 +93,10 @@ const BonusPreviewModal: ForwardRefRenderFunction<
     newState: IBonusPreviewModalState,
     argTeamOddList: Array<NFootball.ITeamRecordOdds>
   ) {
-    // SFootball.getOddResultList(id).then((rsp) => {
-    //   setState({
-    //     ...newState,
-    //     tableLoading: false,
-    //     oddResultList: rsp.list,
-    //   });
-    // });
-    const teamOddlist = [];
+    const teamResultOddList: Array<NFootball.ITeamResultOdds[]> = [];
 
     argTeamOddList.forEach((item) => {
-      let list = [];
+      let list: Array<NFootball.ITeamResultOdds> = [];
       const { oddsInfos, ...restParams } = item;
       let data = {
         ...restParams,
@@ -194,19 +185,19 @@ const BonusPreviewModal: ForwardRefRenderFunction<
           codeDesc: `${data.code} ${el.home}/${el.visiting} `,
         });
       });
-      teamOddlist.push(list);
+      teamResultOddList.push(list);
     });
-    let oddResultList = [];
-    let teamCombinationList = [];
+    let oddResultList: NFootball.IOddResult[] = [];
+    let teamCombinationList: NFootball.ITeamResultOdds[][][] = [];
     getTeamCombinationList(0);
-    function getTeamCombinationList(index) {
+    function getTeamCombinationList(index: number) {
       const list = [];
       teamCombinationList.forEach((el) => {
-        list.push([...el, teamOddlist[index]]);
+        list.push([...el, teamResultOddList[index]]);
       });
-      list.push([teamOddlist[index]]);
+      list.push([teamResultOddList[index]]);
       teamCombinationList = [...teamCombinationList, ...list];
-      if (index < teamOddlist.length - 1) {
+      if (index < teamResultOddList.length - 1) {
         getTeamCombinationList(index + 1);
       }
     }
@@ -231,10 +222,17 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         });
       } else {
         againForEach([], 0);
-        function againForEach(againList, index) {
+        function againForEach(
+          againList: NFootball.ITeamResultOdds[],
+          index: number
+        ) {
           list[index].forEach((el) => {
             if (index === list.length - 1) {
-              let data = { list: [], base: 10, count: 10 };
+              let data: NFootball.IOddResult = {
+                list: [],
+                base: 10,
+                count: 10,
+              };
               [...againList, el].forEach((item) => {
                 data.list.push(item);
                 data.count *= item.odd;
@@ -246,9 +244,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
           });
         }
       }
-      console.log("end", teamCombinationList.length);
     }
-    console.log("sort preview", teamCombinationList.length);
     oddResultList.sort((a, b) => a.count - b.count);
 
     setState({
