@@ -1,5 +1,5 @@
 import NModel from "@/common/namespace/NModel";
-import { Button, Space, Table } from "antd";
+import { Button, message, Space, Table } from "antd";
 import React, { useEffect, useRef } from "react";
 import { connect, ConnectRC, NMDGlobal, NMDFootball } from "umi";
 import SelfStyle from "./LFootballPredict.less";
@@ -22,6 +22,7 @@ import UFootball from "../UFootball";
 import BonusPreviewModal, {
   IBonusPreviewModal,
 } from "../components/BonusPreviewModal";
+import Modal from "antd/lib/modal/Modal";
 
 const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
   const { MDFootball } = props;
@@ -80,7 +81,11 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
   }
 
   function showOddsModal(teamOdds: NFootball.ITeamRecordOdds) {
-    footballOddsModalRef.current.showModal(urlQuery.id, teamOdds);
+    if (MDFootball.teamOddList.length === 4) {
+      message.error(`不能再录入了，5亿种结果网页会崩溃的`);
+    } else {
+      footballOddsModalRef.current.showModal(urlQuery.id, teamOdds);
+    }
   }
   function onUpdateOdds() {
     SFootball.getTeamOddList(urlQuery.id);
