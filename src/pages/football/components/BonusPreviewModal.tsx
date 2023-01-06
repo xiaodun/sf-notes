@@ -7,6 +7,7 @@ import React, {
 import { Modal, Button, Table } from "antd";
 import NFootball from "../NFootball";
 import UCopy from "@/common/utils/UCopy";
+import produce from "immer";
 export interface IBonusPreviewModal {
   showModal: (
     id: string,
@@ -17,12 +18,14 @@ export interface IBonusPreviewModalProps {}
 
 export interface IBonusPreviewModalState {
   id: string;
+  currentPage: number;
   visible: boolean;
   tableLoading: boolean;
   oddResultList: Array<NFootball.IOddResult>;
 }
 const defaultState: IBonusPreviewModalState = {
   id: null,
+  currentPage: 1,
   visible: false,
   tableLoading: false,
   oddResultList: [],
@@ -81,6 +84,14 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         ]}
         dataSource={state.oddResultList}
         pagination={{
+          current: state.currentPage,
+          onChange(page) {
+            setState(
+              produce(state, (drafState) => {
+                drafState.currentPage = page;
+              })
+            );
+          },
           pageSize: 5,
           showQuickJumper: true,
           showSizeChanger: false,
