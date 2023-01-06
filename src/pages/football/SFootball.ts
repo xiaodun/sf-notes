@@ -18,7 +18,7 @@ namespace SFootball {
     });
   }
   export async function saveTeamOdds(
-    id: number,
+    id: string,
     teamOdds: NFootball.ITeamRecordOdds
   ): Promise<NRsp<boolean>> {
     return request({
