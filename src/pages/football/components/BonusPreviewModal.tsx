@@ -4,10 +4,11 @@ import React, {
   useImperativeHandle,
   useState,
 } from "react";
-import { Modal, Button, Table } from "antd";
+import { Modal, Button, Table, Space } from "antd";
 import NFootball from "../NFootball";
 import UCopy from "@/common/utils/UCopy";
 import produce from "immer";
+import SelfStyle from "./BonusPreviewModal.less";
 export interface IBonusPreviewModal {
   showModal: (
     id: string,
@@ -18,15 +19,19 @@ export interface IBonusPreviewModalProps {}
 
 export interface IBonusPreviewModalState {
   id: string;
+  teamCount: number;
   currentPage: number;
   visible: boolean;
+  currentResultIndex: number;
   tableLoading: boolean;
   oddResultList: Array<NFootball.IOddResult>;
 }
 const defaultState: IBonusPreviewModalState = {
   id: null,
+  teamCount: 0,
   currentPage: 1,
   visible: false,
+  currentResultIndex: null,
   tableLoading: false,
   oddResultList: [],
 };
@@ -40,11 +45,14 @@ const BonusPreviewModal: ForwardRefRenderFunction<
       const newState = {
         ...state,
         id,
+        teamCount: teamOddList.length,
         tableLoading: true,
         visible: true,
       };
       setState(newState);
-      getOddResultList(id, newState, teamOddList);
+      setTimeout(() => {
+        getOddResultList(newState, teamOddList);
+      }, 100);
     },
   }));
 
@@ -53,55 +61,94 @@ const BonusPreviewModal: ForwardRefRenderFunction<
       width="960px"
       title="奖金"
       maskClosable={false}
-      bodyStyle={{ maxHeight: "100%" }}
       visible={state.visible}
+      bodyStyle={{ padding: "5px 24px" }}
       footer={
-        <Button type="primary" onClick={onCancel}>
-          关闭
-        </Button>
+        <Space>
+          <Button size="small" onClick={() => onResultRandom(true)}>
+            随机
+          </Button>
+          <Button size="small" onClick={() => onResultRandom(false)}>
+            预览
+          </Button>
+          <Button type="primary" onClick={onCancel}>
+            关闭
+          </Button>
+        </Space>
       }
       onCancel={onCancel}
       centered
     >
-      <Table
-        loading={state.tableLoading}
-        rowKey={(r) => r.list.reduce((pre, item) => pre + item.resultDesc, "")}
-        columns={[
-          {
-            title: "结果",
-            render: renderResultColumn,
-          },
-          {
-            title: "基数",
-            key: "base",
-            dataIndex: "base",
-          },
+      <div className={SelfStyle.main}>
+        <Table
+          className={
+            state.currentResultIndex != null
+              ? "single"
+              : "count" + state.teamCount
+          }
+          loading={state.tableLoading}
+          rowKey={(r) =>
+            r.list.reduce((pre, item) => pre + item.resultDesc, "")
+          }
+          columns={[
+            {
+              title: "结果",
+              render: renderResultColumn,
+            },
+            {
+              title: "基数",
+              key: "base",
+              dataIndex: "base",
+            },
 
-          {
-            title: "奖金",
-            render: renderCountColumn,
-          },
-        ]}
-        dataSource={state.oddResultList}
-        pagination={{
-          current: state.currentPage,
-          onChange(page) {
-            setState(
-              produce(state, (drafState) => {
-                drafState.currentPage = page;
-              })
-            );
-          },
-          pageSize: 5,
-          showQuickJumper: true,
-          showSizeChanger: false,
-        }}
-      ></Table>
+            {
+              title: "奖金",
+              render: renderCountColumn,
+            },
+          ]}
+          dataSource={getDataSource()}
+          pagination={{
+            position: ["topCenter"],
+            current: state.currentPage,
+            onChange(page) {
+              setState(
+                produce(state, (drafState) => {
+                  drafState.currentPage = page;
+                })
+              );
+            },
+            simple: true,
+            hideOnSinglePage: true,
+            pageSize: 5,
+            showQuickJumper: true,
+            showSizeChanger: false,
+          }}
+        ></Table>
+      </div>
     </Modal>
   );
 
+  function getDataSource() {
+    if (state.currentResultIndex === null) {
+      return state.oddResultList;
+    }
+
+    return [state.oddResultList[state.currentResultIndex]];
+  }
+  function onResultRandom(isRandom: boolean) {
+    setState(
+      produce(state, (drafState) => {
+        if (isRandom) {
+          drafState.currentResultIndex =
+            (Math.random() * (state.oddResultList.length + 1)) | 0;
+        } else {
+          drafState.currentResultIndex = null;
+        }
+      })
+    );
+  }
+
   function getOddResultList(
-    id: string,
     newState: IBonusPreviewModalState,
     argTeamOddList: Array<NFootball.ITeamRecordOdds>
   ) {
