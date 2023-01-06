@@ -7,10 +7,8 @@ import React, {
 } from "react";
 import { Modal, Button, Form, Input, DatePicker } from "antd";
 import produce from "immer";
-import SelfStyle from "./AddPredictModal.less";
 import NFootball from "../NFootball";
 import SFootball from "../SFootball";
-import { NMDFootball } from "umi";
 import moment from "moment";
 
 export interface IAddPredictModal {
@@ -71,12 +69,6 @@ const AddPredictModal: ForwardRefRenderFunction<
         <Form.Item label="名字" name="name" rules={[{ required: true }]}>
           <Input ref={urlInputRef} onPressEnter={onOk} />
         </Form.Item>
-        <Form.Item label="时间" name="time" rules={[{ required: true }]}>
-          <DatePicker
-            showTime={{ format: UFootball.hourFormatStr }}
-            format={UFootball.timeFormatStr}
-          />
-        </Form.Item>
       </Form>
     </Modal>
   );
@@ -87,7 +79,6 @@ const AddPredictModal: ForwardRefRenderFunction<
   }
   function onOk() {
     form.validateFields().then(async (values: NFootball) => {
-      values.time = +moment(values.time);
       await SFootball.createPredict(values);
       props.onOk();
       onCancel();
