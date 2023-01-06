@@ -45,7 +45,6 @@ export interface IFootballOddsModalState {
 const getDefaultTempData = (): ITempData => ({
   id: null,
   defaultFormData: {
-    isLet: true,
     handicapCount: 1,
     openVictory: false,
     time: null,
@@ -152,16 +151,13 @@ const FootballOddsModal: ForwardRefRenderFunction<
             format={UFootball.timeFormatStr}
           />
         </Form.Item>
-        <Form.Item label="是否为让" name="isLet">
-          <Radio.Group onChange={onHandicapLabelChange}>
-            <Radio.Button value={true}>是</Radio.Button>
-            <Radio.Button value={false}>否</Radio.Button>
-          </Radio.Group>
-        </Form.Item>
+
         <Form.Item label="让球数" name="handicapCount">
           <Radio.Group onChange={onHandicapLabelChange}>
             <Radio.Button value={1}>1</Radio.Button>
             <Radio.Button value={2}>2</Radio.Button>
+            <Radio.Button value={-1}>-1</Radio.Button>
+            <Radio.Button value={-2}>-2</Radio.Button>
           </Radio.Group>
         </Form.Item>
         <Form.Item
@@ -364,11 +360,11 @@ const FootballOddsModal: ForwardRefRenderFunction<
     );
   }
   function getHandicapLabel() {
-    let isLet = form.getFieldValue("isLet");
     let handicapCount =
       form.getFieldValue("handicapCount") ||
       tempDataRef.current.defaultFormData.handicapCount;
-    let prefix = (isLet ? "让" : "受让") + handicapCount + "球";
+    let prefix =
+      (handicapCount < 0 ? "让" : "受让") + Math.abs(handicapCount) + "球";
     return {
       handicapWinLabel: prefix + "胜",
       handicapDrawLabel: prefix + "平",

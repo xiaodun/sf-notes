@@ -2,12 +2,9 @@ import React, {
   forwardRef,
   ForwardRefRenderFunction,
   useImperativeHandle,
-  useRef,
   useState,
 } from "react";
-import { Modal, Button, Form, Input, message, Table } from "antd";
-import produce from "immer";
-import SFootball from "../SFootball";
+import { Modal, Button, Table } from "antd";
 import NFootball from "../NFootball";
 import UCopy from "@/common/utils/UCopy";
 export interface IBonusPreviewModal {
@@ -83,7 +80,11 @@ const BonusPreviewModal: ForwardRefRenderFunction<
           },
         ]}
         dataSource={state.oddResultList}
-        pagination={{ pageSize: 100, showQuickJumper: true }}
+        pagination={{
+          pageSize: 5,
+          showQuickJumper: true,
+          showSizeChanger: false,
+        }}
       ></Table>
     </Modal>
   );
@@ -125,10 +126,10 @@ const BonusPreviewModal: ForwardRefRenderFunction<
       });
 
       let handicapDesc;
-      if (item.isLet) {
-        handicapDesc = "让" + item.handicapCount + "球";
+      if (item.handicapCount < 0) {
+        handicapDesc = "让" + Math.abs(item.handicapCount) + "球";
       } else {
-        handicapDesc = "受让" + item.handicapCount + "球";
+        handicapDesc = "受让" + Math.abs(item.handicapCount) + "球";
       }
 
       list.push({
@@ -203,12 +204,9 @@ const BonusPreviewModal: ForwardRefRenderFunction<
     }
 
     let base = 10;
-    teamCombinationList.forEach((list) => {
-      console.log(list.length);
-    });
+
     for (let i = 0; i < teamCombinationList.length; i++) {
       const list = teamCombinationList[i];
-      console.log(list.length);
 
       if (list.length === 1) {
         list[0].forEach((item) => {

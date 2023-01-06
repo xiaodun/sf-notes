@@ -5,15 +5,6 @@ import NModel from "@/common/namespace/NModel";
 import { NMDFootball } from "umi";
 
 namespace SFootball {
-  export async function getOddResultList(id: string) {
-    return request({
-      url: "/football/getOddResultList",
-      method: "post",
-      data: {
-        id,
-      },
-    });
-  }
   export async function getTeamOddList(id: string) {
     return request({
       url: "/football/getTeamOddList",

@@ -52,7 +52,6 @@ export namespace NFootball {
     code: string;
     homeTeam: string;
     visitingTeam: string;
-    isLet: boolean;
     handicapCount: number;
   }
   export interface ITeamResultOdds extends ITeamOdds {

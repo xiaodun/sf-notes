@@ -1,6 +1,6 @@
 import NModel from "@/common/namespace/NModel";
 import { Button, Space, Table } from "antd";
-import React, { ReactNode, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { connect, ConnectRC, NMDGlobal, NMDFootball } from "umi";
 import SelfStyle from "./LFootballPredict.less";
 import SFootball from "../SFootball";
@@ -16,7 +16,6 @@ export interface IPFootballPredictProps {
   MDFootball: NMDFootball.IState;
   MDGlobal: NMDGlobal.IState;
 }
-import useRefreshView from "@/common/hooks/useRefreshView";
 import moment from "moment";
 import UFootball from "../UFootball";
 
@@ -90,7 +89,7 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
     return `${teamOdds.homeTeam} VS ${teamOdds.visitingTeam}`;
   }
   function renderTimeColumn(teamOdds: NFootball.ITeamRecordOdds) {
-    return moment(teamOdds.time).format(UFootball.timeFormatStr);
+    return moment(+teamOdds.id).format(UFootball.timeFormatStr);
   }
   function renderOptionColumn(teamOdds: NFootball.ITeamRecordOdds) {
     return (
