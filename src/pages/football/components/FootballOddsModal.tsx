@@ -10,14 +10,12 @@ import {
   Button,
   Form,
   Input,
-  message,
   Mentions,
   Radio,
   InputNumber,
   Row,
   Col,
   Switch,
-  DatePicker,
 } from "antd";
 import produce from "immer";
 import NFootball from "../NFootball";
@@ -47,7 +45,6 @@ const getDefaultTempData = (): ITempData => ({
   defaultFormData: {
     handicapCount: 1,
     openVictory: false,
-    time: null,
   },
 });
 const defaultState: IFootballOddsModalState = {
@@ -77,12 +74,7 @@ const FootballOddsModal: ForwardRefRenderFunction<
             drafState[key] = infos[key];
           });
           if (teamOdds) {
-            let data = {
-              ...teamOdds,
-              //@ts-ignore
-              time: moment(teamOdds.time),
-            };
-            form.setFieldsValue(data);
+            form.setFieldsValue(teamOdds);
             tempDataRef.current.defaultFormData = teamOdds;
           } else {
             form.setFieldsValue(tempDataRef.current.defaultFormData);
@@ -145,17 +137,10 @@ const FootballOddsModal: ForwardRefRenderFunction<
         >
           <Input style={{ width: "100%" }} />
         </Form.Item>
-        <Form.Item label="时间" name="time" rules={[{ required: true }]}>
-          <DatePicker
-            showTime={{ format: UFootball.hourFormatStr }}
-            format={UFootball.timeFormatStr}
-          />
-        </Form.Item>
-
         <Form.Item label="让球数" name="handicapCount">
           <Radio.Group onChange={onHandicapLabelChange}>
-            <Radio.Button value={1}>1</Radio.Button>
-            <Radio.Button value={2}>2</Radio.Button>
+            <Radio.Button value={1}>+1</Radio.Button>
+            <Radio.Button value={2}>+2</Radio.Button>
             <Radio.Button value={-1}>-1</Radio.Button>
             <Radio.Button value={-2}>-2</Radio.Button>
           </Radio.Group>
@@ -386,7 +371,6 @@ const FootballOddsModal: ForwardRefRenderFunction<
         })
       );
       values.id = tempDataRef.current.defaultFormData.id;
-      values.time = +moment(values.time);
       values.oddsInfos.score.winList = UFootball.scoreWinOddList.map(
         (item, i) => {
           return {

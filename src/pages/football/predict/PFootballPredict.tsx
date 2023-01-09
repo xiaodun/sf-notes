@@ -81,7 +81,7 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
   }
 
   function showOddsModal(teamOdds: NFootball.ITeamRecordOdds) {
-    if (MDFootball.teamOddList.length === 4) {
+    if (!teamOdds && MDFootball.teamOddList.length === 4) {
       message.error(`不能再录入了，5亿种结果网页会崩溃的`);
     } else {
       footballOddsModalRef.current.showModal(urlQuery.id, teamOdds);

@@ -2,6 +2,7 @@ import React, {
   forwardRef,
   ForwardRefRenderFunction,
   useImperativeHandle,
+  useRef,
   useState,
 } from "react";
 import { Modal, Button, Table, Space } from "antd";
@@ -20,6 +21,7 @@ export interface IBonusPreviewModalProps {}
 export interface IBonusPreviewModalState {
   id: string;
   teamCount: number;
+  total: number;
   currentPage: number;
   visible: boolean;
   currentResultIndex: number;
@@ -30,6 +32,7 @@ const defaultState: IBonusPreviewModalState = {
   id: null,
   teamCount: 0,
   currentPage: 1,
+  total: 0,
   visible: false,
   currentResultIndex: null,
   tableLoading: false,
@@ -40,6 +43,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
   IBonusPreviewModalProps
 > = (props, ref) => {
   const [state, setState] = useState<IBonusPreviewModalState>(defaultState);
+  const allOddResultListRef = useRef<Array<NFootball.IOddResult>>([]);
   useImperativeHandle(ref, () => ({
     showModal: (id: string, teamOddList: Array<NFootball.ITeamRecordOdds>) => {
       const newState = {
@@ -55,7 +59,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
       }, 100);
     },
   }));
-
+  const pageSize = 5;
   return (
     <Modal
       width="960px"
@@ -106,20 +110,15 @@ const BonusPreviewModal: ForwardRefRenderFunction<
               render: renderCountColumn,
             },
           ]}
-          dataSource={getDataSource()}
+          dataSource={state.oddResultList}
           pagination={{
             position: ["topCenter"],
             current: state.currentPage,
-            onChange(page) {
-              setState(
-                produce(state, (drafState) => {
-                  drafState.currentPage = page;
-                })
-              );
-            },
-            simple: true,
+            onChange: onPageChange,
+            total: state.total,
             hideOnSinglePage: true,
-            pageSize: 5,
+            simple: true,
+            pageSize,
             showQuickJumper: true,
             showSizeChanger: false,
           }}
@@ -128,21 +127,34 @@ const BonusPreviewModal: ForwardRefRenderFunction<
     </Modal>
   );
 
-  function getDataSource() {
-    if (state.currentResultIndex === null) {
-      return state.oddResultList;
-    }
+  function onPageChange(page: number) {
+    setState(
+      produce(state, (drafState) => {
+        drafState.currentPage = page;
 
-    return [state.oddResultList[state.currentResultIndex]];
+        drafState.oddResultList = allOddResultListRef.current.slice(
+          (page - 1) * pageSize,
+          page * pageSize
+        );
+      })
+    );
   }
+
   function onResultRandom(isRandom: boolean) {
     setState(
       produce(state, (drafState) => {
         if (isRandom) {
           drafState.currentResultIndex =
-            (Math.random() * (state.oddResultList.length + 1)) | 0;
+            (Math.random() * (allOddResultListRef.current.length + 1)) | 0;
+          drafState.oddResultList = [
+            allOddResultListRef.current[drafState.currentResultIndex],
+          ];
         } else {
           drafState.currentResultIndex = null;
+          drafState.oddResultList = allOddResultListRef.current.slice(
+            (state.currentPage - 1) * pageSize,
+            state.currentPage * pageSize
+          );
         }
       })
     );
@@ -303,10 +315,15 @@ const BonusPreviewModal: ForwardRefRenderFunction<
     }
     oddResultList.sort((a, b) => a.count - b.count);
 
+    allOddResultListRef.current = oddResultList;
     setState({
       ...newState,
+      total: oddResultList.length,
       tableLoading: false,
-      oddResultList,
+      oddResultList: allOddResultListRef.current.slice(
+        (state.currentPage - 1) * pageSize,
+        state.currentPage * pageSize
+      ),
     });
   }
   function renderCountColumn(oddResult: NFootball.IOddResult) {
