@@ -1,7 +1,6 @@
 export interface NFootball {
   id?: number;
   name: string;
-  time: number;
 }
 export namespace NFootball {
   export interface IUrlQuery {
@@ -61,7 +60,6 @@ export namespace NFootball {
     odd: number;
   }
   export interface ITeamRecordOdds extends ITeamOdds {
-    time: number;
     openVictory: boolean;
     oddsInfos: IGameOdds;
   }
