@@ -10,6 +10,7 @@ import NFootball from "../NFootball";
 import UCopy from "@/common/utils/UCopy";
 import produce from "immer";
 import SelfStyle from "./BonusPreviewModal.less";
+import UNumber from "@/common/utils/UNumber";
 export interface IBonusPreviewModal {
   showModal: (
     id: string,
@@ -327,12 +328,14 @@ const BonusPreviewModal: ForwardRefRenderFunction<
     });
   }
   function renderCountColumn(oddResult: NFootball.IOddResult) {
-    return oddResult.count.toLocaleString();
+    return UNumber.formatWithYuanUnit(Math.ceil(oddResult.count));
   }
   function renderResultColumn(oddResult: NFootball.IOddResult) {
     let copyStr = oddResult.list.map((item) => item.resultDesc).join("\n");
     copyStr += "\n-------------------------------------\n";
     copyStr += oddResult.list.map((item) => item.codeDesc).join("\n");
+    copyStr +=
+      "\n" + UNumber.formatWithYuanUnit(Math.ceil(oddResult.count)) + "\n\n\n";
     return (
       <div onClick={() => UCopy.copyStr(copyStr)}>
         {oddResult.list.map((item) => (
