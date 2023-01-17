@@ -100,14 +100,9 @@ const BonusPreviewModal: ForwardRefRenderFunction<
               title: "结果",
               render: renderResultColumn,
             },
-            {
-              title: "基数",
-              key: "base",
-              dataIndex: "base",
-            },
 
             {
-              title: "奖金",
+              title: "赔率",
               render: renderCountColumn,
             },
           ]}
@@ -274,8 +269,6 @@ const BonusPreviewModal: ForwardRefRenderFunction<
       }
     }
 
-    let base = 10;
-
     for (let i = 0; i < teamCombinationList.length; i++) {
       const list = teamCombinationList[i];
 
@@ -284,8 +277,8 @@ const BonusPreviewModal: ForwardRefRenderFunction<
           if (item.allowSingle !== false) {
             oddResultList.push({
               list: [item],
-              base,
-              count: item.odd * base,
+
+              count: item.odd,
             });
           }
         });
@@ -299,13 +292,16 @@ const BonusPreviewModal: ForwardRefRenderFunction<
             if (index === list.length - 1) {
               let data: NFootball.IOddResult = {
                 list: [],
-                base: 10,
-                count: 10,
+
+                count: 1,
               };
               [...againList, el].forEach((item) => {
                 data.list.push(item);
                 data.count *= item.odd;
               });
+              if (argTeamOddList.length == 4 && data.count > 250000) {
+                data.count = 250000;
+              }
               oddResultList.push(data);
             } else {
               againForEach([...againList, el], index + 1);
@@ -328,14 +324,13 @@ const BonusPreviewModal: ForwardRefRenderFunction<
     });
   }
   function renderCountColumn(oddResult: NFootball.IOddResult) {
-    return UNumber.formatWithYuanUnit(Math.ceil(oddResult.count));
+    return UNumber.formatWithYuanUnit(oddResult.count);
   }
   function renderResultColumn(oddResult: NFootball.IOddResult) {
     let copyStr = oddResult.list.map((item) => item.resultDesc).join("\n");
     copyStr += "\n-------------------------------------\n";
     copyStr += oddResult.list.map((item) => item.codeDesc).join("\n");
-    copyStr +=
-      "\n" + UNumber.formatWithYuanUnit(Math.ceil(oddResult.count)) + "\n\n\n";
+    copyStr += "\n" + UNumber.formatWithYuanUnit(oddResult.count) + "\n\n\n";
     return (
       <div onClick={() => UCopy.copyStr(copyStr)}>
         {oddResult.list.map((item) => (

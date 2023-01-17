@@ -1,5 +1,11 @@
 export namespace UNumber {
-  export function formatWithYuanUnit(yuan: number) {
+  export function formatWithYuanUnit(yuan: number, digit = 3) {
+    let stuffix = "";
+    if (Math.ceil(yuan) !== yuan) {
+      let list = (yuan + "").split(".");
+      yuan = +list[0];
+      stuffix = list[1].slice(0, digit);
+    }
     const levelList = ["", "万", "亿"];
     const digitList = ["", "十", "百", "千"];
     const numList = [
@@ -14,9 +20,7 @@ export namespace UNumber {
       "八",
       "九",
     ];
-    if (yuan < 10) {
-      return numList[yuan];
-    }
+
     const list = String(yuan)
       .replace(/(\d)(?=(\d{4})+$)/g, "$1,")
       .split(",");
@@ -44,6 +48,9 @@ export namespace UNumber {
         finalStr += levelList[list.length - 1 - i1];
       }
     });
+    if (stuffix) {
+      finalStr += "." + [...stuffix].map((k, i) => numList[k]).join("");
+    }
     return finalStr;
   }
 }

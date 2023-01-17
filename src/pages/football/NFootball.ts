@@ -33,7 +33,6 @@ export namespace NFootball {
   export interface IOddResult {
     list: Array<ITeamResultOdds>;
     count: number;
-    base: number;
   }
   export interface IGameOdds {
     singleVictory: IVictoryOdds;
