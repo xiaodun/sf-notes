@@ -70,7 +70,7 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
         pagination={false}
       ></Table>
       <PageFooter>
-        <Button onClick={() => showOddsModal(null)}>录入</Button>
+        <Button onClick={() => showOddsModal(null)}>手动录入</Button>
         <Button onClick={() => onShowBonusPreviewModal()}>选赔率</Button>
       </PageFooter>
     </div>
