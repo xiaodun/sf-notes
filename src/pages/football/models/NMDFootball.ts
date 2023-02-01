@@ -24,7 +24,9 @@ export default {
     rsp: {
       list: [],
     },
-    config: {},
+    config: {
+      maxGameCount: 4,
+    },
     football: {} as any,
     teamOddList: [],
   },

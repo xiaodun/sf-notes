@@ -3,6 +3,7 @@ export interface NFootball {
   name: string;
 }
 export namespace NFootball {
+  export interface IGameInfo {}
   export interface IUrlQuery {
     id: string;
   }
@@ -62,6 +63,8 @@ export namespace NFootball {
     openVictory: boolean;
     oddsInfos: IGameOdds;
   }
-  export interface IConfig {}
+  export interface IConfig {
+    maxGameCount: number;
+  }
 }
 export default NFootball;

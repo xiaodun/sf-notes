@@ -22,12 +22,13 @@ import UFootball from "../UFootball";
 import BonusPreviewModal, {
   IBonusPreviewModal,
 } from "../components/BonusPreviewModal";
-import Modal from "antd/lib/modal/Modal";
+import CrawlingmModal, { ICrawlingmModal } from "../components/CrawlingmModal";
 
 const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
   const { MDFootball } = props;
   const footballOddsModalRef = useRef<IFootballOddsModal>();
   const bonusPreviewModalRef = useRef<IBonusPreviewModal>();
+  const crawlingmModalRef = useRef<ICrawlingmModal>();
   const urlQuery = qs.parse(window.location.search, {
     ignoreQueryPrefix: true,
   }) as {} as NFootball.IUrlQuery;
@@ -44,6 +45,10 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
       ></FootballOddsModal>
 
       <BonusPreviewModal ref={bonusPreviewModalRef}></BonusPreviewModal>
+      <CrawlingmModal
+        ref={crawlingmModalRef}
+        onOk={onCrawlingmOk}
+      ></CrawlingmModal>
 
       <Table
         style={{ marginBottom: 30 }}
@@ -70,18 +75,26 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
         pagination={false}
       ></Table>
       <PageFooter>
+        <Button onClick={() => showCrawlingmModal()}>爬取</Button>
         <Button onClick={() => showOddsModal(null)}>手动录入</Button>
         <Button onClick={() => onShowBonusPreviewModal()}>选赔率</Button>
       </PageFooter>
     </div>
   );
 
+  function onCrawlingmOk() {}
   function onShowBonusPreviewModal() {
     bonusPreviewModalRef.current.showModal(urlQuery.id, MDFootball.teamOddList);
   }
 
+  function showCrawlingmModal() {
+    crawlingmModalRef.current.showModal(urlQuery.id);
+  }
   function showOddsModal(teamOdds: NFootball.ITeamRecordOdds) {
-    if (!teamOdds && MDFootball.teamOddList.length === 4) {
+    if (
+      !teamOdds &&
+      MDFootball.teamOddList.length === MDFootball.config.maxGameCount
+    ) {
       message.error(`不能再录入了，5亿种结果网页会崩溃的`);
     } else {
       footballOddsModalRef.current.showModal(urlQuery.id, teamOdds);

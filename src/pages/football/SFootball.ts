@@ -5,6 +5,14 @@ import NModel from "@/common/namespace/NModel";
 import { NMDFootball } from "umi";
 
 namespace SFootball {
+  export async function getAllowGuessGame(): Promise<
+    NRsp<NFootball.IGameInfo>
+  > {
+    return request({
+      url: "/football/getAllowGuessGame",
+      method: "get",
+    });
+  }
   export async function getTeamOddList(id: string) {
     return request({
       url: "/football/getTeamOddList",
