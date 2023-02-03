@@ -46,8 +46,9 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
 
       <BonusPreviewModal ref={bonusPreviewModalRef}></BonusPreviewModal>
       <CrawlingmModal
+        MDFootball={MDFootball}
         ref={crawlingmModalRef}
-        onOk={onCrawlingmOk}
+        onOk={onUpdateOdds}
       ></CrawlingmModal>
 
       <Table
@@ -82,8 +83,11 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
     </div>
   );
 
-  function onCrawlingmOk() {}
   function onShowBonusPreviewModal() {
+    if (MDFootball.teamOddList.length === MDFootball.config.maxGameCount) {
+      message.error(`最多支持录入${MDFootball.config.maxGameCount}`);
+      return;
+    }
     bonusPreviewModalRef.current.showModal(urlQuery.id, MDFootball.teamOddList);
   }
 
@@ -95,7 +99,7 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
       !teamOdds &&
       MDFootball.teamOddList.length === MDFootball.config.maxGameCount
     ) {
-      message.error(`不能再录入了，5亿种结果网页会崩溃的`);
+      message.error(`最多支持录入${MDFootball.config.maxGameCount}`);
     } else {
       footballOddsModalRef.current.showModal(urlQuery.id, teamOdds);
     }

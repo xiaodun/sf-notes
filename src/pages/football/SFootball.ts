@@ -5,6 +5,19 @@ import NModel from "@/common/namespace/NModel";
 import { NMDFootball } from "umi";
 
 namespace SFootball {
+  export async function getSingleOddInfo(
+    code: string,
+    bet_id: string
+  ): Promise<NRsp<NFootball.ITeamRecordOdds>> {
+    return request({
+      url: "/football/getSingleOddInfo",
+      method: "post",
+      data: {
+        code,
+        bet_id,
+      },
+    });
+  }
   export async function getAllowGuessGame(): Promise<
     NRsp<NFootball.IGameInfo>
   > {
