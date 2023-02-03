@@ -3,7 +3,13 @@ export interface NFootball {
   name: string;
 }
 export namespace NFootball {
-  export interface IGameInfo {}
+  export interface IGameInfo {
+    date: string;
+    homeTeam: string;
+    visitingTeam: string;
+    code: string;
+    bet_id: string;
+  }
   export interface IUrlQuery {
     id: string;
   }
