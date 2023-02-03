@@ -84,10 +84,6 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
   );
 
   function onShowBonusPreviewModal() {
-    if (MDFootball.teamOddList.length === MDFootball.config.maxGameCount) {
-      message.error(`最多支持录入${MDFootball.config.maxGameCount}`);
-      return;
-    }
     bonusPreviewModalRef.current.showModal(urlQuery.id, MDFootball.teamOddList);
   }
 
