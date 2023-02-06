@@ -1,15 +1,6 @@
 import { PageFooter } from "@/common/components/page";
 import NModel from "@/common/namespace/NModel";
-import {
-  Alert,
-  Button,
-  Dropdown,
-  Menu,
-  message,
-  Space,
-  Table,
-  Tag,
-} from "antd";
+import { Alert, Button, Space, Table, Tag } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { connect, ConnectRC, NMDIterative } from "umi";
 import NIterative from "../NIterative";
@@ -22,7 +13,6 @@ import AddProjectModal, {
 import { UModal } from "@/common/utils/modal/UModal";
 import SBase from "@/common/service/SBase";
 import SelectEnvModal, { ISelectEnvModal } from "./components/SelectEnvModal";
-import MarkTagModal, { IMarkTagModal } from "./components/MarkTagModal";
 
 export interface IIterativeReleaseProps {
   MDIterative: NMDIterative.IState;
@@ -40,7 +30,6 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
   const [switchIterativeBranchLoading, setSwitchIterativeBranchLoading] =
     useState(false);
 
-  const markTagModalRef = useRef<IMarkTagModal>();
   const selectEnvModalRef = useRef<ISelectEnvModal>();
   const addProjectModalRef = useRef<IAddProjectModal>();
   const urlQuery = qs.parse(window.location.search, {
@@ -62,11 +51,6 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
   }
   return (
     <div>
-      <MarkTagModal
-        MDIterative={MDIterative}
-        ref={markTagModalRef}
-      ></MarkTagModal>
-
       <AddProjectModal
         MDIterative={MDIterative}
         ref={addProjectModalRef}
@@ -174,8 +158,6 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
       ></Table>
       <PageFooter>
         <Button onClick={() => onShowAddProjectModal()}>添加项目</Button>
-
-        <Button onClick={() => onShowMarkTagModal()}>打标签</Button>
       </PageFooter>
     </div>
   );
@@ -201,10 +183,6 @@ const Iterative: ConnectRC<IIterativeReleaseProps> = (props) => {
     if (selectProjectList.length > 0) {
       UCopy.copyStr(selectProjectList.map((item) => item.name).join("、"));
     }
-  }
-
-  function onShowMarkTagModal() {
-    markTagModalRef.current.showModal();
   }
 
   async function onSwitchIterativeBranch() {
