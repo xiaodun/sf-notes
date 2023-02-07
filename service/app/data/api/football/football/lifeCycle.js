@@ -8,9 +8,69 @@
         external.getPredictDataFolderPath = (id) => {
           return path.join(rootPath, id + "");
         };
+        external.getGameResultList = (
+          matchBeginDate,
+          matchEndDate,
+          codeList,
+          callback
+        ) => {
+          let listHref = `https://webapi.sporttery.cn/gateway/jc/football/getMatchResultV1.qry?matchPage=1&matchBeginDate=${matchBeginDate}&matchEndDate=${matchEndDate}&leagueId=&pageSize=30&pageNo=1&isFix=0&pcOrWap=1`;
+          console.log("getGameResultList", listHref);
+          const request = require("request");
+          const syncRequest = require("sync-request");
+          request(listHref, function (error, response, body) {
+            body = JSON.parse(body);
+            const listInfo = body.value.matchResult.reduce((total, cur) => {
+              total[cur.matchNum] = cur;
+              return total;
+            }, {});
+
+            let resultInfos = {};
+
+            for (let i = 0; i < codeList.length; i++) {
+              const resultHref = `https://webapi.sporttery.cn/gateway/jc/football/getFixedBonusV1.qry?clientCode=3001&matchId=${
+                listInfo[codeList[i]].matchId
+              }`;
+              const words = {
+                A: "负",
+                D: "平",
+                H: "胜",
+              };
+              const resultRsp = syncRequest("get", resultHref);
+
+              resultBody = JSON.parse(resultRsp.getBody().toString());
+
+              resultInfos[codeList[i]] = resultBody.value.matchResultList.map(
+                (item) => {
+                  let desc = "";
+                  if (item.code == "CRS") {
+                    desc = item.combination;
+                  } else if (item.code == "HAD") {
+                    desc = words[item.combination];
+                  } else if (item.code == "HAFU") {
+                    desc =
+                      words[item.combination.split(":")[0]] +
+                      "/" +
+                      words[item.combination.split(":")[1]];
+                  } else if (item.code == "HHAD") {
+                    desc = "让球" + words[item.combination];
+                  } else if (item.code == "TTG") {
+                    desc = "进" + item.combination + "球";
+                  }
+                  return {
+                    desc,
+                    odds: +item.odds,
+                  };
+                }
+              );
+            }
+            callback(resultInfos);
+          });
+        };
         external.getNoStartGameList = (callback) => {
           let href =
             "https://apic.jindianle.com/api/match/selectlist?platform=koudai_mobile&_prt=https&ver=20180101000000&hide_more=1";
+          console.log("getNoStartGameList", href);
 
           const request = require("request");
           request(href, function (error, response, body) {
@@ -20,10 +80,13 @@
               Object.keys(body.data[dateKey]).forEach((codeKey) => {
                 const infos = body.data[dateKey][codeKey];
                 list.push({
-                  date: infos.bet_time,
+                  time: infos.bet_time,
+                  date: infos.bet_date,
+
                   homeTeam: infos.host_name_s,
                   visitingTeam: infos.guest_name_s,
                   code: infos.serial_no,
+
                   bet_id:
                     infos.list.SportteryNWDL?.bet_id ||
                     infos.list.SportteryWDL?.bet_id,
@@ -42,7 +105,7 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
 
             `;
 
-          console.log(href);
+          console.log("getSingleOddInfo", href);
 
           const request = require("request");
           request(href, function (error, response, body) {
@@ -50,6 +113,8 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
             body = JSON.parse(body);
             const infos = body.data[code];
             data = {
+              time: infos.bet_time,
+              date: infos.bet_date,
               code: infos.serial_no,
               homeTeam: infos.host_name_s,
               visitingTeam: infos.guest_name_s,

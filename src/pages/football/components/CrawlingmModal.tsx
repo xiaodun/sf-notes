@@ -107,8 +107,8 @@ const CrawlingmModal: ForwardRefRenderFunction<
           },
           {
             title: "日期",
-            key: "date",
-            dataIndex: "date",
+            key: "time",
+            dataIndex: "time",
           },
         ]}
         dataSource={state.gameList}

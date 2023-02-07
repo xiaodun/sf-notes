@@ -3,6 +3,12 @@ export interface NFootball {
   name: string;
 }
 export namespace NFootball {
+  export interface IPredictResult {
+    [key: string]: {
+      desc: string;
+      odds: number;
+    }[];
+  }
   export interface IGameInfo {
     date: string;
     homeTeam: string;
@@ -53,6 +59,8 @@ export namespace NFootball {
     halfVictoryList: Array<IHalfVictoryOdds>;
   }
   export interface ITeamOdds {
+    time: string;
+    date: string;
     id?: string;
     code: string;
     homeTeam: string;

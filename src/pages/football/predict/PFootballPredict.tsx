@@ -24,11 +24,17 @@ import BonusPreviewModal, {
 } from "../components/BonusPreviewModal";
 import CrawlingmModal, { ICrawlingmModal } from "../components/CrawlingmModal";
 
+import GameResultModal, {
+  IGameResultModal,
+} from "../components/GameResultModal";
+
 const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
   const { MDFootball } = props;
   const footballOddsModalRef = useRef<IFootballOddsModal>();
   const bonusPreviewModalRef = useRef<IBonusPreviewModal>();
   const crawlingmModalRef = useRef<ICrawlingmModal>();
+  const gameResultModalRef = useRef<IGameResultModal>();
+
   const urlQuery = qs.parse(window.location.search, {
     ignoreQueryPrefix: true,
   }) as {} as NFootball.IUrlQuery;
@@ -39,6 +45,11 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
 
   return (
     <div className={SelfStyle.main}>
+      <GameResultModal
+        MDFootball={MDFootball}
+        ref={gameResultModalRef}
+      ></GameResultModal>
+
       <FootballOddsModal
         onOk={onUpdateOdds}
         ref={footballOddsModalRef}
@@ -64,7 +75,7 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
           {
             title: "时间",
             key: "time",
-            render: renderTimeColumn,
+            dataIndex: "time",
           },
           {
             title: "操作",
@@ -77,8 +88,10 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
       ></Table>
       <PageFooter>
         <Button onClick={() => showCrawlingmModal()}>爬取</Button>
-        <Button onClick={() => showOddsModal(null)}>手动录入</Button>
+        {/* <Button onClick={() => showOddsModal(null)}>手动录入</Button> */}
         <Button onClick={() => onShowBonusPreviewModal()}>选赔率</Button>
+
+        <Button onClick={() => onShowGameResultModal()}>比赛结果</Button>
       </PageFooter>
     </div>
   );
@@ -87,7 +100,15 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
     bonusPreviewModalRef.current.showModal(urlQuery.id, MDFootball.teamOddList);
   }
 
+  function onShowGameResultModal() {
+    gameResultModalRef.current.showModal();
+  }
+
   function showCrawlingmModal() {
+    if (MDFootball.teamOddList.length === MDFootball.config.maxGameCount) {
+      message.error(`最多支持录入${MDFootball.config.maxGameCount}`);
+      return;
+    }
     crawlingmModalRef.current.showModal(urlQuery.id);
   }
   function showOddsModal(teamOdds: NFootball.ITeamRecordOdds) {
@@ -106,9 +127,7 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
   function renderTeamColumn(teamOdds: NFootball.ITeamRecordOdds) {
     return `${teamOdds.homeTeam} VS ${teamOdds.visitingTeam}`;
   }
-  function renderTimeColumn(teamOdds: NFootball.ITeamRecordOdds) {
-    return moment(+teamOdds.id).format(UFootball.timeFormatStr);
-  }
+
   function renderOptionColumn(teamOdds: NFootball.ITeamRecordOdds) {
     return (
       <Space>

@@ -5,6 +5,21 @@ import NModel from "@/common/namespace/NModel";
 import { NMDFootball } from "umi";
 
 namespace SFootball {
+  export async function getGameResultList(
+    matchBeginDate: string,
+    matchEndDate: string,
+    codeList: string[]
+  ): Promise<NRsp<NFootball.IPredictResult>> {
+    return request({
+      url: "/football/getGameResultList",
+      method: "post",
+      data: {
+        matchBeginDate,
+        matchEndDate,
+        codeList,
+      },
+    });
+  }
   export async function getSingleOddInfo(
     code: string,
     bet_id: string
