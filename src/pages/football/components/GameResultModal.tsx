@@ -100,11 +100,12 @@ const GameResultModal: ForwardRefRenderFunction<
     </Modal>
   );
   function getCountOdds() {
-    let count;
+    let count = 1;
     if (Object.keys(state.predictResult).length) {
-      let str = "最大赔率为: ";
       const maxOddsList = MDFootball.teamOddList.map((team) =>
-        Math.max(...state.predictResult[team.code].map((item) => item.odds))
+        state.predictResult[team.code]
+          ? Math.max(...state.predictResult[team.code].map((item) => item.odds))
+          : 0
       );
       count = maxOddsList.reduce((total, cur) => (total *= cur), 1);
     }
@@ -112,9 +113,11 @@ const GameResultModal: ForwardRefRenderFunction<
   }
   function renderDescColumn(item: NFootball.ITeamRecordOdds) {
     const gameResultList = state.predictResult[item.code];
-    return gameResultList?.map((item, index) => (
-      <div key={index}>{item.desc + " @ " + item.odds}</div>
-    ));
+    return gameResultList?.[0]?.hasResult
+      ? gameResultList.map((item, index) => (
+          <div key={index}>{item.desc + " @ " + item.odds}</div>
+        ))
+      : "未出结果";
   }
   function renderGameColumn(item: NFootball.ITeamRecordOdds) {
     return item.homeTeam + " vs " + item.visitingTeam;
