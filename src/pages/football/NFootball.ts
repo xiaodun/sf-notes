@@ -5,6 +5,7 @@ export interface NFootball {
 export namespace NFootball {
   export interface IPredictResult {
     [key: string]: {
+      hasResult: boolean;
       desc: string;
       odds: number;
     }[];

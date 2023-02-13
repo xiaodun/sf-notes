@@ -28,42 +28,53 @@
             let resultInfos = {};
 
             for (let i = 0; i < codeList.length; i++) {
-              const resultHref = `https://webapi.sporttery.cn/gateway/jc/football/getFixedBonusV1.qry?clientCode=3001&matchId=${
-                listInfo[codeList[i]].matchId
-              }`;
-              const words = {
-                A: "负",
-                D: "平",
-                H: "胜",
-              };
-              const resultRsp = syncRequest("get", resultHref);
+              if (listInfo[codeList[i]]) {
+                const resultHref = `https://webapi.sporttery.cn/gateway/jc/football/getFixedBonusV1.qry?clientCode=3001&matchId=${
+                  listInfo[codeList[i]].matchId
+                }`;
+                const words = {
+                  A: "负",
+                  D: "平",
+                  H: "胜",
+                };
+                const resultRsp = syncRequest("get", resultHref);
 
-              resultBody = JSON.parse(resultRsp.getBody().toString());
+                resultBody = JSON.parse(resultRsp.getBody().toString());
 
-              resultInfos[codeList[i]] = resultBody.value.matchResultList.map(
-                (item) => {
-                  let desc = "";
-                  if (item.code == "CRS") {
-                    desc = item.combination;
-                  } else if (item.code == "HAD") {
-                    desc = words[item.combination];
-                  } else if (item.code == "HAFU") {
-                    desc =
-                      words[item.combination.split(":")[0]] +
-                      "/" +
-                      words[item.combination.split(":")[1]];
-                  } else if (item.code == "HHAD") {
-                    desc = "让球" + words[item.combination];
-                  } else if (item.code == "TTG") {
-                    desc = "进" + item.combination + "球";
+                resultInfos[codeList[i]] = resultBody.value.matchResultList.map(
+                  (item) => {
+                    let desc = "";
+                    if (item.code == "CRS") {
+                      desc = item.combination;
+                    } else if (item.code == "HAD") {
+                      desc = words[item.combination];
+                    } else if (item.code == "HAFU") {
+                      desc =
+                        words[item.combination.split(":")[0]] +
+                        "/" +
+                        words[item.combination.split(":")[1]];
+                    } else if (item.code == "HHAD") {
+                      desc = "让球" + words[item.combination];
+                    } else if (item.code == "TTG") {
+                      desc = "进" + item.combination + "球";
+                    }
+                    return {
+                      hasResult: true,
+                      desc,
+                      odds: +item.odds,
+                    };
                   }
-                  return {
-                    desc,
-                    odds: +item.odds,
-                  };
-                }
-              );
+                );
+              } else {
+                resultInfos[codeList[i]] = [
+                  {
+                    hasResult: false,
+                    odds: 0,
+                  },
+                ];
+              }
             }
+
             callback(resultInfos);
           });
         };
