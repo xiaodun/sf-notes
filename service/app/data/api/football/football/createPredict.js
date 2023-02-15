@@ -3,7 +3,7 @@
     argParams.id = Date.now() + "";
     argParams.teamOddList = [];
     const fs = require("fs");
-    argData.predictList.push(argParams);
+    argData.predictList.unshift(argParams);
     const folderPath = external.getPredictDataFolderPath(argParams.id);
     fs.mkdirSync(folderPath);
     return {

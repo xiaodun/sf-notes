@@ -66,6 +66,15 @@ namespace SFootball {
       },
     });
   }
+  export async function delPredict(id: number): Promise<NRsp<boolean>> {
+    return request({
+      url: "/football/delPredict",
+      method: "post",
+      data: {
+        id,
+      },
+    });
+  }
   export async function createPredict(data: NFootball): Promise<NRsp<boolean>> {
     return request({
       url: "/football/createPredict",

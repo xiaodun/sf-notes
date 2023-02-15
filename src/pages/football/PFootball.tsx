@@ -98,6 +98,16 @@ const Football: ConnectRC<IFootballProps> = (props) => {
             编辑
           </Link>
         </Button>
+        <Button
+          type="link"
+          onClick={() => {
+            SFootball.delPredict(football.id).then(() => {
+              SFootball.getPredictList();
+            });
+          }}
+        >
+          删除
+        </Button>
       </Space>
     );
   }
