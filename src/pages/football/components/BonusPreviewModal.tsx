@@ -60,7 +60,8 @@ const BonusPreviewModal: ForwardRefRenderFunction<
       }, 100);
     },
   }));
-  const pageSize = 5;
+  const pageSize = 5,
+    spaceCount = 20;
   return (
     <Modal
       width="960px"
@@ -92,9 +93,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
               : "count" + state.teamCount
           }
           loading={state.tableLoading}
-          rowKey={(r) =>
-            r.list.reduce((pre, item) => pre + item.resultDesc, "")
-          }
+          rowKey={() => Math.random() + ""}
           columns={[
             {
               title: "结果",
@@ -122,7 +121,9 @@ const BonusPreviewModal: ForwardRefRenderFunction<
       </div>
     </Modal>
   );
-
+  function fixedWidth(char: string) {
+    return `<span style="width:60px;display:inline-block">${char}</span>`;
+  }
   function onPageChange(page: number) {
     setState(
       produce(state, (drafState) => {
@@ -173,21 +174,27 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         ...data,
         odd: oddsInfos.singleVictory.win,
         allowSingle: item.openVictory,
-        resultDesc: `${data.homeTeam} 胜 ${data.visitingTeam} @${oddsInfos.singleVictory.win}`,
+        resultDesc: `${fixedWidth("胜")}@${oddsInfos.singleVictory.win}  ${
+          data.homeTeam
+        } vs ${data.visitingTeam}`,
         codeDesc: `${data.code} 胜`,
       });
       list.push({
         ...data,
         allowSingle: item.openVictory,
         odd: oddsInfos.singleVictory.draw,
-        resultDesc: `${data.homeTeam} 平 ${data.visitingTeam} @${oddsInfos.singleVictory.draw}`,
+        resultDesc: `${fixedWidth("平")}@${oddsInfos.singleVictory.draw}  ${
+          data.homeTeam
+        } vs  ${data.visitingTeam}`,
         codeDesc: `${data.code} 平`,
       });
       list.push({
         ...data,
         odd: oddsInfos.singleVictory.lose,
         allowSingle: item.openVictory,
-        resultDesc: `${data.homeTeam} 负 ${data.visitingTeam} @${oddsInfos.singleVictory.lose}`,
+        resultDesc: `${fixedWidth("负")}@${oddsInfos.singleVictory.lose}  ${
+          data.homeTeam
+        }  vs ${data.visitingTeam} `,
         codeDesc: `${data.code} 负`,
       });
 
@@ -202,21 +209,27 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         ...data,
         allowSingle: false,
         odd: oddsInfos.handicapVictory.win,
-        resultDesc: `${data.homeTeam} ${handicapDesc} 胜 ${data.visitingTeam} @${oddsInfos.handicapVictory.win}`,
+        resultDesc: `${fixedWidth(handicapDesc + "胜")}@${
+          oddsInfos.handicapVictory.win
+        }  ${data.homeTeam} vs  ${data.visitingTeam} `,
         codeDesc: `${data.code} ${handicapDesc} 胜`,
       });
       list.push({
         ...data,
         allowSingle: false,
         odd: oddsInfos.handicapVictory.draw,
-        resultDesc: `${data.homeTeam} ${handicapDesc} 平 ${data.visitingTeam} @${oddsInfos.handicapVictory.draw}`,
+        resultDesc: `${fixedWidth(handicapDesc + "平")}@${
+          oddsInfos.handicapVictory.draw
+        }  ${data.homeTeam} vs ${data.visitingTeam} `,
         codeDesc: `${data.code} ${handicapDesc} 平`,
       });
       list.push({
         ...data,
         allowSingle: false,
         odd: oddsInfos.handicapVictory.lose,
-        resultDesc: `${data.homeTeam} ${handicapDesc} 负 ${data.visitingTeam} @${oddsInfos.handicapVictory.lose}`,
+        resultDesc: `${fixedWidth(handicapDesc + "负")}@${
+          oddsInfos.handicapVictory.lose
+        }  ${data.homeTeam} vs ${data.visitingTeam}`,
         codeDesc: `${data.code} ${handicapDesc} 负`,
       });
       [
@@ -228,8 +241,12 @@ const BonusPreviewModal: ForwardRefRenderFunction<
           ...data,
           odd: el.odd,
           resultDesc: el.isOther
-            ? `${data.homeTeam} ${el.otherDesc} ${data.visitingTeam} @${el.odd}`
-            : `${data.homeTeam} ${el.home}:${el.visiting} ${data.visitingTeam} @${el.odd}`,
+            ? `${fixedWidth(el.otherDesc)}@${el.odd}  ${data.homeTeam} vs ${
+                data.visitingTeam
+              } `
+            : `${fixedWidth(el.home + ":" + el.visiting)}  @${el.odd} ${
+                data.homeTeam
+              } vs ${data.visitingTeam}`,
 
           codeDesc: el.isOther
             ? `${data.code} ${el.otherDesc}`
@@ -240,7 +257,9 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         list.push({
           ...data,
           odd: el.odd,
-          resultDesc: `${data.homeTeam} 总进${el.desc} ${data.visitingTeam} @${el.odd}`,
+          resultDesc: `${fixedWidth("总进" + el.desc)}@${el.odd}  ${
+            data.homeTeam
+          } vs ${data.visitingTeam} `,
           codeDesc: `${data.code} 总进${el.desc}`,
         });
       });
@@ -248,7 +267,9 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         list.push({
           ...data,
           odd: el.odd,
-          resultDesc: `${data.homeTeam} ${el.home}/${el.visiting} ${data.visitingTeam} @${el.odd}`,
+          resultDesc: `${fixedWidth(el.home + "/" + el.visiting)}@${el.odd}  ${
+            data.homeTeam
+          } vs ${data.visitingTeam}`,
           codeDesc: `${data.code} ${el.home}/${el.visiting} `,
         });
       });
@@ -327,14 +348,19 @@ const BonusPreviewModal: ForwardRefRenderFunction<
     return UNumber.formatWithYuanUnit(oddResult.count);
   }
   function renderResultColumn(oddResult: NFootball.IOddResult) {
-    let copyStr = oddResult.list.map((item) => item.resultDesc).join("\n");
-    copyStr += "\n-------------------------------------\n";
+    let copyStr = "\n-------------------------------------\n";
     copyStr += oddResult.list.map((item) => item.codeDesc).join("\n");
     copyStr += "\n" + UNumber.formatWithYuanUnit(oddResult.count) + "\n\n\n";
     return (
       <div onClick={() => UCopy.copyStr(copyStr)}>
-        {oddResult.list.map((item) => (
-          <div>{item.resultDesc}</div>
+        {oddResult.list.map((item, index) => (
+          <div
+            key={index}
+            style={{ whiteSpace: "pre-wrap" }}
+            dangerouslySetInnerHTML={{
+              __html: item.resultDesc,
+            }}
+          ></div>
         ))}
       </div>
     );

@@ -1,16 +1,12 @@
 import { PageFooter } from "@/common/components/page";
 import NModel from "@/common/namespace/NModel";
 import NRouter from "@/../config/router/NRouter";
-import { Button, message, Space, Table, Tag } from "antd";
+import { Button, Space, Table, Tag } from "antd";
 import React, { useEffect, useRef } from "react";
 import { connect, ConnectRC, Link, NMDFootball } from "umi";
-import SelfStyle from "./LFootball.less";
 import NFootball from "./NFootball";
 import SFootball from "./SFootball";
 import qs from "qs";
-import produce from "immer";
-import NRsp from "@/common/namespace/NRsp";
-import { cloneDeep } from "lodash";
 import UCopy from "@/common/utils/UCopy";
 import moment from "moment";
 export interface IFootballProps {
@@ -47,8 +43,8 @@ const Football: ConnectRC<IFootballProps> = (props) => {
           },
           {
             title: "日期",
-            key: "time",
-            dataIndex: "time",
+            key: "id",
+            dataIndex: "id",
             render: renderTimeColumn,
           },
 
@@ -78,10 +74,10 @@ const Football: ConnectRC<IFootballProps> = (props) => {
   function renderNameColumn(name: string) {
     return <div onClick={() => UCopy.copyStr(name)}>{name}</div>;
   }
-  function renderTimeColumn(time: number) {
+  function renderTimeColumn(id: number) {
     return (
-      <div onClick={() => UCopy.copyStr(time + "")}>
-        {moment(time).format(UFootball.timeFormatStr)}
+      <div onClick={() => UCopy.copyStr(id + "")}>
+        {moment(+id).format(UFootball.timeFormatStr)}
       </div>
     );
   }

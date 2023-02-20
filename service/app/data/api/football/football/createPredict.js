@@ -1,6 +1,6 @@
 (function () {
   return function (argData, argParams, external) {
-    argParams.id = Date.now() + "";
+    argParams.id = Date.now();
     argParams.teamOddList = [];
     const fs = require("fs");
     argData.predictList.unshift(argParams);

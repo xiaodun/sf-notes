@@ -88,7 +88,6 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
       ></Table>
       <PageFooter>
         <Button onClick={() => showCrawlingmModal()}>爬取</Button>
-        {/* <Button onClick={() => showOddsModal(null)}>手动录入</Button> */}
         <Button onClick={() => onShowBonusPreviewModal()}>选赔率</Button>
 
         <Button onClick={() => onShowGameResultModal()}>比赛结果</Button>
@@ -97,7 +96,14 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
   );
 
   function onShowBonusPreviewModal() {
-    bonusPreviewModalRef.current.showModal(urlQuery.id, MDFootball.teamOddList);
+    if (MDFootball.teamOddList.length) {
+      bonusPreviewModalRef.current.showModal(
+        urlQuery.id,
+        MDFootball.teamOddList
+      );
+    } else {
+      message.error("请录入");
+    }
   }
 
   function onShowGameResultModal() {
