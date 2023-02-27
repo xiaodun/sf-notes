@@ -14,7 +14,7 @@
           codeList,
           callback
         ) => {
-          let listHref = `https://webapi.sporttery.cn/gateway/jc/football/getMatchResultV1.qry?matchPage=1&matchBeginDate=${matchBeginDate}&matchEndDate=${matchEndDate}&leagueId=&pageSize=30&pageNo=1&isFix=0&pcOrWap=1`;
+          let listHref = `https://webapi.sporttery.cn/gateway/jc/football/getMatchResultV1.qry?matchPage=1&matchBeginDate=${matchBeginDate}&matchEndDate=${matchEndDate}&leagueId=&pageSize=300&pageNo=1&isFix=0&pcOrWap=1`;
           console.log("getGameResultList", listHref);
           const request = require("request");
           const syncRequest = require("sync-request");
