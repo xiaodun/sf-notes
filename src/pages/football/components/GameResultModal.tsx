@@ -120,7 +120,7 @@ const GameResultModal: ForwardRefRenderFunction<
       : "未出结果";
   }
   function renderGameColumn(item: NFootball.ITeamRecordOdds) {
-    return item.homeTeam + " vs " + item.visitingTeam;
+    return `${item.homeTeam} VS ${item.visitingTeam} - ${item.code}`;
   }
 
   function onCancel() {
