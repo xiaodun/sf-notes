@@ -4,7 +4,7 @@ import React, {
   useImperativeHandle,
   useRef,
   useState,
-} from "react";
+} from 'react';
 import {
   Modal,
   Button,
@@ -16,14 +16,17 @@ import {
   Row,
   Col,
   Switch,
-} from "antd";
-import produce from "immer";
-import NFootball from "../NFootball";
-import UFootball from "../UFootball";
-import SFootball from "../SFootball";
-import moment from "moment";
+} from 'antd';
+import { produce } from 'immer';
+import NFootball from '../NFootball';
+import UFootball from '../UFootball';
+import SFootball from '../SFootball';
+import moment from 'moment';
 export interface IFootballOddsModal {
-  showModal: (id: string, teamOdds: NFootball.ITeamRecordOdds) => void;
+  showModal: (
+    id: string,
+    teamOdds: NFootball.ITeamRecordOdds,
+  ) => void;
 }
 export interface IFootballOddsModalProps {
   onOk: () => void;
@@ -58,7 +61,8 @@ const FootballOddsModal: ForwardRefRenderFunction<
   IFootballOddsModal,
   IFootballOddsModalProps
 > = (props, ref) => {
-  const [state, setState] = useState<IFootballOddsModalState>(defaultState);
+  const [state, setState] =
+    useState<IFootballOddsModalState>(defaultState);
   const [form] = Form.useForm();
   const firstInputRef = useRef();
   const tempDataRef = useRef<ITempData>(getDefaultTempData());
@@ -79,7 +83,7 @@ const FootballOddsModal: ForwardRefRenderFunction<
           } else {
             form.setFieldsValue(tempDataRef.current.defaultFormData);
           }
-        })
+        }),
       );
       setTimeout(() => {
         // @ts-ignore
@@ -93,7 +97,7 @@ const FootballOddsModal: ForwardRefRenderFunction<
       width="800px"
       title="赔率信息"
       maskClosable={false}
-      bodyStyle={{ maxHeight: "100%" }}
+      bodyStyle={{ maxHeight: '100%' }}
       visible={state.visible}
       footer={
         <Button type="primary" onClick={onOk}>
@@ -103,7 +107,12 @@ const FootballOddsModal: ForwardRefRenderFunction<
       onCancel={onCancel}
       centered
     >
-      <Form form={form} name="basic" layout="vertical" autoComplete="off">
+      <Form
+        form={form}
+        name="basic"
+        layout="vertical"
+        autoComplete="off"
+      >
         <Form.Item
           label="主队名"
           rules={[
@@ -113,7 +122,7 @@ const FootballOddsModal: ForwardRefRenderFunction<
           ]}
           name="homeTeam"
         >
-          <Mentions ref={firstInputRef} style={{ width: "100%" }} />
+          <Mentions ref={firstInputRef} style={{ width: '100%' }} />
         </Form.Item>
         <Form.Item
           label="客队名"
@@ -124,7 +133,7 @@ const FootballOddsModal: ForwardRefRenderFunction<
           ]}
           name="visitingTeam"
         >
-          <Mentions style={{ width: "100%" }} />
+          <Mentions style={{ width: '100%' }} />
         </Form.Item>
         <Form.Item
           label="编码"
@@ -135,7 +144,7 @@ const FootballOddsModal: ForwardRefRenderFunction<
           ]}
           name="code"
         >
-          <Input style={{ width: "100%" }} />
+          <Input style={{ width: '100%' }} />
         </Form.Item>
         <Form.Item label="让球数" name="handicapCount">
           <Radio.Group onChange={onHandicapLabelChange}>
@@ -161,7 +170,7 @@ const FootballOddsModal: ForwardRefRenderFunction<
                   required: true,
                 },
               ]}
-              name={["oddsInfos", "singleVictory", "win"]}
+              name={['oddsInfos', 'singleVictory', 'win']}
             >
               <InputNumber></InputNumber>
             </Form.Item>
@@ -174,7 +183,7 @@ const FootballOddsModal: ForwardRefRenderFunction<
                   required: true,
                 },
               ]}
-              name={["oddsInfos", "singleVictory", "draw"]}
+              name={['oddsInfos', 'singleVictory', 'draw']}
             >
               <InputNumber></InputNumber>
             </Form.Item>
@@ -187,7 +196,7 @@ const FootballOddsModal: ForwardRefRenderFunction<
                   required: true,
                 },
               ]}
-              name={["oddsInfos", "singleVictory", "lose"]}
+              name={['oddsInfos', 'singleVictory', 'lose']}
             >
               <InputNumber></InputNumber>
             </Form.Item>
@@ -202,7 +211,7 @@ const FootballOddsModal: ForwardRefRenderFunction<
                   required: true,
                 },
               ]}
-              name={["oddsInfos", "handicapVictory", "win"]}
+              name={['oddsInfos', 'handicapVictory', 'win']}
             >
               <InputNumber></InputNumber>
             </Form.Item>
@@ -215,7 +224,7 @@ const FootballOddsModal: ForwardRefRenderFunction<
                   required: true,
                 },
               ]}
-              name={["oddsInfos", "handicapVictory", "draw"]}
+              name={['oddsInfos', 'handicapVictory', 'draw']}
             >
               <InputNumber></InputNumber>
             </Form.Item>
@@ -228,7 +237,7 @@ const FootballOddsModal: ForwardRefRenderFunction<
                   required: true,
                 },
               ]}
-              name={["oddsInfos", "handicapVictory", "lose"]}
+              name={['oddsInfos', 'handicapVictory', 'lose']}
             >
               <InputNumber></InputNumber>
             </Form.Item>
@@ -246,9 +255,9 @@ const FootballOddsModal: ForwardRefRenderFunction<
                 label={
                   item.isOther
                     ? item.otherDesc
-                    : item.home + ":" + item.visiting
+                    : item.home + ':' + item.visiting
                 }
-                name={["oddsInfos", "score", "winList", i, "odd"]}
+                name={['oddsInfos', 'score', 'winList', i, 'odd']}
               >
                 <InputNumber></InputNumber>
               </Form.Item>
@@ -267,9 +276,9 @@ const FootballOddsModal: ForwardRefRenderFunction<
                 label={
                   item.isOther
                     ? item.otherDesc
-                    : item.home + ":" + item.visiting
+                    : item.home + ':' + item.visiting
                 }
-                name={["oddsInfos", "score", "drawList", i, "odd"]}
+                name={['oddsInfos', 'score', 'drawList', i, 'odd']}
               >
                 <InputNumber></InputNumber>
               </Form.Item>
@@ -288,9 +297,9 @@ const FootballOddsModal: ForwardRefRenderFunction<
                 label={
                   item.isOther
                     ? item.otherDesc
-                    : item.home + ":" + item.visiting
+                    : item.home + ':' + item.visiting
                 }
-                name={["oddsInfos", "score", "loseList", i, "odd"]}
+                name={['oddsInfos', 'score', 'loseList', i, 'odd']}
               >
                 <InputNumber></InputNumber>
               </Form.Item>
@@ -307,7 +316,7 @@ const FootballOddsModal: ForwardRefRenderFunction<
                   },
                 ]}
                 label={item.desc}
-                name={["oddsInfos", "goalList", i, "odd"]}
+                name={['oddsInfos', 'goalList', i, 'odd']}
               >
                 <InputNumber></InputNumber>
               </Form.Item>
@@ -323,8 +332,8 @@ const FootballOddsModal: ForwardRefRenderFunction<
                     required: true,
                   },
                 ]}
-                label={item.home + "/" + item.visiting}
-                name={["oddsInfos", "halfVictoryList", i, "odd"]}
+                label={item.home + '/' + item.visiting}
+                name={['oddsInfos', 'halfVictoryList', i, 'odd']}
               >
                 <InputNumber></InputNumber>
               </Form.Item>
@@ -341,85 +350,91 @@ const FootballOddsModal: ForwardRefRenderFunction<
         Object.keys(infos).forEach((key) => {
           drafState[key] = infos[key];
         });
-      })
+      }),
     );
   }
   function getHandicapLabel() {
     let handicapCount =
-      form.getFieldValue("handicapCount") ||
+      form.getFieldValue('handicapCount') ||
       tempDataRef.current.defaultFormData.handicapCount;
     let prefix =
-      (handicapCount < 0 ? "让" : "受让") + Math.abs(handicapCount) + "球";
+      (handicapCount < 0 ? '让' : '受让') +
+      Math.abs(handicapCount) +
+      '球';
     return {
-      handicapWinLabel: prefix + "胜",
-      handicapDrawLabel: prefix + "平",
-      handicapLoseLabel: prefix + "负",
+      handicapWinLabel: prefix + '胜',
+      handicapDrawLabel: prefix + '平',
+      handicapLoseLabel: prefix + '负',
     };
   }
   function onCancel() {
-    tempDataRef.current.defaultFormData = getDefaultTempData().defaultFormData;
+    tempDataRef.current.defaultFormData =
+      getDefaultTempData().defaultFormData;
     tempDataRef.current.id = null;
     setState(defaultState);
     form.resetFields();
   }
 
   async function onOk() {
-    form.validateFields().then(async (values: NFootball.ITeamRecordOdds) => {
-      setState(
-        produce(state, (drafState) => {
-          drafState.loading = true;
-        })
-      );
-      values.id = tempDataRef.current.defaultFormData.id;
-      values.oddsInfos.score.winList = UFootball.scoreWinOddList.map(
-        (item, i) => {
-          return {
-            ...item,
-            odd: values.oddsInfos.score.winList[i].odd,
-          };
+    form
+      .validateFields()
+      .then(async (values: NFootball.ITeamRecordOdds) => {
+        setState(
+          produce(state, (drafState) => {
+            drafState.loading = true;
+          }),
+        );
+        values.id = tempDataRef.current.defaultFormData.id;
+        values.oddsInfos.score.winList =
+          UFootball.scoreWinOddList.map((item, i) => {
+            return {
+              ...item,
+              odd: values.oddsInfos.score.winList[i].odd,
+            };
+          });
+        values.oddsInfos.score.drawList =
+          UFootball.scoreDrawOddList.map((item, i) => {
+            return {
+              ...item,
+              odd: values.oddsInfos.score.drawList[i].odd,
+            };
+          });
+        values.oddsInfos.score.loseList =
+          UFootball.scoreLoseOddList.map((item, i) => {
+            return {
+              ...item,
+              odd: values.oddsInfos.score.loseList[i].odd,
+            };
+          });
+        values.oddsInfos.goalList = UFootball.goalOddList.map(
+          (item, i) => {
+            return {
+              ...item,
+              odd: values.oddsInfos.goalList[i].odd,
+            };
+          },
+        );
+        values.oddsInfos.halfVictoryList =
+          UFootball.halfVictoryOddList.map((item, i) => {
+            return {
+              ...item,
+              odd: values.oddsInfos.halfVictoryList[i].odd,
+            };
+          });
+        const rsp = await SFootball.saveTeamOdds(
+          tempDataRef.current.id,
+          values,
+        );
+        setState(
+          produce(state, (drafState) => {
+            drafState.loading = false;
+          }),
+        );
+        if (rsp.success) {
+          onCancel();
+          props.onOk();
         }
-      );
-      values.oddsInfos.score.drawList = UFootball.scoreDrawOddList.map(
-        (item, i) => {
-          return {
-            ...item,
-            odd: values.oddsInfos.score.drawList[i].odd,
-          };
-        }
-      );
-      values.oddsInfos.score.loseList = UFootball.scoreLoseOddList.map(
-        (item, i) => {
-          return {
-            ...item,
-            odd: values.oddsInfos.score.loseList[i].odd,
-          };
-        }
-      );
-      values.oddsInfos.goalList = UFootball.goalOddList.map((item, i) => {
-        return {
-          ...item,
-          odd: values.oddsInfos.goalList[i].odd,
-        };
       });
-      values.oddsInfos.halfVictoryList = UFootball.halfVictoryOddList.map(
-        (item, i) => {
-          return {
-            ...item,
-            odd: values.oddsInfos.halfVictoryList[i].odd,
-          };
-        }
-      );
-      const rsp = await SFootball.saveTeamOdds(tempDataRef.current.id, values);
-      setState(
-        produce(state, (drafState) => {
-          drafState.loading = false;
-        })
-      );
-      if (rsp.success) {
-        onCancel();
-        props.onOk();
-      }
-    });
   }
 };
 export default forwardRef(FootballOddsModal);

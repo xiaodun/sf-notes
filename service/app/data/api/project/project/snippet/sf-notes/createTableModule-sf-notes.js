@@ -110,7 +110,7 @@ import SelfStyle from "./L${baseNameInfos.upperFirstModuleName}.less";
 import N${baseNameInfos.upperFirstModuleName} from "./N${baseNameInfos.upperFirstModuleName}";
 import S${baseNameInfos.upperFirstModuleName} from "./S${baseNameInfos.upperFirstModuleName}";           
 import qs from "qs";
-import produce from "immer";
+import { produce } from "immer";
 import NRsp from "@/common/namespace/NRsp";
 import { cloneDeep } from "lodash";
 import UCopy from "@/common/utils/UCopy";

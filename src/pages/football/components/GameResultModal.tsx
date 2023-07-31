@@ -4,13 +4,21 @@ import React, {
   useImperativeHandle,
   useRef,
   useState,
-} from "react";
-import { Modal, Button, Form, Input, message, Table, Alert } from "antd";
-import produce from "immer";
-import { NMDFootball } from "umi";
-import SFootball from "../SFootball";
-import moment from "moment";
-import NFootball from "../NFootball";
+} from 'react';
+import {
+  Modal,
+  Button,
+  Form,
+  Input,
+  message,
+  Table,
+  Alert,
+} from 'antd';
+import { produce } from 'immer';
+import { NMDFootball } from 'umi';
+import SFootball from '../SFootball';
+import moment from 'moment';
+import NFootball from '../NFootball';
 
 export interface IGameResultModal {
   showModal: () => void;
@@ -34,7 +42,8 @@ const GameResultModal: ForwardRefRenderFunction<
   IGameResultModalProps
 > = (props, ref) => {
   const { MDFootball } = props;
-  const [state, setState] = useState<IGameResultModalState>(defaultState);
+  const [state, setState] =
+    useState<IGameResultModalState>(defaultState);
   useImperativeHandle(ref, () => ({
     showModal: () => {
       const newState = produce(state, (drafState) => {
@@ -42,21 +51,25 @@ const GameResultModal: ForwardRefRenderFunction<
         drafState.loading = true;
       });
       setState(newState);
-      const dateList = MDFootball.teamOddList.map((item) => item.date).sort();
-      const codeList = MDFootball.teamOddList.map((item) => item.code).sort();
+      const dateList = MDFootball.teamOddList
+        .map((item) => item.date)
+        .sort();
+      const codeList = MDFootball.teamOddList
+        .map((item) => item.code)
+        .sort();
       SFootball.getGameResultList(
         dateList[0],
 
         moment(dateList[dateList.length - 1])
-          .add(1, "days")
-          .format("YYYY-MM-DD"),
-        codeList
+          .add(1, 'days')
+          .format('YYYY-MM-DD'),
+        codeList,
       ).then((rsp) => {
         setState(
           produce(newState, (drafState) => {
             drafState.loading = false;
             drafState.predictResult = rsp.data;
-          })
+          }),
         );
       });
     },
@@ -67,7 +80,7 @@ const GameResultModal: ForwardRefRenderFunction<
       width="720px"
       title="比赛结果"
       maskClosable={false}
-      bodyStyle={{ maxHeight: "100%" }}
+      bodyStyle={{ maxHeight: '100%' }}
       visible={state.visible}
       footer={
         <Button type="primary" onClick={onCancel}>
@@ -84,13 +97,13 @@ const GameResultModal: ForwardRefRenderFunction<
         rowKey="code"
         columns={[
           {
-            title: "场次",
-            key: "game",
+            title: '场次',
+            key: 'game',
             render: renderGameColumn,
           },
           {
-            title: "结果",
-            key: "desc",
+            title: '结果',
+            key: 'desc',
             render: renderDescColumn,
           },
         ]}
@@ -104,20 +117,24 @@ const GameResultModal: ForwardRefRenderFunction<
     if (Object.keys(state.predictResult).length) {
       const maxOddsList = MDFootball.teamOddList.map((team) =>
         state.predictResult[team.code]
-          ? Math.max(...state.predictResult[team.code].map((item) => item.odds))
-          : 0
+          ? Math.max(
+              ...state.predictResult[team.code].map(
+                (item) => item.odds,
+              ),
+            )
+          : 0,
       );
       count = maxOddsList.reduce((total, cur) => (total *= cur), 1);
     }
-    return "最大赔率为: " + count;
+    return '最大赔率为: ' + count;
   }
   function renderDescColumn(item: NFootball.ITeamRecordOdds) {
     const gameResultList = state.predictResult[item.code];
     return gameResultList?.[0]?.hasResult
       ? gameResultList.map((item, index) => (
-          <div key={index}>{item.desc + " @ " + item.odds}</div>
+          <div key={index}>{item.desc + ' @ ' + item.odds}</div>
         ))
-      : "未出结果";
+      : '未出结果';
   }
   function renderGameColumn(item: NFootball.ITeamRecordOdds) {
     return `${item.homeTeam} VS ${item.visitingTeam} - ${item.code}`;

@@ -4,13 +4,13 @@ import React, {
   useImperativeHandle,
   useRef,
   useState,
-} from "react";
-import { Modal, Button, Form, Input, Radio, Space } from "antd";
-import produce from "immer";
-import SelfStyle from "./KeyValueExtractionModal.less";
-import SProject from "../../SProject";
-import SyntaxHighlighter from "react-syntax-highlighter";
-import NProjectSnippet from "../../snippet/NProjectSnippet";
+} from 'react';
+import { Modal, Button, Form, Input, Radio, Space } from 'antd';
+import { produce } from 'immer';
+import SelfStyle from './KeyValueExtractionModal.less';
+import SProject from '../../SProject';
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import NProjectSnippet from '../../snippet/NProjectSnippet';
 export interface IKeyValueExtractionModal {
   showModal: () => void;
 }
@@ -24,11 +24,11 @@ export interface IKeyValueExtractionModalState
 }
 const defaultState: IKeyValueExtractionModalState = {
   visible: false,
-  strategy: "",
+  strategy: '',
   enumList: null,
   values: null,
-  valueStr: "",
-  enumStr: "",
+  valueStr: '',
+  enumStr: '',
 };
 const KeyValueExtractionModal: ForwardRefRenderFunction<
   IKeyValueExtractionModal,
@@ -49,7 +49,7 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
               contentTextAreaRef.current.focus();
             }
           }, 100);
-        })
+        }),
       );
     },
   }));
@@ -59,7 +59,7 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
       width="560px"
       title="键值提取"
       maskClosable={false}
-      bodyStyle={{ maxHeight: "100%" }}
+      bodyStyle={{ maxHeight: '100%' }}
       visible={state.visible}
       footer={
         <Space size={30}>
@@ -72,7 +72,12 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
       onCancel={onCancel}
       centered
     >
-      <Form form={form} name="basic" layout="vertical" autoComplete="off">
+      <Form
+        form={form}
+        name="basic"
+        layout="vertical"
+        autoComplete="off"
+      >
         <Form.Item
           label="输入想要提取的内容"
           name="content"
@@ -82,13 +87,19 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
         </Form.Item>
         <Form.Item>
           <Space size={30}>
-            <Button onClick={() => reqKeyValueExtraction("onlyValue")}>
+            <Button
+              onClick={() => reqKeyValueExtraction('onlyValue')}
+            >
               提取英文
             </Button>
-            <Button onClick={() => reqKeyValueExtraction("valueDescribe")}>
+            <Button
+              onClick={() => reqKeyValueExtraction('valueDescribe')}
+            >
               值前描述后
             </Button>
-            <Button onClick={() => reqKeyValueExtraction("describeValue")}>
+            <Button
+              onClick={() => reqKeyValueExtraction('describeValue')}
+            >
               描述前值后
             </Button>
           </Space>
@@ -104,7 +115,7 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
     </Modal>
   );
   function generateEnumCode() {
-    if (state.strategy === "onlyValue") {
+    if (state.strategy === 'onlyValue') {
       if (state.enumList) {
         onCancel();
         props.onEnumCode(state.enumList);
@@ -117,8 +128,10 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
     }
   }
   function renderExtractionResult() {
-    const noResult = <span style={{ color: "#C00000" }}> 没有提取到</span>;
-    if (state.strategy === "onlyValue") {
+    const noResult = (
+      <span style={{ color: '#C00000' }}> 没有提取到</span>
+    );
+    if (state.strategy === 'onlyValue') {
       if (state.enumList) {
         return (
           <div className="content">
@@ -143,7 +156,7 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
     form.validateFields().then(async (values) => {
       const rsp = await SProject.getKeyValueExtraction(
         strategy,
-        values.content
+        values.content,
       );
       if (rsp.success) {
         setState(
@@ -153,7 +166,7 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
             drafState.values = rsp.data.values;
             drafState.valueStr = rsp.data.valueStr;
             drafState.enumStr = rsp.data.enumStr;
-          })
+          }),
         );
       }
     });

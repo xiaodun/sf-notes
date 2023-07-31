@@ -56,7 +56,7 @@ import React, {
   useState,
 } from "react";
 import { Modal, Button, Form, Input, message } from "antd";
-import produce from "immer";
+import { produce } from "immer";
 export interface I${argParams.modalName}Modal {
   showModal: () => void;
 }

@@ -1,37 +1,29 @@
-import useRefreshView from '@/common/hooks/useRefreshView';
-import { NRsp } from '@/common/namespace/NRsp';
-import { UDownload } from '@/common/utils/UDownload';
+import useRefreshView from "@/common/hooks/useRefreshView";
+import { NRsp } from "@/common/namespace/NRsp";
+import { UDownload } from "@/common/utils/UDownload";
 import {
   DeleteOutlined,
   DownloadOutlined,
   InboxOutlined,
-} from '@ant-design/icons';
-import { Button, Space, Typography, Upload } from 'antd';
-import { RcCustomRequestOptions } from 'antd/lib/upload/interface';
-import produce from 'immer';
-import { floor } from 'lodash';
-import React, {
-  FC,
-  ReactNode,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+} from "@ant-design/icons";
+import { Button, Space, Typography, Upload } from "antd";
+import { RcCustomRequestOptions } from "antd/lib/upload/interface";
+import { produce } from "immer";
+import { floor } from "lodash";
+import React, { FC, ReactNode, useEffect, useRef, useState } from "react";
 
-import SelfStyle from './LFile.less';
-import NFile from './NFile';
-import SFile from './SFile';
+import SelfStyle from "./LFile.less";
+import NFile from "./NFile";
+import SFile from "./SFile";
 export interface IPFileProps {}
 const PFile: FC<IPFileProps> = (props) => {
   const [fileRsp, setFileRsp] = useState<NRsp<NFile>>({
     list: [],
   });
-  const uploadConfigMapRef = useRef<Map<File, NFile.IUploadConfig>>(
-    new Map(),
+  const uploadConfigMapRef = useRef<Map<File, NFile.IUploadConfig>>(new Map());
+  const optionConfigMapRef = useRef<Map<string, NFile.IOptioncConfig>>(
+    new Map()
   );
-  const optionConfigMapRef = useRef<
-    Map<string, NFile.IOptioncConfig>
-  >(new Map());
   // const [radomKey, setRadomkey] = useState<number>();
   const refreshView = useRefreshView();
   useEffect(() => {
@@ -58,7 +50,7 @@ const PFile: FC<IPFileProps> = (props) => {
             name: item.name,
             item,
             uploadLoading: false,
-          }),
+          })
         )}
       </div>
     </div>
@@ -71,7 +63,7 @@ const PFile: FC<IPFileProps> = (props) => {
           renderFileList({
             key: file,
             ...fileConfig,
-          }),
+          })
         );
       }
     });
@@ -81,7 +73,7 @@ const PFile: FC<IPFileProps> = (props) => {
     params: {
       key: any;
       item?: NFile;
-    } & Partial<NFile.IUploadConfig>,
+    } & Partial<NFile.IUploadConfig>
   ) {
     const optionConfig = optionConfigMapRef.current.get(params.key);
     return (
@@ -92,7 +84,7 @@ const PFile: FC<IPFileProps> = (props) => {
         <div
           className={SelfStyle.actions}
           style={{
-            visibility: params.uploadLoading ? 'hidden' : 'visible',
+            visibility: params.uploadLoading ? "hidden" : "visible",
           }}
         >
           {params.uploadLoading && (
@@ -140,9 +132,7 @@ const PFile: FC<IPFileProps> = (props) => {
       if (rsp.success) {
         const optionConfig = optionConfigMapRef.current.get(file.id);
         optionConfig.delLoading = false;
-        setFileRsp(
-          NRsp.delItem(fileRsp, (item) => item.id === file.id),
-        );
+        setFileRsp(NRsp.delItem(fileRsp, (item) => item.id === file.id));
       }
     });
   }
@@ -156,7 +146,7 @@ const PFile: FC<IPFileProps> = (props) => {
           total: file.size,
           name: file.name,
         });
-      },
+      }
     );
     refreshView();
     addItem(file);
@@ -176,7 +166,7 @@ const PFile: FC<IPFileProps> = (props) => {
             const fileConfig = drafData.get(file);
             fileConfig.loaded = event.loaded;
             fileConfig.total = event.total;
-          },
+          }
         );
         refreshView();
       } else {
@@ -187,7 +177,7 @@ const PFile: FC<IPFileProps> = (props) => {
             fileConfig.loaded = event.loaded;
             fileConfig.total = event.total;
             fileConfig.uploadLoading = false;
-          },
+          }
         );
         setTimeout(() => {
           refreshView();

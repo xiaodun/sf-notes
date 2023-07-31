@@ -4,11 +4,11 @@ import React, {
   useImperativeHandle,
   useRef,
   useState,
-} from "react";
-import { Modal, Button, Form, Input, message, Radio } from "antd";
-import produce from "immer";
-import NIterative from "../NIterative";
-import SIterative from "../SIterative";
+} from 'react';
+import { Modal, Button, Form, Input, message, Radio } from 'antd';
+import { produce } from 'immer';
+import NIterative from '../NIterative';
+import SIterative from '../SIterative';
 export interface IAddSystemModal {
   showModal: () => void;
 }
@@ -24,7 +24,8 @@ const AddSystemModal: ForwardRefRenderFunction<
   IAddSystemModal,
   IAddSystemModalProps
 > = (props, ref) => {
-  const [state, setState] = useState<IAddSystemModalState>(defaultState);
+  const [state, setState] =
+    useState<IAddSystemModalState>(defaultState);
   const [form] = Form.useForm();
   const firstInputRef = useRef<Input>();
 
@@ -33,7 +34,7 @@ const AddSystemModal: ForwardRefRenderFunction<
       setState(
         produce(state, (drafState) => {
           drafState.visible = true;
-        })
+        }),
       );
       form.setFieldsValue({
         isMoreEnv: false,
@@ -50,7 +51,7 @@ const AddSystemModal: ForwardRefRenderFunction<
       width="500px"
       title="添加系统"
       maskClosable={false}
-      bodyStyle={{ maxHeight: "100%" }}
+      bodyStyle={{ maxHeight: '100%' }}
       visible={state.visible}
       footer={
         <Button type="primary" onClick={onOk}>
@@ -60,24 +61,29 @@ const AddSystemModal: ForwardRefRenderFunction<
       onCancel={onCancel}
       centered
     >
-      <Form form={form} name="basic" layout="vertical" autoComplete="off">
+      <Form
+        form={form}
+        name="basic"
+        layout="vertical"
+        autoComplete="off"
+      >
         <Form.Item
           label="系统名"
-          name={"systemName"}
+          name={'systemName'}
           rules={[{ required: true }]}
         >
           <Input ref={firstInputRef}></Input>
         </Form.Item>
-        <Form.Item label="访问地址" name={"url"}>
+        <Form.Item label="访问地址" name={'url'}>
           <Input></Input>
         </Form.Item>
-        <Form.Item label="是否有多个环境" name={"isMoreEnv"}>
+        <Form.Item label="是否有多个环境" name={'isMoreEnv'}>
           <Radio.Group>
             <Radio value={true}>是</Radio>
             <Radio value={false}>否</Radio>
           </Radio.Group>
         </Form.Item>
-        <Form.Item label="在头部添加" name={"isAddHead"}>
+        <Form.Item label="在头部添加" name={'isAddHead'}>
           <Radio.Group>
             <Radio value={true}>是</Radio>
             <Radio value={false}>否</Radio>
