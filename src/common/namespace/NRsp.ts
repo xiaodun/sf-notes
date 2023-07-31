@@ -1,4 +1,4 @@
-import { produce } from "..";
+import { produce } from "immer";
 
 export interface NRsp<T = null> {
   success?: boolean;
