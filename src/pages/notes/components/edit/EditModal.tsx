@@ -1,4 +1,4 @@
-import NNotes from "../../NNotes";
+import NNotes from '../../NNotes';
 import {
   useState,
   useImperativeHandle,
@@ -6,18 +6,25 @@ import {
   ForwardRefRenderFunction,
   useRef,
   useEffect,
-} from "react";
-import { Modal, Input, Space, message, AutoComplete, Radio } from "antd";
-import SelfStyle from "./EditModal.less";
-import React from "react";
-import moment from "moment";
-import SNotes from "../../SNotes";
-import produce from "immer";
-import UDate from "@/common/utils/UDate";
-import NRsp from "@/common/namespace/NRsp";
-import { USelection } from "@/common/utils/USelection";
-import { TextAreaRef } from "antd/lib/input/TextArea";
-import { RefSelectProps } from "antd/lib/select";
+} from 'react';
+import {
+  Modal,
+  Input,
+  Space,
+  message,
+  AutoComplete,
+  Radio,
+} from 'antd';
+import SelfStyle from './EditModal.less';
+import React from 'react';
+import moment from 'moment';
+import SNotes from '../../SNotes';
+import { produce } from 'immer';
+import UDate from '@/common/utils/UDate';
+import NRsp from '@/common/namespace/NRsp';
+import { USelection } from '@/common/utils/USelection';
+import { TextAreaRef } from 'antd/lib/input/TextArea';
+import { RefSelectProps } from 'antd/lib/select';
 
 export interface IEditModalProps {
   rsp: NRsp<NNotes>;
@@ -38,12 +45,12 @@ const defaultState: IEditModalState = {
   visible: false,
   index: 0,
   data: {
-    content: "",
+    content: '',
     base64: {},
     createTime: null,
     updateTime: null,
-    title: "",
-    titleColor: "",
+    title: '',
+    titleColor: '',
   },
 };
 
@@ -51,12 +58,13 @@ export const EditModal: ForwardRefRenderFunction<
   IEditModal,
   IEditModalProps
 > = (props, ref) => {
-  const [state, setState] = useState<Partial<IEditModalState>>(defaultState);
+  const [state, setState] =
+    useState<Partial<IEditModalState>>(defaultState);
   const textAreaRef = useRef<TextAreaRef>();
   const autoCompleteRef = useRef<RefSelectProps>();
   const loadCountRef = useRef<number>(0);
-  const noteTitleId = "noteTitleId";
-  const noteEditId = "noteEditId";
+  const noteTitleId = 'noteTitleId';
+  const noteEditId = 'noteEditId';
   const titleOptions = props.rsp.list
     .map((item) => ({
       value: item.title,
@@ -86,8 +94,10 @@ export const EditModal: ForwardRefRenderFunction<
     },
   }));
 
-  const title = state.added ? "添加记事" : "编辑记事";
-  const titlePlaceholder = `标题 默认为${moment().format(UDate.ymdhms)}`;
+  const title = state.added ? '添加记事' : '编辑记事';
+  const titlePlaceholder = `标题 默认为${moment().format(
+    UDate.ymdhms,
+  )}`;
   return (
     <Modal
       visible={state.visible}
@@ -100,7 +110,11 @@ export const EditModal: ForwardRefRenderFunction<
         loading: loadCountRef.current > 0,
       }}
     >
-      <Space style={{ width: "100%" }} direction="vertical" size="middle">
+      <Space
+        style={{ width: '100%' }}
+        direction="vertical"
+        size="middle"
+      >
         <Radio.Group
           onChange={(event) =>
             onDataChange({
@@ -118,7 +132,7 @@ export const EditModal: ForwardRefRenderFunction<
             ref={autoCompleteRef}
             id={noteTitleId}
             options={titleOptions}
-            style={{ width: "100%" }}
+            style={{ width: '100%' }}
             value={state.data.title}
             onSelect={onSelectTitle}
             onSearch={onSelectExistTitle}
@@ -164,13 +178,17 @@ export const EditModal: ForwardRefRenderFunction<
       </Space>
     </Modal>
   );
-  function onContentKeyUp(event: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (event.ctrlKey && event.key === "Enter") {
+  function onContentKeyUp(
+    event: React.KeyboardEvent<HTMLTextAreaElement>,
+  ) {
+    if (event.ctrlKey && event.key === 'Enter') {
       onOk();
     }
   }
   function onBlurTitle() {
-    const notes = props.rsp.list.find((item) => item.title == state.data.title);
+    const notes = props.rsp.list.find(
+      (item) => item.title == state.data.title,
+    );
     if (notes) {
       if (!state.data.content) {
         //如果没值才覆盖
@@ -181,10 +199,13 @@ export const EditModal: ForwardRefRenderFunction<
     }
   }
   function onSelectExistTitle(title: string) {
-    return titleOptions.filter((item) => item.value.indexOf(title) !== -1);
+    return titleOptions.filter(
+      (item) => item.value.indexOf(title) !== -1,
+    );
   }
   function onSelectTitle(title: string) {
-    const notes = props.rsp.list.find((item) => item.title == title) || {};
+    const notes =
+      props.rsp.list.find((item) => item.title == title) || {};
     if (!state.data.content) {
       onDataChange({
         title,
@@ -225,7 +246,7 @@ export const EditModal: ForwardRefRenderFunction<
     event.stopPropagation();
     event.preventDefault();
     if (dataTransfer) {
-      dataTransfer.dropEffect = "copy";
+      dataTransfer.dropEffect = 'copy';
     }
   }
   function onDrop(event: React.DragEvent<HTMLDivElement>) {
@@ -236,7 +257,7 @@ export const EditModal: ForwardRefRenderFunction<
       content: state.data.content,
     };
 
-    if (dataTransfer.types.includes("Files")) {
+    if (dataTransfer.types.includes('Files')) {
       for (let i = 0; i < dataTransfer.files.length; i++) {
         const file = dataTransfer.files[i];
         loadCountRef.current++;
@@ -247,10 +268,10 @@ export const EditModal: ForwardRefRenderFunction<
   }
   function convertFile(file: File, notes: Partial<NNotes>) {
     const { type } = file;
-    if (type.includes("image")) {
+    if (type.includes('image')) {
       convertImgFile(file, notes);
     } else {
-      message.warning("只支持图片文件!");
+      message.warning('只支持图片文件!');
     }
   }
   function convertImgFile(file: File, notes: Partial<NNotes>) {
@@ -260,21 +281,21 @@ export const EditModal: ForwardRefRenderFunction<
       //转换为自定义图片
       let fileName =
         NNotes.imgProtocolKey +
-        "://" +
+        '://' +
         ((Math.random() * 1000000) | 0) +
-        "." +
-        file.type.split("/")[1];
+        '.' +
+        file.type.split('/')[1];
       loadCountRef.current--;
       notes.base64[fileName] = event.target.result;
       const curPos = USelection.getCursorPos();
       let addedPos = curPos;
-      if (curPos > 0 && notes.content[curPos - 1] !== "\n") {
-        fileName = "\n" + fileName;
+      if (curPos > 0 && notes.content[curPos - 1] !== '\n') {
+        fileName = '\n' + fileName;
         addedPos + 1;
       }
       addedPos += fileName.length;
-      if (notes.content[curPos + 1] !== "\n") {
-        fileName += "\n";
+      if (notes.content[curPos + 1] !== '\n') {
+        fileName += '\n';
       }
       notes.content =
         notes.content.substring(0, curPos) +
@@ -293,7 +314,8 @@ export const EditModal: ForwardRefRenderFunction<
     reader.readAsDataURL(file);
   }
   function onPaste(event: React.ClipboardEvent<HTMLTextAreaElement>) {
-    var clipboardItems = event.clipboardData && event.clipboardData.items;
+    var clipboardItems =
+      event.clipboardData && event.clipboardData.items;
     const notes: Partial<NNotes> = {
       base64: { ...state.data.base64 },
       content: state.data.content,
@@ -301,8 +323,8 @@ export const EditModal: ForwardRefRenderFunction<
     if (clipboardItems && clipboardItems.length) {
       for (let i = 0; i < clipboardItems.length; i++) {
         if (
-          clipboardItems[i].kind === "file" &&
-          clipboardItems[i].type.indexOf("image") !== -1
+          clipboardItems[i].kind === 'file' &&
+          clipboardItems[i].type.indexOf('image') !== -1
         ) {
           /**
            * 确认为一个图片类型 只靠type或kind不行

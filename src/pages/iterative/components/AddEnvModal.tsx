@@ -4,11 +4,11 @@ import React, {
   useImperativeHandle,
   useRef,
   useState,
-} from "react";
-import { Modal, Button, Form, Input, message } from "antd";
-import produce from "immer";
-import SIterative from "../SIterative";
-import NIterative from "../NIterative";
+} from 'react';
+import { Modal, Button, Form, Input, message } from 'antd';
+import { produce } from 'immer';
+import SIterative from '../SIterative';
+import NIterative from '../NIterative';
 export interface IAddEnvModal {
   showModal: () => void;
 }
@@ -20,10 +20,10 @@ export interface IAddEnvModalState {
 const defaultState: IAddEnvModalState = {
   visible: false,
 };
-const AddEnvModal: ForwardRefRenderFunction<IAddEnvModal, IAddEnvModalProps> = (
-  props,
-  ref
-) => {
+const AddEnvModal: ForwardRefRenderFunction<
+  IAddEnvModal,
+  IAddEnvModalProps
+> = (props, ref) => {
   const [state, setState] = useState<IAddEnvModalState>(defaultState);
   const [form] = Form.useForm();
   const firstInputRef = useRef<Input>();
@@ -33,7 +33,7 @@ const AddEnvModal: ForwardRefRenderFunction<IAddEnvModal, IAddEnvModalProps> = (
       setState(
         produce(state, (drafState) => {
           drafState.visible = true;
-        })
+        }),
       );
       setTimeout(() => {
         firstInputRef.current?.focus();
@@ -46,7 +46,7 @@ const AddEnvModal: ForwardRefRenderFunction<IAddEnvModal, IAddEnvModalProps> = (
       width="500px"
       title="添加环境"
       maskClosable={false}
-      bodyStyle={{ maxHeight: "100%" }}
+      bodyStyle={{ maxHeight: '100%' }}
       visible={state.visible}
       footer={
         <Button type="primary" onClick={onOk}>
@@ -56,11 +56,16 @@ const AddEnvModal: ForwardRefRenderFunction<IAddEnvModal, IAddEnvModalProps> = (
       onCancel={onCancel}
       centered
     >
-      <Form form={form} name="basic" layout="vertical" autoComplete="off">
-        <Form.Item label="环境名" name={"envName"}>
+      <Form
+        form={form}
+        name="basic"
+        layout="vertical"
+        autoComplete="off"
+      >
+        <Form.Item label="环境名" name={'envName'}>
           <Input ref={firstInputRef}></Input>
         </Form.Item>
-        <Form.Item label="分支名" name={"branch"}>
+        <Form.Item label="分支名" name={'branch'}>
           <Input></Input>
         </Form.Item>
       </Form>

@@ -3,13 +3,13 @@ import React, {
   ForwardRefRenderFunction,
   useImperativeHandle,
   useState,
-} from "react";
-import { Modal, Button, Tabs, Input, Tag, Space } from "antd";
-import produce from "immer";
-import { NMDIterative } from "umi";
-import NIterative from "../NIterative";
-import SelfStyle from "./RoleAccontInfoModal.less";
-import UCopy from "@/common/utils/UCopy";
+} from 'react';
+import { Modal, Button, Tabs, Input, Tag, Space } from 'antd';
+import { produce } from 'immer';
+import { NMDIterative } from 'umi';
+import NIterative from '../NIterative';
+import SelfStyle from './RoleAccontInfoModal.less';
+import UCopy from '@/common/utils/UCopy';
 export interface IRoleAccontInfoModal {
   showModal: (roleInfos: NIterative.IPerson) => void;
 }
@@ -32,22 +32,26 @@ const RoleAccontInfoModal: ForwardRefRenderFunction<
   IRoleAccontInfoModalProps
 > = (props, ref) => {
   const { MDIterative } = props;
-  const [state, setState] = useState<IRoleAccontInfoModalState>(defaultState);
+  const [state, setState] =
+    useState<IRoleAccontInfoModalState>(defaultState);
   useImperativeHandle(ref, () => ({
     showModal: (roleInfos: NIterative.IPerson) => {
       setState(
         produce(state, (drafState) => {
           drafState.visible = true;
-          drafState.accountInfos = roleInfos.accountList.reduce((pre, cur) => {
-            if (!pre[cur.systemId]) {
-              pre[cur.systemId] = [];
-            }
+          drafState.accountInfos = roleInfos.accountList.reduce(
+            (pre, cur) => {
+              if (!pre[cur.systemId]) {
+                pre[cur.systemId] = [];
+              }
 
-            pre[cur.systemId].push(cur);
+              pre[cur.systemId].push(cur);
 
-            return pre;
-          }, {});
-        })
+              return pre;
+            },
+            {},
+          );
+        }),
       );
     },
   }));
@@ -57,7 +61,7 @@ const RoleAccontInfoModal: ForwardRefRenderFunction<
       width="680px"
       title="账号信息"
       maskClosable={false}
-      bodyStyle={{ maxHeight: "100%" }}
+      bodyStyle={{ maxHeight: '100%' }}
       visible={state.visible}
       footer={
         <Button type="primary" onClick={onCancel}>
@@ -76,12 +80,17 @@ const RoleAccontInfoModal: ForwardRefRenderFunction<
           return (
             <Tabs.TabPane tab={accountList[0].systemName} key={id}>
               {accountList.map((item, accountIndex) => (
-                <div className={SelfStyle.accountWrap} key={accountIndex}>
+                <div
+                  className={SelfStyle.accountWrap}
+                  key={accountIndex}
+                >
                   <div className="able-wrap">
                     <Button
                       type="link"
                       onClick={() =>
-                        UCopy.copyStr(item.userName + "\n" + item.password)
+                        UCopy.copyStr(
+                          item.userName + '\n' + item.password,
+                        )
                       }
                     >
                       分享
@@ -92,7 +101,7 @@ const RoleAccontInfoModal: ForwardRefRenderFunction<
                       <div className="tags-wrap">
                         <Space>
                           {item.envNameList.map((env) => (
-                            <Tag color={"#5bd1d7"} key={env}>
+                            <Tag color={'#5bd1d7'} key={env}>
                               {env}
                             </Tag>
                           ))}
@@ -103,14 +112,18 @@ const RoleAccontInfoModal: ForwardRefRenderFunction<
                     <div className="line-block">
                       <div className="label">用户名</div>
                       <Input value={item.userName}></Input>
-                      <Button onClick={() => UCopy.copyStr(item.userName)}>
+                      <Button
+                        onClick={() => UCopy.copyStr(item.userName)}
+                      >
                         复制
                       </Button>
                     </div>
                     <div className="line-block">
                       <div className="label">密码</div>
                       <Input value={item.password}></Input>
-                      <Button onClick={() => UCopy.copyStr(item.password)}>
+                      <Button
+                        onClick={() => UCopy.copyStr(item.password)}
+                      >
                         复制
                       </Button>
                     </div>

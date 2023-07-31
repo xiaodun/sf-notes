@@ -3,13 +3,13 @@ import React, {
   ForwardRefRenderFunction,
   useImperativeHandle,
   useState,
-} from "react";
-import { Modal, Button, Form, Input, Tabs, message } from "antd";
-import produce from "immer";
-import SelfStyle from "./GenerateEnumCodeModal.less";
-import SProject from "../../SProject";
-import UCopy from "@/common/utils/UCopy";
-import SyntaxHighlighter from "react-syntax-highlighter";
+} from 'react';
+import { Modal, Button, Form, Input, Tabs, message } from 'antd';
+import { produce } from 'immer';
+import SelfStyle from './GenerateEnumCodeModal.less';
+import SProject from '../../SProject';
+import UCopy from '@/common/utils/UCopy';
+import SyntaxHighlighter from 'react-syntax-highlighter';
 export interface IGenerateEnumCodeModal {
   showModal: (enumList: string[], values?: Object) => void;
 }
@@ -34,7 +34,7 @@ const GenerateEnumCodeModal: ForwardRefRenderFunction<
         produce(state, (drafState) => {
           drafState.visible = true;
           reqGetEnumCode(enumList, values);
-        })
+        }),
       );
     },
   }));
@@ -44,7 +44,7 @@ const GenerateEnumCodeModal: ForwardRefRenderFunction<
       width="960px"
       title="生成枚举代码"
       maskClosable={false}
-      bodyStyle={{ maxHeight: "100%" }}
+      bodyStyle={{ maxHeight: '100%' }}
       visible={state.visible}
       footer={
         <Button type="primary" onClick={onCancel}>
@@ -60,12 +60,16 @@ const GenerateEnumCodeModal: ForwardRefRenderFunction<
             return (
               <Tabs.TabPane tab={key} key={key}>
                 <div className={SelfStyle.topWrap}>
-                  <Button onClick={() => UCopy.copyStr(codeInfos[key])}>
+                  <Button
+                    onClick={() => UCopy.copyStr(codeInfos[key])}
+                  >
                     复制代码
                   </Button>
                 </div>
                 <div className={SelfStyle.codeWrap}>
-                  <SyntaxHighlighter>{codeInfos[key]}</SyntaxHighlighter>
+                  <SyntaxHighlighter>
+                    {codeInfos[key]}
+                  </SyntaxHighlighter>
                 </div>
               </Tabs.TabPane>
             );

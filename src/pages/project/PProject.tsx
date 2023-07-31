@@ -1,12 +1,15 @@
-import { PageFooter } from "@/common/components/page";
-import NModel from "@/common/namespace/NModel";
-import NRouter from "@/../config/router/NRouter";
-import type { SortableContainerProps, SortEnd } from "react-sortable-hoc";
+import { PageFooter } from '@/common/components/page';
+import NModel from '@/common/namespace/NModel';
+import NRouter from '@/../config/router/NRouter';
+import type {
+  SortableContainerProps,
+  SortEnd,
+} from 'react-sortable-hoc';
 import {
   SortableContainer,
   SortableElement,
   SortableHandle,
-} from "react-sortable-hoc";
+} from 'react-sortable-hoc';
 import {
   Button,
   Dropdown,
@@ -17,24 +20,24 @@ import {
   Space,
   Table,
   Tag,
-} from "antd";
-import React, { useEffect, useRef } from "react";
-import { connect, ConnectRC, Link, NMDProject } from "umi";
-import SelfStyle from "./LProject.less";
-import NProject from "./NProject";
-import SProject from "./SProject";
-import qs from "qs";
+} from 'antd';
+import React, { useEffect, useRef } from 'react';
+import { connect, ConnectRC, Link, NMDProject } from 'umi';
+import SelfStyle from './LProject.less';
+import NProject from './NProject';
+import SProject from './SProject';
+import qs from 'qs';
 import DirectoryModal, {
   IDirectoryModal,
-} from "@/common/components/directory/combination/modal/DirectoryModal";
-import { NSystem } from "@/common/namespace/NSystem";
-import SSystem from "@/common/service/SSystem";
-import produce from "immer";
-import NRsp from "@/common/namespace/NRsp";
-import { cloneDeep } from "lodash";
-import UCopy from "@/common/utils/UCopy";
-import UGitlab from "@/common/utils/UGitlab";
-import { MenuOutlined } from "@ant-design/icons";
+} from '@/common/components/directory/combination/modal/DirectoryModal';
+import { NSystem } from '@/common/namespace/NSystem';
+import SSystem from '@/common/service/SSystem';
+import { produce } from 'immer';
+import NRsp from '@/common/namespace/NRsp';
+import { cloneDeep } from 'lodash';
+import UCopy from '@/common/utils/UCopy';
+import UGitlab from '@/common/utils/UGitlab';
+import { MenuOutlined } from '@ant-design/icons';
 export interface IProjectProps {
   MDProject: NMDProject.IState;
 }
@@ -46,26 +49,32 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   useEffect(() => {
     reqGetProject();
     reqGetList();
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible") {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
         reqGetList();
       }
     });
   }, []);
   const DragHandle = SortableHandle(() => (
-    <MenuOutlined style={{ cursor: "grab", color: "#999" }} />
+    <MenuOutlined style={{ cursor: 'grab', color: '#999' }} />
   ));
   const SortableItem = SortableElement(
-    (props: React.HTMLAttributes<HTMLTableRowElement>) => <tr {...props} />
+    (props: React.HTMLAttributes<HTMLTableRowElement>) => (
+      <tr {...props} />
+    ),
   );
   const SortableBody = SortableContainer(
     (props: React.HTMLAttributes<HTMLTableSectionElement>) => (
       <tbody {...props} />
-    )
+    ),
   );
   const onSortEnd = ({ oldIndex, newIndex }: SortEnd) => {
     if (oldIndex !== newIndex) {
-      SProject.sortProjectList(oldIndex, newIndex, MDProject.rsp.list);
+      SProject.sortProjectList(
+        oldIndex,
+        newIndex,
+        MDProject.rsp.list,
+      );
     }
   };
 
@@ -86,7 +95,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   }) => {
     // function findIndex base on Table rowKey props and should always be a right array index
     const index = MDProject.rsp.list.findIndex(
-      (x) => x.id === restProps["data-row-key"]
+      (x) => x.id === restProps['data-row-key'],
     );
     return <SortableItem index={index} {...restProps} />;
   };
@@ -96,22 +105,22 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         rowKey="id"
         columns={[
           {
-            title: "",
-            dataIndex: "_sort",
+            title: '',
+            dataIndex: '_sort',
             width: 30,
-            className: "drag-visible",
+            className: 'drag-visible',
             render: () => <DragHandle />,
           },
           {
-            title: "项目名",
-            key: "name",
-            dataIndex: "name",
+            title: '项目名',
+            key: 'name',
+            dataIndex: 'name',
             render: renderNameColumn,
           },
 
           {
-            title: "操作",
-            key: "_option",
+            title: '操作',
+            key: '_option',
             render: renderOptionColumn,
           },
         ]}
@@ -137,7 +146,9 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         </Button>
         <Radio.Group
           value={MDProject.config.nginxVisitWay}
-          onChange={(e) => onChangeConfig({ nginxVisitWay: e.target.value })}
+          onChange={(e) =>
+            onChangeConfig({ nginxVisitWay: e.target.value })
+          }
         >
           <Radio.Button value="ip">IP</Radio.Button>
           <Radio.Button value="domain">域名</Radio.Button>
@@ -171,15 +182,17 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       } else if (project.web.isStart) {
         startBlock = <Tag color="#87d068">已启动</Tag>;
         if (!project.isSfMock && project.sfMock.serverList?.length) {
-          const serverList = project.sfMock.serverList.map((item) => ({
-            ...item,
-            webOpenUrl:
-              MDProject.config.nginxVisitWay === "domain"
-                ? item.openDomainUrl
+          const serverList = project.sfMock.serverList.map(
+            (item) => ({
+              ...item,
+              webOpenUrl:
+                MDProject.config.nginxVisitWay === 'domain'
                   ? item.openDomainUrl
-                  : item.openUrl
-                : item.openUrl,
-          }));
+                    ? item.openDomainUrl
+                    : item.openUrl
+                  : item.openUrl,
+            }),
+          );
           const mockService = serverList.find((item) => item.isMock);
           let envList = serverList.filter((item) => !item.isMock);
           openBlock =
@@ -208,7 +221,9 @@ const Project: ConnectRC<IProjectProps> = (props) => {
                 <a
                   target="_blank"
                   href={
-                    mockService ? mockService.webOpenUrl : envList[0].webOpenUrl
+                    mockService
+                      ? mockService.webOpenUrl
+                      : envList[0].webOpenUrl
                   }
                 >
                   打开
@@ -218,7 +233,10 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         }
       } else if (project.sfMock.programUrl) {
         startBlock = (
-          <Button type="dashed" onClick={() => onStartProject(project)}>
+          <Button
+            type="dashed"
+            onClick={() => onStartProject(project)}
+          >
             启动
           </Button>
         );
@@ -268,7 +286,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
                         target="_blank"
                         href={UGitlab.getNewMergeUrl(
                           MDProject.config.gitlabBasePath,
-                          project.name
+                          project.name,
                         )}
                       >
                         创建合并
@@ -280,7 +298,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
                         target="_blank"
                         href={UGitlab.getMergeUrl(
                           MDProject.config.gitlabBasePath,
-                          project.name
+                          project.name,
                         )}
                       >
                         处理合并
@@ -293,7 +311,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
                   target="_blank"
                   href={UGitlab.getProjectUrl(
                     MDProject.config.gitlabBasePath,
-                    project.name
+                    project.name,
                   )}
                 >
                   去主页
@@ -308,43 +326,48 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   async function onUpdateSfMockConfig() {
     const rsp = await SProject.addProject(null, true);
     if (rsp.success) {
-      message.success("更新成功");
+      message.success('更新成功');
       reqGetList();
     }
   }
   async function onStartProject(project: NProject) {
-    const startRsp = await SSystem.startBat(project.sfMock.startBatPath);
+    const startRsp = await SSystem.startBat(
+      project.sfMock.startBatPath,
+    );
     const newRsp = produce(MDProject.rsp, (drafState) => {
-      const item = drafState.list.find((item) => item.name === project.name);
+      const item = drafState.list.find(
+        (item) => item.name === project.name,
+      );
       item.web.isStart = null;
     });
     NModel.dispatch(
       new NMDProject.ARSetState({
         rsp: newRsp,
-      })
+      }),
     );
     if (startRsp.success) {
-      message.success("已执行");
+      message.success('已执行');
       setTimeout(
         () => {
           reqProjectStart(project, cloneDeep(MDProject.rsp));
         },
-        project.isSfMock ? 3000 : 30000
+        project.isSfMock ? 3000 : 30000,
       );
     }
   }
   async function reqProjectStart(
     project: NProject,
     projectRsp: NRsp<NProject>,
-    retryCount = 0
+    retryCount = 0,
   ) {
     let checkUrl = project.sfMock.programUrl;
     if (project.isSfMock) {
-      checkUrl = project.sfMock.programUrl + "/example/sfNotesTestStart";
+      checkUrl =
+        project.sfMock.programUrl + '/example/sfNotesTestStart';
     }
     const startRsp = await SProject.isProjectStart(checkUrl);
     const index = projectRsp.list.findIndex(
-      (item) => item.name === project.name
+      (item) => item.name === project.name,
     );
     if (startRsp.success) {
       if (startRsp.data.isError) {
@@ -358,7 +381,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       NModel.dispatch(
         new NMDProject.ARSetState({
           rsp: cloneDeep(projectRsp),
-        })
+        }),
       );
     }
   }
@@ -368,7 +391,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       NModel.dispatch(
         new NMDProject.ARSetState({
           config: rsp.data,
-        })
+        }),
       );
     }
   }
@@ -378,7 +401,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       NModel.dispatch(
         new NMDProject.ARSetState({
           rsp,
-        })
+        }),
       );
       const newRsp = cloneDeep(rsp);
 
@@ -391,7 +414,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
             NModel.dispatch(
               new NMDProject.ARSetState({
                 rsp: cloneDeep(newRsp),
-              })
+              }),
             );
           }
         }

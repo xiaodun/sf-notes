@@ -4,12 +4,12 @@ import React, {
   useImperativeHandle,
   useRef,
   useState,
-} from "react";
-import { Modal, Button, Form, Input, message, Select } from "antd";
-import produce from "immer";
-import NIterative from "../NIterative";
-import SIterative from "../SIterative";
-import { NMDIterative } from "umi";
+} from 'react';
+import { Modal, Button, Form, Input, message, Select } from 'antd';
+import { produce } from 'immer';
+import NIterative from '../NIterative';
+import SIterative from '../SIterative';
+import { NMDIterative } from 'umi';
 
 export interface IEditAccountModal {
   showModal: (roles: NIterative.IPerson) => void;
@@ -33,7 +33,8 @@ const EditAccountModal: ForwardRefRenderFunction<
   IEditAccountModal,
   IEditAccountModalProps
 > = (props, ref) => {
-  const [state, setState] = useState<IEditAccountModalState>(defaultState);
+  const [state, setState] =
+    useState<IEditAccountModalState>(defaultState);
   const [form] = Form.useForm();
   const firstInputRef = useRef<Input>();
   const { MDIterative } = props;
@@ -43,7 +44,7 @@ const EditAccountModal: ForwardRefRenderFunction<
         produce(state, (drafState) => {
           drafState.visible = true;
           drafState.roles = roles;
-        })
+        }),
       );
       setTimeout(() => {
         firstInputRef.current?.focus();
@@ -56,7 +57,7 @@ const EditAccountModal: ForwardRefRenderFunction<
       width="500px"
       title="编辑账号"
       maskClosable={false}
-      bodyStyle={{ maxHeight: "100%" }}
+      bodyStyle={{ maxHeight: '100%' }}
       visible={state.visible}
       footer={
         <Button type="primary" onClick={onOk}>
@@ -66,12 +67,23 @@ const EditAccountModal: ForwardRefRenderFunction<
       onCancel={onCancel}
       centered
     >
-      <Form form={form} name="basic" layout="vertical" autoComplete="off">
-        <Form.Item label="系统" name="systemId" rules={[{ required: true }]}>
+      <Form
+        form={form}
+        name="basic"
+        layout="vertical"
+        autoComplete="off"
+      >
+        <Form.Item
+          label="系统"
+          name="systemId"
+          rules={[{ required: true }]}
+        >
           <Select
             showSearch
             filterOption={(input, option) =>
-              option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              option.children
+                .toLowerCase()
+                .indexOf(input.toLowerCase()) >= 0
             }
             optionFilterProp="children"
           >
@@ -85,12 +97,16 @@ const EditAccountModal: ForwardRefRenderFunction<
 
         <Form.Item
           label="用户名"
-          name={"userName"}
+          name={'userName'}
           rules={[{ required: true }]}
         >
           <Input></Input>
         </Form.Item>
-        <Form.Item label="密码" name={"password"} rules={[{ required: true }]}>
+        <Form.Item
+          label="密码"
+          name={'password'}
+          rules={[{ required: true }]}
+        >
           <Input></Input>
         </Form.Item>
         <Form.Item label="环境" name="envIdList">
@@ -98,7 +114,9 @@ const EditAccountModal: ForwardRefRenderFunction<
             mode="tags"
             showSearch
             filterOption={(input, option) =>
-              option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              option.children
+                .toLowerCase()
+                .indexOf(input.toLowerCase()) >= 0
             }
             optionFilterProp="children"
           >
@@ -119,15 +137,20 @@ const EditAccountModal: ForwardRefRenderFunction<
   }
 
   async function onOk() {
-    form.validateFields().then(async (values: NIterative.IAccount) => {
-      const rsp = await SIterative.addAccount(state.roles.id, values);
-      if (rsp.success) {
-        onCancel();
-        props.onOk();
-      } else if (!rsp.isHaveReadMsg) {
-        message.error(rsp.message);
-      }
-    });
+    form
+      .validateFields()
+      .then(async (values: NIterative.IAccount) => {
+        const rsp = await SIterative.addAccount(
+          state.roles.id,
+          values,
+        );
+        if (rsp.success) {
+          onCancel();
+          props.onOk();
+        } else if (!rsp.isHaveReadMsg) {
+          message.error(rsp.message);
+        }
+      });
   }
 };
 export default forwardRef(EditAccountModal);

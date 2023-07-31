@@ -4,14 +4,17 @@ import React, {
   useImperativeHandle,
   useRef,
   useState,
-} from "react";
-import { Modal, Button, Form, Input, message } from "antd";
-import produce from "immer";
-import NProject from "../../NProject";
-import SProject from "../../SProject";
-import NProjectSnippet from "../NProjectSnippet";
+} from 'react';
+import { Modal, Button, Form, Input, message } from 'antd';
+import { produce } from 'immer';
+import NProject from '../../NProject';
+import SProject from '../../SProject';
+import NProjectSnippet from '../NProjectSnippet';
 export interface ICreateGroupModal {
-  showModal: (proect: NProject, snippetGroupList: NProjectSnippet[]) => void;
+  showModal: (
+    proect: NProject,
+    snippetGroupList: NProjectSnippet[],
+  ) => void;
 }
 export interface ICreateGroupModalProps {
   onOk: () => void;
@@ -31,18 +34,22 @@ const CreateGroupModal: ForwardRefRenderFunction<
   ICreateGroupModal,
   ICreateGroupModalProps
 > = (props, ref) => {
-  const [state, setState] = useState<ICreateGroupModalState>(defaultState);
+  const [state, setState] =
+    useState<ICreateGroupModalState>(defaultState);
   const [form] = Form.useForm();
   const groupNameInputRef = useRef<Input>();
 
   useImperativeHandle(ref, () => ({
-    showModal: (project: NProject, snippetGroupList: NProjectSnippet[]) => {
+    showModal: (
+      project: NProject,
+      snippetGroupList: NProjectSnippet[],
+    ) => {
       setState(
         produce(state, (drafState) => {
           drafState.visible = true;
           drafState.project = project;
           drafState.snippetGroupList = snippetGroupList;
-        })
+        }),
       );
       setTimeout(() => {
         groupNameInputRef.current.focus();
@@ -55,7 +62,7 @@ const CreateGroupModal: ForwardRefRenderFunction<
       width="500px"
       title="创建代码分组"
       maskClosable={false}
-      bodyStyle={{ maxHeight: "100%" }}
+      bodyStyle={{ maxHeight: '100%' }}
       visible={state.visible}
       footer={
         <Button type="primary" onClick={onOk}>
@@ -65,8 +72,17 @@ const CreateGroupModal: ForwardRefRenderFunction<
       onCancel={onCancel}
       centered
     >
-      <Form form={form} name="basic" layout="vertical" autoComplete="off">
-        <Form.Item label="分组名" name="name" rules={[{ required: true }]}>
+      <Form
+        form={form}
+        name="basic"
+        layout="vertical"
+        autoComplete="off"
+      >
+        <Form.Item
+          label="分组名"
+          name="name"
+          rules={[{ required: true }]}
+        >
           <Input ref={groupNameInputRef} onPressEnter={onOk} />
         </Form.Item>
       </Form>

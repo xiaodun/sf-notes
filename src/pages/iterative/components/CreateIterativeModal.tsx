@@ -4,11 +4,11 @@ import React, {
   useImperativeHandle,
   useRef,
   useState,
-} from "react";
-import { Modal, Button, Form, Input, message } from "antd";
-import produce from "immer";
-import NIterative from "../NIterative";
-import SIterative from "../SIterative";
+} from 'react';
+import { Modal, Button, Form, Input, message } from 'antd';
+import { produce } from 'immer';
+import NIterative from '../NIterative';
+import SIterative from '../SIterative';
 export interface ICreateIterativeModal {
   showModal: (iteratives?: NIterative) => void;
 }
@@ -28,7 +28,8 @@ const CreateIterativeModal: ForwardRefRenderFunction<
   ICreateIterativeModal,
   ICreateIterativeModalProps
 > = (props, ref) => {
-  const [state, setState] = useState<ICreateIterativeModalState>(defaultState);
+  const [state, setState] =
+    useState<ICreateIterativeModalState>(defaultState);
   const [form] = Form.useForm();
   const firstInputRef = useRef<Input>();
 
@@ -39,7 +40,7 @@ const CreateIterativeModal: ForwardRefRenderFunction<
           drafState.visible = true;
           drafState.iterative = iteratives;
           form.setFieldsValue(iteratives);
-        })
+        }),
       );
       setTimeout(() => {
         firstInputRef.current?.focus();
@@ -50,9 +51,9 @@ const CreateIterativeModal: ForwardRefRenderFunction<
   return (
     <Modal
       width="500px"
-      title={state.iterative ? "修改迭代" : "创建迭代"}
+      title={state.iterative ? '修改迭代' : '创建迭代'}
       maskClosable={false}
-      bodyStyle={{ maxHeight: "100%" }}
+      bodyStyle={{ maxHeight: '100%' }}
       visible={state.visible}
       footer={
         <Button type="primary" onClick={onOk}>
@@ -62,7 +63,12 @@ const CreateIterativeModal: ForwardRefRenderFunction<
       onCancel={onCancel}
       centered
     >
-      <Form form={form} name="basic" layout="vertical" autoComplete="off">
+      <Form
+        form={form}
+        name="basic"
+        layout="vertical"
+        autoComplete="off"
+      >
         <Form.Item label="文本信息" name="content">
           <Input.TextArea
             rows={6}
@@ -72,22 +78,22 @@ const CreateIterativeModal: ForwardRefRenderFunction<
           ></Input.TextArea>
         </Form.Item>
 
-        <Form.Item label="迭代名" name={"name"}>
+        <Form.Item label="迭代名" name={'name'}>
           <Input></Input>
         </Form.Item>
-        <Form.Item label="文档链接" name={"docUrl"}>
+        <Form.Item label="文档链接" name={'docUrl'}>
           <Input></Input>
         </Form.Item>
-        <Form.Item label="文档密码" name={"docPassword"}>
+        <Form.Item label="文档密码" name={'docPassword'}>
           <Input></Input>
         </Form.Item>
-        <Form.Item label="分享人" name={"sharePerson"}>
+        <Form.Item label="分享人" name={'sharePerson'}>
           <Input></Input>
         </Form.Item>
-        <Form.Item label="钉钉webhook" name={"webhook"}>
+        <Form.Item label="钉钉webhook" name={'webhook'}>
           <Input></Input>
         </Form.Item>
-        <Form.Item label="钉钉secret" name={"secret"}>
+        <Form.Item label="钉钉secret" name={'secret'}>
           <Input></Input>
         </Form.Item>
       </Form>
@@ -95,14 +101,14 @@ const CreateIterativeModal: ForwardRefRenderFunction<
   );
   function onContentChange(value: string) {
     const docUrlPattern = new RegExp(
-      `(https?://((lanhuapp.com/url/)|(share.lanhuapp.com/))[\\w\\?=#/]+)`
+      `(https?://((lanhuapp.com/url/)|(share.lanhuapp.com/))[\\w\\?=#/]+)`,
     );
     const namePattern = new RegExp(
-      `相关项目: ([-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]*)`
+      `相关项目: ([-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]*)`,
     );
     const docPasswordPattern = new RegExp(`密码: (\\w*)`);
     const sharePersonPattern = new RegExp(
-      `分享人: ([-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]*)`
+      `分享人: ([-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5]*)`,
     );
 
     if (value) {
@@ -122,9 +128,12 @@ const CreateIterativeModal: ForwardRefRenderFunction<
   async function onOk() {
     form.validateFields().then(async (values: NIterative) => {
       const rsp = state.iterative
-        ? await SIterative.saveIteraitve({ ...state.iterative, ...values })
+        ? await SIterative.saveIteraitve({
+            ...state.iterative,
+            ...values,
+          })
         : await SIterative.createIterative({
-            ...{ content: "", name: "" },
+            ...{ content: '', name: '' },
             ...values,
           });
       if (rsp.success) {

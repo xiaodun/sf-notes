@@ -5,7 +5,7 @@ import { connect } from "dva";
 import { ConnectRC, NMDActivity } from "umi";
 import NModel from "@/common/namespace/NModel";
 import NActivity from "./NActivity";
-import produce from "immer";
+import { produce } from "immer";
 import { Space, Select, Button } from "antd";
 import { URandom } from "@/common/utils/URandom";
 

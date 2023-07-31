@@ -3,13 +3,13 @@ import React, {
   ForwardRefRenderFunction,
   useImperativeHandle,
   useState,
-} from "react";
-import { Modal, Button, Tabs, Input } from "antd";
-import SelfStyle from "./SystemInfoModal.less";
-import produce from "immer";
-import { NMDIterative } from "umi";
-import UCopy from "@/common/utils/UCopy";
-import NIterative from "../NIterative";
+} from 'react';
+import { Modal, Button, Tabs, Input } from 'antd';
+import SelfStyle from './SystemInfoModal.less';
+import { produce } from 'immer';
+import { NMDIterative } from 'umi';
+import UCopy from '@/common/utils/UCopy';
+import NIterative from '../NIterative';
 export interface ISystemInfoModal {
   showModal: () => void;
 }
@@ -28,13 +28,14 @@ const ShowSystemInfoModalModal: ForwardRefRenderFunction<
   ISystemInfoModalProps
 > = (props, ref) => {
   const { MDIterative } = props;
-  const [state, setState] = useState<ISystemInfoModalState>(defaultState);
+  const [state, setState] =
+    useState<ISystemInfoModalState>(defaultState);
   useImperativeHandle(ref, () => ({
     showModal: () => {
       setState(
         produce(state, (drafState) => {
           drafState.visible = true;
-        })
+        }),
       );
     },
   }));
@@ -44,7 +45,7 @@ const ShowSystemInfoModalModal: ForwardRefRenderFunction<
       width="700px"
       title="系统信息"
       maskClosable={false}
-      bodyStyle={{ maxHeight: "100%" }}
+      bodyStyle={{ maxHeight: '100%' }}
       visible={state.visible}
       footer={
         <Button type="primary" onClick={onCancel}>
@@ -58,7 +59,10 @@ const ShowSystemInfoModalModal: ForwardRefRenderFunction<
         {MDIterative.systemList
           .filter((systemTag) => systemTag.url)
           .map((systemTag) => (
-            <Tabs.TabPane tab={systemTag.systemName} key={systemTag.id}>
+            <Tabs.TabPane
+              tab={systemTag.systemName}
+              key={systemTag.id}
+            >
               {systemTag.isMoreEnv ? (
                 <>
                   <Button
@@ -69,9 +73,14 @@ const ShowSystemInfoModalModal: ForwardRefRenderFunction<
                     全部复制
                   </Button>
                   {MDIterative.envList.map((env) => (
-                    <div className={SelfStyle.addressWrap} key={env.id}>
+                    <div
+                      className={SelfStyle.addressWrap}
+                      key={env.id}
+                    >
                       <div className="label">{env.envName}</div>
-                      <Input value={systemTag.address[env.branch]}></Input>
+                      <Input
+                        value={systemTag.address[env.branch]}
+                      ></Input>
                       <Button
                         className="copy-btn"
                         onClick={() =>
@@ -81,7 +90,10 @@ const ShowSystemInfoModalModal: ForwardRefRenderFunction<
                         复制
                       </Button>
                       <Button className="jump-btn">
-                        <a href={systemTag.address[env.branch]} target="_blank">
+                        <a
+                          href={systemTag.address[env.branch]}
+                          target="_blank"
+                        >
                           访问
                         </a>
                       </Button>
@@ -112,8 +124,11 @@ const ShowSystemInfoModalModal: ForwardRefRenderFunction<
   function onCopy(systemTag: NIterative.ISystem) {
     UCopy.copyStr(
       MDIterative.envList
-        .map((env) => `${env.envName} : ${systemTag.address[env.branch]}`)
-        .join("\n")
+        .map(
+          (env) =>
+            `${env.envName} : ${systemTag.address[env.branch]}`,
+        )
+        .join('\n'),
     );
   }
   function onCancel() {
