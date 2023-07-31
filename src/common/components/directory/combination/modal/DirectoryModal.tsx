@@ -5,7 +5,7 @@ import React, {
   forwardRef,
 } from "react";
 import { message, Modal } from "antd";
-import { produce } from "@/common";
+import { produce } from "immer";
 import PageDirectory from "../../PageDirectory";
 import { NSystem } from "@/common/namespace/NSystem";
 export interface IDirectoryModalProps {

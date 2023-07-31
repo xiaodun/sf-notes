@@ -3,7 +3,7 @@ import SelfStyle from "./PageDirectory.less";
 import { Tree } from "antd";
 import SSystem from "@/common/service/SSystem";
 import { DataNode, EventDataNode } from "antd/lib/tree";
-import { produce } from "@/common";
+import { produce } from "immer";
 import { NSystem } from "@/common/namespace/NSystem";
 
 export interface IPageDirectoryProps {
