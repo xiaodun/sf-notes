@@ -25,7 +25,7 @@ namespace SBase {
       url: "/baseService/featchOtherDomainUrl",
       method: "post",
       data: {
-        url,
+        url:encodeURI(url),
         data,
       },
     });
