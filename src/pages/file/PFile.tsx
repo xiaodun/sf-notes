@@ -8,7 +8,9 @@ import {
 } from "@ant-design/icons";
 import { Button, Space, Typography, Upload } from "antd";
 import { RcCustomRequestOptions } from "antd/lib/upload/interface";
+
 import { produce } from "immer";
+
 import { floor } from "lodash";
 import React, { FC, ReactNode, useEffect, useRef, useState } from "react";
 
@@ -24,7 +26,7 @@ const PFile: FC<IPFileProps> = (props) => {
   const optionConfigMapRef = useRef<Map<string, NFile.IOptioncConfig>>(
     new Map()
   );
-  // const [radomKey, setRadomkey] = useState<number>();
+
   const refreshView = useRefreshView();
   useEffect(() => {
     getList();
@@ -42,6 +44,16 @@ const PFile: FC<IPFileProps> = (props) => {
         </p>
         <p className="ant-upload-text">点击或拖拽上传</p>
       </Upload.Dragger>
+      <div className={SelfStyle.btnWrap}>
+        <Space direction="horizontal" size={35}>
+          <Button type="primary" onClick={onAllDownload}>
+            全部下载
+          </Button>
+          <Button danger onClick={onAllDel}>
+            全部删除
+          </Button>
+        </Space>
+      </div>
       <div className={SelfStyle.fileListWrap}>
         {renderUploadFileList()}
         {fileRsp.list.map((item) =>
@@ -55,13 +67,23 @@ const PFile: FC<IPFileProps> = (props) => {
       </div>
     </div>
   );
+  function onAllDownload() {
+    fileRsp.list.forEach((item) => {
+      onDownloadFile(item);
+    });
+  }
+  function onAllDel() {
+    fileRsp.list.forEach((item) => {
+      onDelFile(item, fileRsp);
+    });
+  }
   function renderUploadFileList() {
     const list: ReactNode[] = [];
     uploadConfigMapRef.current.forEach((fileConfig, file) => {
       if (fileConfig.uploadLoading) {
         list.push(
           renderFileList({
-            key: file,
+            key: file.name,
             ...fileConfig,
           })
         );
@@ -125,14 +147,18 @@ const PFile: FC<IPFileProps> = (props) => {
       UDownload.download({ name: file.name, blob: rsp });
     });
   }
-  function onDelFile(file: NFile) {
+  function onDelFile(file: NFile, argRsp = fileRsp) {
     optionConfigMapRef.current.set(file.id, { delLoading: true });
     refreshView();
     SFile.delItem(file.id).then((rsp) => {
       if (rsp.success) {
         const optionConfig = optionConfigMapRef.current.get(file.id);
         optionConfig.delLoading = false;
-        setFileRsp(NRsp.delItem(fileRsp, (item) => item.id === file.id));
+
+        console.log(argRsp.list.length);
+        const newArgRsp = NRsp.delItem(argRsp, (item) => item.id === file.id);
+        argRsp.list = newArgRsp.list;
+        setFileRsp(newArgRsp);
       }
     });
   }
