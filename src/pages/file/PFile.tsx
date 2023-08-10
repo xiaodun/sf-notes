@@ -155,7 +155,6 @@ const PFile: FC<IPFileProps> = (props) => {
         const optionConfig = optionConfigMapRef.current.get(file.id);
         optionConfig.delLoading = false;
 
-        console.log(argRsp.list.length);
         const newArgRsp = NRsp.delItem(argRsp, (item) => item.id === file.id);
         argRsp.list = newArgRsp.list;
         setFileRsp(newArgRsp);

@@ -3,7 +3,6 @@
     const iterative = argData.iterativeList.find(
       (item) => item.id == argParams.iterativeId
     );
-    console.log("wx", iterative);
     const index = iterative.markTags.envIdList.findIndex(
       (envId) => envId === argParams.envId
     );
