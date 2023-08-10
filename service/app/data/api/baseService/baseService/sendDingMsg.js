@@ -1,7 +1,6 @@
 (function () {
   return function (argData, argParams, external) {
     const axios = require("axios");
-    console.log("wx", argParams.data);
     axios.post(argParams.url, argParams.data, {}).then((rsp) => {
       const { errcode, errmsg } = rsp.data;
       if (errcode === 0) {
