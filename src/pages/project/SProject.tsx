@@ -8,6 +8,15 @@ import NModel from "@/common/namespace/NModel";
 import { NMDProject } from "umi";
 
 namespace SProject {
+  export async function delProject(
+    data: Partial<NProject>
+  ): Promise<NRsp<Boolean>> {
+    return request({
+      url: "/project/delProject",
+      method: "post",
+      data,
+    });
+  }
   export async function getInExcludeGroups() {
     return request({
       url: "/project/getInExcludeGroups",
