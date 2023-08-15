@@ -87,7 +87,7 @@
     "sync-request": "^6.1.0",
     "umi": "^3.0.14",
     "use-merge-value": "^1.0.1",
-    "vconsole": "^3.9.0"
+    "vconsole": "^3.15.1"
   },
   "devDependencies": {
     "@ant-design/pro-cli": "^1.0.18",
