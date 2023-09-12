@@ -80,34 +80,38 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
       <PageFooter>
         <Button onClick={() => onAddNote()}>新建笔记</Button>
 
-        <Radio.Group value={MDNotes.isTitleModel} buttonStyle="solid">
-          <Radio.Button value={true} onClick={onToggleShowModel}>
-            标题模式
-          </Radio.Button>
-        </Radio.Group>
         {!Browser.isMobile() && (
-          <div id={searchContentId}>
-            <Select
-              ref={searchSelectRef}
-              className={SelfStyle.searchSelect}
-              getPopupContainer={() => document.getElementById(searchContentId)}
-              mode="tags"
-              allowClear={true}
-              placeholder="搜索内容"
-              onChange={onSearchContent}
-              open={searchOpen}
-              onFocus={() => setSearchOpen(true)}
-              onBlur={() => setSearchOpen(false)}
-            >
-              {titleOptionList.map((item, index) => (
-                <Select.Option key={index} value={item.value}>
-                  {item.value}
-                </Select.Option>
-              ))}
-            </Select>
-          </div>
+          <>
+            <Radio.Group value={MDNotes.isTitleModel} buttonStyle="solid">
+              <Radio.Button value={true} onClick={onToggleShowModel}>
+                标题模式
+              </Radio.Button>
+            </Radio.Group>
+            <div id={searchContentId}>
+              <Select
+                ref={searchSelectRef}
+                className={SelfStyle.searchSelect}
+                getPopupContainer={() =>
+                  document.getElementById(searchContentId)
+                }
+                mode="tags"
+                allowClear={true}
+                placeholder="搜索内容"
+                onChange={onSearchContent}
+                open={searchOpen}
+                onFocus={() => setSearchOpen(true)}
+                onBlur={() => setSearchOpen(false)}
+              >
+                {titleOptionList.map((item, index) => (
+                  <Select.Option key={index} value={item.value}>
+                    {item.value}
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
+            <Button onClick={() => onClearDeletedNote()}>清空删除备份</Button>
+          </>
         )}
-        <Button onClick={() => onClearDeletedNote()}>清空删除备份</Button>
       </PageFooter>
       <ZoomImgModal ref={zoomModalRef}></ZoomImgModal>
     </div>
