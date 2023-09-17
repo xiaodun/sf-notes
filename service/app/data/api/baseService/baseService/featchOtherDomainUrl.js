@@ -7,7 +7,9 @@
       const rsp = request("get", argParams.url);
       data = {
         success: true,
-        data: JSON.parse(rsp.getBody("utf8")),
+        data: {
+          data: JSON.parse(rsp.getBody("utf8")),
+        },
       };
     } catch (error) {
       data = {
