@@ -1,18 +1,26 @@
 (function () {
   return function (argData, argParams) {
     const request = require("sync-request");
+    let data;
 
-    const rsp = request("get", argParams.url);
-    let data = JSON.parse(rsp.getBody("utf8"));
+    try {
+      const rsp = request("get", argParams.url);
+      data = {
+        success: true,
+        data: JSON.parse(rsp.getBody("utf8")),
+      };
+    } catch (error) {
+      data = {
+        success: false,
+        message: error.message,
+      };
+    }
     return {
       isWrite: false,
 
       response: {
         code: 200,
-        data: {
-          success: true,
-          data,
-        },
+        data,
       },
     };
   };
