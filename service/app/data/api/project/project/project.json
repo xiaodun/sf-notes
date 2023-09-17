@@ -45,7 +45,91 @@
         }
     ],
     "inExcludeGroups": {},
-    "swaggerList": [],
-    "apiPrefixs": {},
-    "attentionPathList": []
+    "swaggerList": [
+        {
+            "domain": "http://wenwo-cloud-adapter-doctor-rebuild-test.wenwo.cn",
+            "id": 1650253516790,
+            "crateTime": 1650253516790,
+            "updateTime": 1660815732898
+        }
+    ],
+    "apiPrefixs": {
+        "http://wenwo-cloud-adapter-doctor-(rebuild-test)|(test).wenwo.cn": {
+            "doctor-H5": {
+                "/api/gateway/doctor": [
+                    "/d/h5"
+                ]
+            },
+            "patient-H5": {
+                "/api/gateway/doctor": [
+                    "/p/h5"
+                ]
+            },
+            "background-admin": {
+                "/api/gateway/doctor": [
+                    "/d/web",
+                    "/web/activity",
+                    "/d/admin"
+                ]
+            },
+            "doctor-PC": {
+                "/api/gateway/doctor": [
+                    "/d/web"
+                ]
+            },
+            "doctor-APP": {
+                "/api/gateway/doctor": [
+                    "/d/app"
+                ]
+            }
+        },
+        "http://wenwo-cloud-adaptor-biz-domain-community-rebuild-test.wenwo.cn": {
+            "default": {
+                "": [
+                    "/bizc"
+                ]
+            }
+        },
+        "http://wenwo-cloud-patient-adaptor-content-operation-dev.wenwo.cn": {
+            "default": {
+                "/api/midauth": [
+                    "/thirdUser"
+                ]
+            }
+        },
+        "http://wenwo-cloud-core-domain-finance-taxation-dev.wenwo.cn": {
+            "default": {
+                "/taxation/company": [
+                    "/financeBasicCompany"
+                ],
+                "/taxation/invoice": [
+                    "/financeInvoiceApply",
+                    "/financeInvoiceQuota"
+                ]
+            }
+        }
+    },
+    "attentionPathList": [
+        {
+            "domain": "http://wenwo-cloud-adapter-doctor-rebuild-test.wenwo.cn",
+            "groupName": "background-admin",
+            "tagName": "账号管理接口相关接口",
+            "pathUrl": "/d/admin/account/cancel",
+            "isPath": true
+        },
+        {
+            "domain": "http://wenwo-cloud-adapter-doctor-rebuild-test.wenwo.cn",
+            "groupName": "background-admin",
+            "tagName": "账号管理接口相关接口",
+            "pathUrl": "/d/admin/account/followUp",
+            "isPath": true
+        },
+        {
+            "domain": "http://wenwo-cloud-adapter-doctor-rebuild-test.wenwo.cn",
+            "groupName": "background-admin",
+            "tagName": "账号管理接口相关接口",
+            "pathUrl": "/d/admin/account/getCancelApplyPage",
+            "isPath": true
+        }
+    ]
 }
