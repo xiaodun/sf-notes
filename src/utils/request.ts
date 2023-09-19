@@ -40,7 +40,7 @@ export default function request(config: AxiosRequestConfig) {
         data.list || (data.list = []);
         data.data || (data.data = {} as any);
         if (!data.success) {
-          message.error(data.message);
+          data.message && message.error(data.message);
         }
         return {
           list: [],
