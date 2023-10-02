@@ -156,7 +156,6 @@ const PFile: FC<IPFileProps> = (props) => {
         optionConfig.delLoading = false;
 
         const newArgRsp = NRsp.delItem(argRsp, (item) => item.id === file.id);
-        argRsp.list = newArgRsp.list;
         setFileRsp(newArgRsp);
       }
     });
