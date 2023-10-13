@@ -2,9 +2,12 @@ import NModel from "@/common/namespace/NModel";
 import NRsp from "@/common/namespace/NRsp";
 import NNotes from "../NNotes";
 
+interface INoteSettingObj{
+  [key:string]:{isExpand:boolean}
+}
 export namespace NMDNotes {
   export interface IState {
-    noteSettingMap: Map<string, { isExpand: boolean }>;
+    noteSettingObjs: INoteSettingObj;
     rsp: NRsp<NNotes>;
     isTitleModel: boolean;
   }
@@ -31,7 +34,7 @@ export namespace NMDNotes {
 export default {
   namespace: NModel.ENames.MDNotes,
   state: {
-    noteSettingMap: new Map(),
+    noteSettingObjs: {},
     rsp: {
       list: [],
     },
@@ -42,10 +45,10 @@ export default {
     setRsp(state, { payload }: NMDNotes.ARSetRsp) {
       state.rsp = payload;
       payload.list.forEach((item) => {
-        if (!state.noteSettingMap.get(item.id)) {
-          state.noteSettingMap.set(item.id, {
+        if (!state.noteSettingObjs[item.id]) {
+          state.noteSettingObjs[item.id] = {
             isExpand: false,
-          });
+          };
         }
       });
     },
@@ -53,12 +56,12 @@ export default {
       state.isTitleModel = payload;
     },
     changeNoteExpand(state, { payload }: NMDNotes.ArChangeNoteExpand) {
-      state.noteSettingMap.set(payload.id, {
+      state.noteSettingObjs[payload.id] = {
         isExpand: payload.isExpand,
-      });
+      };
     },
     changeAllNoteExpand(state, { payload }: NMDNotes.ArChangeAllNoteExpand) {
-      for (const settings of state.noteSettingMap.values()) {
+      for (const settings of Object.values(state.noteSettingObjs)) {
         settings.isExpand = payload;
       }
     },
