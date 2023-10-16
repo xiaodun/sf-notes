@@ -54,7 +54,7 @@
     "@antv/l7": "^2.0.0",
     "@antv/l7-maps": "^2.0.0",
     "@babel/parser": "^7.16.7",
-    "@babel/traverse": "^7.16.7",
+    "@babel/traverse": "^7.23.2",
     "@types/react-syntax-highlighter": "^11.0.4",
     "antd": "^4.0.0",
     "axios": "^0.20.0",
