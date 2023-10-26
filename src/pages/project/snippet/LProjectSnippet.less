@@ -22,9 +22,23 @@
       border-right: 1px solid #614ad3;
       .ant-menu {
         border-right: none;
-        .script {
-          margin-left: 10px;
-          color: #09194f;
+        .ant-menu-item{
+          &:hover{
+            .del-btn{
+              display: block;
+            }
+          }
+          .script {
+            margin-left: 10px;
+            color: #09194f;
+          }
+          .del-btn{
+            display: none;
+            position: absolute;
+            right: 15px;
+            top:50%;
+            transform: translateY(-50%);
+          }
         }
       }
     }
