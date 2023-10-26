@@ -1,4 +1,4 @@
-import NModel from '@/common/namespace/NModel';
+import NModel from "@/common/namespace/NModel";
 import {
   Affix,
   Button,
@@ -12,31 +12,31 @@ import {
   Select,
   Space,
   Switch,
-} from 'antd';
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
-import { connect, ConnectRC, NMDGlobal, NMDProject } from 'umi';
-import SelfStyle from './LProjectSnippet.less';
-import SProject from '../SProject';
-import qs from 'qs';
-import NProject from '../NProject';
+} from "antd";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
+import { connect, ConnectRC, NMDGlobal, NMDProject } from "umi";
+import SelfStyle from "./LProjectSnippet.less";
+import SProject from "../SProject";
+import qs from "qs";
+import NProject from "../NProject";
 import CreateSnipeetModal, {
   ICreateSnipeetModal,
-} from './components/CreateSnipeetModal';
+} from "./components/CreateSnipeetModal";
 import CreateGroupModal, {
   ICreateGroupModal,
-} from './components/CreateGroupModal';
-import NProjectSnippet from './NProjectSnippet';
-import SyntaxHighlighter from 'react-syntax-highlighter';
-import { produce } from 'immer';
-import UCopy from '@/common/utils/UCopy';
+} from "./components/CreateGroupModal";
+import NProjectSnippet from "./NProjectSnippet";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import { produce } from "immer";
+import UCopy from "@/common/utils/UCopy";
 import DirectoryModal, {
   IDirectoryModal,
-} from '@/common/components/directory/combination/modal/DirectoryModal';
-import { NSystem } from '@/common/namespace/NSystem';
-import { CopyOutlined } from '@ant-design/icons';
-import { isEmpty, uniqueId } from 'lodash';
-import SBase from '@/common/service/SBase';
-import { UModal } from '@/common/utils/modal/UModal';
+} from "@/common/components/directory/combination/modal/DirectoryModal";
+import { NSystem } from "@/common/namespace/NSystem";
+import { CopyOutlined, DeleteOutlined } from "@ant-design/icons";
+import { isEmpty, uniqueId } from "lodash";
+import SBase from "@/common/service/SBase";
+import { UModal } from "@/common/utils/modal/UModal";
 export interface IPProjectSnippetProps {
   MDProject: NMDProject.IState;
   MDGlobal: NMDGlobal.IState;
@@ -59,7 +59,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
     NModel.dispatch(
       new NMDGlobal.ARChangeSetting({
         controlLayout: false,
-      }),
+      })
     );
     pageSetup();
   }, []);
@@ -91,16 +91,12 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
       </div>
       <div className={SelfStyle.contentWrap}>
         <div className="menuWrap">
-          <Menu
-            mode="inline"
-            theme="light"
-            selectedKeys={selectedKeys}
-          >
+          <Menu mode="inline" theme="light" selectedKeys={selectedKeys}>
             {snippetList.map((snippet) => {
               return snippet.isGroup ? (
                 <Menu.SubMenu key={snippet.name} title={snippet.name}>
                   {snippet.children.map((childrenSnippet) => {
-                    return renderMenuItem(childrenSnippet);
+                    return renderMenuItem(childrenSnippet, snippet.name);
                   })}
                 </Menu.SubMenu>
               ) : (
@@ -165,9 +161,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
                       </Col>
                       <Col span={12}>
                         <Button
-                          onClick={() =>
-                            onChooseWritePath(snippetConfig)
-                          }
+                          onClick={() => onChooseWritePath(snippetConfig)}
                         >
                           选择路径
                         </Button>
@@ -175,9 +169,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
                     </Row>
                   )}
 
-                  {renderParamList(
-                    snippetConfig.globalParamList || [],
-                  )}
+                  {renderParamList(snippetConfig.globalParamList || [])}
                 </Form>
               </div>
               <div className="fragmentListWrap">
@@ -189,7 +181,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
       </div>
     </div>
   );
-  function renderMenuItem(snippet: NProjectSnippet) {
+  function renderMenuItem(snippet: NProjectSnippet, groupName?: string) {
     return (
       <Menu.Item
         key={snippet.script}
@@ -205,22 +197,42 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
           ></CopyOutlined>
           {snippet.script}
         </span>
+        <Button
+          size="small"
+          onClick={(event) => {
+            event.stopPropagation(), onDelSnippet(snippet.name, groupName);
+          }}
+          className="del-btn"
+          danger
+          icon={<DeleteOutlined />}
+          shape="circle"
+        ></Button>
       </Menu.Item>
     );
+  }
+  async function onDelSnippet(snippetName: string, groupName: string) {
+    const rsp = await SProject.delSnippet(
+      MDProject.project.id,
+      snippetName,
+      groupName
+    );
+    if (rsp.success) {
+      
+      pageSetup();
+    }
   }
   async function onOpenFile(filePath: string) {
     const rsp = await SBase.openFile(filePath);
     if (rsp.success) {
-      message.success('已执行');
+      message.success("已执行");
     }
   }
   function onChooseWritePath(snippetConfig: NProjectSnippet.IConfig) {
     directoryModalRef.current.showModal({
       startPath:
-        MDProject.project.rootPath +
-        (snippetConfig.writeOs.basePath || ''),
+        MDProject.project.rootPath + (snippetConfig.writeOs.basePath || ""),
       disableFile: true,
-      selectCallbackFlag: 'setWriteOsPath',
+      selectCallbackFlag: "setWriteOsPath",
     });
   }
   function onWriteOs(snippetConfig: NProjectSnippet.IConfig) {
@@ -231,10 +243,9 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
       ) {
         directoryModalRef.current.showModal({
           startPath:
-            MDProject.project.rootPath +
-            snippetConfig.writeOs.basePath,
+            MDProject.project.rootPath + snippetConfig.writeOs.basePath,
           disableFile: true,
-          selectCallbackFlag: 'writeOs',
+          selectCallbackFlag: "writeOs",
         });
       } else {
         reqWriteSnippetOs(MDProject.project.rootPath);
@@ -243,11 +254,11 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
   }
   async function onSelectDirectory(
     pathInfos: NSystem.IDirectory,
-    selectCallbackFlag: string,
+    selectCallbackFlag: string
   ) {
-    if (selectCallbackFlag == 'writeOs') {
+    if (selectCallbackFlag == "writeOs") {
       reqWriteSnippetOs(pathInfos.path);
-    } else if (selectCallbackFlag === 'setWriteOsPath') {
+    } else if (selectCallbackFlag === "setWriteOsPath") {
       globalform.setFieldsValue({
         writeOsPath: pathInfos.path,
       });
@@ -265,7 +276,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
         {
           writeOsPath,
           ...values,
-        },
+        }
       );
       if (rsp.success) {
         setWriteLoading(false);
@@ -274,9 +285,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
       }
     });
   }
-  function renderFragmentList(
-    fragmentList: NProjectSnippet.IFragment[],
-  ) {
+  function renderFragmentList(fragmentList: NProjectSnippet.IFragment[]) {
     return fragmentList.map((fragment, index) => {
       return (
         <div className="fragmentWrap" key={index}>
@@ -297,11 +306,9 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
           </div>
           <div className="previewWrap">
             {fragment.template && (
-              <SyntaxHighlighter>
-                {fragment.template}
-              </SyntaxHighlighter>
+              <SyntaxHighlighter>{fragment.template}</SyntaxHighlighter>
             )}
-            {fragment.template === '' && '无内容'}
+            {fragment.template === "" && "无内容"}
           </div>
         </div>
       );
@@ -315,15 +322,15 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
           script: snippet.script,
           index,
         },
-        values,
+        values
       );
       if (rsp.success) {
         setSnippetConfig(
           produce(snippetConfig, (drafState) => {
             drafState.fragmentList[index].template = isEmpty(rsp.data)
-              ? ''
+              ? ""
               : rsp.data;
-          }),
+          })
         );
         if (!isEmpty(rsp.data)) {
           UCopy.copyStr(rsp.data);
@@ -333,18 +340,18 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
   }
   function renderParamList(paramList: NProjectSnippet.IParam[]) {
     return paramList.map((param) => {
-      let content: ReactNode = '';
+      let content: ReactNode = "";
       let onChange;
 
       if (param.openChangeRequest) {
         onChange = onRequestConfig;
-      } else if (param.require && param.name !== '_uniqueId') {
+      } else if (param.require && param.name !== "_uniqueId") {
         onChange = changeUniqueId;
       } else {
         onChange = () => {};
       }
 
-      if (param.type === 'input') {
+      if (param.type === "input") {
         content = (
           <Input
             style={param.style}
@@ -353,7 +360,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
             disabled={param.disabled}
           />
         );
-      } else if (param.type === 'number') {
+      } else if (param.type === "number") {
         content = (
           <InputNumber
             style={param.style}
@@ -362,20 +369,16 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
             disabled={param.disabled}
           />
         );
-      } else if (param.type === 'switch') {
-        content = (
-          <Switch onChange={onChange} {...param.props}></Switch>
-        );
-      } else if (param.type === 'select') {
+      } else if (param.type === "switch") {
+        content = <Switch onChange={onChange} {...param.props}></Switch>;
+      } else if (param.type === "select") {
         content = (
           <Select
             {...param.props}
             showSearch
             style={param.style}
             filterOption={(input, option) =>
-              option.children
-                .toLowerCase()
-                .indexOf(input.toLowerCase()) >= 0
+              option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }
             optionFilterProp="children"
             onChange={onChange}
@@ -393,9 +396,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
           key={param.name}
           label={param.label}
           name={param.name}
-          valuePropName={
-            param.type === 'switch' ? 'checked' : 'value'
-          }
+          valuePropName={param.type === "switch" ? "checked" : "value"}
           rules={[{ required: param.require }]}
         >
           {content}
@@ -404,13 +405,10 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
     });
   }
   function getGlobalInitialValues() {
-    const values = snippetConfig.globalParamList.reduce(
-      (pre, cur) => {
-        pre[cur.name] = cur.defaultValue;
-        return pre;
-      },
-      {} as any,
-    );
+    const values = snippetConfig.globalParamList.reduce((pre, cur) => {
+      pre[cur.name] = cur.defaultValue;
+      return pre;
+    }, {} as any);
     return values;
   }
   function changeUniqueId() {
@@ -425,7 +423,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
   async function reqGetSnippetConfig(
     snippet: NProjectSnippet,
     isChangeScript: boolean,
-    values: any = {},
+    values: any = {}
   ) {
     setSnippet(snippet);
     props.history.replace({
@@ -439,20 +437,20 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
         id: urlQuery.id,
         script: snippet.script,
       },
-      values,
+      values
     );
     if (rsp.success) {
       rsp.data.globalParamList.find((item) => {
-        if (item.name === '_uniqueId') {
-          item.type = 'input';
-          item.label = '标识符';
+        if (item.name === "_uniqueId") {
+          item.type = "input";
+          item.label = "标识符";
           item.defaultValue = uniqueId();
           item.style = {
             width: 135,
           };
           return true;
         }
-        let inputWidth = item.type === 'input' ? 300 : 100;
+        let inputWidth = item.type === "input" ? 300 : 100;
         if (item.style) {
           if (!item.style.width) {
             item.style.width = inputWidth;
@@ -468,9 +466,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
         document.title = MDProject.project.name;
       }
       setTimeout(() => {
-        const input = document.getElementById(
-          'firstGlobalParamInputId',
-        );
+        const input = document.getElementById("firstGlobalParamInputId");
         if (input) {
           input.focus();
         }
@@ -484,13 +480,13 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
   function onShowCreateSnipeetModal() {
     createSnipeetModalRef.current.showModal(
       MDProject.project,
-      MDProject.snippetGroupList,
+      MDProject.snippetGroupList
     );
   }
   function onShowCreateGroupModal() {
     createGroupModalRef.current.showModal(
       MDProject.project,
-      MDProject.snippetGroupList,
+      MDProject.snippetGroupList
     );
   }
   async function pageSetup() {
@@ -500,9 +496,9 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
         new NMDProject.ARSetState({
           project: projectRsp.data,
           snippetGroupList: projectRsp.data.snippetList.filter(
-            (item) => item.isGroup,
+            (item) => item.isGroup
           ),
-        }),
+        })
       );
       const { snippetList } = projectRsp.data;
 
@@ -520,6 +516,10 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
       if (currentSnippet) {
         reqGetSnippetConfig(currentSnippet, false);
         setSelectedKeys([currentSnippet.script]);
+      }
+      else{
+        setSnippet(null);
+        setSnippetConfig(null)
       }
       document.title = projectRsp.data.name;
     }
