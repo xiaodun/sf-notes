@@ -73,8 +73,9 @@ const PFile: FC<IPFileProps> = (props) => {
     });
   }
   function onAllDel() {
+    let argRsp = { list: fileRsp.list };
     fileRsp.list.forEach((item) => {
-      onDelFile(item, fileRsp);
+      onDelFile(item, argRsp);
     });
   }
   function renderUploadFileList() {
@@ -149,14 +150,19 @@ const PFile: FC<IPFileProps> = (props) => {
   }
   function onDelFile(file: NFile, argRsp = fileRsp) {
     optionConfigMapRef.current.set(file.id, { delLoading: true });
-    refreshView();
+
     SFile.delItem(file.id).then((rsp) => {
       if (rsp.success) {
         const optionConfig = optionConfigMapRef.current.get(file.id);
         optionConfig.delLoading = false;
 
         const newArgRsp = NRsp.delItem(argRsp, (item) => item.id === file.id);
+        if (argRsp !== fileRsp) {
+          argRsp.list = newArgRsp.list;
+        }
         setFileRsp(newArgRsp);
+
+        refreshView();
       }
     });
   }
