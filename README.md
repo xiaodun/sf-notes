@@ -1,31 +1,32 @@
 # 启动项目
 
 ## 方式一
+
 ```
 npm start
 ```
+
 或者直接点击 startByCmd.bat
 
 ## 方式二
 
 **启动前端**
+
 ```
 npm run dev
 ```
-或者直接点击cmd下start-web.bat
 
-**启动node服务器**
+或者直接点击 cmd 下 start-web.bat
 
-进入到service/app目录，执行：
+**启动 node 服务器**
+
+进入到 service/app 目录，执行：
 
 ```
 node service.js
 ```
 
-或者直接点击cmd下的start-service.bat
-
-
-
+或者直接点击 cmd 下的 start-service.bat
 
 ## 记事本
 
@@ -91,7 +92,7 @@ node service.js
 
 ## 全局功能
 
-生成当前页面的二维码,方便手机访问，即便程序以localhost访问，展开二维码的时候还是会获取ip地址。
+生成当前页面的二维码,方便手机访问，即便程序以 localhost 访问，展开二维码的时候还是会获取 ip 地址。
 
 ![扫描二维码](./manual/images/scanQrcode.png)
 
@@ -132,13 +133,3 @@ node service.js
 
 - NRsp 整合了对列表的系列操作
 - 合理的利用 Promise 加形参的方式控制行为，避免混淆。
-
-
-
-
-
-
-每收到您的一块钱赞助，深夜敲代码的作者就会掉一根头发。
-
-![](./images/zfb.png)
-
