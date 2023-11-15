@@ -21,6 +21,7 @@ export namespace NSwagger {
   export interface IDefinition {
     properties: {
       [key: string]: {
+        $ref?: string;
         type: TType;
         required?: boolean;
         format?: string;
@@ -82,10 +83,23 @@ export namespace NSwagger {
     summary: string;
     tags: string[];
     definitions: IDefinitions;
+    //3
+    requestBody: {
+      content: {
+        "application/json": {
+          schema: {
+            $ref: string;
+          };
+        };
+      };
+    };
     method: string;
   }
   export interface IGroupApis {
     definitions: IDefinitions;
+    components?: {
+      schemas: IDefinitions;
+    };
     paths: {
       [key: string]: IPathInfos;
     };

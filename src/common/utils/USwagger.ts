@@ -8,8 +8,8 @@ export namespace USwagger {
     );
     return method;
   }
-  export function getUrlByGroup(origin: string) {
-    return origin + "/swagger-resources";
+  export function getUrlByGroup(url: string) {
+    return url + "/swagger-resources";
   }
   export function intoTagOfPath(infos: NSwagger.IGroupApis) {
     /**
@@ -19,7 +19,7 @@ export namespace USwagger {
     Object.keys(infos.paths).map((path) => {
       const method = getSuportMethod(infos.paths[path]);
       const methodInfos: NSwagger.IMethodInfos = infos.paths[path][method];
-      methodInfos.definitions = infos.definitions;
+      methodInfos.definitions = infos.definitions || infos.components.schemas;
       methodInfos.method = method;
       methodInfos.tags.forEach((tag) => {
         if (!tagWithPaths[tag]) {
@@ -32,7 +32,8 @@ export namespace USwagger {
   }
   export function parseMethodInfo(
     pathUrl: string,
-    methodInfos: NSwagger.IMethodInfos
+    methodInfos: NSwagger.IMethodInfos,
+    version: string
   ) {
     const definitions = methodInfos.definitions;
     let obj: NProject.IRenderMethodInfo = {
@@ -41,61 +42,104 @@ export namespace USwagger {
       summary: methodInfos.summary,
       tags: methodInfos.tags,
     };
+    if (
+      pathUrl ==
+      "/datamesh-analysis/appTeamgriderView/getTeamgriderExpwarnByGriderIdAndBigType"
+    ) {
+    }
     //解析入参
-    obj.parameters = parseParameterList(methodInfos.parameters, definitions);
+    let parameters = methodInfos.parameters;
+    if (version == "3") {
+      let ref = (
+        methodInfos.requestBody?.content?.["application/json"]?.schema?.$ref ||
+        ""
+      )
+        .split("/")
+        .pop();
+
+      if (ref) {
+        parameters = Object.keys(definitions[ref].properties).map((key) => ({
+          name: key,
+          ...definitions[ref].properties[key],
+        })) as unknown as NSwagger.IParametersInfos[];
+      }
+    }
+    obj.parameters = parseParameterList(parameters, definitions, version);
     // 解析返回格式
-    obj.responses = parseResponseInfo(methodInfos, definitions);
+    obj.responses = parseResponseInfo(methodInfos, definitions, version);
     return obj;
   }
   export function parseResponseInfo(
     methodInfos: NSwagger.IMethodInfos,
-    definitions: NSwagger.IDefinitions
+    definitions: NSwagger.IDefinitions,
+    version: string
   ) {
     let obj = {
       key: Math.random() + "",
       name: "rsp",
       children: [],
     } as NProject.IRenderFormatInfo;
-    if (methodInfos?.responses?.["200"]?.schema) {
-      const { schema } = (methodInfos.responses[
-        "200"
-      ] as unknown) as NSwagger.IResponseInfo;
-      if (schema.originalRef) {
-        obj.type = "object";
-        obj.children = fillResponseDefinitions(schema.originalRef, definitions);
-      } else {
-        if (schema.type === "array") {
-          if (schema.items.originalRef) {
-            obj.type = "array";
-            obj.children = fillResponseDefinitions(
-              schema.items.originalRef,
-              definitions
-            );
-          } else {
-            //普通数组
-            obj = {
-              ...obj,
 
-              type: schema.type,
-              itemsType: schema.items.type,
-            };
-          }
-        }
-        if (schema.type === "array") {
+    let schema;
+
+    if (version == "3") {
+      let ref = (methodInfos.responses["200"].content["*/*"].schema.$ref || "")
+        .split("/")
+        .pop();
+      if (!ref) {
+        return {};
+      }
+
+      schema = {
+        originalRef: ref,
+      };
+    } else if (version == "2") {
+      schema = (
+        methodInfos.responses["200"] as unknown as NSwagger.IResponseInfo
+      ).schema;
+    }
+    if (schema.originalRef) {
+      obj.type = "object";
+      obj.children = fillResponseDefinitions(
+        schema.originalRef,
+        definitions,
+        version
+      );
+    } else {
+      if (schema.type === "array") {
+        if (schema.items.originalRef) {
+          obj.type = "array";
+          obj.children = fillResponseDefinitions(
+            schema.items.originalRef,
+            definitions,
+            version
+          );
         } else {
-          //基本类型
+          //普通数组
           obj = {
             ...obj,
+
             type: schema.type,
+            itemsType: schema.items.type,
           };
         }
       }
+      if (schema.type === "array") {
+      } else {
+        //基本类型
+        obj = {
+          ...obj,
+          type: schema.type,
+        };
+      }
     }
+
     return [obj];
   }
   export function fillResponseDefinitions(
     originalRef: string,
-    definitions: NSwagger.IDefinitions
+    definitions: NSwagger.IDefinitions,
+    version: string
   ) {
     let list: NProject.IRenderFormatInfo[] = [];
     function able(
@@ -114,9 +158,14 @@ export namespace USwagger {
           Object.keys(currentDef.properties).forEach((key) => {
             const values = currentDef.properties[key];
             let type = values.type;
-            if (values.originalRef) {
+            let originalRef = values.originalRef;
+            if (version == "3" && values.$ref) {
+              originalRef = values.$ref.split("/").pop();
+            }
+            console.log("wx", values, originalRef);
+            if (originalRef) {
               if (!values.type) {
-                type = definitions[values.originalRef].type;
+                type = definitions[originalRef].type;
               }
               const item = {
                 key: Math.random() + "",
@@ -127,9 +176,9 @@ export namespace USwagger {
                 children: [],
               } as NProject.IRenderFormatInfo;
               if (count < 2) {
-                able(definitions[values.originalRef], item.children, [
+                able(definitions[originalRef], item.children, [
                   ...passDefinitionList,
-                  definitions[values.originalRef],
+                  definitions[originalRef],
                   currentDef,
                 ]);
               }
@@ -143,12 +192,16 @@ export namespace USwagger {
                 description: values.description,
                 children: [],
               } as NProject.IRenderFormatInfo;
-              if (values.items?.originalRef) {
+              let itemsRef = values.items?.originalRef;
+              if (version == "3") {
+                itemsRef = (values.items.$ref || "").split("/").pop();
+              }
+              if (itemsRef) {
                 if (count < 2) {
-                  able(definitions[values.items?.originalRef], item.children, [
+                  able(definitions[itemsRef], item.children, [
                     ...passDefinitionList,
                     currentDef,
-                    definitions[values.items?.originalRef],
+                    definitions[itemsRef],
                   ]);
                 }
               } else {
@@ -242,7 +295,8 @@ export namespace USwagger {
 
   export function parseParameterList(
     parameterList: NSwagger.IParametersInfos[],
-    definitions: NSwagger.IDefinitions
+    definitions: NSwagger.IDefinitions,
+    version: string
   ) {
     let list: NProject.IRenderFormatInfo[] = null;
     if (parameterList && parameterList.length > 0) {
