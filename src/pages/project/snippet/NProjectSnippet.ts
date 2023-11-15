@@ -2,6 +2,7 @@ export interface NProjectSnippet {
   name: string;
   script?: string;
   isGroup?: boolean;
+  lastOptionPath?: string;
   children: NProjectSnippet[];
 }
 
@@ -26,7 +27,7 @@ export namespace NProjectSnippet {
   export interface IParam {
     name: string;
     label: string;
-    type: "input" | "switch" | "select" | "number";
+    type: "input" | "switch" | "select" | "number" | "textarea" | "radio";
     require: boolean;
     disabled: boolean;
     defaultValue: any;

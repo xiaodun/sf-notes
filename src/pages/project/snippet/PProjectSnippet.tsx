@@ -8,6 +8,7 @@ import {
   InputNumber,
   Menu,
   message,
+  Radio,
   Row,
   Select,
   Space,
@@ -150,7 +151,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
                 >
                   {snippetConfig.writeOs.usePathChoose && (
                     <Row gutter={8}>
-                      <Col span={12}>
+                      <Col span={20}>
                         <Form.Item
                           name="writeOsPath"
                           label="写入路径"
@@ -159,7 +160,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
                           <Input readOnly></Input>
                         </Form.Item>
                       </Col>
-                      <Col span={12}>
+                      <Col span={2}>
                         <Button
                           onClick={() => onChooseWritePath(snippetConfig)}
                         >
@@ -217,7 +218,6 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
       groupName
     );
     if (rsp.success) {
-      
       pageSetup();
     }
   }
@@ -231,7 +231,6 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
     directoryModalRef.current.showModal({
       startPath:
         MDProject.project.rootPath + (snippetConfig.writeOs.basePath || ""),
-      disableFile: true,
       selectCallbackFlag: "setWriteOsPath",
     });
   }
@@ -360,6 +359,23 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
             disabled={param.disabled}
           />
         );
+      } else if (param.type === "textarea") {
+        content = (
+          <Input.TextArea
+            style={param.style}
+            onChange={onChange}
+            {...param.props}
+            disabled={param.disabled}
+          />
+        );
+      } else if (param.type === "radio") {
+        content = (
+          <Radio.Group onChange={onChange} {...param.props}>
+            {param.valueList.map((item) => (
+              <Radio value={item.value}>{item.label}</Radio>
+            ))}
+          </Radio.Group>
+        );
       } else if (param.type === "number") {
         content = (
           <InputNumber
@@ -376,6 +392,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
           <Select
             {...param.props}
             showSearch
+            allowClear
             style={param.style}
             filterOption={(input, option) =>
               option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -384,8 +401,8 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
             onChange={onChange}
           >
             {param.valueList.map((item) => (
-              <Select.Option key={item} value={item}>
-                {item}
+              <Select.Option key={item.value} value={item.value}>
+                {item.label}
               </Select.Option>
             ))}
           </Select>
@@ -426,6 +443,11 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
     values: any = {}
   ) {
     setSnippet(snippet);
+    if (snippet.lastOptionPath) {
+      globalform.setFieldsValue({
+        writeOsPath: snippet.lastOptionPath,
+      });
+    }
     props.history.replace({
       search: qs.stringify({
         id: urlQuery.id,
@@ -516,10 +538,9 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
       if (currentSnippet) {
         reqGetSnippetConfig(currentSnippet, false);
         setSelectedKeys([currentSnippet.script]);
-      }
-      else{
+      } else {
         setSnippet(null);
-        setSnippetConfig(null)
+        setSnippetConfig(null);
       }
       document.title = projectRsp.data.name;
     }
