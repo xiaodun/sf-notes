@@ -21,6 +21,9 @@ const PProjectSfMock: ConnectRC<IPProjectSfMockProps> = (props) => {
         controlLayout: false,
       })
     );
+    setTimeout(() => {
+      document.title = "sf-mock可视化";
+    }, 1000);
   }, []);
   const [uiKey, setUiKey] = useState("command");
 
