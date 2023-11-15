@@ -39,6 +39,7 @@ export default {
       showEnumList: false,
       swaggerPathShowWay: "path",
       lastOptionSwaggerDomain: "",
+      lastOptionSwaggerVersion: "",
     },
     project: {
       name: "",

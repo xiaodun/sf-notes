@@ -3,6 +3,25 @@
     const project = argData.projectList.find(
       (item) => item.id == argParams.data.id
     );
+
+    let snippetObj;
+    for (let i = 0; i < project.snippetList.length; i++) {
+      const item = project.snippetList[i];
+      if (item.isGroup) {
+        const index = item.children.findIndex(
+          (el) => el.script == argParams.data.script
+        );
+        if (index !== -1) {
+          snippetObj = item.children[index];
+          break;
+        }
+      } else if (argParams.data.script == item.script) {
+        snippetObj = item;
+        break;
+      }
+    }
+    snippetObj.lastOptionPath = argParams.values.writeOsPath;
+
     if (!argParams.values.writeOsPath) {
       //防止path.join报错
       argParams.values.writeOsPath = "";
@@ -42,7 +61,8 @@
       }
     );
     return {
-      isWrite: false,
+      isWrite: true,
+      data: argData,
       response: {
         code: 200,
         data: {
