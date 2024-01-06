@@ -259,19 +259,27 @@ const Project: ConnectRC<IProjectProps> = (props) => {
           {startBlock}
           {project.isSfMock && (
             <>
-              <Button type="link">
-                <Link
-                  to={{
-                    pathname: NRouter.projectSfMockPath,
-                  }}
-                  target="_blank"
-                >
-                  可视化
-                </Link>
-              </Button>
-              <Button type="link" onClick={onUpdateSfMockConfig}>
-                更新
-              </Button>
+              <Dropdown.Button
+                overlay={
+                  <Menu>
+                    <Menu.Item>
+                      <a onClick={() => onReStartNginx()}>重启nginx</a>
+                    </Menu.Item>
+                    <Menu.Item>
+                      <a onClick={() => onGenerateProjectStartBat()}>
+                        批量生成启动项目bat文件
+                      </a>
+                    </Menu.Item>
+                    <Menu.Item>
+                      <a onClick={() => onGenerateProjectMockStructrue()}>
+                        批量生成项目文件结构
+                      </a>
+                    </Menu.Item>
+                  </Menu>
+                }
+              >
+                <a onClick={onUpdateSfMockConfig}>更新</a>
+              </Dropdown.Button>
             </>
           )}
           {openBlock}
@@ -419,6 +427,24 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     directoryModalRef.current.showModal({
       startPath: MDProject.config.addBasePath,
     });
+  }
+  async function onReStartNginx() {
+    const rsp = await SProject.reStartNginx();
+    if (rsp.success) {
+      message.success("已执行");
+    }
+  }
+  async function onGenerateProjectStartBat() {
+    const rsp = await SProject.generateProjectStartBat();
+    if (rsp.success) {
+      message.success("已执行");
+    }
+  }
+  async function onGenerateProjectMockStructrue() {
+    const rsp = await SProject.generateProjectMockStructrue();
+    if (rsp.success) {
+      message.success("已执行");
+    }
   }
 };
 export default connect(({ MDProject }: NModel.IState) => ({
