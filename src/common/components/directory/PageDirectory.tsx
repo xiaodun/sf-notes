@@ -5,6 +5,10 @@ import SSystem from "@/common/service/SSystem";
 import { DataNode, EventDataNode } from "antd/lib/tree";
 import { produce } from "immer";
 import { NSystem } from "@/common/namespace/NSystem";
+import NModel from "@/common/namespace/NModel";
+import { NMDProject } from "umi";
+import SProject from "../../../pages/project/SProject";
+import NProject from "../../../pages/project/NProject";
 
 export interface IPageDirectoryProps {
   startPath?: string;
@@ -23,6 +27,7 @@ export default (props: PropsWithChildren<IPageDirectoryProps>) => {
   useEffect(() => {
     getDirectory(props.startPath);
   }, []);
+
   const onSelect = (keys: React.Key[], info: any) => {
     const metaInfo = info.node.metaInfo as NSystem.IDirectory;
     props.onSelect && props.onSelect(metaInfo);
@@ -41,18 +46,29 @@ export default (props: PropsWithChildren<IPageDirectoryProps>) => {
     }
   };
   async function getDirectory(path?: string, expanded: boolean = false) {
+    const projectConfig = (await SProject.getConfig()).data;
+    const projectList = (await SProject.getProjectList()).list;
     const directoryRsp = await SSystem.getFileDirectory(path);
     if (directoryRsp.success) {
-      let list = directoryRsp.list.map((item) => {
-        return {
-          isLeaf: item.isLeaf,
+      let list = directoryRsp.list
+        .filter((item) => {
+          if (path == projectConfig.addBasePath) {
+            return projectList.some(
+              (project) => project.rootPath.indexOf(item.name) !== -1
+            );
+          }
+          return true;
+        })
+        .map((item) => {
+          return {
+            isLeaf: item.isLeaf,
 
-          title: item.name,
-          key: item.path,
-          metaInfo: item,
-          selectable: item.isLeaf ? !props.disableFile : true,
-        } as IPageDirectoryDataNode;
-      });
+            title: item.name,
+            key: item.path,
+            metaInfo: item,
+            selectable: item.isLeaf ? !props.disableFile : true,
+          } as IPageDirectoryDataNode;
+        });
       if (expanded) {
         const newTreeData = produce(
           treeData,
