@@ -229,8 +229,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
   }
   function onChooseWritePath(snippetConfig: NProjectSnippet.IConfig) {
     directoryModalRef.current.showModal({
-      startPath:
-        MDProject.project.rootPath + (snippetConfig.writeOs.basePath || ""),
+      startPath: MDProject.config.addBasePath,
       selectCallbackFlag: "setWriteOsPath",
     });
   }
@@ -512,6 +511,14 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
     );
   }
   async function pageSetup() {
+    const configRsp = await SProject.getConfig();
+    if (configRsp.success) {
+      NModel.dispatch(
+        new NMDProject.ARSetState({
+          config: configRsp.data,
+        })
+      );
+    }
     const projectRsp = await SProject.getProject(urlQuery.id);
     if (projectRsp.success) {
       NModel.dispatch(

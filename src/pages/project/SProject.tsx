@@ -8,15 +8,30 @@ import NModel from "@/common/namespace/NModel";
 import { NMDProject } from "umi";
 
 namespace SProject {
-  export async function delSnippet(projectId:number,snippetName:string,groupName:string): Promise<NRsp<boolean>> {
+  export async function addMockConfig(): Promise<NRsp<boolean>> {
     return request({
       url: "/project/delSnippet",
       method: "get",
-      params:{
+      params: {
+        // projectId,
+        // snippetName,
+        // groupName,
+      },
+    });
+  }
+  export async function delSnippet(
+    projectId: number,
+    snippetName: string,
+    groupName: string
+  ): Promise<NRsp<boolean>> {
+    return request({
+      url: "/project/delSnippet",
+      method: "get",
+      params: {
         projectId,
         snippetName,
-        groupName
-      }
+        groupName,
+      },
     });
   }
   export async function delProject(
