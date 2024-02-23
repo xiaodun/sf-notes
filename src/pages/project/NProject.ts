@@ -33,6 +33,10 @@ export namespace NProject {
   export interface IInExcludeGroups {
     [key: string]: string[];
   }
+  export interface IMockConfig {
+    programUrl: string;
+    programPrefix: string;
+  }
   export interface IConfig {
     lastOptionSwaggerVersion: string;
     addBasePath: string;
