@@ -8,6 +8,7 @@ import { message, Modal } from "antd";
 import { produce } from "immer";
 import PageDirectory from "../../PageDirectory";
 import { NSystem } from "@/common/namespace/NSystem";
+import { TFilter } from "../../PageDirectory";
 export interface IDirectoryModalProps {
   onOk: (pathInfos: NSystem.IDirectory, selectCallbackFlag?: string) => void;
 }
@@ -31,6 +32,7 @@ export interface IDirectoryModalShowParams {
   startPath?: string;
   disableFile?: boolean;
   selectCallbackFlag?: string;
+  filter?: TFilter;
 }
 export const EditModal: ForwardRefRenderFunction<
   IDirectoryModal,
@@ -62,6 +64,7 @@ export const EditModal: ForwardRefRenderFunction<
         <PageDirectory
           key={state.directoryKey}
           startPath={state.showParasm.startPath}
+          filter={state.showParasm.filter}
           disableFile={state.showParasm.disableFile}
           onSelect={onSelect}
         ></PageDirectory>
