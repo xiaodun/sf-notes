@@ -10,8 +10,10 @@ import { NMDProject } from "umi";
 import SProject from "../../../pages/project/SProject";
 import NProject from "../../../pages/project/NProject";
 
+export type TFilter = "addedProject";
 export interface IPageDirectoryProps {
   startPath?: string;
+  filter?: TFilter;
   disableFile?: boolean;
   height?: number;
   onSelect?: (pathInfos: NSystem.IDirectory) => void;
@@ -49,12 +51,16 @@ export default (props: PropsWithChildren<IPageDirectoryProps>) => {
     const projectConfig = (await SProject.getConfig()).data;
     const projectList = (await SProject.getProjectList()).list;
     const directoryRsp = await SSystem.getFileDirectory(path);
+
     if (directoryRsp.success) {
       let list = directoryRsp.list
         .filter((item) => {
-          if (path == projectConfig.addBasePath) {
-            return projectList.some(
-              (project) => project.rootPath.indexOf(item.name) !== -1
+          if (
+            path == projectConfig.addBasePath &&
+            props.filter == "addedProject"
+          ) {
+            return !projectList.some(
+              (project) => project.rootPath.indexOf(item.name) != -1
             );
           }
           return true;
