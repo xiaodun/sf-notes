@@ -201,7 +201,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
         <Button
           size="small"
           onClick={(event) => {
-            event.stopPropagation(), onDelSnippet(snippet.name, groupName);
+            event.stopPropagation(), onDelSnippet(snippet.script, groupName);
           }}
           className="del-btn"
           danger
