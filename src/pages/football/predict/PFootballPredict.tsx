@@ -77,11 +77,11 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
             key: "time",
             dataIndex: "time",
           },
-          {
-            title: "操作",
-            key: "option",
-            render: renderOptionColumn,
-          },
+          // {
+          //   title: "操作",
+          //   key: "option",
+          //   render: renderOptionColumn,
+          // },
         ]}
         dataSource={MDFootball.teamOddList}
         pagination={false}
