@@ -1,7 +1,7 @@
 import { PageFooter } from "@/common/components/page";
 import NModel from "@/common/namespace/NModel";
 import NRouter from "@/../config/router/NRouter";
-import { Button, Space, Table, Tag } from "antd";
+import { Button, Space, Table, Alert } from "antd";
 import React, { useEffect, useRef } from "react";
 import { connect, ConnectRC, Link, NMDFootball } from "umi";
 import NFootball from "./NFootball";
@@ -20,7 +20,10 @@ import UFootball from "./UFootball";
 const Football: ConnectRC<IFootballProps> = (props) => {
   const { MDFootball } = props;
   const addPredictModalRef = useRef<IAddPredictModal>();
-
+  const count = MDFootball.rsp.list.reduce((pre, cur) => {
+    pre += cur.money || 0;
+    return pre;
+  }, 0);
   useEffect(() => {
     SFootball.getPredictList();
   }, []);
@@ -31,7 +34,8 @@ const Football: ConnectRC<IFootballProps> = (props) => {
         ref={addPredictModalRef}
         onOk={onAddOk}
       ></AddPredictModal>
-
+      <Alert message={"总花费:" + count} type="info" />
+      <br />
       <Table
         rowKey="id"
         columns={[
@@ -46,6 +50,11 @@ const Football: ConnectRC<IFootballProps> = (props) => {
             key: "id",
             dataIndex: "id",
             render: renderTimeColumn,
+          },
+          {
+            title: "金额",
+            key: "money",
+            dataIndex: "money",
           },
 
           {

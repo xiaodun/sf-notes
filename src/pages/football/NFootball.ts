@@ -1,6 +1,8 @@
 export interface NFootball {
-  id?: number;
   name: string;
+  money: number;
+  isEdit?: boolean;
+  id?: string;
 }
 export namespace NFootball {
   export interface IPredictResult {

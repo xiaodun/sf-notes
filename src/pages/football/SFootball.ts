@@ -91,6 +91,17 @@ namespace SFootball {
       return rsp;
     });
   }
+  export async function getPredictInfoById(id: string) {
+    return request({
+      url: "/football/getPredictInfoById",
+      method: "post",
+      data: {
+        id,
+      },
+    }).then((rsp: NRsp<NFootball>) => {
+      return rsp;
+    });
+  }
   export async function getConfig(): Promise<NRsp<NFootball.IConfig>> {
     return request({
       url: "/football/getConfig",
