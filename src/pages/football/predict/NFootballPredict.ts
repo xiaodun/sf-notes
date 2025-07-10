@@ -1,5 +1,5 @@
-export interface NProjectSnippet {}
+export interface NFootballPredict {}
 
-export namespace NProjectSnippet {}
+export namespace NFootballPredict {}
 
-export default NProjectSnippet;
+export default NFootballPredict;

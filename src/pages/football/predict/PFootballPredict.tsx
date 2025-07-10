@@ -28,12 +28,16 @@ import GameResultModal, {
   IGameResultModal,
 } from "../components/GameResultModal";
 
+import AddPredictModal, {
+  IAddPredictModal,
+} from "../components/AddPredictModal";
 const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
   const { MDFootball } = props;
   const footballOddsModalRef = useRef<IFootballOddsModal>();
   const bonusPreviewModalRef = useRef<IBonusPreviewModal>();
   const crawlingmModalRef = useRef<ICrawlingmModal>();
   const gameResultModalRef = useRef<IGameResultModal>();
+  const addPredictModalRef = useRef<IAddPredictModal>();
 
   const urlQuery = qs.parse(window.location.search, {
     ignoreQueryPrefix: true,
@@ -45,6 +49,10 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
 
   return (
     <div className={SelfStyle.main}>
+      <AddPredictModal
+        ref={addPredictModalRef}
+        onOk={onEditOk}
+      ></AddPredictModal>
       <GameResultModal
         MDFootball={MDFootball}
         ref={gameResultModalRef}
@@ -87,6 +95,7 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
         pagination={false}
       ></Table>
       <PageFooter>
+        <Button onClick={() => showEditBaseModal()}>基础信息</Button>
         <Button onClick={() => showCrawlingmModal()}>爬取</Button>
         <Button onClick={() => onShowBonusPreviewModal()}>选赔率</Button>
 
@@ -95,6 +104,10 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
     </div>
   );
 
+  function onEditOk() {}
+  function showEditBaseModal() {
+    addPredictModalRef.current.showModal(true, urlQuery.id);
+  }
   function onShowBonusPreviewModal() {
     if (MDFootball.teamOddList.length) {
       bonusPreviewModalRef.current.showModal(
