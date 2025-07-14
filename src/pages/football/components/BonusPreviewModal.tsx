@@ -14,7 +14,7 @@ import UNumber from '@/common/utils/UNumber';
 export interface IBonusPreviewModal {
   showModal: (
     id: string,
-    teamOddList: Array<NFootball.ITeamRecordOdds>,
+    teamOddList: Array<NFootball.ITeamRecordOdds>
   ) => void;
 }
 export interface IBonusPreviewModalProps {}
@@ -43,14 +43,10 @@ const BonusPreviewModal: ForwardRefRenderFunction<
   IBonusPreviewModal,
   IBonusPreviewModalProps
 > = (props, ref) => {
-  const [state, setState] =
-    useState<IBonusPreviewModalState>(defaultState);
+  const [state, setState] = useState<IBonusPreviewModalState>(defaultState);
   const allOddResultListRef = useRef<Array<NFootball.IOddResult>>([]);
   useImperativeHandle(ref, () => ({
-    showModal: (
-      id: string,
-      teamOddList: Array<NFootball.ITeamRecordOdds>,
-    ) => {
+    showModal: (id: string, teamOddList: Array<NFootball.ITeamRecordOdds>) => {
       const newState = {
         ...state,
         id,
@@ -135,9 +131,9 @@ const BonusPreviewModal: ForwardRefRenderFunction<
 
         drafState.oddResultList = allOddResultListRef.current.slice(
           (page - 1) * pageSize,
-          page * pageSize,
+          page * pageSize
         );
-      }),
+      })
     );
   }
 
@@ -146,9 +142,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
       produce(state, (drafState) => {
         if (isRandom) {
           drafState.currentResultIndex =
-            (Math.random() *
-              (allOddResultListRef.current.length + 1)) |
-            0;
+            (Math.random() * (allOddResultListRef.current.length + 1)) | 0;
           drafState.oddResultList = [
             allOddResultListRef.current[drafState.currentResultIndex],
           ];
@@ -156,16 +150,16 @@ const BonusPreviewModal: ForwardRefRenderFunction<
           drafState.currentResultIndex = null;
           drafState.oddResultList = allOddResultListRef.current.slice(
             (state.currentPage - 1) * pageSize,
-            state.currentPage * pageSize,
+            state.currentPage * pageSize
           );
         }
-      }),
+      })
     );
   }
 
   function getOddResultList(
     newState: IBonusPreviewModalState,
-    argTeamOddList: Array<NFootball.ITeamRecordOdds>,
+    argTeamOddList: Array<NFootball.ITeamRecordOdds>
   ) {
     const teamResultOddList: Array<NFootball.ITeamResultOdds[]> = [];
 
@@ -180,27 +174,27 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         ...data,
         odd: oddsInfos.singleVictory.win,
         allowSingle: item.openVictory,
-        resultDesc: `${fixedWidth('胜')}@${
-          oddsInfos.singleVictory.win
-        }  ${data.homeTeam} vs ${data.visitingTeam}`,
+        resultDesc: `${fixedWidth('胜')}@${oddsInfos.singleVictory.win}  ${
+          data.homeTeam
+        } vs ${data.visitingTeam}`,
         codeDesc: `${data.code} 胜`,
       });
       list.push({
         ...data,
         allowSingle: item.openVictory,
         odd: oddsInfos.singleVictory.draw,
-        resultDesc: `${fixedWidth('平')}@${
-          oddsInfos.singleVictory.draw
-        }  ${data.homeTeam} vs  ${data.visitingTeam}`,
+        resultDesc: `${fixedWidth('平')}@${oddsInfos.singleVictory.draw}  ${
+          data.homeTeam
+        } vs  ${data.visitingTeam}`,
         codeDesc: `${data.code} 平`,
       });
       list.push({
         ...data,
         odd: oddsInfos.singleVictory.lose,
         allowSingle: item.openVictory,
-        resultDesc: `${fixedWidth('负')}@${
-          oddsInfos.singleVictory.lose
-        }  ${data.homeTeam}  vs ${data.visitingTeam} `,
+        resultDesc: `${fixedWidth('负')}@${oddsInfos.singleVictory.lose}  ${
+          data.homeTeam
+        }  vs ${data.visitingTeam} `,
         codeDesc: `${data.code} 负`,
       });
 
@@ -247,12 +241,12 @@ const BonusPreviewModal: ForwardRefRenderFunction<
           ...data,
           odd: el.odd,
           resultDesc: el.isOther
-            ? `${fixedWidth(el.otherDesc)}@${el.odd}  ${
+            ? `${fixedWidth(el.otherDesc)}@${el.odd}  ${data.homeTeam} vs ${
+                data.visitingTeam
+              } `
+            : `${fixedWidth(el.home + ':' + el.visiting)}  @${el.odd} ${
                 data.homeTeam
-              } vs ${data.visitingTeam} `
-            : `${fixedWidth(el.home + ':' + el.visiting)}  @${
-                el.odd
-              } ${data.homeTeam} vs ${data.visitingTeam}`,
+              } vs ${data.visitingTeam}`,
 
           codeDesc: el.isOther
             ? `${data.code} ${el.otherDesc}`
@@ -273,9 +267,9 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         list.push({
           ...data,
           odd: el.odd,
-          resultDesc: `${fixedWidth(el.home + '/' + el.visiting)}@${
-            el.odd
-          }  ${data.homeTeam} vs ${data.visitingTeam}`,
+          resultDesc: `${fixedWidth(el.home + '/' + el.visiting)}@${el.odd}  ${
+            data.homeTeam
+          } vs ${data.visitingTeam}`,
           codeDesc: `${data.code} ${el.home}/${el.visiting} `,
         });
       });
@@ -313,7 +307,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         againForEach([], 0);
         function againForEach(
           againList: NFootball.ITeamResultOdds[],
-          index: number,
+          index: number
         ) {
           list[index].forEach((el) => {
             if (index === list.length - 1) {
@@ -346,7 +340,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
       tableLoading: false,
       oddResultList: allOddResultListRef.current.slice(
         (state.currentPage - 1) * pageSize,
-        state.currentPage * pageSize,
+        state.currentPage * pageSize
       ),
     });
   }
@@ -356,14 +350,13 @@ const BonusPreviewModal: ForwardRefRenderFunction<
   function renderResultColumn(oddResult: NFootball.IOddResult) {
     let copyStr = '\n-------------------------------------\n';
     copyStr += oddResult.list.map((item) => item.codeDesc).join('\n');
-    copyStr +=
-      '\n' + UNumber.formatWithYuanUnit(oddResult.count) + '\n\n\n';
+    copyStr += '\n' + UNumber.formatWithYuanUnit(oddResult.count) + '\n\n\n';
     return (
       <div onClick={() => UCopy.copyStr(copyStr)}>
         {oddResult.list.map((item, index) => (
           <div
             key={index}
-            style={{ whiteSpace: 'pre-wrap' }}
+            style={{ whiteSpace: 'pre-wrap', marginBottom: 8 }}
             dangerouslySetInnerHTML={{
               __html: item.resultDesc,
             }}
