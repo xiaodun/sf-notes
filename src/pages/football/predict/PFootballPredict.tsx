@@ -16,8 +16,6 @@ export interface IPFootballPredictProps {
   MDFootball: NMDFootball.IState;
   MDGlobal: NMDGlobal.IState;
 }
-import moment from "moment";
-import UFootball from "../UFootball";
 
 import BonusPreviewModal, {
   IBonusPreviewModal,
@@ -130,31 +128,11 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
     }
     crawlingmModalRef.current.showModal(urlQuery.id);
   }
-  function showOddsModal(teamOdds: NFootball.ITeamRecordOdds) {
-    if (
-      !teamOdds &&
-      MDFootball.teamOddList.length === MDFootball.config.maxGameCount
-    ) {
-      message.error(`最多支持录入${MDFootball.config.maxGameCount}`);
-    } else {
-      footballOddsModalRef.current.showModal(urlQuery.id, teamOdds);
-    }
-  }
   function onUpdateOdds() {
     SFootball.getTeamOddList(urlQuery.id);
   }
   function renderTeamColumn(teamOdds: NFootball.ITeamRecordOdds) {
     return `${teamOdds.homeTeam} VS ${teamOdds.visitingTeam}`;
-  }
-
-  function renderOptionColumn(teamOdds: NFootball.ITeamRecordOdds) {
-    return (
-      <Space>
-        <Button onClick={() => showOddsModal(teamOdds)} type="link">
-          编辑
-        </Button>
-      </Space>
-    );
   }
 };
 export default connect(({ MDFootball, MDGlobal }: NModel.IState) => ({
