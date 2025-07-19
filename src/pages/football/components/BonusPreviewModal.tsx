@@ -4,13 +4,13 @@ import React, {
   useImperativeHandle,
   useRef,
   useState,
-} from 'react';
-import { Modal, Button, Table, Space } from 'antd';
-import NFootball from '../NFootball';
-import UCopy from '@/common/utils/UCopy';
-import { produce } from 'immer';
-import SelfStyle from './BonusPreviewModal.less';
-import UNumber from '@/common/utils/UNumber';
+} from "react";
+import { Modal, Button, Table, Space } from "antd";
+import NFootball from "../NFootball";
+import UCopy from "@/common/utils/UCopy";
+import { produce } from "immer";
+import SelfStyle from "./BonusPreviewModal.less";
+import UNumber from "@/common/utils/UNumber";
 export interface IBonusPreviewModal {
   showModal: (
     id: string,
@@ -68,7 +68,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
       title="奖金"
       maskClosable={false}
       visible={state.visible}
-      bodyStyle={{ padding: '5px 24px' }}
+      bodyStyle={{ padding: "5px 24px" }}
       footer={
         <Space>
           <Button size="small" onClick={() => onResultRandom(true)}>
@@ -89,25 +89,25 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         <Table
           className={
             state.currentResultIndex != null
-              ? 'single'
-              : 'count' + state.teamCount
+              ? "single"
+              : "count" + state.teamCount
           }
           loading={state.tableLoading}
-          rowKey={() => Math.random() + ''}
+          rowKey={() => Math.random() + ""}
           columns={[
             {
-              title: '结果',
+              title: "结果",
               render: renderResultColumn,
             },
 
             {
-              title: '赔率',
+              title: "赔率",
               render: renderCountColumn,
             },
           ]}
           dataSource={state.oddResultList}
           pagination={{
-            position: ['topCenter'],
+            position: ["topCenter"],
             current: state.currentPage,
             onChange: onPageChange,
             total: state.total,
@@ -122,7 +122,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
     </Modal>
   );
   function fixedWidth(char: string) {
-    return `<span style="width:60px;display:inline-block">${char}</span>`;
+    return `<span style="width:80px;display:inline-block">${char}</span>`;
   }
   function onPageChange(page: number) {
     setState(
@@ -174,7 +174,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         ...data,
         odd: oddsInfos.singleVictory.win,
         allowSingle: item.openVictory,
-        resultDesc: `${fixedWidth('胜')}@${oddsInfos.singleVictory.win}  ${
+        resultDesc: `${fixedWidth("胜")}@${oddsInfos.singleVictory.win}  ${
           data.homeTeam
         } vs ${data.visitingTeam}`,
         codeDesc: `${data.code} 胜`,
@@ -183,7 +183,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         ...data,
         allowSingle: item.openVictory,
         odd: oddsInfos.singleVictory.draw,
-        resultDesc: `${fixedWidth('平')}@${oddsInfos.singleVictory.draw}  ${
+        resultDesc: `${fixedWidth("平")}@${oddsInfos.singleVictory.draw}  ${
           data.homeTeam
         } vs  ${data.visitingTeam}`,
         codeDesc: `${data.code} 平`,
@@ -192,7 +192,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         ...data,
         odd: oddsInfos.singleVictory.lose,
         allowSingle: item.openVictory,
-        resultDesc: `${fixedWidth('负')}@${oddsInfos.singleVictory.lose}  ${
+        resultDesc: `${fixedWidth("负")}@${oddsInfos.singleVictory.lose}  ${
           data.homeTeam
         }  vs ${data.visitingTeam} `,
         codeDesc: `${data.code} 负`,
@@ -200,16 +200,16 @@ const BonusPreviewModal: ForwardRefRenderFunction<
 
       let handicapDesc;
       if (item.handicapCount < 0) {
-        handicapDesc = '让' + Math.abs(item.handicapCount) + '球';
+        handicapDesc = "让" + Math.abs(item.handicapCount) + "球";
       } else {
-        handicapDesc = '受让' + Math.abs(item.handicapCount) + '球';
+        handicapDesc = "受让" + Math.abs(item.handicapCount) + "球";
       }
 
       list.push({
         ...data,
         allowSingle: false,
         odd: oddsInfos.handicapVictory.win,
-        resultDesc: `${fixedWidth(handicapDesc + '胜')}@${
+        resultDesc: `${fixedWidth(handicapDesc + "胜")}@${
           oddsInfos.handicapVictory.win
         }  ${data.homeTeam} vs  ${data.visitingTeam} `,
         codeDesc: `${data.code} ${handicapDesc} 胜`,
@@ -218,7 +218,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         ...data,
         allowSingle: false,
         odd: oddsInfos.handicapVictory.draw,
-        resultDesc: `${fixedWidth(handicapDesc + '平')}@${
+        resultDesc: `${fixedWidth(handicapDesc + "平")}@${
           oddsInfos.handicapVictory.draw
         }  ${data.homeTeam} vs ${data.visitingTeam} `,
         codeDesc: `${data.code} ${handicapDesc} 平`,
@@ -227,7 +227,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         ...data,
         allowSingle: false,
         odd: oddsInfos.handicapVictory.lose,
-        resultDesc: `${fixedWidth(handicapDesc + '负')}@${
+        resultDesc: `${fixedWidth(handicapDesc + "负")}@${
           oddsInfos.handicapVictory.lose
         }  ${data.homeTeam} vs ${data.visitingTeam}`,
         codeDesc: `${data.code} ${handicapDesc} 负`,
@@ -244,7 +244,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
             ? `${fixedWidth(el.otherDesc)}@${el.odd}  ${data.homeTeam} vs ${
                 data.visitingTeam
               } `
-            : `${fixedWidth(el.home + ':' + el.visiting)}  @${el.odd} ${
+            : `${fixedWidth(el.home + ":" + el.visiting)}@${el.odd}  ${
                 data.homeTeam
               } vs ${data.visitingTeam}`,
 
@@ -257,7 +257,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         list.push({
           ...data,
           odd: el.odd,
-          resultDesc: `${fixedWidth('总进' + el.desc)}@${el.odd}  ${
+          resultDesc: `${fixedWidth("总进" + el.desc)}@${el.odd}  ${
             data.homeTeam
           } vs ${data.visitingTeam} `,
           codeDesc: `${data.code} 总进${el.desc}`,
@@ -267,7 +267,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         list.push({
           ...data,
           odd: el.odd,
-          resultDesc: `${fixedWidth(el.home + '/' + el.visiting)}@${el.odd}  ${
+          resultDesc: `${fixedWidth(el.home + "/" + el.visiting)}@${el.odd}  ${
             data.homeTeam
           } vs ${data.visitingTeam}`,
           codeDesc: `${data.code} ${el.home}/${el.visiting} `,
@@ -348,15 +348,15 @@ const BonusPreviewModal: ForwardRefRenderFunction<
     return UNumber.formatWithYuanUnit(oddResult.count);
   }
   function renderResultColumn(oddResult: NFootball.IOddResult) {
-    let copyStr = '\n-------------------------------------\n';
-    copyStr += oddResult.list.map((item) => item.codeDesc).join('\n');
-    copyStr += '\n' + UNumber.formatWithYuanUnit(oddResult.count) + '\n\n\n';
+    let copyStr = "\n-------------------------------------\n";
+    copyStr += oddResult.list.map((item) => item.codeDesc).join("\n");
+    copyStr += "\n" + UNumber.formatWithYuanUnit(oddResult.count) + "\n\n\n";
     return (
       <div onClick={() => UCopy.copyStr(copyStr)}>
         {oddResult.list.map((item, index) => (
           <div
             key={index}
-            style={{ whiteSpace: 'pre-wrap', marginBottom: 8 }}
+            style={{ whiteSpace: "pre-wrap", marginBottom: 8 }}
             dangerouslySetInnerHTML={{
               __html: item.resultDesc,
             }}
