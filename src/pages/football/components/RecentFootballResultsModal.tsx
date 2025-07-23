@@ -44,6 +44,14 @@ const RecentFootballResultsModal: ForwardRefRenderFunction<
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;
 
+    if (
+      allMatches[startIndex].goal ||
+      allMatches[startIndex].half ||
+      allMatches[startIndex].score
+    ) {
+      return;
+    }
+
     // 获取当前页所有比赛的matchId
     const matchIds = allMatches
       .slice(startIndex, endIndex)
@@ -139,7 +147,9 @@ const RecentFootballResultsModal: ForwardRefRenderFunction<
       setState(
         produce(state, (drafState) => {
           drafState.visible = true;
-          loadData();
+          if (!list.length) {
+            loadData();
+          }
         })
       );
     },
@@ -244,8 +254,6 @@ const RecentFootballResultsModal: ForwardRefRenderFunction<
 
   function onCancel() {
     setState(defaultState);
-    setList([]);
-    setIsMock(false);
     setLoading(false);
   }
 };
