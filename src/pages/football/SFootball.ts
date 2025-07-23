@@ -108,5 +108,80 @@ namespace SFootball {
       method: "get",
     });
   }
+
+  /**
+   * 获取近期足球比赛结果
+   */
+  export async function getRecentMatches(
+    data: NFootball.IGetRecentMatchesParams = {}
+  ): Promise<
+    NRsp<{
+      list: NFootball.IFootballMatch[];
+      total: number;
+      page: number;
+      pageSize: number;
+      isMock?: boolean;
+    }>
+  > {
+    return request({
+      url: "/football/getRecentMatches",
+      method: "post",
+      data,
+    });
+  }
+
+  /**
+   * 获取比赛详细赔率信息
+   */
+  export async function getMatchOddsDetail(matchIds: string[]): Promise<
+    NRsp<
+      {
+        [matchId: string]: {
+          goal: number;
+          score: string;
+          half: number;
+          handicap: number;
+          goalDesc: string;
+          halfDesc: string;
+          scoreDesc: string;
+        };
+      } & {
+        isMock?: boolean;
+      }
+    >
+  > {
+    return request({
+      url: "/football/getMatchOddsDetail",
+      method: "post",
+      data: {
+        matchIds,
+      },
+    });
+  }
+
+  /**
+   * 获取比赛详情
+   */
+  export async function getMatchDetail(
+    matchId: string
+  ): Promise<NRsp<NFootball.IFootballMatch>> {
+    return request({
+      url: "/football/getMatchDetail",
+      method: "post",
+      data: {
+        matchId,
+      },
+    });
+  }
+
+  /**
+   * 获取联赛列表
+   */
+  export async function getCompetitions(): Promise<NRsp<string[]>> {
+    return request({
+      url: "/football/getCompetitions",
+      method: "post",
+    });
+  }
 }
 export default SFootball;

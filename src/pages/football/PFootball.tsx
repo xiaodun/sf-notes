@@ -17,6 +17,10 @@ import AddPredictModal, {
 } from "./components/AddPredictModal";
 import UFootball from "./UFootball";
 
+import RecentFootballResultsModal, {
+  IRecentFootballResultsModal,
+} from "./components/RecentFootballResultsModal";
+
 const Football: ConnectRC<IFootballProps> = (props) => {
   const { MDFootball } = props;
   const addPredictModalRef = useRef<IAddPredictModal>();
@@ -24,6 +28,9 @@ const Football: ConnectRC<IFootballProps> = (props) => {
     pre += cur.money || 0;
     return pre;
   }, 0);
+
+  const recentFootballResultsModalRef = useRef<IRecentFootballResultsModal>();
+
   useEffect(() => {
     SFootball.getPredictList();
   }, []);
@@ -34,6 +41,11 @@ const Football: ConnectRC<IFootballProps> = (props) => {
         ref={addPredictModalRef}
         onOk={onAddOk}
       ></AddPredictModal>
+
+      <RecentFootballResultsModal
+        ref={recentFootballResultsModalRef}
+      ></RecentFootballResultsModal>
+
       <Alert message={"总花费:" + count} type="info" />
       <br />
       <Table
@@ -68,12 +80,17 @@ const Football: ConnectRC<IFootballProps> = (props) => {
       ></Table>
       <PageFooter>
         <Button onClick={showAddModal}>添加</Button>
+        <Button onClick={onShowRecentFootballResultsModal}>近期战况</Button>
       </PageFooter>
     </div>
   );
 
+  function onShowRecentFootballResultsModal() {
+    recentFootballResultsModalRef.current.showModal();
+  }
+
   function showAddModal() {
-    addPredictModalRef.current.showModal();
+    addPredictModalRef.current.showModal(false);
   }
 
   function onAddOk() {

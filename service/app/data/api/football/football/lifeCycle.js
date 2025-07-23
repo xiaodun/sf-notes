@@ -401,6 +401,175 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
             callback(data);
           });
         };
+
+        // 获取近期比赛数据
+        external.getRecentMatches = (startDate, endDate, callback) => {
+          const apiUrl = `https://webapi.sporttery.cn/gateway/uniform/football/getUniformMatchResultV1.qry?matchBeginDate=${startDate}&matchEndDate=${endDate}&leagueId=&pageSize=100&pageNo=1&isFix=0&pcOrWap=1`;
+
+          console.log("getRecentMatches", apiUrl);
+
+          const request = require("request");
+          let isMock = false;
+          request(apiUrl, function (error, response, body) {
+            if (error) {
+              console.error("getRecentMatches error:", error);
+            }
+
+            try {
+              console.log("wx", body);
+              try {
+                body = JSON.parse(body);
+              } catch (error) {
+                isMock = true;
+                body = JSON.parse(
+                  fs
+                    .readFileSync(
+                      path.join(rootPath, "mockData/recentMatches.json"),
+                      "utf8"
+                    )
+                    .toString()
+                );
+              }
+
+              if (body.errorCode === "99999") {
+                isMock = true;
+                //该接口容易被墙
+                body = JSON.parse(
+                  fs
+                    .readFileSync(
+                      path.join(rootPath, "mockData/recentMatches.json"),
+                      "utf8"
+                    )
+                    .toString()
+                );
+              }
+              if (body && body.value && body.value.matchResult) {
+                const matchData = body.value.matchResult;
+                console.log("wx", matchData);
+
+                // 转换数据格式
+                const convertedData = matchData.map((match, index) => ({
+                  matchId: match.matchId || `${index + 1}`,
+                  date: match.matchDate || "",
+                  game: `${match.homeTeam} vs ${match.awayTeam}`,
+                  win: parseFloat(match.h) || 0,
+                  draw: parseFloat(match.d) || 0,
+                  lose: parseFloat(match.a) || 0,
+                  halfDesc: match.sectionsNo1 || "",
+                  scoreDesc: match.sectionsNo999 || "",
+                }));
+
+                callback(convertedData, isMock);
+              } else {
+                console.log("getRecentMatches: no data found");
+                callback([]);
+              }
+            } catch (parseError) {
+              console.error("getRecentMatches parse error:", parseError);
+              callback([]);
+            }
+          });
+        };
+
+        // 获取比赛详细赔率信息
+        external.getMatchOddsDetail = (matchIds, callback) => {
+          console.log("getMatchOddsDetail", matchIds);
+
+          const request = require("request");
+          const results = {};
+          let isMock = false;
+
+          // 如果没有matchIds，直接返回空结果
+          if (!matchIds || matchIds.length === 0) {
+            callback(results, isMock);
+            return;
+          }
+
+          let completedCount = 0;
+          const totalCount = matchIds.length;
+
+          matchIds.forEach((matchId) => {
+            const apiUrl = `https://webapi.sporttery.cn/gateway/uniform/football/getFixedBonusV1.qry?clientCode=3001&matchId=${matchId}`;
+
+            request(apiUrl, function (error, response, body) {
+              if (error) {
+                console.error(
+                  `getMatchOddsDetail error for ${matchId}:`,
+                  error
+                );
+                results[matchId] = {};
+              } else {
+                try {
+                  try {
+                    body = JSON.parse(body);
+                  } catch (parseError) {
+                    isMock = true;
+                    body = JSON.parse(
+                      fs
+                        .readFileSync(
+                          path.join(rootPath, "mockData/matchOdds.json"),
+                          "utf8"
+                        )
+                        .toString()
+                    );
+                  }
+
+                  if (body.errorCode === "99999") {
+                    isMock = true;
+                    body = JSON.parse(
+                      fs
+                        .readFileSync(
+                          path.join(rootPath, "mockData/matchOdds.json"),
+                          "utf8"
+                        )
+                        .toString()
+                    );
+                  }
+
+                  if (body && body.value) {
+                    const matchData = body.value;
+
+                    // 转换数据格式
+                    results[matchId] = {};
+                    console.log(matchData);
+                    matchData.matchResultList.forEach((item) => {
+                      if (item.code == "CRS") {
+                        results[matchId].scoreDesc = item.combinationDesc;
+                        results[matchId].score = parseFloat(item.odds);
+                      } else if (item.code == "HAD") {
+                        results[matchId].win = parseFloat(item.odds);
+                      } else if (item.code == "HAFU") {
+                        results[matchId].halfDesc = item.combinationDesc;
+                        results[matchId].half = parseFloat(item.odds);
+                      } else if (item.code == "HHAD") {
+                        results[matchId].handicap = parseFloat(item.odds);
+                      } else if (item.code == "TTG") {
+                        results[matchId].goalDesc = item.combinationDesc;
+                        results[matchId].goal = parseFloat(item.odds);
+                      }
+                    });
+                  } else {
+                    console.log(
+                      `getMatchOddsDetail: no data found for ${matchId}`
+                    );
+                    results[matchId] = {};
+                  }
+                } catch (parseError) {
+                  console.error(
+                    `getMatchOddsDetail parse error for ${matchId}:`,
+                    parseError
+                  );
+                  results[matchId] = {};
+                }
+              }
+
+              completedCount++;
+              if (completedCount === totalCount) {
+                callback(results, isMock);
+              }
+            });
+          });
+        };
       },
     };
   };
