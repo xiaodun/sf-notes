@@ -336,6 +336,14 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
       }
     });
   }
+  function onParamsInputBlur(
+    e: React.FocusEvent<HTMLInputElement>,
+    name: string
+  ) {
+    globalform.setFieldsValue({
+      [name]: e.target.value.trim(),
+    });
+  }
   function renderParamList(paramList: NProjectSnippet.IParam[]) {
     return paramList.map((param) => {
       let content: ReactNode = "";
@@ -354,6 +362,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
           <Input
             style={param.style}
             onChange={onChange}
+            onBlur={(e) => onParamsInputBlur(e, param.name)}
             {...param.props}
             disabled={param.disabled}
           />
