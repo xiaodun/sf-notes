@@ -10,7 +10,6 @@ import { Modal, Button, Form, Input, message, Table, Spin, Alert } from "antd";
 import { produce } from "immer";
 import SFootball from "../SFootball";
 import NFootball from "../NFootball";
-import { cloneDeep } from "lodash";
 
 export interface IRecentFootballResultsModal {
   showModal: () => void;
@@ -34,12 +33,11 @@ const RecentFootballResultsModal: ForwardRefRenderFunction<
   const [list, setList] = useState<NFootball.IFootballMatch[]>([]);
   const [isMock, setIsMock] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-
+  const pageSize = 10;
   // 获取详细赔率信息
   const loadCurrentPageOdds = async (
     allMatches: NFootball.IFootballMatch[],
-    currentPage: number,
-    pageSize: number
+    currentPage: number
   ) => {
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;
@@ -115,12 +113,12 @@ const RecentFootballResultsModal: ForwardRefRenderFunction<
   };
 
   // 分页变化处理
-  const handleTableChange = async (page: number, pageSize: number) => {
+  const handleTableChange = async (page: number) => {
     // 更新加载状态
     setLoading(true);
 
     // 获取新页面的详细赔率信息并更新数据
-    await loadCurrentPageOdds(cloneDeep(list), page, pageSize);
+    await loadCurrentPageOdds(list, page);
 
     // 关闭加载状态
     setLoading(false);
@@ -236,7 +234,7 @@ const RecentFootballResultsModal: ForwardRefRenderFunction<
           ]}
           dataSource={list}
           pagination={{
-            pageSize: 10,
+            pageSize,
             total: list.length,
             showSizeChanger: false,
             onChange: handleTableChange,
