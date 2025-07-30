@@ -176,7 +176,7 @@ const RecentFootballResultsModal: ForwardRefRenderFunction<
       <Spin spinning={loading}>
         {isMock && (
           <Alert
-            message="获取比赛场次的接口被拦截，当前显示的是模拟数据。"
+            message="获取比赛场次的接口被拦截，当前显示的是模拟数据，可稍后再试。"
             type="warning"
             style={{
               margin: "0 0 16px",
@@ -185,7 +185,7 @@ const RecentFootballResultsModal: ForwardRefRenderFunction<
         )}
         {isDetailMock && (
           <Alert
-            message="获取详细赔率的接口被拦截，当前显示的是模拟数据。"
+            message="获取详细赔率的接口被拦截，当前显示的是模拟数据，可稍后再试。"
             type="warning"
             style={{
               margin: "0 0 16px",
