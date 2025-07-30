@@ -33,7 +33,7 @@ const RecentFootballResultsModal: ForwardRefRenderFunction<
   const [list, setList] = useState<NFootball.IFootballMatch[]>([]);
   const [isMock, setIsMock] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const pageSize = 10;
+  const pageSize = 5;
   // 获取详细赔率信息
   const loadCurrentPageOdds = async (
     allMatches: NFootball.IFootballMatch[],
@@ -97,7 +97,10 @@ const RecentFootballResultsModal: ForwardRefRenderFunction<
       .toISOString()
       .split("T")[0];
 
-    const response = await SFootball.getRecentMatches({ startDate, endDate });
+    const response = await SFootball.getRecentMatches({
+      startDate,
+      endDate,
+    });
 
     if (response.success) {
       setLoading(false);
