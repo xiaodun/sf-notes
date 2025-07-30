@@ -416,7 +416,6 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
             }
 
             try {
-              console.log("wx", body);
               try {
                 body = JSON.parse(body);
               } catch (error) {
@@ -488,85 +487,23 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
           const totalCount = matchIds.length;
 
           matchIds.forEach((matchId, index) => {
-            // 添加随机延迟，避免请求过于频繁
-            const delay = Math.random() * 2000 + 1000; // 1-3秒随机延迟
+            const apiUrl = `https://webapi.sporttery.cn/gateway/uniform/football/getFixedBonusV1.qry?clientCode=3001&matchId=${matchId}`;
+            console.log("getMatchOddsDetail", apiUrl);
 
-            setTimeout(() => {
-              const apiUrl = `https://webapi.sporttery.cn/gateway/uniform/football/getFixedBonusV1.qry?clientCode=3001&matchId=${matchId}`;
-              console.log("getMatchOddsDetail", apiUrl);
+            // 使用sync-request替代request
+            const syncRequest = require("sync-request");
 
-              // 使用sync-request替代request
-              const syncRequest = require("sync-request");
+            try {
+              const response = syncRequest("GET", apiUrl);
+
+              const body = response.getBody().toString();
+              console.log("getMatchOddsDetail response", body);
 
               try {
-                const response = syncRequest("GET", apiUrl, {
-                  headers: {
-                    "User-Agent":
-                      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
-                    Accept: "application/json, text/plain, */*",
-                    "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
-                    "Accept-Encoding": "gzip, deflate, br, zstd",
-                    "Cache-Control": "no-cache",
-                    Pragma: "no-cache",
-                    Origin: "https://www.sporttery.cn",
-                    Referer: "https://www.sporttery.cn/",
-                    "Sec-Ch-Ua":
-                      '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
-                    "Sec-Ch-Ua-Mobile": "?0",
-                    "Sec-Ch-Ua-Platform": '"Windows"',
-                    "Sec-Fetch-Dest": "empty",
-                    "Sec-Fetch-Mode": "cors",
-                    "Sec-Fetch-Site": "same-site",
-                  },
-                });
+                const parsedBody = JSON.parse(body);
+                console.log("body", isMock, parsedBody.errorCode);
 
-                const body = response.getBody().toString();
-                console.log("getMatchOddsDetail response", body);
-
-                try {
-                  const parsedBody = JSON.parse(body);
-                  console.log("body", isMock, parsedBody.errorCode);
-
-                  if (parsedBody.errorCode === "99999") {
-                    isMock = true;
-                    const mockBody = JSON.parse(
-                      fs
-                        .readFileSync(
-                          path.join(rootPath, "mockData/matchOdds.json"),
-                          "utf8"
-                        )
-                        .toString()
-                    );
-                    results[matchId] = mockBody[matchId] || {};
-                  } else if (parsedBody && parsedBody.value) {
-                    const matchData = parsedBody.value;
-
-                    // 转换数据格式
-                    results[matchId] = {};
-                    matchData.matchResultList.forEach((item) => {
-                      if (item.code == "CRS") {
-                        results[matchId].scoreDesc = item.combinationDesc;
-                        results[matchId].score = parseFloat(item.odds);
-                      } else if (item.code == "HAD") {
-                        results[matchId].win = parseFloat(item.odds);
-                      } else if (item.code == "HAFU") {
-                        results[matchId].halfDesc = item.combinationDesc;
-                        results[matchId].half = parseFloat(item.odds);
-                      } else if (item.code == "HHAD") {
-                        results[matchId].handicap = parseFloat(item.odds);
-                      } else if (item.code == "TTG") {
-                        results[matchId].goalDesc = item.combinationDesc;
-                        results[matchId].goal = parseFloat(item.odds);
-                      }
-                    });
-                  } else {
-                    console.log(
-                      `getMatchOddsDetail: no data found for ${matchId}`
-                    );
-                    results[matchId] = {};
-                  }
-                } catch (parseError) {
-                  console.log("解析body出错");
+                if (parsedBody.errorCode === "99999") {
                   isMock = true;
                   const mockBody = JSON.parse(
                     fs
@@ -577,21 +514,59 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
                       .toString()
                   );
                   results[matchId] = mockBody[matchId] || {};
-                }
-              } catch (requestError) {
-                console.error(
-                  `getMatchOddsDetail error for ${matchId}:`,
-                  requestError
-                );
-                results[matchId] = {};
-              }
+                } else if (parsedBody && parsedBody.value) {
+                  const matchData = parsedBody.value;
 
-              completedCount++;
-              console.log("completedCount", completedCount, totalCount);
-              if (completedCount === totalCount) {
-                callback(results, isMock);
+                  // 转换数据格式
+                  results[matchId] = {};
+                  matchData.matchResultList.forEach((item) => {
+                    if (item.code == "CRS") {
+                      results[matchId].scoreDesc = item.combinationDesc;
+                      results[matchId].score = parseFloat(item.odds);
+                    } else if (item.code == "HAD") {
+                      results[matchId].win = parseFloat(item.odds);
+                    } else if (item.code == "HAFU") {
+                      results[matchId].halfDesc = item.combinationDesc;
+                      results[matchId].half = parseFloat(item.odds);
+                    } else if (item.code == "HHAD") {
+                      results[matchId].handicap = parseFloat(item.odds);
+                    } else if (item.code == "TTG") {
+                      results[matchId].goalDesc = item.combinationDesc;
+                      results[matchId].goal = parseFloat(item.odds);
+                    }
+                  });
+                } else {
+                  console.log(
+                    `getMatchOddsDetail: no data found for ${matchId}`
+                  );
+                  results[matchId] = {};
+                }
+              } catch (parseError) {
+                console.log("解析body出错");
+                isMock = true;
+                const mockBody = JSON.parse(
+                  fs
+                    .readFileSync(
+                      path.join(rootPath, "mockData/matchOdds.json"),
+                      "utf8"
+                    )
+                    .toString()
+                );
+                results[matchId] = mockBody[matchId] || {};
               }
-            }, delay);
+            } catch (requestError) {
+              console.error(
+                `getMatchOddsDetail error for ${matchId}:`,
+                requestError
+              );
+              results[matchId] = {};
+            }
+
+            completedCount++;
+            console.log("completedCount", completedCount, totalCount);
+            if (completedCount === totalCount) {
+              callback(results, isMock);
+            }
           });
         };
       },
