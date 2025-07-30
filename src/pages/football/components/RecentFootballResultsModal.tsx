@@ -104,13 +104,13 @@ const RecentFootballResultsModal: ForwardRefRenderFunction<
     });
 
     if (response.success) {
-      setLoading(false);
       setIsMock(response.data.isMock || false);
 
       setList(response.data.list);
 
       // 获取第一页的详细赔率信息
       await loadCurrentPageOdds(response.data.list, 1);
+      setLoading(false);
     } else {
       setLoading(false);
     }
@@ -223,6 +223,7 @@ const RecentFootballResultsModal: ForwardRefRenderFunction<
               title: "让球胜平负",
               dataIndex: "handicap",
               key: "handicap",
+              render: (value) => (value ? value : "-"),
             },
             {
               title: "半全场",
