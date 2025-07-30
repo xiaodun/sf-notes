@@ -404,7 +404,7 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
 
         // 获取近期比赛数据
         external.getRecentMatches = (startDate, endDate, callback) => {
-          const apiUrl = `https://webapi.sporttery.cn/gateway/uniform/football/getUniformMatchResultV1.qry?matchBeginDate=${startDate}&matchEndDate=${endDate}&leagueId=&pageSize=100&pageNo=1&isFix=0&pcOrWap=1`;
+          const apiUrl = `https://webapi.sporttery.cn/gateway/uniform/football/getUniformMatchResultV1.qry?matchBeginDate=${startDate}&matchEndDate=${endDate}&leagueId=&pageSize=100&pageNo=1&isFix=0&matchPage=1&pcOrWap=1`;
 
           console.log("getRecentMatches", apiUrl);
 
@@ -445,7 +445,6 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
               }
               if (body && body.value && body.value.matchResult) {
                 const matchData = body.value.matchResult;
-                console.log("wx", matchData);
 
                 // 转换数据格式
                 const convertedData = matchData.map((match, index) => ({
@@ -531,7 +530,6 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
 
                     // 转换数据格式
                     results[matchId] = {};
-                    console.log(matchData);
                     matchData.matchResultList.forEach((item) => {
                       if (item.code == "CRS") {
                         results[matchId].scoreDesc = item.combinationDesc;
