@@ -32,6 +32,7 @@ const RecentFootballResultsModal: ForwardRefRenderFunction<
     useState<IRecentFootballResultsModalState>(defaultState);
   const [list, setList] = useState<NFootball.IFootballMatch[]>([]);
   const [isMock, setIsMock] = useState<boolean>(false);
+  const [isDetailMock, setIsDetailMock] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const pageSize = 5;
   // 获取详细赔率信息
@@ -62,7 +63,7 @@ const RecentFootballResultsModal: ForwardRefRenderFunction<
       if (oddsResponse.success) {
         // 检查是否为mock数据
         if (oddsResponse.data.isMock) {
-          message.warning("详情接口请求被拦截，现在使用的是mock数据");
+          setIsDetailMock(true);
         }
 
         // 从响应中提取详细赔率数据（排除isMock字段）
@@ -109,7 +110,7 @@ const RecentFootballResultsModal: ForwardRefRenderFunction<
       setList(response.data.list);
 
       // 获取第一页的详细赔率信息
-      await loadCurrentPageOdds(response.data.list, 1, 10);
+      await loadCurrentPageOdds(response.data.list, 1);
     } else {
       setLoading(false);
     }
@@ -119,6 +120,7 @@ const RecentFootballResultsModal: ForwardRefRenderFunction<
   const handleTableChange = async (page: number) => {
     // 更新加载状态
     setLoading(true);
+    setIsDetailMock(false);
 
     // 获取新页面的详细赔率信息并更新数据
     await loadCurrentPageOdds(list, page);
@@ -161,7 +163,7 @@ const RecentFootballResultsModal: ForwardRefRenderFunction<
       width="1000px"
       title="近期战况"
       maskClosable={false}
-      bodyStyle={{ height: "700px", overflow: "auto" }}
+      bodyStyle={{ height: "500px", overflow: "auto" }}
       visible={state.visible}
       footer={
         <Button type="primary" onClick={onCancel}>
@@ -174,11 +176,20 @@ const RecentFootballResultsModal: ForwardRefRenderFunction<
       <Spin spinning={loading}>
         {isMock && (
           <Alert
-            message="数据访问被拦截"
-            description="由于网络访问被拦截，当前显示的是模拟数据。"
+            message="获取比赛场次的接口被拦截，当前显示的是模拟数据。"
             type="warning"
-            showIcon
-            style={{ marginBottom: 16 }}
+            style={{
+              margin: "0 0 16px",
+            }}
+          />
+        )}
+        {isDetailMock && (
+          <Alert
+            message="获取详细赔率的接口被拦截，当前显示的是模拟数据。"
+            type="warning"
+            style={{
+              margin: "0 0 16px",
+            }}
           />
         )}
         <Table
