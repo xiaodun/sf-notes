@@ -19,13 +19,13 @@ export interface IAddPredictModalProps {
 }
 import UFootball from "../UFootball";
 export interface IAddPredictModalState {
-  visible: boolean;
+  open: boolean;
   isEdit: boolean;
   title: string;
   id?: string;
 }
 const defaultState: IAddPredictModalState = {
-  visible: false,
+  open: false,
   isEdit: false,
   title: "创建一场预测",
 };
@@ -41,7 +41,7 @@ const AddPredictModal: ForwardRefRenderFunction<
     showModal: (isEdit: boolean = false, id?: string) => {
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
           drafState.isEdit = isEdit;
           if (isEdit) {
             drafState.title = "修改基础信息";
@@ -74,7 +74,7 @@ const AddPredictModal: ForwardRefRenderFunction<
       title={state.title}
       maskClosable={false}
       bodyStyle={{ maxHeight: "100%" }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onOk}>
           确定

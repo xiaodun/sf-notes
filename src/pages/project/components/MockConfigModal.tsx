@@ -15,10 +15,10 @@ export interface IMockConfigModalProps {
 }
 
 export interface IMockConfigModalState {
-  visible: boolean;
+  open: boolean;
 }
 const defaultState: IMockConfigModalState = {
-  visible: false,
+  open: false,
 };
 const MockConfigModal: ForwardRefRenderFunction<
   IMockConfigModal,
@@ -32,7 +32,7 @@ const MockConfigModal: ForwardRefRenderFunction<
     showModal: () => {
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
         })
       );
       setTimeout(() => {
@@ -47,7 +47,7 @@ const MockConfigModal: ForwardRefRenderFunction<
       title="修改配置"
       maskClosable={false}
       bodyStyle={{ maxHeight: "100%" }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onOk}>
           确定

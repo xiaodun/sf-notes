@@ -21,12 +21,12 @@ export interface ICreateSnipeetModalProps {
 }
 
 export interface ICreateSnipeetModalState {
-  visible: boolean;
+  open: boolean;
   project: NProject;
   snippetGroupList: NProjectSnippet[];
 }
 const defaultState: ICreateSnipeetModalState = {
-  visible: false,
+  open: false,
   project: null,
   snippetGroupList: [],
 };
@@ -46,7 +46,7 @@ const CreateSnipeetModal: ForwardRefRenderFunction<
     ) => {
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
           drafState.project = project;
           drafState.snippetGroupList = snippetGroupList;
         }),
@@ -63,7 +63,7 @@ const CreateSnipeetModal: ForwardRefRenderFunction<
       title="创建代码片段"
       maskClosable={false}
       bodyStyle={{ maxHeight: '100%' }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onOk}>
           确定

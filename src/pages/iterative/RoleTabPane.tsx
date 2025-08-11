@@ -93,20 +93,26 @@ const RoleTabpane: FC<IRoleTabpaneProps> = (props) => {
       </div>
       <PageFooter>
         <Dropdown.Button
-          placement="topCenter"
-          overlay={
-            <Menu>
-              <Menu.Item key={"role"} onClick={() => onShowAddRoleModal()}>
-                角色
-              </Menu.Item>
-              <Menu.Item key={"system"} onClick={() => onShowAddSystemModal()}>
-                系统
-              </Menu.Item>
-              <Menu.Item key={"person"} onClick={() => onShowAddPersonModal()}>
-                人员
-              </Menu.Item>
-            </Menu>
-          }
+          placement="top"
+          menu={{
+            items: [
+              {
+                key: 'role',
+                label: '角色',
+                onClick: () => onShowAddRoleModal()
+              },
+              {
+                key: 'system',
+                label: '系统',
+                onClick: () => onShowAddSystemModal()
+              },
+              {
+                key: 'person',
+                label: '人员',
+                onClick: () => onShowAddPersonModal()
+              }
+            ]
+          }}
         >
           添加
         </Dropdown.Button>

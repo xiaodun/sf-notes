@@ -15,11 +15,11 @@ export interface IViewContentModal {
 export interface IViewContentModalProps {}
 
 export interface IViewContentModalState {
-  visible: boolean;
+  open: boolean;
   content: string;
 }
 const defaultState: IViewContentModalState = {
-  visible: false,
+  open: false,
   content: '',
 };
 const ViewContentModal: ForwardRefRenderFunction<
@@ -32,7 +32,7 @@ const ViewContentModal: ForwardRefRenderFunction<
     showModal: (content: string) => {
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
           drafState.content = content;
         }),
       );
@@ -45,7 +45,7 @@ const ViewContentModal: ForwardRefRenderFunction<
       title="信息展示"
       maskClosable={false}
       bodyStyle={{ maxHeight: '100%' }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onCancel}>
           关闭

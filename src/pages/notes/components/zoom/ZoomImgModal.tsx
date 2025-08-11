@@ -10,11 +10,11 @@ export interface IZoomImgModal {
   showModal: (src: string) => void;
 }
 export interface IZoomImgModalState {
-  visible: boolean;
+  open: boolean;
   src: string;
 }
 const defaultState: IZoomImgModalState = {
-  visible: false,
+  open: false,
   src: null,
 };
 const ZoomImgModal: ForwardRefRenderFunction<IZoomImgModal> = (props, ref) => {
@@ -23,7 +23,7 @@ const ZoomImgModal: ForwardRefRenderFunction<IZoomImgModal> = (props, ref) => {
     showModal: (src: string) => {
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
           drafState.src = src;
         })
       );
@@ -41,7 +41,7 @@ const ZoomImgModal: ForwardRefRenderFunction<IZoomImgModal> = (props, ref) => {
       width="100%"
       title="放大图片"
       bodyStyle={{ maxHeight: "100%", textAlign: "center" }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onCancel}>
           关闭

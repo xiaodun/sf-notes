@@ -20,12 +20,12 @@ export interface IEditAccountModalProps {
   onOk: () => void;
 }
 export interface IEditAccountModalState {
-  visible: boolean;
+  open: boolean;
 
   roles: NIterative.IPerson;
 }
 const defaultState: IEditAccountModalState = {
-  visible: false,
+  open: false,
 
   roles: null,
 };
@@ -42,7 +42,7 @@ const EditAccountModal: ForwardRefRenderFunction<
     showModal: (roles: NIterative.IPerson) => {
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
           drafState.roles = roles;
         }),
       );
@@ -58,7 +58,7 @@ const EditAccountModal: ForwardRefRenderFunction<
       title="编辑账号"
       maskClosable={false}
       bodyStyle={{ maxHeight: '100%' }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onOk}>
           确定

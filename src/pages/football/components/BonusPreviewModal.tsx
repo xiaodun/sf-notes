@@ -24,7 +24,7 @@ export interface IBonusPreviewModalState {
   teamCount: number;
   total: number;
   currentPage: number;
-  visible: boolean;
+  open: boolean;
   currentResultIndex: number;
   tableLoading: boolean;
   oddResultList: Array<NFootball.IOddResult>;
@@ -34,7 +34,7 @@ const defaultState: IBonusPreviewModalState = {
   teamCount: 0,
   currentPage: 1,
   total: 0,
-  visible: false,
+  open: false,
   currentResultIndex: null,
   tableLoading: false,
   oddResultList: [],
@@ -67,7 +67,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
       width="960px"
       title="奖金"
       maskClosable={false}
-      visible={state.visible}
+      open={state.open}
       bodyStyle={{ padding: "5px 24px" }}
       footer={
         <Space>
@@ -107,7 +107,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
           ]}
           dataSource={state.oddResultList}
           pagination={{
-            position: ["topCenter"],
+            position: ["top"],
             current: state.currentPage,
             onChange: onPageChange,
             total: state.total,

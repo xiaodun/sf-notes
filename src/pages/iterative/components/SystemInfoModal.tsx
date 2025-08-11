@@ -18,10 +18,10 @@ export interface ISystemInfoModalProps {
 }
 
 export interface ISystemInfoModalState {
-  visible: boolean;
+  open: boolean;
 }
 const defaultState: ISystemInfoModalState = {
-  visible: false,
+  open: false,
 };
 const ShowSystemInfoModalModal: ForwardRefRenderFunction<
   ISystemInfoModal,
@@ -34,7 +34,7 @@ const ShowSystemInfoModalModal: ForwardRefRenderFunction<
     showModal: () => {
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
         }),
       );
     },
@@ -46,7 +46,7 @@ const ShowSystemInfoModalModal: ForwardRefRenderFunction<
       title="系统信息"
       maskClosable={false}
       bodyStyle={{ maxHeight: '100%' }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onCancel}>
           关闭

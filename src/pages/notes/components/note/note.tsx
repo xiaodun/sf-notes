@@ -43,29 +43,7 @@ const Note: FC<INoteProps> = (props) => {
   const { data, MDNotes } = props;
   const cloneData = cloneDeep(data);
 
-  const menu = (
-    <Menu>
-      <Menu.Item key="noitce_top" onClick={() => reqTopItem(data)}>
-        置顶
-      </Menu.Item>
-      <Menu.Item
-        key="noitce_bottom"
-        onClick={() => reqBottomItem(data)}
-      >
-        置后
-      </Menu.Item>
-      <Menu.Divider />
-      <Menu.Item key="add_up" onClick={() => onAddNote(props.index)}>
-        向上添加
-      </Menu.Item>
-      <Menu.Item
-        key="add_down"
-        onClick={() => onAddNote(props.index + 1)}
-      >
-        向下添加
-      </Menu.Item>
-    </Menu>
-  );
+
   const { isExpand } = MDNotes.noteSettingObjs[data.id];
   return (
     <div>
@@ -143,7 +121,31 @@ const Note: FC<INoteProps> = (props) => {
           ></Button>
         </div>
         <div className={SelfStyle.item}>
-          <Dropdown overlay={menu} placement="topCenter">
+          <Dropdown menu={{ items: [
+            {
+              key: 'noitce_top',
+              label: '置顶',
+              onClick: () => reqTopItem(data)
+            },
+            {
+              key: 'noitce_bottom', 
+              label: '置后',
+              onClick: () => reqBottomItem(data)
+            },
+            {
+              type: 'divider'
+            },
+            {
+              key: 'add_up',
+              label: '向上添加',
+              onClick: () => onAddNote(props.index)
+            },
+            {
+              key: 'add_down',
+              label: '向下添加', 
+              onClick: () => onAddNote(props.index + 1)
+            }
+          ] }} placement="top">
             <Button>
               <EllipsisOutlined key="ellipsis" />
             </Button>

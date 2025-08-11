@@ -36,7 +36,7 @@ export interface ITempData {
   id: string;
 }
 export interface ICrawlingmModalState {
-  visible: boolean;
+  open: boolean;
   loading: boolean;
   gameList: Array<NFootball.IGameInfo>;
   codeList: string[];
@@ -45,7 +45,7 @@ const getDefaultTempData = (): ITempData => ({
   id: null,
 });
 const defaultState: ICrawlingmModalState = {
-  visible: false,
+  open: false,
   loading: false,
   gameList: [],
   codeList: [],
@@ -74,7 +74,7 @@ const CrawlingmModal: ForwardRefRenderFunction<
       title="选择比赛"
       maskClosable={false}
       bodyStyle={{ maxHeight: '670px', overflowY: 'scroll' }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button loading={state.loading} type="primary" onClick={onOk}>
           确定

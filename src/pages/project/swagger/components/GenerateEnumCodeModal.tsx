@@ -15,10 +15,10 @@ export interface IGenerateEnumCodeModal {
 }
 export interface IGenerateEnumCodeModalProps {}
 export interface IGenerateEnumCodeModalState {
-  visible: boolean;
+  open: boolean;
 }
 const defaultState: IGenerateEnumCodeModalState = {
-  visible: false,
+  open: false,
 };
 const GenerateEnumCodeModal: ForwardRefRenderFunction<
   IGenerateEnumCodeModal,
@@ -32,7 +32,7 @@ const GenerateEnumCodeModal: ForwardRefRenderFunction<
     showModal: (enumList: string[], values?: Object) => {
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
           reqGetEnumCode(enumList, values);
         }),
       );
@@ -45,7 +45,7 @@ const GenerateEnumCodeModal: ForwardRefRenderFunction<
       title="生成枚举代码"
       maskClosable={false}
       bodyStyle={{ maxHeight: '100%' }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onCancel}>
           关闭

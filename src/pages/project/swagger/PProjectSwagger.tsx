@@ -237,45 +237,35 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
           <Space direction="horizontal" size={20}>
             <Button onClick={openEnterSwaggerModal}>录入</Button>
             <Dropdown.Button
-              overlay={
-                <Menu>
-                  <Menu.Item
-                    key="attention"
-                    onClick={onBatchPathAttention}
-                  >
-                    关注
-                  </Menu.Item>
-
-                  {projectList.length && (
-                    <Menu.Item
-                      onClick={onBatchCreateAjaxCode}
-                      key="createAjaxCode"
-                    >
-                      生成ajax代码
-                    </Menu.Item>
-                  )}
-                  {projectList.length && (
-                    <Menu.Item
-                      onClick={() => onGenerateMockFile(true)}
-                      key="createMockFile"
-                    >
-                      生成mock文件
-                    </Menu.Item>
-                  )}
-                  <Menu.Item
-                    key="cancelAttention"
-                    onClick={onBatchCancelPathAttention}
-                  >
-                    取消关注
-                  </Menu.Item>
-                  <Menu.Item
-                    key="cancelMenuChecked"
-                    onClick={onCancelMenuChecked}
-                  >
-                    取消选中
-                  </Menu.Item>
-                </Menu>
-              }
+              menu={{
+                items: [
+                  {
+                    key: 'attention',
+                    label: '关注',
+                    onClick: onBatchPathAttention
+                  },
+                  ...(projectList.length ? [{
+                    key: 'createAjaxCode',
+                    label: '生成ajax代码',
+                    onClick: onBatchCreateAjaxCode
+                  }] : []),
+                  ...(projectList.length ? [{
+                    key: 'createMockFile',
+                    label: '生成mock文件',
+                    onClick: () => onGenerateMockFile(true)
+                  }] : []),
+                  {
+                    key: 'cancelAttention',
+                    label: '取消关注',
+                    onClick: onBatchCancelPathAttention
+                  },
+                  {
+                    key: 'cancelMenuChecked',
+                    label: '取消选中',
+                    onClick: onCancelMenuChecked
+                  }
+                ]
+              }}
             >
               批量操作
             </Dropdown.Button>
@@ -715,33 +705,26 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
             <Space direction="horizontal" size={20}>
               <Dropdown.Button
                 size="small"
-                overlay={
-                  <Menu>
-                    {projectList.length && (
-                      <Menu.Item
-                        onClick={() =>
-                          onCopySwaggerDataByProject(
-                            rendMethodInfos.responses,
-                            true,
-                          )
-                        }
-                      >
-                        按项目
-                      </Menu.Item>
-                    )}
-
-                    <Menu.Item
-                      onClick={() =>
-                        onCopySwaggerData(
-                          rendMethodInfos.responses,
-                          true,
-                        )
-                      }
-                    >
-                      自动填充
-                    </Menu.Item>
-                  </Menu>
-                }
+                menu={{
+                  items: [
+                    ...(projectList.length ? [{
+                      key: 'byProject',
+                      label: '按项目',
+                      onClick: () => onCopySwaggerDataByProject(
+                        rendMethodInfos.responses,
+                        true,
+                      )
+                    }] : []),
+                    {
+                      key: 'autoFill',
+                      label: '自动填充',
+                      onClick: () => onCopySwaggerData(
+                        rendMethodInfos.responses,
+                        true,
+                      )
+                    }
+                  ]
+                }}
               >
                 <span
                   onClick={() =>

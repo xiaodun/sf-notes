@@ -215,19 +215,16 @@ const Project: ConnectRC<IProjectProps> = (props) => {
           openBlock =
             project.sfMock.serverList.length > 1 ? (
               <Dropdown.Button
-                overlay={
-                  <Menu>
-                    {envList.map((item) => {
-                      return (
-                        <Menu.Item key={item.openUrl}>
-                          <a target="_blank" href={item.webOpenUrl}>
-                            {item.name || item.openUrl}
-                          </a>
-                        </Menu.Item>
-                      );
-                    })}
-                  </Menu>
-                }
+                menu={{
+                  items: envList.map((item) => ({
+                    key: item.openUrl,
+                    label: (
+                      <a target="_blank" href={item.webOpenUrl}>
+                        {item.name || item.openUrl}
+                      </a>
+                    )
+                  }))
+                }}
               >
                 <a target="_blank" href={mockService.webOpenUrl}>
                   打开
@@ -278,23 +275,32 @@ const Project: ConnectRC<IProjectProps> = (props) => {
           {project.isSfMock && (
             <>
               <Dropdown.Button
-                overlay={
-                  <Menu>
-                    <Menu.Item>
-                      <a onClick={() => onReStartNginx()}>重启nginx</a>
-                    </Menu.Item>
-                    <Menu.Item>
-                      <a onClick={() => onGenerateProjectStartBat()}>
-                        批量生成启动项目bat文件
-                      </a>
-                    </Menu.Item>
-                    <Menu.Item>
-                      <a onClick={() => onGenerateProjectMockStructrue()}>
-                        批量生成项目文件结构
-                      </a>
-                    </Menu.Item>
-                  </Menu>
-                }
+                menu={{
+                  items: [
+                    {
+                      key: 'restart-nginx',
+                      label: (
+                        <a onClick={() => onReStartNginx()}>重启nginx</a>
+                      )
+                    },
+                    {
+                      key: 'generate-bat',
+                      label: (
+                        <a onClick={() => onGenerateProjectStartBat()}>
+                          批量生成启动项目bat文件
+                        </a>
+                      )
+                    },
+                    {
+                      key: 'generate-structure',
+                      label: (
+                        <a onClick={() => onGenerateProjectMockStructrue()}>
+                          批量生成项目文件结构
+                        </a>
+                      )
+                    }
+                  ]
+                }}
               >
                 <a onClick={onUpdateSfMockConfig}>更新</a>
               </Dropdown.Button>
@@ -304,33 +310,38 @@ const Project: ConnectRC<IProjectProps> = (props) => {
           {MDProject.config.gitlabBasePath && !project.isSfMock && (
             <>
               <Dropdown.Button
-                overlay={
-                  <Menu>
-                    <Menu.Item>
-                      <a
-                        target="_blank"
-                        href={UGitlab.getNewMergeUrl(
-                          MDProject.config.gitlabBasePath,
-                          project.name
-                        )}
-                      >
-                        创建合并
-                      </a>
-                    </Menu.Item>
-
-                    <Menu.Item>
-                      <a
-                        target="_blank"
-                        href={UGitlab.getMergeUrl(
-                          MDProject.config.gitlabBasePath,
-                          project.name
-                        )}
-                      >
-                        处理合并
-                      </a>
-                    </Menu.Item>
-                  </Menu>
-                }
+                menu={{
+                  items: [
+                    {
+                      key: 'create-merge',
+                      label: (
+                        <a
+                          target="_blank"
+                          href={UGitlab.getNewMergeUrl(
+                            MDProject.config.gitlabBasePath,
+                            project.name
+                          )}
+                        >
+                          创建合并
+                        </a>
+                      )
+                    },
+                    {
+                      key: 'handle-merge',
+                      label: (
+                        <a
+                          target="_blank"
+                          href={UGitlab.getMergeUrl(
+                            MDProject.config.gitlabBasePath,
+                            project.name
+                          )}
+                        >
+                          处理合并
+                        </a>
+                      )
+                    }
+                  ]
+                }}
               >
                 <a
                   target="_blank"

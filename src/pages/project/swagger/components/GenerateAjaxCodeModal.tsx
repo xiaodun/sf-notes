@@ -18,11 +18,11 @@ export interface IGenerateAjaxCodeModalProps {
   projectName: string;
 }
 export interface IGenerateAjaxCodeModalState {
-  visible: boolean;
+  open: boolean;
   checkedPathList: NProject.IMenuCheckbox[];
 }
 const defaultState: IGenerateAjaxCodeModalState = {
-  visible: false,
+  open: false,
   checkedPathList: [],
 };
 const GenerateAjaxCodeModal: ForwardRefRenderFunction<
@@ -39,7 +39,7 @@ const GenerateAjaxCodeModal: ForwardRefRenderFunction<
     showModal: (checkedPathList: NProject.IMenuCheckbox[]) => {
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
           drafState.checkedPathList = checkedPathList;
         }),
       );
@@ -53,7 +53,7 @@ const GenerateAjaxCodeModal: ForwardRefRenderFunction<
       title="生成ajax代码"
       maskClosable={false}
       bodyStyle={{ maxHeight: '100%' }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onCancel}>
           关闭

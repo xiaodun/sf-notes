@@ -37,7 +37,7 @@ export interface ITempData {
   defaultFormData: Partial<NFootball.ITeamRecordOdds>;
 }
 export interface IFootballOddsModalState {
-  visible: boolean;
+  open: boolean;
   loading: boolean;
   handicapWinLabel: string;
   handicapDrawLabel: string;
@@ -51,7 +51,7 @@ const getDefaultTempData = (): ITempData => ({
   },
 });
 const defaultState: IFootballOddsModalState = {
-  visible: false,
+  open: false,
   handicapWinLabel: null,
   handicapLoseLabel: null,
   handicapDrawLabel: null,
@@ -72,7 +72,7 @@ const FootballOddsModal: ForwardRefRenderFunction<
 
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
           const infos = getHandicapLabel();
           Object.keys(infos).forEach((key) => {
             drafState[key] = infos[key];
@@ -98,7 +98,7 @@ const FootballOddsModal: ForwardRefRenderFunction<
       title="赔率信息"
       maskClosable={false}
       bodyStyle={{ maxHeight: '100%' }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onOk}>
           确定

@@ -19,10 +19,10 @@ export interface IAddPersonModalProps {
 }
 
 export interface IAddPersonModalState {
-  visible: boolean;
+  open: boolean;
 }
 const defaultState: IAddPersonModalState = {
-  visible: false,
+  open: false,
 };
 const AddPersonModal: ForwardRefRenderFunction<
   IAddPersonModal,
@@ -37,7 +37,7 @@ const AddPersonModal: ForwardRefRenderFunction<
     showModal: () => {
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
         }),
       );
       setTimeout(() => {
@@ -52,7 +52,7 @@ const AddPersonModal: ForwardRefRenderFunction<
       title="添加人员"
       maskClosable={false}
       bodyStyle={{ maxHeight: '100%' }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onOk}>
           确定
