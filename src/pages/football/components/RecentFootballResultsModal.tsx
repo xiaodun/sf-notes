@@ -17,11 +17,11 @@ export interface IRecentFootballResultsModal {
 export interface IRecentFootballResultsModalProps {}
 
 export interface IRecentFootballResultsModalState {
-  visible: boolean;
+  open: boolean;
 }
 
 const defaultState: IRecentFootballResultsModalState = {
-  visible: false,
+  open: false,
 };
 
 const RecentFootballResultsModal: ForwardRefRenderFunction<
@@ -149,7 +149,7 @@ const RecentFootballResultsModal: ForwardRefRenderFunction<
     showModal: () => {
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
           if (!list.length) {
             loadData();
           }
@@ -164,7 +164,7 @@ const RecentFootballResultsModal: ForwardRefRenderFunction<
       title="近期战况"
       maskClosable={false}
       bodyStyle={{ height: "500px", overflow: "auto" }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onCancel}>
           关闭

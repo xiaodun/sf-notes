@@ -19,11 +19,11 @@ export interface IKeyValueExtractionModalProps {
 }
 export interface IKeyValueExtractionModalState
   extends NProjectSnippet.IExtractionResult {
-  visible: boolean;
+  open: boolean;
   strategy: string;
 }
 const defaultState: IKeyValueExtractionModalState = {
-  visible: false,
+  open: false,
   strategy: '',
   enumList: null,
   values: null,
@@ -43,7 +43,7 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
     showModal: () => {
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
           setTimeout(() => {
             if (contentTextAreaRef.current) {
               contentTextAreaRef.current.focus();
@@ -60,7 +60,7 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
       title="键值提取"
       maskClosable={false}
       bodyStyle={{ maxHeight: '100%' }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Space size={30}>
           <Button type="primary" onClick={generateEnumCode}>

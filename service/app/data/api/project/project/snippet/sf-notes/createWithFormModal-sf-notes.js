@@ -65,11 +65,11 @@ export interface I${argParams.modalName}ModalProps {
 }
 
 export interface I${argParams.modalName}ModalState {
-  visible: boolean;
+  open: boolean;
   
 }
 const defaultState: I${argParams.modalName}ModalState = {
-  visible: false,
+  open: false,
  
 };
 const ${argParams.modalName}Modal: ForwardRefRenderFunction<
@@ -84,7 +84,7 @@ const ${argParams.modalName}Modal: ForwardRefRenderFunction<
     showModal: () => {
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
          
         })
       );
@@ -100,7 +100,7 @@ const ${argParams.modalName}Modal: ForwardRefRenderFunction<
       title="${argParams.title}"
       maskClosable={false}
       bodyStyle={{ maxHeight: "100%" }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onOk}>
           确定

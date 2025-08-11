@@ -19,11 +19,11 @@ export interface IAddProjectModalProps {
 }
 
 export interface IAddProjectModalState {
-  visible: boolean;
+  open: boolean;
   loading: boolean;
 }
 const defaultState: IAddProjectModalState = {
-  visible: false,
+  open: false,
   loading: false,
 };
 const AddProjectModal: ForwardRefRenderFunction<
@@ -39,7 +39,7 @@ const AddProjectModal: ForwardRefRenderFunction<
     showModal: () => {
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
         }),
       );
       setTimeout(() => {
@@ -57,7 +57,7 @@ const AddProjectModal: ForwardRefRenderFunction<
       title="添加项目"
       maskClosable={false}
       bodyStyle={{ maxHeight: '100%' }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onOk} loading={state.loading}>
           确定

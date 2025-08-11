@@ -13,14 +13,14 @@ export interface IDirectoryModalProps {
   onOk: (pathInfos: NSystem.IDirectory, selectCallbackFlag?: string) => void;
 }
 export interface IDirectoryModalState {
-  visible: boolean;
+  open: boolean;
   pathInfos: NSystem.IDirectory;
   showParasm: IDirectoryModalShowParams;
   directoryKey: number;
 }
 
 const defaultState: IDirectoryModalState = {
-  visible: false,
+  open: false,
   pathInfos: null,
   directoryKey: Math.random(),
   showParasm: {} as any,
@@ -43,7 +43,7 @@ export const EditModal: ForwardRefRenderFunction<
   useImperativeHandle(ref, () => ({
     showModal: (data) => {
       const newState = produce(state, (drafState) => {
-        drafState.visible = true;
+        drafState.open = true;
         drafState.directoryKey = Math.random();
         drafState.showParasm = data || ({} as any);
       });
@@ -53,7 +53,7 @@ export const EditModal: ForwardRefRenderFunction<
   return (
     <Modal
       title="选择目录"
-      visible={state.visible}
+      open={state.open}
       onOk={() => onOk()}
       centered
       maskClosable={false}

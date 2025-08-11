@@ -40,7 +40,7 @@ export type TEnterSwaggerModalWay = "add" | "update";
 export interface IEnterSwaggerModalState {
   checkGroupNameList: string[];
   isEnterLoading: boolean;
-  visible: boolean;
+  open: boolean;
   isAnalysisMode: boolean;
   parseNodeList: ReactNode[];
   way: TEnterSwaggerModalWay;
@@ -60,7 +60,7 @@ const defaultTempData: ITempData = {
 const defaultState: IEnterSwaggerModalState = {
   checkGroupNameList: [],
   isEnterLoading: true,
-  visible: false,
+  open: false,
   isAnalysisMode: false,
   parseNodeList: [],
   way: "add",
@@ -83,7 +83,7 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
       setDomainNameList(domainSwaggerList.map((item) => item.domain));
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
           tempDataRef.current.inExcludeGroups = MDProject.inExcludeGroups;
           form.setFieldsValue({
             url: MDProject.config.lastOptionSwaggerDomain,
@@ -110,7 +110,7 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
       title="录入Swagger信息"
       maskClosable={false}
       bodyStyle={{ maxHeight: "100%" }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onOk}>
           确定
@@ -170,7 +170,7 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
       title="解析Swagger进程"
       maskClosable={false}
       bodyStyle={{ maxHeight: "100%" }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <>
           <Button onClick={onCancel}>关闭</Button>
@@ -228,7 +228,7 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
   }
   async function fetchSwaggerDoc(url: string, formValues: any = {}) {
     let newData = produce(state, (drafState) => {
-      drafState.visible = true;
+      drafState.open = true;
       drafState.isAnalysisMode = true;
       drafState.checkGroupNameList =
         tempDataRef.current.inExcludeGroups?.[url] || [];

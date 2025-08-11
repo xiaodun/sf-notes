@@ -14,10 +14,10 @@ export interface IAddRoleModal {
 }
 export interface IAddRoleModalProps {}
 export interface IAddRoleModalState {
-  visible: boolean;
+  open: boolean;
 }
 const defaultState: IAddRoleModalState = {
-  visible: false,
+  open: false,
 };
 const AddRoleModal: ForwardRefRenderFunction<
   IAddRoleModal,
@@ -32,7 +32,7 @@ const AddRoleModal: ForwardRefRenderFunction<
     showModal: () => {
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
         }),
       );
       setTimeout(() => {
@@ -47,7 +47,7 @@ const AddRoleModal: ForwardRefRenderFunction<
       title="添加角色"
       maskClosable={false}
       bodyStyle={{ maxHeight: '100%' }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onOk}>
           确定

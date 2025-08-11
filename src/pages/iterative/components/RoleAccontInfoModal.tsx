@@ -18,13 +18,13 @@ export interface IRoleAccontInfoModalProps {
 }
 
 export interface IRoleAccontInfoModalState {
-  visible: boolean;
+  open: boolean;
   accountInfos: {
     [key: string]: NIterative.IAccount[];
   };
 }
 const defaultState: IRoleAccontInfoModalState = {
-  visible: false,
+  open: false,
   accountInfos: {},
 };
 const RoleAccontInfoModal: ForwardRefRenderFunction<
@@ -38,7 +38,7 @@ const RoleAccontInfoModal: ForwardRefRenderFunction<
     showModal: (roleInfos: NIterative.IPerson) => {
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
           drafState.accountInfos = roleInfos.accountList.reduce(
             (pre, cur) => {
               if (!pre[cur.systemId]) {
@@ -62,7 +62,7 @@ const RoleAccontInfoModal: ForwardRefRenderFunction<
       title="账号信息"
       maskClosable={false}
       bodyStyle={{ maxHeight: '100%' }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onCancel}>
           关闭

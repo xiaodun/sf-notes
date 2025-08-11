@@ -15,10 +15,10 @@ export interface IAddSystemModal {
 export interface IAddSystemModalProps {}
 
 export interface IAddSystemModalState {
-  visible: boolean;
+  open: boolean;
 }
 const defaultState: IAddSystemModalState = {
-  visible: false,
+  open: false,
 };
 const AddSystemModal: ForwardRefRenderFunction<
   IAddSystemModal,
@@ -33,7 +33,7 @@ const AddSystemModal: ForwardRefRenderFunction<
     showModal: () => {
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
         }),
       );
       form.setFieldsValue({
@@ -52,7 +52,7 @@ const AddSystemModal: ForwardRefRenderFunction<
       title="添加系统"
       maskClosable={false}
       bodyStyle={{ maxHeight: '100%' }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onOk}>
           确定

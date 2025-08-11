@@ -17,11 +17,11 @@ export interface ICreateIterativeModalProps {
 }
 
 export interface ICreateIterativeModalState {
-  visible: boolean;
+  open: boolean;
   iterative: NIterative;
 }
 const defaultState: ICreateIterativeModalState = {
-  visible: false,
+  open: false,
   iterative: null,
 };
 const CreateIterativeModal: ForwardRefRenderFunction<
@@ -37,7 +37,7 @@ const CreateIterativeModal: ForwardRefRenderFunction<
     showModal: (iteratives?: NIterative) => {
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
           drafState.iterative = iteratives;
           form.setFieldsValue(iteratives);
         }),
@@ -54,7 +54,7 @@ const CreateIterativeModal: ForwardRefRenderFunction<
       title={state.iterative ? '修改迭代' : '创建迭代'}
       maskClosable={false}
       bodyStyle={{ maxHeight: '100%' }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onOk}>
           确定

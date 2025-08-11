@@ -18,10 +18,10 @@ export interface ISelectEnvModalProps {
 }
 
 export interface ISelectEnvModalState {
-  visible: boolean;
+  open: boolean;
 }
 const defaultState: ISelectEnvModalState = {
-  visible: false,
+  open: false,
 };
 const SelectEnvModal: ForwardRefRenderFunction<
   ISelectEnvModal,
@@ -36,7 +36,7 @@ const SelectEnvModal: ForwardRefRenderFunction<
     showModal: () => {
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
         }),
       );
 
@@ -52,7 +52,7 @@ const SelectEnvModal: ForwardRefRenderFunction<
       title="混合到"
       maskClosable={false}
       bodyStyle={{ maxHeight: '100%' }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onOk}>
           确定

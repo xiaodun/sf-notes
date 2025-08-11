@@ -29,11 +29,11 @@ export interface IGameResultModalProps {
 
 export interface IGameResultModalState {
   loading: boolean;
-  visible: boolean;
+  open: boolean;
   predictResult: NFootball.IPredictResult;
 }
 const defaultState: IGameResultModalState = {
-  visible: false,
+  open: false,
   loading: false,
   predictResult: {},
 };
@@ -47,7 +47,7 @@ const GameResultModal: ForwardRefRenderFunction<
   useImperativeHandle(ref, () => ({
     showModal: () => {
       const newState = produce(state, (drafState) => {
-        drafState.visible = true;
+        drafState.open = true;
         drafState.loading = true;
       });
       setState(newState);
@@ -81,7 +81,7 @@ const GameResultModal: ForwardRefRenderFunction<
       title="比赛结果"
       maskClosable={false}
       bodyStyle={{ maxHeight: '100%' }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onCancel}>
           关闭

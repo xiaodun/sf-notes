@@ -32,7 +32,7 @@ export interface IEditModalProps {
 }
 
 export interface IEditModalState {
-  visible: boolean;
+  open: boolean;
   index: number;
   data: NNotes;
   added: boolean;
@@ -42,7 +42,7 @@ export interface IEditModal {
 }
 const defaultState: IEditModalState = {
   added: false,
-  visible: false,
+  open: false,
   index: 0,
   data: {
     content: '',
@@ -73,7 +73,7 @@ export const EditModal: ForwardRefRenderFunction<
   useImperativeHandle(ref, () => ({
     showModal: (data, index) => {
       const newState = produce(state, (drafState) => {
-        drafState.visible = true;
+        drafState.open = true;
         drafState.index = index;
         if (data) {
           drafState.added = false;
@@ -100,7 +100,7 @@ export const EditModal: ForwardRefRenderFunction<
   )}`;
   return (
     <Modal
-      visible={state.visible}
+      open={state.open}
       title={title}
       maskClosable={false}
       onOk={onOk}

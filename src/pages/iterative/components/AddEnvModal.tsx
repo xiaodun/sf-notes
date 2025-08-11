@@ -15,10 +15,10 @@ export interface IAddEnvModal {
 export interface IAddEnvModalProps {}
 
 export interface IAddEnvModalState {
-  visible: boolean;
+  open: boolean;
 }
 const defaultState: IAddEnvModalState = {
-  visible: false,
+  open: false,
 };
 const AddEnvModal: ForwardRefRenderFunction<
   IAddEnvModal,
@@ -32,7 +32,7 @@ const AddEnvModal: ForwardRefRenderFunction<
     showModal: () => {
       setState(
         produce(state, (drafState) => {
-          drafState.visible = true;
+          drafState.open = true;
         }),
       );
       setTimeout(() => {
@@ -47,7 +47,7 @@ const AddEnvModal: ForwardRefRenderFunction<
       title="添加环境"
       maskClosable={false}
       bodyStyle={{ maxHeight: '100%' }}
-      visible={state.visible}
+      open={state.open}
       footer={
         <Button type="primary" onClick={onOk}>
           确定
