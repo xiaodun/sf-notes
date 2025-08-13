@@ -32,7 +32,7 @@ const ZoomImgModal: ForwardRefRenderFunction<IZoomImgModal> = (props, ref) => {
   function onCancel() {
     setState(
       produce(state, (drafState) => {
-        drafState.visible = false;
+        drafState.open = false;
       })
     );
   }

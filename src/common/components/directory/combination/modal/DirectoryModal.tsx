@@ -3,12 +3,12 @@ import React, {
   useImperativeHandle,
   ForwardRefRenderFunction,
   forwardRef,
-} from "react";
-import { message, Modal } from "antd";
-import { produce } from "immer";
-import PageDirectory from "../../PageDirectory";
-import { NSystem } from "@/common/namespace/NSystem";
-import { TFilter } from "../../PageDirectory";
+} from 'react';
+import { message, Modal } from 'antd';
+import { produce } from 'immer';
+import PageDirectory from '../../PageDirectory';
+import { NSystem } from '@/common/namespace/NSystem';
+import { TFilter } from '../../PageDirectory';
 export interface IDirectoryModalProps {
   onOk: (pathInfos: NSystem.IDirectory, selectCallbackFlag?: string) => void;
 }
@@ -60,7 +60,7 @@ export const EditModal: ForwardRefRenderFunction<
       onCancel={onClose}
       width={1000}
     >
-      {state.visible && (
+      {state.open && (
         <PageDirectory
           key={state.directoryKey}
           startPath={state.showParasm.startPath}
@@ -73,7 +73,7 @@ export const EditModal: ForwardRefRenderFunction<
   );
   async function onOk() {
     if (!state.pathInfos) {
-      message.error("请选择一个路径!");
+      message.error('请选择一个路径!');
       return;
     }
     props.onOk(state.pathInfos, state.showParasm.selectCallbackFlag);
