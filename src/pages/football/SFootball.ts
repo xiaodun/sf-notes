@@ -183,5 +183,41 @@ namespace SFootball {
       method: "post",
     });
   }
+
+  /**
+   * 添加奖金项目
+   */
+  export async function addBonusItem(
+    id: string,
+    itemKey: string,
+    oddResult: NFootball.IOddResult
+  ): Promise<NRsp<boolean>> {
+    return request({
+      url: "/football/addBonusItem",
+      method: "post",
+      data: {
+        id,
+        itemKey,
+        oddResult,
+      },
+    });
+  }
+
+  /**
+   * 删除奖金项目
+   */
+  export async function removeBonusItem(
+    id: string,
+    itemKey: string
+  ): Promise<NRsp<boolean>> {
+    return request({
+      url: "/football/removeBonusItem",
+      method: "post",
+      data: {
+        id,
+        itemKey,
+      },
+    });
+  }
 }
 export default SFootball;

@@ -3,6 +3,9 @@ export interface NFootball {
   money: number;
   isEdit?: boolean;
   id?: string;
+  bonusItems: {
+    [key: string]: NFootball.IOddResult;
+  };
 }
 export namespace NFootball {
   export interface IPredictResult {
