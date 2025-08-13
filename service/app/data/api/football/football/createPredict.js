@@ -11,7 +11,8 @@
     } else {
       argParams.id = Date.now();
       argParams.teamOddList = [];
-      const fs = require("fs");
+      argParams.bonusItems = {};
+      const fs = require('fs');
       argData.predictList.unshift(argParams);
       const folderPath = external.getPredictDataFolderPath(argParams.id);
       fs.mkdirSync(folderPath);
