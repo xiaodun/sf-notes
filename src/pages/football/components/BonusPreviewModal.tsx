@@ -52,7 +52,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         id,
         teamCount: teamOddList.length,
         tableLoading: true,
-        visible: true,
+        open: true,
       };
       setState(newState);
       setTimeout(() => {

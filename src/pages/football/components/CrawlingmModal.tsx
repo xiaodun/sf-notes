@@ -54,15 +54,14 @@ const CrawlingmModal: ForwardRefRenderFunction<
   ICrawlingmModal,
   ICrawlingmModalProps
 > = (props, ref) => {
-  const [state, setState] =
-    useState<ICrawlingmModalState>(defaultState);
+  const [state, setState] = useState<ICrawlingmModalState>(defaultState);
   const tempDataRef = useRef<ITempData>(getDefaultTempData());
   const [form] = Form.useForm();
   const { MDFootball } = props;
   useImperativeHandle(ref, () => ({
     showModal: (id: string) => {
       tempDataRef.current.id = id;
-      let newState = { ...state, visible: true };
+      let newState = { ...state, open: true };
       setState(newState);
       reqAllowGuessGame(newState);
     },
@@ -90,7 +89,7 @@ const CrawlingmModal: ForwardRefRenderFunction<
             setState(
               produce(state, (drafState) => {
                 drafState.codeList = selectedRowKeys as string[];
-              }),
+              })
             );
           },
         }}
@@ -124,11 +123,10 @@ const CrawlingmModal: ForwardRefRenderFunction<
       produce(newState, (drafState) => {
         drafState.gameList = rsp.list.filter(
           (item) =>
-            MDFootball.teamOddList.findIndex(
-              (el) => el.code === item.code,
-            ) == -1,
+            MDFootball.teamOddList.findIndex((el) => el.code === item.code) ==
+            -1
         );
-      }),
+      })
     );
   }
 
@@ -146,33 +144,29 @@ const CrawlingmModal: ForwardRefRenderFunction<
     ) {
       message.error(
         `只能再选择${
-          MDFootball.config.maxGameCount -
-          MDFootball.teamOddList.length
-        }场比赛`,
+          MDFootball.config.maxGameCount - MDFootball.teamOddList.length
+        }场比赛`
       );
     } else {
       setState(
         produce(state, (drafState) => {
           drafState.loading = true;
-        }),
+        })
       );
       for (let i = 0; i < state.codeList.length; i++) {
         const gameInfos = state.gameList.find(
-          (item) => item.code == state.codeList[i],
+          (item) => item.code == state.codeList[i]
         );
         const oddInfoRsp = await SFootball.getSingleOddInfo(
           gameInfos.code,
-          gameInfos.bet_id,
+          gameInfos.bet_id
         );
-        await SFootball.saveTeamOdds(
-          tempDataRef.current.id,
-          oddInfoRsp.data,
-        );
+        await SFootball.saveTeamOdds(tempDataRef.current.id, oddInfoRsp.data);
       }
       setState(
         produce(state, (drafState) => {
           drafState.loading = true;
-        }),
+        })
       );
       props.onOk();
       onCancel();
