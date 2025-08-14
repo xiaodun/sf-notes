@@ -5,15 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {
-  Modal,
-  Button,
-  Form,
-  Input,
-  message,
-  Table,
-  Alert,
-} from 'antd';
+import { Modal, Button, Form, Input, message, Table, Alert } from 'antd';
 import { produce } from 'immer';
 import { NMDFootball } from 'umi';
 import SFootball from '../SFootball';
@@ -42,8 +34,7 @@ const GameResultModal: ForwardRefRenderFunction<
   IGameResultModalProps
 > = (props, ref) => {
   const { MDFootball } = props;
-  const [state, setState] =
-    useState<IGameResultModalState>(defaultState);
+  const [state, setState] = useState<IGameResultModalState>(defaultState);
   useImperativeHandle(ref, () => ({
     showModal: () => {
       const newState = produce(state, (drafState) => {
@@ -51,27 +42,11 @@ const GameResultModal: ForwardRefRenderFunction<
         drafState.loading = true;
       });
       setState(newState);
-      const dateList = MDFootball.teamOddList
-        .map((item) => item.date)
-        .sort();
-      const codeList = MDFootball.teamOddList
-        .map((item) => item.code)
-        .sort();
-      SFootball.getGameResultList(
-        dateList[0],
-
-        moment(dateList[dateList.length - 1])
-          .add(1, 'days')
-          .format('YYYY-MM-DD'),
-        codeList,
-      ).then((rsp) => {
-        setState(
-          produce(newState, (drafState) => {
-            drafState.loading = false;
-            drafState.predictResult = rsp.data;
-          }),
-        );
-      });
+      setState(
+        produce(newState, (drafState) => {
+          drafState.loading = false;
+        })
+      );
     },
   }));
 
@@ -117,12 +92,8 @@ const GameResultModal: ForwardRefRenderFunction<
     if (Object.keys(state.predictResult).length) {
       const maxOddsList = MDFootball.teamOddList.map((team) =>
         state.predictResult[team.code]
-          ? Math.max(
-              ...state.predictResult[team.code].map(
-                (item) => item.odds,
-              ),
-            )
-          : 0,
+          ? Math.max(...state.predictResult[team.code].map((item) => item.odds))
+          : 0
       );
       count = maxOddsList.reduce((total, cur) => (total *= cur), 1);
     }
