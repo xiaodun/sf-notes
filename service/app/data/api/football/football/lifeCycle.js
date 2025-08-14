@@ -58,6 +58,7 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
               time: infos.bet_time,
               date: infos.bet_date,
               code: infos.serial_no,
+              matchId: infos.match_id2,
               homeTeam: infos.host_name_s,
               visitingTeam: infos.guest_name_s,
               openVictory: infos.list.SportteryNWDL
@@ -407,12 +408,6 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
           const request = require('request');
           const results = {};
           let isMock = false;
-
-          // 如果没有matchIds，直接返回空结果
-          if (!matchIds || matchIds.length === 0) {
-            callback(results, isMock);
-            return;
-          }
 
           let completedCount = 0;
           const totalCount = matchIds.length;
