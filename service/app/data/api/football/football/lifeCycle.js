@@ -1,89 +1,20 @@
 (function () {
   return function () {
-    const fs = require("fs");
-    const path = require("path");
-    const rootPath = "./data/api/football/football";
+    const fs = require('fs');
+    const path = require('path');
+    const rootPath = './data/api/football/football';
     return {
       createFloder: function (createFloder, external) {
         external.getPredictDataFolderPath = (id) => {
-          return path.join(rootPath, id + "");
+          return path.join(rootPath, id + '');
         };
-        external.getGameResultList = (
-          matchBeginDate,
-          matchEndDate,
-          codeList,
-          callback
-        ) => {
-          let listHref = `https://webapi.sporttery.cn/gateway/jc/football/getMatchResultV1.qry?matchPage=1&matchBeginDate=${matchBeginDate}&matchEndDate=${matchEndDate}&leagueId=&pageSize=300&pageNo=1&isFix=0&pcOrWap=1`;
-          console.log("getGameResultList", listHref);
-          const request = require("request");
-          const syncRequest = require("sync-request");
-          request(listHref, function (error, response, body) {
-            body = JSON.parse(body);
-            const listInfo = body.value.matchResult.reduce((total, cur) => {
-              total[cur.matchNum] = cur;
-              return total;
-            }, {});
 
-            let resultInfos = {};
-
-            for (let i = 0; i < codeList.length; i++) {
-              if (listInfo[codeList[i]]) {
-                const resultHref = `https://webapi.sporttery.cn/gateway/jc/football/getFixedBonusV1.qry?clientCode=3001&matchId=${
-                  listInfo[codeList[i]].matchId
-                }`;
-                const words = {
-                  A: "负",
-                  D: "平",
-                  H: "胜",
-                };
-                const resultRsp = syncRequest("get", resultHref);
-
-                resultBody = JSON.parse(resultRsp.getBody().toString());
-
-                resultInfos[codeList[i]] = resultBody.value.matchResultList.map(
-                  (item) => {
-                    let desc = "";
-                    if (item.code == "CRS") {
-                      desc = item.combination;
-                    } else if (item.code == "HAD") {
-                      desc = words[item.combination];
-                    } else if (item.code == "HAFU") {
-                      desc =
-                        words[item.combination.split(":")[0]] +
-                        "/" +
-                        words[item.combination.split(":")[1]];
-                    } else if (item.code == "HHAD") {
-                      desc = "让球" + words[item.combination];
-                    } else if (item.code == "TTG") {
-                      desc = "进" + item.combination + "球";
-                    }
-                    return {
-                      hasResult: true,
-                      desc,
-                      odds: +item.odds,
-                    };
-                  }
-                );
-              } else {
-                resultInfos[codeList[i]] = [
-                  {
-                    hasResult: false,
-                    odds: 0,
-                  },
-                ];
-              }
-            }
-
-            callback(resultInfos);
-          });
-        };
         external.getNoStartGameList = (callback) => {
           let href =
-            "https://apic.jindianle.com/api/match/selectlist?platform=koudai_mobile&_prt=https&ver=20180101000000&hide_more=1";
-          console.log("getNoStartGameList", href);
+            'https://apic.jindianle.com/api/match/selectlist?platform=koudai_mobile&_prt=https&ver=20180101000000&hide_more=1';
+          console.log('getNoStartGameList', href);
 
-          const request = require("request");
+          const request = require('request');
           request(href, function (error, response, body) {
             let list = [];
             body = JSON.parse(body);
@@ -102,8 +33,8 @@
                     infos.list.SportteryNWDL?.bet_id ||
                     infos.list.SportteryWDL?.bet_id,
                   openVictory:
-                    infos.list.SportteryNWDL?.is_single !== "0" ||
-                    infos.list.SportteryWDL?.is_single !== "0",
+                    infos.list.SportteryNWDL?.is_single !== '0' ||
+                    infos.list.SportteryWDL?.is_single !== '0',
                 });
               });
             });
@@ -116,9 +47,9 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
 
             `;
 
-          console.log("getSingleOddInfo", href);
+          console.log('getSingleOddInfo', href);
 
-          const request = require("request");
+          const request = require('request');
           request(href, function (error, response, body) {
             let data = {};
             body = JSON.parse(body);
@@ -130,7 +61,7 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
               homeTeam: infos.host_name_s,
               visitingTeam: infos.guest_name_s,
               openVictory: infos.list.SportteryNWDL
-                ? infos.list.SportteryNWDL.is_single !== "0"
+                ? infos.list.SportteryNWDL.is_single !== '0'
                 : false,
               handicapCount: +infos.list.SportteryWDL.boundary,
               oddsInfos: {
@@ -198,15 +129,15 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
                     ].map((item) => ({
                       ...item,
                       odd: infos.list.SportteryScore.odds[
-                        item.home + "" + item.visiting
+                        item.home + '' + item.visiting
                       ],
                     })),
                     {
                       home: null,
                       visiting: null,
                       isOther: true,
-                      otherDesc: "胜其它",
-                      odd: infos.list.SportteryScore.odds["43"],
+                      otherDesc: '胜其它',
+                      odd: infos.list.SportteryScore.odds['43'],
                     },
                   ],
                   drawList: [
@@ -230,15 +161,15 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
                     ].map((item) => ({
                       ...item,
                       odd: infos.list.SportteryScore.odds[
-                        item.home + "" + item.visiting
+                        item.home + '' + item.visiting
                       ],
                     })),
                     {
                       home: null,
                       visiting: null,
                       isOther: true,
-                      otherDesc: "平其他",
-                      odd: infos.list.SportteryScore.odds["44"],
+                      otherDesc: '平其他',
+                      odd: infos.list.SportteryScore.odds['44'],
                     },
                   ],
                   loseList: [
@@ -294,106 +225,106 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
                     ].map((item) => ({
                       ...item,
                       odd: infos.list.SportteryScore.odds[
-                        item.home + "" + item.visiting
+                        item.home + '' + item.visiting
                       ],
                     })),
                     {
                       home: null,
                       visiting: null,
                       isOther: true,
-                      otherDesc: "负其它",
-                      odd: infos.list.SportteryScore.odds["34"],
+                      otherDesc: '负其它',
+                      odd: infos.list.SportteryScore.odds['34'],
                     },
                   ],
                 },
                 goalList: [
                   {
                     count: 0,
-                    desc: "0球",
+                    desc: '0球',
                     odd: infos.list.SportteryTotalGoals.odds[0],
                   },
                   {
                     count: 1,
-                    desc: "1球",
+                    desc: '1球',
                     odd: infos.list.SportteryTotalGoals.odds[1],
                   },
                   {
                     count: 2,
-                    desc: "2球",
+                    desc: '2球',
                     odd: infos.list.SportteryTotalGoals.odds[2],
                   },
                   {
                     count: 3,
-                    desc: "3球",
+                    desc: '3球',
                     odd: infos.list.SportteryTotalGoals.odds[3],
                   },
                   {
                     count: 4,
-                    desc: "4球",
+                    desc: '4球',
                     odd: infos.list.SportteryTotalGoals.odds[4],
                   },
                   {
                     count: 5,
-                    desc: "5球",
+                    desc: '5球',
                     odd: infos.list.SportteryTotalGoals.odds[5],
                   },
                   {
                     count: 6,
-                    desc: "6球",
+                    desc: '6球',
                     odd: infos.list.SportteryTotalGoals.odds[6],
                   },
                   {
                     count: null,
-                    desc: "7+",
+                    desc: '7+',
                     isOther: true,
                     odd: infos.list.SportteryTotalGoals.odds[7],
                   },
                 ],
                 halfVictoryList: [
                   {
-                    home: "胜",
-                    visiting: "胜",
-                    odd: infos.list.SportteryHalfFull.odds["33"],
+                    home: '胜',
+                    visiting: '胜',
+                    odd: infos.list.SportteryHalfFull.odds['33'],
                   },
                   {
-                    home: "胜",
-                    visiting: "平",
-                    odd: infos.list.SportteryHalfFull.odds["31"],
+                    home: '胜',
+                    visiting: '平',
+                    odd: infos.list.SportteryHalfFull.odds['31'],
                   },
                   {
-                    home: "胜",
-                    visiting: "负",
-                    odd: infos.list.SportteryHalfFull.odds["30"],
+                    home: '胜',
+                    visiting: '负',
+                    odd: infos.list.SportteryHalfFull.odds['30'],
                   },
                   {
-                    home: "平",
-                    visiting: "胜",
-                    odd: infos.list.SportteryHalfFull.odds["13"],
+                    home: '平',
+                    visiting: '胜',
+                    odd: infos.list.SportteryHalfFull.odds['13'],
                   },
                   {
-                    home: "平",
-                    visiting: "平",
-                    odd: infos.list.SportteryHalfFull.odds["11"],
+                    home: '平',
+                    visiting: '平',
+                    odd: infos.list.SportteryHalfFull.odds['11'],
                   },
                   {
-                    home: "平",
-                    visiting: "负",
-                    odd: infos.list.SportteryHalfFull.odds["10"],
+                    home: '平',
+                    visiting: '负',
+                    odd: infos.list.SportteryHalfFull.odds['10'],
                   },
                   {
-                    home: "负",
-                    visiting: "胜",
-                    odd: infos.list.SportteryHalfFull.odds["03"],
+                    home: '负',
+                    visiting: '胜',
+                    odd: infos.list.SportteryHalfFull.odds['03'],
                   },
                   {
-                    home: "负",
-                    visiting: "平",
-                    odd: infos.list.SportteryHalfFull.odds["01"],
+                    home: '负',
+                    visiting: '平',
+                    odd: infos.list.SportteryHalfFull.odds['01'],
                   },
                   {
-                    home: "负",
-                    visiting: "负",
-                    odd: infos.list.SportteryHalfFull.odds["00"],
+                    home: '负',
+                    visiting: '负',
+                    odd: infos.list.SportteryHalfFull.odds['00'],
                   },
                 ],
               },
@@ -406,13 +337,13 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
         external.getRecentMatches = (startDate, endDate, callback) => {
           const apiUrl = `https://webapi.sporttery.cn/gateway/uniform/football/getUniformMatchResultV1.qry?matchBeginDate=${startDate}&matchEndDate=${endDate}&leagueId=&pageSize=100&pageNo=1&isFix=0&matchPage=1&pcOrWap=1`;
 
-          console.log("getRecentMatches", apiUrl);
+          console.log('getRecentMatches', apiUrl);
 
-          const request = require("request");
+          const request = require('request');
           let isMock = false;
           request(apiUrl, function (error, response, body) {
             if (error) {
-              console.error("getRecentMatches error:", error);
+              console.error('getRecentMatches error:', error);
             }
 
             try {
@@ -423,21 +354,21 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
                 body = JSON.parse(
                   fs
                     .readFileSync(
-                      path.join(rootPath, "mockData/recentMatches.json"),
-                      "utf8"
+                      path.join(rootPath, 'mockData/recentMatches.json'),
+                      'utf8'
                     )
                     .toString()
                 );
               }
 
-              if (body.errorCode === "99999") {
+              if (body.errorCode === '99999') {
                 isMock = true;
                 //该接口容易被墙
                 body = JSON.parse(
                   fs
                     .readFileSync(
-                      path.join(rootPath, "mockData/recentMatches.json"),
-                      "utf8"
+                      path.join(rootPath, 'mockData/recentMatches.json'),
+                      'utf8'
                     )
                     .toString()
                 );
@@ -448,22 +379,22 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
                 // 转换数据格式
                 const convertedData = matchData.map((match, index) => ({
                   matchId: match.matchId || `${index + 1}`,
-                  date: match.matchDate || "",
+                  date: match.matchDate || '',
                   game: `${match.homeTeam} vs ${match.awayTeam}`,
                   win: parseFloat(match.h) || 0,
                   draw: parseFloat(match.d) || 0,
                   lose: parseFloat(match.a) || 0,
-                  halfDesc: match.sectionsNo1 || "",
-                  scoreDesc: match.sectionsNo999 || "",
+                  halfDesc: match.sectionsNo1 || '',
+                  scoreDesc: match.sectionsNo999 || '',
                 }));
 
                 callback(convertedData, isMock);
               } else {
-                console.log("getRecentMatches: no data found");
+                console.log('getRecentMatches: no data found');
                 callback([]);
               }
             } catch (parseError) {
-              console.error("getRecentMatches parse error:", parseError);
+              console.error('getRecentMatches parse error:', parseError);
               callback([]);
             }
           });
@@ -471,9 +402,9 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
 
         // 获取比赛详细赔率信息
         external.getMatchOddsDetail = (matchIds, callback) => {
-          console.log("getMatchOddsDetail", matchIds);
+          console.log('getMatchOddsDetail', matchIds);
 
-          const request = require("request");
+          const request = require('request');
           const results = {};
           let isMock = false;
 
@@ -488,28 +419,28 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
 
           matchIds.forEach((matchId, index) => {
             const apiUrl = `https://webapi.sporttery.cn/gateway/uniform/football/getFixedBonusV1.qry?clientCode=3001&matchId=${matchId}`;
-            console.log("getMatchOddsDetail", apiUrl);
+            console.log('getMatchOddsDetail', apiUrl);
 
             // 使用sync-request替代request
-            const syncRequest = require("sync-request");
+            const syncRequest = require('sync-request');
 
             try {
-              const response = syncRequest("GET", apiUrl);
+              const response = syncRequest('GET', apiUrl);
 
               const body = response.getBody().toString();
-              console.log("getMatchOddsDetail response", body);
+              console.log('getMatchOddsDetail response', body);
 
               try {
                 const parsedBody = JSON.parse(body);
-                console.log("body", isMock, parsedBody.errorCode);
+                console.log('body', isMock, parsedBody.errorCode);
 
-                if (parsedBody.errorCode === "99999") {
+                if (parsedBody.errorCode === '99999') {
                   isMock = true;
                   const mockBody = JSON.parse(
                     fs
                       .readFileSync(
-                        path.join(rootPath, "mockData/matchOdds.json"),
-                        "utf8"
+                        path.join(rootPath, 'mockData/matchOdds.json'),
+                        'utf8'
                       )
                       .toString()
                   );
@@ -520,17 +451,17 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
                   // 转换数据格式
                   results[matchId] = {};
                   matchData.matchResultList.forEach((item) => {
-                    if (item.code == "CRS") {
+                    if (item.code == 'CRS') {
                       results[matchId].scoreDesc = item.combinationDesc;
                       results[matchId].score = parseFloat(item.odds);
-                    } else if (item.code == "HAD") {
+                    } else if (item.code == 'HAD') {
                       results[matchId].win = parseFloat(item.odds);
-                    } else if (item.code == "HAFU") {
+                    } else if (item.code == 'HAFU') {
                       results[matchId].halfDesc = item.combinationDesc;
                       results[matchId].half = parseFloat(item.odds);
-                    } else if (item.code == "HHAD") {
+                    } else if (item.code == 'HHAD') {
                       results[matchId].handicap = parseFloat(item.odds);
-                    } else if (item.code == "TTG") {
+                    } else if (item.code == 'TTG') {
                       results[matchId].goalDesc = item.combinationDesc;
                       results[matchId].goal = parseFloat(item.odds);
                     }
@@ -542,13 +473,13 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
                   results[matchId] = {};
                 }
               } catch (parseError) {
-                console.log("解析body出错");
+                console.log('解析body出错');
                 isMock = true;
                 const mockBody = JSON.parse(
                   fs
                     .readFileSync(
-                      path.join(rootPath, "mockData/matchOdds.json"),
-                      "utf8"
+                      path.join(rootPath, 'mockData/matchOdds.json'),
+                      'utf8'
                     )
                     .toString()
                 );
@@ -563,7 +494,7 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
             }
 
             completedCount++;
-            console.log("completedCount", completedCount, totalCount);
+            console.log('completedCount', completedCount, totalCount);
             if (completedCount === totalCount) {
               callback(results, isMock);
             }

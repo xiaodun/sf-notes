@@ -1,32 +1,17 @@
-import NRsp from "@/common/namespace/NRsp";
-import NFootball from "./NFootball";
-import request from "@/utils/request";
-import NModel from "@/common/namespace/NModel";
-import { NMDFootball } from "umi";
+import NRsp from '@/common/namespace/NRsp';
+import NFootball from './NFootball';
+import request from '@/utils/request';
+import NModel from '@/common/namespace/NModel';
+import { NMDFootball } from 'umi';
 
 namespace SFootball {
-  export async function getGameResultList(
-    matchBeginDate: string,
-    matchEndDate: string,
-    codeList: string[]
-  ): Promise<NRsp<NFootball.IPredictResult>> {
-    return request({
-      url: "/football/getGameResultList",
-      method: "post",
-      data: {
-        matchBeginDate,
-        matchEndDate,
-        codeList,
-      },
-    });
-  }
   export async function getSingleOddInfo(
     code: string,
     bet_id: string
   ): Promise<NRsp<NFootball.ITeamRecordOdds>> {
     return request({
-      url: "/football/getSingleOddInfo",
-      method: "post",
+      url: '/football/getSingleOddInfo',
+      method: 'post',
       data: {
         code,
         bet_id,
@@ -37,14 +22,14 @@ namespace SFootball {
     NRsp<NFootball.IGameInfo>
   > {
     return request({
-      url: "/football/getAllowGuessGame",
-      method: "get",
+      url: '/football/getAllowGuessGame',
+      method: 'get',
     });
   }
   export async function getTeamOddList(id: string) {
     return request({
-      url: "/football/getTeamOddList",
-      method: "post",
+      url: '/football/getTeamOddList',
+      method: 'post',
       data: {
         id,
       },
@@ -58,8 +43,8 @@ namespace SFootball {
     teamOdds: NFootball.ITeamRecordOdds
   ): Promise<NRsp<boolean>> {
     return request({
-      url: "/football/saveTeamOdds",
-      method: "post",
+      url: '/football/saveTeamOdds',
+      method: 'post',
       data: {
         id,
         teamOdds,
@@ -68,8 +53,8 @@ namespace SFootball {
   }
   export async function delPredict(id: number): Promise<NRsp<boolean>> {
     return request({
-      url: "/football/delPredict",
-      method: "post",
+      url: '/football/delPredict',
+      method: 'post',
       data: {
         id,
       },
@@ -77,15 +62,15 @@ namespace SFootball {
   }
   export async function createPredict(data: NFootball): Promise<NRsp<boolean>> {
     return request({
-      url: "/football/createPredict",
-      method: "post",
+      url: '/football/createPredict',
+      method: 'post',
       data,
     });
   }
   export async function getPredictList() {
     return request({
-      url: "/football/getPredictList",
-      method: "post",
+      url: '/football/getPredictList',
+      method: 'post',
     }).then((rsp: NRsp<NFootball>) => {
       NModel.dispatch(new NMDFootball.ARSetState({ rsp }));
       return rsp;
@@ -93,8 +78,8 @@ namespace SFootball {
   }
   export async function getPredictInfoById(id: string) {
     return request({
-      url: "/football/getPredictInfoById",
-      method: "post",
+      url: '/football/getPredictInfoById',
+      method: 'post',
       data: {
         id,
       },
@@ -104,8 +89,8 @@ namespace SFootball {
   }
   export async function getConfig(): Promise<NRsp<NFootball.IConfig>> {
     return request({
-      url: "/football/getConfig",
-      method: "get",
+      url: '/football/getConfig',
+      method: 'get',
     });
   }
 
@@ -124,8 +109,8 @@ namespace SFootball {
     }>
   > {
     return request({
-      url: "/football/getRecentMatches",
-      method: "post",
+      url: '/football/getRecentMatches',
+      method: 'post',
       data,
     });
   }
@@ -151,8 +136,8 @@ namespace SFootball {
     >
   > {
     return request({
-      url: "/football/getMatchOddsDetail",
-      method: "post",
+      url: '/football/getMatchOddsDetail',
+      method: 'post',
       data: {
         matchIds,
       },
@@ -166,8 +151,8 @@ namespace SFootball {
     matchId: string
   ): Promise<NRsp<NFootball.IFootballMatch>> {
     return request({
-      url: "/football/getMatchDetail",
-      method: "post",
+      url: '/football/getMatchDetail',
+      method: 'post',
       data: {
         matchId,
       },
@@ -179,8 +164,8 @@ namespace SFootball {
    */
   export async function getCompetitions(): Promise<NRsp<string[]>> {
     return request({
-      url: "/football/getCompetitions",
-      method: "post",
+      url: '/football/getCompetitions',
+      method: 'post',
     });
   }
 
@@ -193,8 +178,8 @@ namespace SFootball {
     oddResult: NFootball.IOddResult
   ): Promise<NRsp<boolean>> {
     return request({
-      url: "/football/addBonusItem",
-      method: "post",
+      url: '/football/addBonusItem',
+      method: 'post',
       data: {
         id,
         itemKey,
@@ -211,8 +196,8 @@ namespace SFootball {
     itemKey: string
   ): Promise<NRsp<boolean>> {
     return request({
-      url: "/football/removeBonusItem",
-      method: "post",
+      url: '/football/removeBonusItem',
+      method: 'post',
       data: {
         id,
         itemKey,
