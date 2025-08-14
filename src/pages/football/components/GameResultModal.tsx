@@ -26,6 +26,7 @@ export interface IGameResultModalProps {
 }
 
 export interface IGameResultModalState {
+  id: string;
   loading: boolean;
   open: boolean;
   predictResult: NFootball.IPredictResult;
@@ -35,9 +36,11 @@ interface TableRecord {
   key: string;
   bonusItem: NFootball.IOddResult;
   isFirstRow: boolean;
-  [key: string]: unknown;
+  itemKey: string;
+  current: NFootball.ITeamResultOdds;
 }
 const defaultState: IGameResultModalState = {
+  id: '',
   open: false,
   loading: false,
   predictResult: {},
@@ -58,6 +61,8 @@ const GameResultModal: ForwardRefRenderFunction<
     showModal: (id: string) => {
       const newState = produce(state, (drafState) => {
         drafState.open = true;
+        drafState.id = id;
+
         // drafState.loading = true;
       });
       setState(newState);
@@ -274,7 +279,7 @@ const GameResultModal: ForwardRefRenderFunction<
                   type="link"
                   danger
                   icon={<DeleteOutlined />}
-                  onClick={() => handleRemove(record.matchId)}
+                  onClick={() => handleRemove(record.itemKey)}
                 >
                   移除
                 </Button>
@@ -299,20 +304,19 @@ const GameResultModal: ForwardRefRenderFunction<
   function getTableDataSource() {
     let dataSource: TableRecord[] = [];
 
-    Object.values(cloneDeep(bonusItems)).forEach(
-      (item: NFootball.IOddResult, index: number) => {
-        item.list.forEach((current, currentIndex) => {
-          dataSource.push({
-            key: `${index}-${currentIndex}`,
-            bonusItem: item,
-            current,
-            isFirstRow: currentIndex === 0,
-          });
+    Object.entries(bonusItems).forEach((arr, index: number) => {
+      const [itemKey, item] = arr;
+
+      item.list.forEach((current, currentIndex) => {
+        dataSource.push({
+          key: `${index}-${currentIndex}`,
+          bonusItem: item,
+          current,
+          itemKey,
+          isFirstRow: currentIndex === 0,
         });
-      }
-    );
-    console.log(dataSource);
-    // return [{}];
+      });
+    });
     return dataSource;
   }
 
@@ -341,9 +345,15 @@ const GameResultModal: ForwardRefRenderFunction<
   }
 
   // 处理移除操作
-  function handleRemove(matchId: string) {
-    // 这里可以添加移除逻辑
-    message.success('移除成功');
+  async function handleRemove(itemKey: string) {
+    const rsp = await SFootball.removeBonusItem(state.id, itemKey);
+    if (rsp.success) {
+      setBonusItems(
+        produce(bonusItems, (draft) => {
+          delete draft[itemKey];
+        })
+      );
+    }
   }
 };
 export default forwardRef(GameResultModal);
