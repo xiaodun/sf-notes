@@ -72,6 +72,7 @@ export namespace NFootball {
     homeTeam: string;
     visitingTeam: string;
     handicapCount: number;
+    matchId: string;
   }
   export interface ITeamResultOdds extends ITeamOdds {
     resultDesc: string;
@@ -89,6 +90,7 @@ export namespace NFootball {
 
   // 足球比赛数据类型
   export interface IFootballMatch {
+    isMock: boolean;
     matchId: string; // 比赛ID
     date: string;
     game: string; // 场次

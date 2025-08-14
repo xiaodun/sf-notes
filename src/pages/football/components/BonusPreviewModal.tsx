@@ -45,7 +45,10 @@ const BonusPreviewModal: ForwardRefRenderFunction<
   IBonusPreviewModalProps
 > = (props, ref) => {
   const [state, setState] = useState<IBonusPreviewModalState>(defaultState);
-  const [addedItems, setAddedItems] = useState<Map<string, any>>(new Map());
+  const [addedItems, setAddedItems] = useState<
+    Map<string, NFootball.IOddResult>
+  >(new Map());
+
   const allOddResultListRef = useRef<Array<NFootball.IOddResult>>([]);
 
   useImperativeHandle(ref, () => ({
@@ -136,7 +139,9 @@ const BonusPreviewModal: ForwardRefRenderFunction<
     try {
       const predictInfo = await SFootball.getPredictInfoById(id);
       if (predictInfo && predictInfo.data && predictInfo.data.bonusItems) {
-        const newAddedItems = new Map(Object.entries(predictInfo.data.bonusItems));
+        const newAddedItems = new Map(
+          Object.entries(predictInfo.data.bonusItems)
+        );
         setAddedItems(newAddedItems);
       }
     } catch (error) {
@@ -394,7 +399,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
     if (isAdded) {
       // 删除操作
       await SFootball.removeBonusItem(state.id, itemKey);
-      setAddedItems(prev => {
+      setAddedItems((prev) => {
         const newMap = new Map(prev);
         newMap.delete(itemKey);
         return newMap;
@@ -403,7 +408,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
       const targetOddResult = oddResult || addedItems.get(itemKey);
 
       await SFootball.addBonusItem(state.id, itemKey, targetOddResult);
-      setAddedItems(prev => {
+      setAddedItems((prev) => {
         const newMap = new Map(prev);
         newMap.set(itemKey, targetOddResult);
         return newMap;

@@ -118,23 +118,9 @@ namespace SFootball {
   /**
    * 获取比赛详细赔率信息
    */
-  export async function getMatchOddsDetail(matchIds: string[]): Promise<
-    NRsp<
-      {
-        [matchId: string]: {
-          goal: number;
-          score: string;
-          half: number;
-          handicap: number;
-          goalDesc: string;
-          halfDesc: string;
-          scoreDesc: string;
-        };
-      } & {
-        isMock?: boolean;
-      }
-    >
-  > {
+  export async function getMatchOddsDetail(
+    matchIds: string[]
+  ): Promise<NRsp<NFootball.IFootballMatch>> {
     return request({
       url: '/football/getMatchOddsDetail',
       method: 'post',
