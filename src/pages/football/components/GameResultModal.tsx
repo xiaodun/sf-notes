@@ -29,7 +29,6 @@ export interface IGameResultModalState {
   id: string;
   loading: boolean;
   open: boolean;
-  predictResult: NFootball.IPredictResult;
 }
 
 interface TableRecord {
@@ -43,7 +42,6 @@ const defaultState: IGameResultModalState = {
   id: '',
   open: false,
   loading: false,
-  predictResult: {},
 };
 const GameResultModal: ForwardRefRenderFunction<
   IGameResultModal,
@@ -54,34 +52,33 @@ const GameResultModal: ForwardRefRenderFunction<
   const [bonusItems, setBonusItems] = useState<{
     [key: string]: NFootball.IOddResult;
   }>({});
-  const [matchOddsData, setMatchOddsData] =
-    useState<NFootball.IFootballMatch>();
+  const [matchOddsData, setMatchOddsData] = useState<{
+    [key: string]: NFootball.IFootballMatch;
+  }>({});
+
+  // 获取预测信息
+  const fetchPredictInfo = (id: string, newState: IGameResultModalState) => {
+    SFootball.getPredictInfoById(id).then((predictResponse) => {
+      setBonusItems(predictResponse.data.bonusItems);
+      setState(
+        produce(newState, (drafState) => {
+          drafState.loading = false;
+        })
+      );
+    });
+  };
 
   useImperativeHandle(ref, () => ({
     showModal: (id: string) => {
       const newState = produce(state, (drafState) => {
         drafState.open = true;
         drafState.id = id;
-
-        // drafState.loading = true;
+        drafState.loading = true;
       });
       setState(newState);
 
-      // 获取预测信息
-      SFootball.getPredictInfoById(id).then((predictResponse) => {
-        setBonusItems(predictResponse.data.bonusItems);
-        const matchIds = MDFootball.teamOddList.map((team) => team.matchId);
-        // 获取比赛赔率详情
-        // SFootball.getMatchOddsDetail(matchIds).then((oddsResponse) => {
-        //   setMatchOddsData(oddsResponse.data);
-
-        //   setState(
-        //     produce(newState, (drafState) => {
-        //       drafState.loading = false;
-        //     })
-        //   );
-        // });
-      });
+      fetchPredictInfo(id, newState);
+      getGameResultList(newState);
     },
   }));
 
@@ -100,7 +97,7 @@ const GameResultModal: ForwardRefRenderFunction<
       onCancel={onCancel}
       centered
     >
-      <Alert message={getCountOdds()}></Alert>
+      {/* <Alert message={getCountOdds()}></Alert> */}
       <Table
         style={{ marginTop: 20 }}
         loading={state.loading}
@@ -112,26 +109,52 @@ const GameResultModal: ForwardRefRenderFunction<
       ></Table>
     </Modal>
   );
-  function getCountOdds() {
-    let count = 1;
-    if (Object.keys(state.predictResult).length) {
-      const maxOddsList = MDFootball.teamOddList.map((team) =>
-        state.predictResult[team.code]
-          ? Math.max(...state.predictResult[team.code].map((item) => item.odds))
-          : 0
-      );
-      count = maxOddsList.reduce((total, cur) => (total *= cur), 1);
-    }
-    return '最大赔率为: ' + count;
+  function getGameResultList(newState: IGameResultModalState) {
+    setState(
+      produce(newState, (drafState) => {
+        drafState.loading = true;
+      })
+    );
+    const dateList = MDFootball.teamOddList.map((item) => item.date).sort();
+    const codeList = MDFootball.teamOddList.map((item) => item.code).sort();
+    SFootball.getGameResultList(
+      dateList[0],
+
+      moment(dateList[dateList.length - 1])
+        .add(1, 'days')
+        .format('YYYY-MM-DD'),
+      codeList
+    ).then((gameRsp) => {
+      let matchIds: string[] = [];
+
+      Object.keys(gameRsp.data).forEach((key) => {
+        matchIds.push(gameRsp.data[key].matchId);
+      });
+      SFootball.getMatchOddsDetail(matchIds).then((detailRsp) => {
+        setMatchOddsData(
+          produce(matchOddsData, (draft) => {
+            Object.keys(gameRsp.data).forEach((codeKey) => {
+              console.log(
+                codeKey,
+                detailRsp.data[gameRsp.data[codeKey].matchId]
+              );
+
+              draft[codeKey] = detailRsp.data[gameRsp.data[codeKey].matchId];
+            });
+          })
+        );
+        setState(
+          produce(newState, (drafState) => {
+            drafState.loading = false;
+          })
+        );
+        setTimeout(() => {
+          console.log(matchOddsData);
+        }, 1000);
+      });
+    });
   }
-  function renderDescColumn(item: NFootball.ITeamRecordOdds) {
-    const gameResultList = state.predictResult[item.code];
-    return gameResultList?.[0]?.hasResult
-      ? gameResultList.map((item, index) => (
-          <div key={index}>{item.desc + ' @ ' + item.odds}</div>
-        ))
-      : '未出结果';
-  }
+
   function renderGameColumn(item: NFootball.ITeamRecordOdds) {
     return `${item.homeTeam} VS ${item.visitingTeam} - ${item.code}`;
   }
@@ -139,7 +162,7 @@ const GameResultModal: ForwardRefRenderFunction<
   function onCancel() {
     setState(defaultState);
     setBonusItems({});
-    setMatchOddsData(null);
+    setMatchOddsData({});
   }
 
   // 获取表格列配置
