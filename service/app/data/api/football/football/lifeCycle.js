@@ -8,6 +8,30 @@
         external.getPredictDataFolderPath = (id) => {
           return path.join(rootPath, id + '');
         };
+        external.getGameResultList = (
+          matchBeginDate,
+          matchEndDate,
+          codeList,
+          callback
+        ) => {
+          let listHref = `https://webapi.sporttery.cn/gateway/jc/football/getMatchResultV1.qry?matchPage=1&matchBeginDate=${matchBeginDate}&matchEndDate=${matchEndDate}&leagueId=&pageSize=300&pageNo=1&isFix=0&pcOrWap=1`;
+          console.log('getGameResultList', listHref);
+          const request = require('request');
+          const syncRequest = require('sync-request');
+          request(listHref, function (error, response, body) {
+            body = JSON.parse(body);
+            const listInfo = body.value.matchResult.reduce((total, cur) => {
+              if (codeList.includes(cur.matchNum)) {
+                total[cur.matchNum] = { matchId: cur.matchId };
+              }
+              return total;
+            }, {});
+
+            let resultInfos = {};
+
+            callback(listInfo);
+          });
+        };
 
         external.getNoStartGameList = (callback) => {
           let href =
@@ -58,7 +82,6 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
               time: infos.bet_time,
               date: infos.bet_date,
               code: infos.serial_no,
-              matchId: infos.match_id2,
               homeTeam: infos.host_name_s,
               visitingTeam: infos.guest_name_s,
               openVictory: infos.list.SportteryNWDL

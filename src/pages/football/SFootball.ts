@@ -120,27 +120,12 @@ namespace SFootball {
    */
   export async function getMatchOddsDetail(
     matchIds: string[]
-  ): Promise<NRsp<NFootball.IFootballMatch>> {
+  ): Promise<NRsp<{ [key: string]: NFootball.IFootballMatch }>> {
     return request({
       url: '/football/getMatchOddsDetail',
       method: 'post',
       data: {
         matchIds,
-      },
-    });
-  }
-
-  /**
-   * 获取比赛详情
-   */
-  export async function getMatchDetail(
-    matchId: string
-  ): Promise<NRsp<NFootball.IFootballMatch>> {
-    return request({
-      url: '/football/getMatchDetail',
-      method: 'post',
-      data: {
-        matchId,
       },
     });
   }
@@ -173,7 +158,21 @@ namespace SFootball {
       },
     });
   }
-
+  export async function getGameResultList(
+    matchBeginDate: string,
+    matchEndDate: string,
+    codeList: string[]
+  ): Promise<NRsp<{ [key: string]: { matchId: string } }>> {
+    return request({
+      url: '/football/getGameResultList',
+      method: 'post',
+      data: {
+        matchBeginDate,
+        matchEndDate,
+        codeList,
+      },
+    });
+  }
   /**
    * 删除奖金项目
    */
