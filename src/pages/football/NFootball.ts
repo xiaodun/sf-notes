@@ -75,6 +75,16 @@ export namespace NFootball {
     matchId: string;
   }
   export interface ITeamResultOdds extends ITeamOdds {
+    isWin: boolean;
+    isDraw: boolean;
+    isLose: boolean;
+    isHandicapWin: boolean;
+    isHandicapDraw: boolean;
+    isHandicapLose: boolean;
+    isHalf: boolean;
+    isGoal: boolean;
+    isScore: boolean;
+
     resultDesc: string;
     allowSingle?: boolean;
     codeDesc: string;

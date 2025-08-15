@@ -175,7 +175,27 @@ const GameResultModal: ForwardRefRenderFunction<
         },
       },
       {
-        title: '赔率',
+        title: '结果',
+        key: 'result',
+        render: (text: string, record: TableRecord) => {
+          if (record.isFirstRow) {
+            return {
+              children: <div></div>,
+              props: {
+                rowSpan: record.bonusItem.list.length || 1,
+              },
+            };
+          }
+          return {
+            children: null,
+            props: {
+              rowSpan: 0,
+            },
+          };
+        },
+      },
+      {
+        title: '总赔率',
         key: 'totalOdds',
         render: (text: string, record: TableRecord) => {
           if (record.isFirstRow) {
@@ -204,51 +224,21 @@ const GameResultModal: ForwardRefRenderFunction<
         },
       },
       {
-        title: '胜',
-        dataIndex: 'win',
-        key: 'win',
-        // render: (text: unknown, record: TableRecord) =>
-        //   renderComparisonCell(record, 'win'),
+        title: '胜平负',
+        key: 'victory',
+        render: (text: string, record: TableRecord) =>
+          renderComparisonCell(record, 'win'),
       },
+
       {
-        title: '平',
-        dataIndex: 'draw',
-        key: 'draw',
-        // render: (text: unknown, record: TableRecord) =>
-        //   renderComparisonCell(record, 'draw'),
-      },
-      {
-        title: '负',
-        dataIndex: 'lose',
-        key: 'lose',
-        // render: (text: unknown, record: TableRecord) =>
-        //   renderComparisonCell(record, 'lose'),
-      },
-      {
-        title: '让球胜',
-        dataIndex: 'handicapWin',
-        key: 'handicapWin',
+        title: '让球胜平负',
+        key: 'handicap',
         // render: (text: unknown, record: TableRecord) =>
         //   renderComparisonCell(record, 'handicapWin'),
       },
       {
-        title: '让球平',
-        dataIndex: 'handicapDraw',
-        key: 'handicapDraw',
-        // render: (text: unknown, record: TableRecord) =>
-        // renderComparisonCell(record, 'handicapDraw'),
-      },
-      {
-        title: '让球负',
-        dataIndex: 'handicapLose',
-        key: 'handicapLose',
-        // render: (text: unknown, record: TableRecord) =>
-        // renderComparisonCell(record, 'handicapLose'),
-      },
-      {
         title: '半全场',
-        dataIndex: 'halfFull',
-        key: 'halfFull',
+        key: 'half',
         // render: (text: unknown, record: TableRecord) =>
         // renderComparisonCell(record, 'halfFull'),
       },
@@ -261,8 +251,7 @@ const GameResultModal: ForwardRefRenderFunction<
       },
       {
         title: '总进球',
-        dataIndex: 'totalGoals',
-        key: 'totalGoals',
+        key: 'goal',
         // render: (text: unknown, record: TableRecord) =>
         // renderComparisonCell(record, 'totalGoals'),
       },
@@ -322,7 +311,8 @@ const GameResultModal: ForwardRefRenderFunction<
 
   // 渲染对比单元格
   function renderComparisonCell(record: TableRecord, field: string) {
-    const bonusValue = record.bonusItem?.[field];
+    const bonusValue = record.current?.odd;
+
     const matchOddsValue = matchOddsData?.[record.matchId]?.[field];
 
     if (!bonusValue && !matchOddsValue) {
