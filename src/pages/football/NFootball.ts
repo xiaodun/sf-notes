@@ -84,6 +84,8 @@ export namespace NFootball {
     isHalf: boolean;
     isGoal: boolean;
     isScore: boolean;
+    handicapCountDesc: string;
+    goalCount: string;
 
     resultDesc: string;
     allowSingle?: boolean;
@@ -104,10 +106,11 @@ export namespace NFootball {
     matchId: string; // 比赛ID
     date: string;
     game: string; // 场次
-    win: number; // 胜赔率
-    draw: number; // 平赔率
-    lose: number; // 负赔率
+    single: number; // 胜平负赔率
+    singleDesc: string; // 胜平负描述
     handicap: number; // 让球胜平负赔率
+    handicapDesc: string; // 让球胜平负描述
+
     half: number; // 半全场赔率
     halfDesc: string; // 半全场描述
     goal: number; // 总进球赔率

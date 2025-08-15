@@ -41,11 +41,14 @@ function calculateOddResultList(argTeamOddList) {
       codeDesc: `${data.code} 负`,
     });
 
-    let handicapDesc = '';
+    let handicapDesc = '',
+      handicapCountDesc = '';
     if (item.handicapCount < 0) {
       handicapDesc = '让' + Math.abs(item.handicapCount) + '球';
+      handicapCountDesc = '(-1)';
     } else {
       handicapDesc = '受让' + Math.abs(item.handicapCount) + '球';
+      handicapCountDesc = '(+1)';
     }
 
     list.push({
@@ -53,6 +56,7 @@ function calculateOddResultList(argTeamOddList) {
       allowSingle: false,
       odd: oddsInfos.handicapVictory.win,
       isHandicapWin: true,
+      handicapCountDesc: handicapCountDesc + '胜',
       resultDesc: `${fixedWidth(handicapDesc + '胜')}@${
         oddsInfos.handicapVictory.win
       }  ${data.homeTeam} vs  ${data.visitingTeam} `,
@@ -63,6 +67,7 @@ function calculateOddResultList(argTeamOddList) {
       allowSingle: false,
       odd: oddsInfos.handicapVictory.draw,
       isHandicapDraw: true,
+      handicapCountDesc: handicapCountDesc + '平',
       resultDesc: `${fixedWidth(handicapDesc + '平')}@${
         oddsInfos.handicapVictory.draw
       }  ${data.homeTeam} vs ${data.visitingTeam} `,
@@ -73,6 +78,7 @@ function calculateOddResultList(argTeamOddList) {
       allowSingle: false,
       odd: oddsInfos.handicapVictory.lose,
       isHandicapLose: true,
+      handicapCountDesc: handicapCountDesc + '负',
       resultDesc: `${fixedWidth(handicapDesc + '负')}@${
         oddsInfos.handicapVictory.lose
       }  ${data.homeTeam} vs ${data.visitingTeam}`,
@@ -106,6 +112,7 @@ function calculateOddResultList(argTeamOddList) {
         ...data,
         odd: el.odd,
         isGoal: true,
+        goalCount: parseInt(el.desc),
         resultDesc: `${fixedWidth('总进' + el.desc)}@${el.odd}  ${
           data.homeTeam
         } vs ${data.visitingTeam} `,

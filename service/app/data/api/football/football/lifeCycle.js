@@ -473,12 +473,15 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
                       results[matchId].scoreDesc = item.combinationDesc;
                       results[matchId].score = parseFloat(item.odds);
                     } else if (item.code == 'HAD') {
-                      results[matchId].win = parseFloat(item.odds);
+                      //胜平负
+                      results[matchId].single = parseFloat(item.odds);
+                      results[matchId].singleDesc = item.combinationDesc;
                     } else if (item.code == 'HAFU') {
                       results[matchId].halfDesc = item.combinationDesc;
                       results[matchId].half = parseFloat(item.odds);
                     } else if (item.code == 'HHAD') {
                       results[matchId].handicap = parseFloat(item.odds);
+                      results[matchId].handicapDesc = item.combinationDesc;
                     } else if (item.code == 'TTG') {
                       results[matchId].goalDesc = item.combinationDesc;
                       results[matchId].goal = parseFloat(item.odds);
