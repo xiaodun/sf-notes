@@ -13,6 +13,7 @@ function calculateOddResultList(argTeamOddList) {
     list.push({
       ...data,
       odd: oddsInfos.singleVictory.win,
+      isWin: true,
       allowSingle: item.openVictory,
       resultDesc: `${fixedWidth('胜')}@${oddsInfos.singleVictory.win}  ${
         data.homeTeam
@@ -23,6 +24,7 @@ function calculateOddResultList(argTeamOddList) {
       ...data,
       allowSingle: item.openVictory,
       odd: oddsInfos.singleVictory.draw,
+      isDraw: true,
       resultDesc: `${fixedWidth('平')}@${oddsInfos.singleVictory.draw}  ${
         data.homeTeam
       } vs  ${data.visitingTeam}`,
@@ -31,6 +33,7 @@ function calculateOddResultList(argTeamOddList) {
     list.push({
       ...data,
       odd: oddsInfos.singleVictory.lose,
+      isLose: true,
       allowSingle: item.openVictory,
       resultDesc: `${fixedWidth('负')}@${oddsInfos.singleVictory.lose}  ${
         data.homeTeam
@@ -49,6 +52,7 @@ function calculateOddResultList(argTeamOddList) {
       ...data,
       allowSingle: false,
       odd: oddsInfos.handicapVictory.win,
+      isHandicapWin: true,
       resultDesc: `${fixedWidth(handicapDesc + '胜')}@${
         oddsInfos.handicapVictory.win
       }  ${data.homeTeam} vs  ${data.visitingTeam} `,
@@ -58,6 +62,7 @@ function calculateOddResultList(argTeamOddList) {
       ...data,
       allowSingle: false,
       odd: oddsInfos.handicapVictory.draw,
+      isHandicapDraw: true,
       resultDesc: `${fixedWidth(handicapDesc + '平')}@${
         oddsInfos.handicapVictory.draw
       }  ${data.homeTeam} vs ${data.visitingTeam} `,
@@ -67,6 +72,7 @@ function calculateOddResultList(argTeamOddList) {
       ...data,
       allowSingle: false,
       odd: oddsInfos.handicapVictory.lose,
+      isHandicapLose: true,
       resultDesc: `${fixedWidth(handicapDesc + '负')}@${
         oddsInfos.handicapVictory.lose
       }  ${data.homeTeam} vs ${data.visitingTeam}`,
@@ -81,6 +87,7 @@ function calculateOddResultList(argTeamOddList) {
       list.push({
         ...data,
         odd: el.odd,
+        isScore: true,
         resultDesc: el.isOther
           ? `${fixedWidth(el.otherDesc)}@${el.odd}  ${data.homeTeam} vs ${
               data.visitingTeam
@@ -98,6 +105,7 @@ function calculateOddResultList(argTeamOddList) {
       list.push({
         ...data,
         odd: el.odd,
+        isGoal: true,
         resultDesc: `${fixedWidth('总进' + el.desc)}@${el.odd}  ${
           data.homeTeam
         } vs ${data.visitingTeam} `,
@@ -109,6 +117,7 @@ function calculateOddResultList(argTeamOddList) {
       list.push({
         ...data,
         odd: el.odd,
+        isHalf: true,
         resultDesc: `${fixedWidth(el.home + '/' + el.visiting)}@${el.odd}  ${
           data.homeTeam
         } vs ${data.visitingTeam}`,
