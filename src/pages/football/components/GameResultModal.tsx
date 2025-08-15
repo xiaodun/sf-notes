@@ -134,11 +134,6 @@ const GameResultModal: ForwardRefRenderFunction<
         setMatchOddsData(
           produce(matchOddsData, (draft) => {
             Object.keys(gameRsp.data).forEach((codeKey) => {
-              console.log(
-                codeKey,
-                detailRsp.data[gameRsp.data[codeKey].matchId]
-              );
-
               draft[codeKey] = detailRsp.data[gameRsp.data[codeKey].matchId];
             });
           })
@@ -148,9 +143,6 @@ const GameResultModal: ForwardRefRenderFunction<
             drafState.loading = false;
           })
         );
-        setTimeout(() => {
-          console.log(matchOddsData);
-        }, 1000);
       });
     });
   }
@@ -201,20 +193,84 @@ const GameResultModal: ForwardRefRenderFunction<
         title: '结果',
         key: 'result',
         render: (text: string, record: TableRecord) => {
-          if (record.isFirstRow) {
+          if (Object.keys(matchOddsData).length === 0) {
             return {
-              children: <div></div>,
+              children: '-',
               props: {
                 rowSpan: record.bonusItem.list.length || 1,
               },
             };
           }
-          return {
-            children: null,
-            props: {
-              rowSpan: 0,
-            },
-          };
+          if (record.isFirstRow) {
+            // 判断是否获奖
+            const isWin = record.bonusItem.list.every((item) => {
+              const oddInfos = matchOddsData[item.code];
+
+              if (item.isWin || item.isDraw || item.isLose) {
+                if (item.codeDesc.indexOf(oddInfos.singleDesc) !== -1) {
+                  return true;
+                }
+              } else if (
+                item.isHandicapWin ||
+                item.isHandicapLose ||
+                item.isHandicapDraw
+              ) {
+                if (
+                  item.handicapCountDesc.indexOf(oddInfos.handicapDesc) !== -1
+                ) {
+                  return true;
+                }
+              } else if (oddInfos.score && item.isScore) {
+                if (item.codeDesc.indexOf(oddInfos.scoreDesc) !== -1) {
+                  return true;
+                }
+              } else if (item.isHalf) {
+                if (
+                  item.codeDesc.indexOf(
+                    oddInfos.halfDesc.split('').join('/')
+                  ) !== -1
+                ) {
+                  return true;
+                }
+              } else if (item.isGoal) {
+                if (oddInfos.goalDesc.indexOf(item.goalCount) !== -1) {
+                  return true;
+                }
+              }
+              return false;
+            });
+
+            let resultText = isWin ? '获奖' : '未中';
+            let backgroundColor = isWin ? '#f6ffed' : '#fff2f0'; // 获奖用绿色背景，未中用红色背景
+            let textColor = isWin ? '#52c41a' : '#ff4d4f'; // 获奖用绿色文字，未中用红色文字
+
+            return {
+              children: (
+                <div
+                  style={{
+                    backgroundColor,
+                    color: textColor,
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    textAlign: 'center',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {resultText}
+                </div>
+              ),
+              props: {
+                rowSpan: record.bonusItem.list.length || 1,
+              },
+            };
+          } else {
+            return {
+              children: null,
+              props: {
+                rowSpan: 0,
+              },
+            };
+          }
         },
       },
       {
