@@ -48,6 +48,12 @@ const Football: ConnectRC<IFootballProps> = (props) => {
 
       <Alert message={"总花费:" + count} type="info" />
       <br />
+      <Alert 
+        message="功能依赖于第三方接口，频繁调用会被网站拦截" 
+        type="warning" 
+        showIcon 
+        style={{ marginBottom: 16 }}
+      />
       <Table
         rowKey="id"
         columns={[
