@@ -2,10 +2,9 @@ import React, {
   forwardRef,
   ForwardRefRenderFunction,
   useImperativeHandle,
-  useRef,
   useState,
 } from 'react';
-import { Modal, Button, Form, Input, message, Table, Alert } from 'antd';
+import { Modal, Button, Table, Alert } from 'antd';
 import {
   CheckOutlined,
   CloseOutlined,
@@ -16,7 +15,6 @@ import { NMDFootball } from 'umi';
 import SFootball from '../SFootball';
 import moment from 'moment';
 import NFootball from '../NFootball';
-import { cloneDeep } from 'lodash';
 
 export interface IGameResultModal {
   showModal: (id: string) => void;
@@ -101,7 +99,7 @@ const GameResultModal: ForwardRefRenderFunction<
       <Table
         style={{ marginTop: 20 }}
         loading={state.loading}
-        rowKey="code"
+        rowKey={(record) => record.key}
         columns={getTableColumns()}
         dataSource={getTableDataSource()}
         pagination={false}
@@ -146,11 +144,6 @@ const GameResultModal: ForwardRefRenderFunction<
       });
     });
   }
-
-  function renderGameColumn(item: NFootball.ITeamRecordOdds) {
-    return `${item.homeTeam} VS ${item.visitingTeam} - ${item.code}`;
-  }
-
   function onCancel() {
     setState(defaultState);
     setBonusItems({});
@@ -165,27 +158,27 @@ const GameResultModal: ForwardRefRenderFunction<
         key: 'bonusItems',
         render: (text: string, record: TableRecord) => {
           if (record.isFirstRow) {
+            return (
+              <div>
+                {record.bonusItem.list.map((item, index) => (
+                  <div
+                    key={index}
+                    dangerouslySetInnerHTML={{ __html: item.resultDesc }}
+                  ></div>
+                ))}
+              </div>
+            );
+          }
+          return null;
+        },
+        onCell: (record: TableRecord) => {
+          if (record.isFirstRow) {
             return {
-              children: (
-                <div>
-                  {record.bonusItem.list.map((item, index) => (
-                    <div
-                      key={index}
-                      dangerouslySetInnerHTML={{ __html: item.resultDesc }}
-                    ></div>
-                  ))}
-                </div>
-              ),
-              props: {
-                rowSpan: record.bonusItem.list.length || 1,
-              },
+              rowSpan: record.bonusItem.list.length || 1,
             };
           }
           return {
-            children: null,
-            props: {
-              rowSpan: 0,
-            },
+            rowSpan: 0,
           };
         },
       },
@@ -194,12 +187,7 @@ const GameResultModal: ForwardRefRenderFunction<
         key: 'result',
         render: (text: string, record: TableRecord) => {
           if (Object.keys(matchOddsData).length === 0) {
-            return {
-              children: '-',
-              props: {
-                rowSpan: record.bonusItem.list.length || 1,
-              },
-            };
+            return record.isFirstRow ? '-' : null;
           }
           if (record.isFirstRow) {
             // 判断是否获奖
@@ -244,33 +232,32 @@ const GameResultModal: ForwardRefRenderFunction<
             let backgroundColor = isWin ? '#f6ffed' : '#fff2f0'; // 获奖用绿色背景，未中用红色背景
             let textColor = isWin ? '#52c41a' : '#ff4d4f'; // 获奖用绿色文字，未中用红色文字
 
+            return (
+              <div
+                style={{
+                  backgroundColor,
+                  color: textColor,
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  textAlign: 'center',
+                  fontWeight: 'bold',
+                }}
+              >
+                {resultText}
+              </div>
+            );
+          }
+          return null;
+        },
+        onCell: (record: TableRecord) => {
+          if (record.isFirstRow) {
             return {
-              children: (
-                <div
-                  style={{
-                    backgroundColor,
-                    color: textColor,
-                    padding: '4px 8px',
-                    borderRadius: '4px',
-                    textAlign: 'center',
-                    fontWeight: 'bold',
-                  }}
-                >
-                  {resultText}
-                </div>
-              ),
-              props: {
-                rowSpan: record.bonusItem.list.length || 1,
-              },
-            };
-          } else {
-            return {
-              children: null,
-              props: {
-                rowSpan: 0,
-              },
+              rowSpan: record.bonusItem.list.length || 1,
             };
           }
+          return {
+            rowSpan: 0,
+          };
         },
       },
       {
@@ -278,27 +265,27 @@ const GameResultModal: ForwardRefRenderFunction<
         key: 'totalOdds',
         render: (text: string, record: TableRecord) => {
           if (record.isFirstRow) {
+            return (
+              <div>
+                {record.bonusItem.list
+                  .reduce((prev, cur) => {
+                    let total = prev * cur.odd;
+                    return total;
+                  }, 1)
+                  .toFixed(2)}
+              </div>
+            );
+          }
+          return null;
+        },
+        onCell: (record: TableRecord) => {
+          if (record.isFirstRow) {
             return {
-              children: (
-                <div>
-                  {record.bonusItem.list
-                    .reduce((prev, cur) => {
-                      let total = prev * cur.odd;
-                      return total;
-                    }, 1)
-                    .toFixed(2)}
-                </div>
-              ),
-              props: {
-                rowSpan: record.bonusItem.list.length || 1,
-              },
+              rowSpan: record.bonusItem.list.length || 1,
             };
           }
           return {
-            children: null,
-            props: {
-              rowSpan: 0,
-            },
+            rowSpan: 0,
           };
         },
       },
@@ -341,27 +328,27 @@ const GameResultModal: ForwardRefRenderFunction<
         width: 100,
         render: (text: unknown, record: TableRecord) => {
           if (record.isFirstRow) {
+            return (
+              <Button
+                type="link"
+                danger
+                icon={<DeleteOutlined />}
+                onClick={() => handleRemove(record.itemKey)}
+              >
+                移除
+              </Button>
+            );
+          }
+          return null;
+        },
+        onCell: (record: TableRecord) => {
+          if (record.isFirstRow) {
             return {
-              children: (
-                <Button
-                  type="link"
-                  danger
-                  icon={<DeleteOutlined />}
-                  onClick={() => handleRemove(record.itemKey)}
-                >
-                  移除
-                </Button>
-              ),
-              props: {
-                rowSpan: record.bonusItem.list.length || 1,
-              },
+              rowSpan: record.bonusItem.list.length || 1,
             };
           }
           return {
-            children: null,
-            props: {
-              rowSpan: 0,
-            },
+            rowSpan: 0,
           };
         },
       },
