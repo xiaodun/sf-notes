@@ -104,10 +104,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
       setAddedItems(new Map());
       initializeAddedItems(id);
 
-      // 使用 Web Worker 计算
-      if (workerRef.current) {
-        workerRef.current.postMessage({ teamOddList });
-      }
+      workerRef.current.postMessage({ teamOddList });
     },
   }));
 
