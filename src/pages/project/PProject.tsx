@@ -1,16 +1,16 @@
 import MockConfigModal, {
   IMockConfigModal,
-} from "./components/MockConfigModal";
+} from './components/MockConfigModal';
 
-import { PageFooter } from "@/common/components/page";
-import NModel from "@/common/namespace/NModel";
-import NRouter from "@/../config/router/NRouter";
-import type { SortableContainerProps, SortEnd } from "react-sortable-hoc";
+import { PageFooter } from '@/common/components/page';
+import NModel from '@/common/namespace/NModel';
+import NRouter from '@/../config/router/NRouter';
+import type { SortableContainerProps, SortEnd } from 'react-sortable-hoc';
 import {
   SortableContainer,
   SortableElement,
   SortableHandle,
-} from "react-sortable-hoc";
+} from 'react-sortable-hoc';
 import {
   Button,
   Dropdown,
@@ -21,24 +21,24 @@ import {
   Space,
   Table,
   Tag,
-} from "antd";
-import React, { useEffect, useRef } from "react";
-import { connect, ConnectRC, Link, NMDProject } from "umi";
-import SelfStyle from "./LProject.less";
-import NProject from "./NProject";
-import SProject from "./SProject";
-import qs from "qs";
+} from 'antd';
+import React, { useEffect, useRef } from 'react';
+import { connect, ConnectRC, Link, NMDProject } from 'umi';
+import SelfStyle from './LProject.less';
+import NProject from './NProject';
+import SProject from './SProject';
+import qs from 'qs';
 import DirectoryModal, {
   IDirectoryModal,
-} from "@/common/components/directory/combination/modal/DirectoryModal";
-import { NSystem } from "@/common/namespace/NSystem";
-import SSystem from "@/common/service/SSystem";
-import { produce } from "immer";
-import NRsp from "@/common/namespace/NRsp";
-import { cloneDeep } from "lodash";
-import UCopy from "@/common/utils/UCopy";
-import UGitlab from "@/common/utils/UGitlab";
-import { DeleteOutlined, MenuOutlined } from "@ant-design/icons";
+} from '@/common/components/directory/combination/modal/DirectoryModal';
+import { NSystem } from '@/common/namespace/NSystem';
+import SSystem from '@/common/service/SSystem';
+import { produce } from 'immer';
+import NRsp from '@/common/namespace/NRsp';
+import { cloneDeep } from 'lodash';
+import UCopy from '@/common/utils/UCopy';
+import UGitlab from '@/common/utils/UGitlab';
+import { DeleteOutlined, MenuOutlined } from '@ant-design/icons';
 export interface IProjectProps {
   MDProject: NMDProject.IState;
 }
@@ -50,8 +50,8 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   useEffect(() => {
     reqGetProject();
     reqGetList();
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible") {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
         reqGetList();
       }
     });
@@ -60,7 +60,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   const mockConfigModalRef = useRef<IMockConfigModal>();
   const hasSfMock = MDProject.rsp.list.some((item) => item.isSfMock);
   const DragHandle = SortableHandle(() => (
-    <MenuOutlined style={{ cursor: "grab", color: "#999" }} />
+    <MenuOutlined style={{ cursor: 'grab', color: '#999' }} />
   ));
   const SortableItem = SortableElement(
     (props: React.HTMLAttributes<HTMLTableRowElement>) => <tr {...props} />
@@ -93,7 +93,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   }) => {
     // function findIndex base on Table rowKey props and should always be a right array index
     const index = MDProject.rsp.list.findIndex(
-      (x) => x.id === restProps["data-row-key"]
+      (x) => x.id === restProps['data-row-key']
     );
     return <SortableItem index={index} {...restProps} />;
   };
@@ -105,21 +105,21 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         rowKey="id"
         columns={[
           {
-            title: "",
-            dataIndex: "_sort",
+            title: '',
+            dataIndex: '_sort',
             width: 30,
-            className: "drag-visible",
+            className: 'drag-visible',
             render: () => <DragHandle />,
           },
           {
-            title: "项目名",
-            key: "name",
+            title: '项目名',
+            key: 'name',
             render: renderNameColumn,
           },
 
           {
-            title: "操作",
-            key: "_option",
+            title: '操作',
+            key: '_option',
             render: renderOptionColumn,
           },
         ]}
@@ -189,7 +189,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   async function delProject(project: NProject) {
     const rsp = await SProject.delProject(project);
     if (rsp.success) {
-      message.success("删除成功");
+      message.success('删除成功');
       reqGetList();
     }
   }
@@ -204,7 +204,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
           const serverList = project.sfMock.serverList.map((item) => ({
             ...item,
             webOpenUrl:
-              MDProject.config.nginxVisitWay === "domain"
+              MDProject.config.nginxVisitWay === 'domain'
                 ? item.openDomainUrl
                   ? item.openDomainUrl
                   : item.openUrl
@@ -222,8 +222,8 @@ const Project: ConnectRC<IProjectProps> = (props) => {
                       <a target="_blank" href={item.webOpenUrl}>
                         {item.name || item.openUrl}
                       </a>
-                    )
-                  }))
+                    ),
+                  })),
                 }}
               >
                 <a target="_blank" href={mockService.webOpenUrl}>
@@ -262,7 +262,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
               }}
               target="_blank"
             >
-              代码片段
+              代码平台
             </Link>
           </Button>
           {hasSfMock && (
@@ -279,9 +279,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
                   items: [
                     {
                       key: 'restart-nginx',
-                      label: (
-                        <a onClick={() => onReStartNginx()}>重启nginx</a>
-                      )
+                      label: <a onClick={() => onReStartNginx()}>重启nginx</a>,
                     },
                     {
                       key: 'generate-bat',
@@ -289,7 +287,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
                         <a onClick={() => onGenerateProjectStartBat()}>
                           批量生成启动项目bat文件
                         </a>
-                      )
+                      ),
                     },
                     {
                       key: 'generate-structure',
@@ -297,9 +295,9 @@ const Project: ConnectRC<IProjectProps> = (props) => {
                         <a onClick={() => onGenerateProjectMockStructrue()}>
                           批量生成项目文件结构
                         </a>
-                      )
-                    }
-                  ]
+                      ),
+                    },
+                  ],
                 }}
               >
                 <a onClick={onUpdateSfMockConfig}>更新</a>
@@ -324,7 +322,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
                         >
                           创建合并
                         </a>
-                      )
+                      ),
                     },
                     {
                       key: 'handle-merge',
@@ -338,9 +336,9 @@ const Project: ConnectRC<IProjectProps> = (props) => {
                         >
                           处理合并
                         </a>
-                      )
-                    }
-                  ]
+                      ),
+                    },
+                  ],
                 }}
               >
                 <a
@@ -362,7 +360,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   async function onUpdateSfMockConfig() {
     const rsp = await SProject.addProject(null, true);
     if (rsp.success) {
-      message.success("更新成功");
+      message.success('更新成功');
       reqGetList();
     }
   }
@@ -378,7 +376,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       })
     );
     if (startRsp.success) {
-      message.success("已执行");
+      message.success('已执行');
       setTimeout(
         () => {
           reqProjectStart(project, cloneDeep(MDProject.rsp));
@@ -394,7 +392,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   ) {
     let checkUrl = project.sfMock.programUrl;
     if (project.isSfMock) {
-      checkUrl = project.sfMock.programUrl + "/example/sfNotesTestStart";
+      checkUrl = project.sfMock.programUrl + '/example/sfNotesTestStart';
     }
     const startRsp = await SProject.isProjectStart(checkUrl);
     const index = projectRsp.list.findIndex(
@@ -455,25 +453,25 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   function onShowAddModal() {
     directoryModalRef.current.showModal({
       startPath: MDProject.config.addBasePath,
-      filter: "addedProject",
+      filter: 'addedProject',
     });
   }
   async function onReStartNginx() {
     const rsp = await SProject.reStartNginx();
     if (rsp.success) {
-      message.success("已执行");
+      message.success('已执行');
     }
   }
   async function onGenerateProjectStartBat() {
     const rsp = await SProject.generateProjectStartBat();
     if (rsp.success) {
-      message.success("已执行");
+      message.success('已执行');
     }
   }
   async function onGenerateProjectMockStructrue() {
     const rsp = await SProject.generateProjectMockStructrue();
     if (rsp.success) {
-      message.success("已执行");
+      message.success('已执行');
     }
   }
 };
