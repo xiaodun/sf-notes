@@ -84,6 +84,7 @@ const CrawlingmModal: ForwardRefRenderFunction<
     >
       <Table
         rowSelection={{
+          hideSelectAll: true,
           type: 'checkbox',
           onChange: (selectedRowKeys: React.Key[]) => {
             setState(
