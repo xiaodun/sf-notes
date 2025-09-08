@@ -56,6 +56,7 @@ export default (props: PropsWithChildren<IPageDirectoryProps>) => {
       let list = directoryRsp.list
         .filter((item) => {
           if (
+            path &&
             path == projectConfig.addBasePath &&
             props.filter == "addedProject"
           ) {
