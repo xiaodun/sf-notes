@@ -6,7 +6,7 @@
     for (let key in network) {
       let env = network[key];
       for (var i = 0; i < env.length; i++) {
-        if (env[i].family == "IPv4" && env[i].address != "127.0.0.1") {
+        if (env[i].family == "IPv4" && env[i].address != "127.0.0.1" && env[i].mac != "00:00:00:00:00:00" ) {
           ip = env[i].address;
         }
       }
