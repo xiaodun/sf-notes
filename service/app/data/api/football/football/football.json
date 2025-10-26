@@ -1,6 +1,143 @@
 {
     "predictList": [
         {
+            "name": "2025-10-26",
+            "money": 10,
+            "id": 1761467797860,
+            "teamOddList": [
+                "1761467820410",
+                "1761467820834",
+                "1761467821399",
+                "1761467822025"
+            ],
+            "bonusItems": {
+                "7007 4:1|7008 2:2|7009 3:3|7010 让1球 胜": {
+                    "list": [
+                        {
+                            "time": "2025-10-26 19:15:00",
+                            "date": "2025-10-26",
+                            "code": "7007",
+                            "homeTeam": "特温特",
+                            "visitingTeam": "阿贾克斯",
+                            "openVictory": false,
+                            "handicapCount": -1,
+                            "id": "1761467820410",
+                            "odd": "32.00",
+                            "isScore": true,
+                            "resultDesc": "<span style=\"width:80px;display:inline-block\">4:1</span>@32.00  特温特 vs 阿贾克斯",
+                            "codeDesc": "7007 4:1"
+                        },
+                        {
+                            "time": "2025-10-26 19:30:00",
+                            "date": "2025-10-26",
+                            "code": "7008",
+                            "homeTeam": "都灵",
+                            "visitingTeam": "热那亚",
+                            "openVictory": true,
+                            "handicapCount": -1,
+                            "id": "1761467820834",
+                            "odd": "17.00",
+                            "isScore": true,
+                            "resultDesc": "<span style=\"width:80px;display:inline-block\">2:2</span>@17.00  都灵 vs 热那亚",
+                            "codeDesc": "7008 2:2"
+                        },
+                        {
+                            "time": "2025-10-26 20:30:00",
+                            "date": "2025-10-26",
+                            "code": "7009",
+                            "homeTeam": "不伦瑞克",
+                            "visitingTeam": "汉诺威96",
+                            "openVictory": false,
+                            "handicapCount": 1,
+                            "id": "1761467821399",
+                            "odd": "55.00",
+                            "isScore": true,
+                            "resultDesc": "<span style=\"width:80px;display:inline-block\">3:3</span>@55.00  不伦瑞克 vs 汉诺威96",
+                            "codeDesc": "7009 3:3"
+                        },
+                        {
+                            "time": "2025-10-26 20:30:00",
+                            "date": "2025-10-26",
+                            "code": "7010",
+                            "homeTeam": "凯泽",
+                            "visitingTeam": "纽伦堡",
+                            "openVictory": false,
+                            "handicapCount": -1,
+                            "id": "1761467822025",
+                            "allowSingle": false,
+                            "odd": "3.86",
+                            "isHandicapWin": true,
+                            "handicapCountDesc": "(-1)胜",
+                            "resultDesc": "<span style=\"width:80px;display:inline-block\">让1球胜</span>@3.86  凯泽 vs  纽伦堡 ",
+                            "codeDesc": "7010 让1球 胜"
+                        }
+                    ],
+                    "count": 115491.2
+                },
+                "7007 负/平 |7008 0:0|7009 1:1|7010 1:5": {
+                    "list": [
+                        {
+                            "time": "2025-10-26 19:15:00",
+                            "date": "2025-10-26",
+                            "code": "7007",
+                            "homeTeam": "特温特",
+                            "visitingTeam": "阿贾克斯",
+                            "openVictory": false,
+                            "handicapCount": -1,
+                            "id": "1761467820410",
+                            "odd": "14.00",
+                            "isHalf": true,
+                            "resultDesc": "<span style=\"width:80px;display:inline-block\">负/平</span>@14.00  特温特 vs 阿贾克斯",
+                            "codeDesc": "7007 负/平 "
+                        },
+                        {
+                            "time": "2025-10-26 19:30:00",
+                            "date": "2025-10-26",
+                            "code": "7008",
+                            "homeTeam": "都灵",
+                            "visitingTeam": "热那亚",
+                            "openVictory": true,
+                            "handicapCount": -1,
+                            "id": "1761467820834",
+                            "odd": "6.50",
+                            "isScore": true,
+                            "resultDesc": "<span style=\"width:80px;display:inline-block\">0:0</span>@6.50  都灵 vs 热那亚",
+                            "codeDesc": "7008 0:0"
+                        },
+                        {
+                            "time": "2025-10-26 20:30:00",
+                            "date": "2025-10-26",
+                            "code": "7009",
+                            "homeTeam": "不伦瑞克",
+                            "visitingTeam": "汉诺威96",
+                            "openVictory": false,
+                            "handicapCount": 1,
+                            "id": "1761467821399",
+                            "odd": "6.70",
+                            "isScore": true,
+                            "resultDesc": "<span style=\"width:80px;display:inline-block\">1:1</span>@6.70  不伦瑞克 vs 汉诺威96",
+                            "codeDesc": "7009 1:1"
+                        },
+                        {
+                            "time": "2025-10-26 20:30:00",
+                            "date": "2025-10-26",
+                            "code": "7010",
+                            "homeTeam": "凯泽",
+                            "visitingTeam": "纽伦堡",
+                            "openVictory": false,
+                            "handicapCount": -1,
+                            "id": "1761467822025",
+                            "odd": "200.00",
+                            "isScore": true,
+                            "resultDesc": "<span style=\"width:80px;display:inline-block\">1:5</span>@200.00  凯泽 vs 纽伦堡",
+                            "codeDesc": "7010 1:5"
+                        }
+                    ],
+                    "count": 121940.00000000001
+                }
+            }
+        },
+        {
             "name": "2025-10-11",
             "money": 0,
             "id": 1760192436657,
