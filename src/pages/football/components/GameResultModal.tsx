@@ -3,20 +3,22 @@ import React, {
   ForwardRefRenderFunction,
   useImperativeHandle,
   useState,
-} from 'react';
-import { Modal, Button, Table, Alert, Checkbox, message } from 'antd';
+} from "react";
+import { Modal, Button, Table, Alert, Checkbox, message } from "antd";
 import {
   CheckOutlined,
   CloseOutlined,
   DeleteOutlined,
   CopyOutlined,
-} from '@ant-design/icons';
-import { produce } from 'immer';
-import { NMDFootball } from 'umi';
-import SFootball from '../SFootball';
-import moment from 'moment';
-import NFootball from '../NFootball';
-import UCopy from '@/common/utils/UCopy';
+} from "@ant-design/icons";
+import { produce } from "immer";
+import { NMDFootball } from "umi";
+import SFootball from "../SFootball";
+import moment from "moment";
+import NFootball from "../NFootball";
+import UCopy from "@/common/utils/UCopy";
+// @ts-ignore
+import QRCode from "qrcode.react";
 
 export interface IGameResultModal {
   showModal: (id: string) => void;
@@ -39,7 +41,7 @@ interface TableRecord {
   current: NFootball.ITeamResultOdds;
 }
 const defaultState: IGameResultModalState = {
-  id: '',
+  id: "",
   open: false,
   loading: false,
 };
@@ -57,6 +59,8 @@ const GameResultModal: ForwardRefRenderFunction<
   }>({});
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const [selectedRows, setSelectedRows] = useState<TableRecord[]>([]);
+  const [qrModalVisible, setQrModalVisible] = useState<boolean>(false);
+  const [qrCodeData, setQrCodeData] = useState<string>("");
 
   // 获取预测信息
   const fetchPredictInfo = (id: string, newState: IGameResultModalState) => {
@@ -91,12 +95,12 @@ const GameResultModal: ForwardRefRenderFunction<
   const rowSelection = {
     selectedRowKeys,
     onChange: (
-      newSelectedRowKeys: string[],
+      newSelectedRowKeys: React.Key[],
       newSelectedRows: TableRecord[]
     ) => {
       console.log(newSelectedRowKeys, newSelectedRows);
 
-      setSelectedRowKeys(newSelectedRowKeys);
+      setSelectedRowKeys(newSelectedRowKeys as string[]);
       setSelectedRows(newSelectedRows);
     },
     renderCell: (
@@ -123,41 +127,73 @@ const GameResultModal: ForwardRefRenderFunction<
   };
 
   return (
-    <Modal
-      width="1200px"
-      title="比赛结果"
-      maskClosable={false}
-      bodyStyle={{ maxHeight: '100%' }}
-      open={state.open}
-      footer={
-        <Button type="primary" onClick={onCancel}>
-          关闭
-        </Button>
-      }
-      onCancel={onCancel}
-      centered
-    >
-      {/* <Alert message={getCountOdds()}></Alert> */}
-      <div style={{ marginBottom: 16, marginTop: 20 }}>
-        <Button
-          type="primary"
-          icon={<CopyOutlined />}
-          onClick={handleCopySelected}
-          disabled={selectedRowKeys.length === 0}
-        >
-          复制预测数据
-        </Button>
-      </div>
-      <Table
-        loading={state.loading}
-        rowKey={(record) => record.key}
-        columns={getTableColumns()}
-        dataSource={getTableDataSource()}
-        pagination={false}
-        bordered
-        rowSelection={rowSelection}
-      ></Table>
-    </Modal>
+    <>
+      <Modal
+        width="1200px"
+        title="比赛结果"
+        maskClosable={false}
+        bodyStyle={{ maxHeight: "100%" }}
+        open={state.open}
+        footer={
+          <Button type="primary" onClick={onCancel}>
+            关闭
+          </Button>
+        }
+        onCancel={onCancel}
+        centered
+      >
+        {/* <Alert message={getCountOdds()}></Alert> */}
+        <div style={{ marginBottom: 16, marginTop: 20 }}>
+          <Button
+            type="primary"
+            icon={<CopyOutlined />}
+            onClick={handleCopySelected}
+            disabled={selectedRowKeys.length === 0}
+          >
+            复制预测数据
+          </Button>
+        </div>
+        <Table
+          loading={state.loading}
+          rowKey={(record) => record.key}
+          columns={getTableColumns()}
+          dataSource={getTableDataSource()}
+          pagination={false}
+          bordered
+          rowSelection={rowSelection}
+        ></Table>
+      </Modal>
+
+      {/* 二维码模态框 */}
+      <Modal
+        title="预测数据二维码"
+        open={qrModalVisible}
+        onCancel={() => setQrModalVisible(false)}
+        footer={[
+          <Button key="close" onClick={() => setQrModalVisible(false)}>
+            关闭
+          </Button>,
+          <Button
+            key="copy"
+            type="primary"
+            onClick={() => {
+              UCopy.copyStr(qrCodeData);
+            }}
+          >
+            复制数据
+          </Button>,
+        ]}
+        centered
+        width={400}
+      >
+        <div style={{ textAlign: "center", padding: "20px" }}>
+          <div style={{ marginBottom: "16px" }}>
+            {/* @ts-ignore */}
+            <QRCode value={qrCodeData} size={200} level="M" />
+          </div>
+        </div>
+      </Modal>
+    </>
   );
   function getGameResultList(newState: IGameResultModalState) {
     setState(
@@ -171,8 +207,8 @@ const GameResultModal: ForwardRefRenderFunction<
       dateList[0],
 
       moment(dateList[dateList.length - 1])
-        .add(1, 'days')
-        .format('YYYY-MM-DD'),
+        .add(1, "days")
+        .format("YYYY-MM-DD"),
       codeList
     ).then((gameRsp) => {
       let matchIds: string[] = [];
@@ -209,8 +245,8 @@ const GameResultModal: ForwardRefRenderFunction<
   function getTableColumns() {
     return [
       {
-        title: '预测',
-        key: 'bonusItems',
+        title: "预测",
+        key: "bonusItems",
         render: (text: string, record: TableRecord) => {
           if (record.isFirstRow) {
             return (
@@ -238,11 +274,11 @@ const GameResultModal: ForwardRefRenderFunction<
         },
       },
       {
-        title: '结果',
-        key: 'result',
+        title: "结果",
+        key: "result",
         render: (text: string, record: TableRecord) => {
           if (Object.keys(matchOddsData).length === 0) {
-            return record.isFirstRow ? '-' : null;
+            return record.isFirstRow ? "-" : null;
           }
           if (record.isFirstRow) {
             // 判断是否获奖
@@ -264,19 +300,19 @@ const GameResultModal: ForwardRefRenderFunction<
               );
             });
 
-            let resultText = isWin ? '获奖' : '未中';
-            let backgroundColor = isWin ? '#f6ffed' : '#fff2f0'; // 获奖用绿色背景，未中用红色背景
-            let textColor = isWin ? '#52c41a' : '#ff4d4f'; // 获奖用绿色文字，未中用红色文字
+            let resultText = isWin ? "获奖" : "未中";
+            let backgroundColor = isWin ? "#f6ffed" : "#fff2f0"; // 获奖用绿色背景，未中用红色背景
+            let textColor = isWin ? "#52c41a" : "#ff4d4f"; // 获奖用绿色文字，未中用红色文字
 
             return (
               <div
                 style={{
                   backgroundColor,
                   color: textColor,
-                  padding: '4px 8px',
-                  borderRadius: '4px',
-                  textAlign: 'center',
-                  fontWeight: 'bold',
+                  padding: "4px 8px",
+                  borderRadius: "4px",
+                  textAlign: "center",
+                  fontWeight: "bold",
                 }}
               >
                 {resultText}
@@ -297,8 +333,8 @@ const GameResultModal: ForwardRefRenderFunction<
         },
       },
       {
-        title: '总赔率',
-        key: 'totalOdds',
+        title: "总赔率",
+        key: "totalOdds",
         render: (text: string, record: TableRecord) => {
           if (record.isFirstRow) {
             return (
@@ -326,41 +362,41 @@ const GameResultModal: ForwardRefRenderFunction<
         },
       },
       {
-        title: '胜平负',
-        key: 'victory',
+        title: "胜平负",
+        key: "victory",
         render: (text: string, record: TableRecord) =>
-          renderComparisonCell(record, 'single'),
+          renderComparisonCell(record, "single"),
       },
 
       {
-        title: '让球胜平负',
-        key: 'handicap',
+        title: "让球胜平负",
+        key: "handicap",
         render: (text: unknown, record: TableRecord) =>
-          renderComparisonCell(record, 'handicap'),
+          renderComparisonCell(record, "handicap"),
       },
       {
-        title: '半全场',
-        key: 'half',
+        title: "半全场",
+        key: "half",
         render: (text: unknown, record: TableRecord) =>
-          renderComparisonCell(record, 'half'),
+          renderComparisonCell(record, "half"),
       },
       {
-        title: '比分',
-        dataIndex: 'score',
-        key: 'score',
+        title: "比分",
+        dataIndex: "score",
+        key: "score",
         render: (text: unknown, record: TableRecord) =>
-          renderComparisonCell(record, 'score'),
+          renderComparisonCell(record, "score"),
       },
       {
-        title: '总进球',
-        key: 'goal',
+        title: "总进球",
+        key: "goal",
         render: (text: unknown, record: TableRecord) =>
-          renderComparisonCell(record, 'goal'),
+          renderComparisonCell(record, "goal"),
       },
       {
-        title: '操作',
-        dataIndex: 'action',
-        key: 'action',
+        title: "操作",
+        dataIndex: "action",
+        key: "action",
         width: 100,
         render: (text: unknown, record: TableRecord) => {
           if (record.isFirstRow) {
@@ -440,7 +476,7 @@ const GameResultModal: ForwardRefRenderFunction<
     item: NFootball.ITeamResultOdds,
     oddInfos: NFootball.IFootballMatch
   ): boolean {
-    return item.codeDesc.indexOf(oddInfos.halfDesc.split('').join('/')) !== -1;
+    return item.codeDesc.indexOf(oddInfos.halfDesc.split("").join("/")) !== -1;
   }
 
   // 检查总进球匹配
@@ -454,15 +490,15 @@ const GameResultModal: ForwardRefRenderFunction<
   // 渲染对比单元格
   function renderComparisonCell(record: TableRecord, type: string) {
     let hasPredict = false,
-      resultText = '',
+      resultText = "",
       isCorrect = false;
     const oddInfos = matchOddsData[record.current.code] || ({} as any);
     if (Object.keys(oddInfos).length === 0) {
-      return '-';
+      return "-";
     }
 
-    if (type === 'single') {
-      resultText = oddInfos.singleDesc + '@' + oddInfos.single;
+    if (type === "single") {
+      resultText = oddInfos.singleDesc + "@" + oddInfos.single;
       if (
         record.current.isWin ||
         record.current.isDraw ||
@@ -471,20 +507,20 @@ const GameResultModal: ForwardRefRenderFunction<
         hasPredict = true;
         isCorrect = checkSingleMatch(record.current, oddInfos);
       }
-    } else if (type === 'half') {
-      resultText = oddInfos.halfDesc + '@' + oddInfos.half;
+    } else if (type === "half") {
+      resultText = oddInfos.halfDesc + "@" + oddInfos.half;
       if (record.current.isHalf) {
         hasPredict = true;
         isCorrect = checkHalfMatch(record.current, oddInfos);
       }
-    } else if (type === 'goal') {
-      resultText = oddInfos.goalDesc + '@' + oddInfos.goal;
+    } else if (type === "goal") {
+      resultText = oddInfos.goalDesc + "@" + oddInfos.goal;
       if (record.current.isGoal) {
         isCorrect = checkGoalMatch(record.current, oddInfos);
         hasPredict = true;
       }
-    } else if (type === 'handicap') {
-      resultText = oddInfos.handicapDesc + '@' + oddInfos.handicap;
+    } else if (type === "handicap") {
+      resultText = oddInfos.handicapDesc + "@" + oddInfos.handicap;
       if (
         record.current.isHandicapWin ||
         record.current.isHandicapLose ||
@@ -493,8 +529,8 @@ const GameResultModal: ForwardRefRenderFunction<
         hasPredict = true;
         isCorrect = checkHandicapMatch(record.current, oddInfos);
       }
-    } else if (type === 'score') {
-      resultText = oddInfos.scoreDesc + '@' + oddInfos.score;
+    } else if (type === "score") {
+      resultText = oddInfos.scoreDesc + "@" + oddInfos.score;
       if (record.current.isScore) {
         isCorrect = checkScoreMatch(record.current, oddInfos);
         hasPredict = true;
@@ -502,17 +538,17 @@ const GameResultModal: ForwardRefRenderFunction<
     }
 
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span>{resultText}</span>
           {hasPredict ? (
             isCorrect ? (
-              <CheckOutlined style={{ color: '#52c41a' }} />
+              <CheckOutlined style={{ color: "#52c41a" }} />
             ) : (
-              <CloseOutlined style={{ color: '#ff4d4f' }} />
+              <CloseOutlined style={{ color: "#ff4d4f" }} />
             )
           ) : (
-            ''
+            ""
           )}
         </div>
       </div>
@@ -536,11 +572,13 @@ const GameResultModal: ForwardRefRenderFunction<
     let copyStr = selectedRows
       .filter((item) => item.isFirstRow)
       .map((item) =>
-        item.bonusItem.list.map((item) => item.codeDesc).join('\n')
+        item.bonusItem.list.map((item) => item.codeDesc).join("\n")
       )
-      .join('\n-----------------------------------------------------------\n');
+      .join("\n-----------------------------------------------------------\n");
 
-    UCopy.copyStr(copyStr);
+    // 设置二维码数据并显示模态框
+    setQrCodeData(copyStr);
+    setQrModalVisible(true);
   }
 };
 export default forwardRef(GameResultModal);
