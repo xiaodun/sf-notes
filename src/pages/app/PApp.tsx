@@ -11,9 +11,15 @@ const PApp: ConnectRC<IPAppProps> = () => {
         {NApp.list.map((item) => (
           <Card.Grid className={SelfStyle.gird} key={item.path}>
             <div className={SelfStyle.app}>
-              <Link to={item.path}>
-                <h2>{item.name}</h2>
-              </Link>
+              {item.linkType === "external" ? (
+                <a href={item.path} target="_blank" rel="noopener noreferrer">
+                  <h2>{item.name}</h2>
+                </a>
+              ) : (
+                <Link to={item.path}>
+                  <h2>{item.name}</h2>
+                </Link>
+              )}
             </div>
           </Card.Grid>
         ))}
