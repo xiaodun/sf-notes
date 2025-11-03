@@ -19,6 +19,7 @@ import NFootball from "../NFootball";
 import UCopy from "@/common/utils/UCopy";
 // @ts-ignore
 import QRCode from "qrcode.react";
+import UNumber from "@/common/utils/UNumber";
 
 export interface IGameResultModal {
   showModal: (id: string) => void;
@@ -98,8 +99,6 @@ const GameResultModal: ForwardRefRenderFunction<
       newSelectedRowKeys: React.Key[],
       newSelectedRows: TableRecord[]
     ) => {
-      console.log(newSelectedRowKeys, newSelectedRows);
-
       setSelectedRowKeys(newSelectedRowKeys as string[]);
       setSelectedRows(newSelectedRows);
     },
@@ -142,7 +141,7 @@ const GameResultModal: ForwardRefRenderFunction<
         onCancel={onCancel}
         centered
       >
-        {/* <Alert message={getCountOdds()}></Alert> */}
+        <Alert message={getCountOdds()}></Alert>
         <div style={{ marginBottom: 16, marginTop: 20 }}>
           <Button
             type="primary"
@@ -338,14 +337,7 @@ const GameResultModal: ForwardRefRenderFunction<
         render: (text: string, record: TableRecord) => {
           if (record.isFirstRow) {
             return (
-              <div>
-                {record.bonusItem.list
-                  .reduce((prev, cur) => {
-                    let total = prev * cur.odd;
-                    return total;
-                  }, 1)
-                  .toFixed(2)}
-              </div>
+              <div>{UNumber.formatWithYuanUnit(record.bonusItem.count)}</div>
             );
           }
           return null;
@@ -425,6 +417,11 @@ const GameResultModal: ForwardRefRenderFunction<
         },
       },
     ];
+  }
+  function getCountOdds() {
+    return UNumber.formatWithYuanUnit(
+      Math.max(...Object.values(bonusItems).map((item) => item.count))
+    );
   }
 
   // 获取表格数据源
