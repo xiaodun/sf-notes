@@ -1,16 +1,16 @@
-import NModel from '@/common/namespace/NModel';
-import { Button, message, Space, Table } from 'antd';
-import React, { useEffect, useRef } from 'react';
-import { connect, ConnectRC, NMDGlobal, NMDFootball } from 'umi';
-import SelfStyle from './LFootballPredict.less';
-import SFootball from '../SFootball';
-import qs from 'qs';
-import NFootball from '../NFootball';
-import { PageFooter } from '@/common/components/page';
+import NModel from "@/common/namespace/NModel";
+import { Button, message, Space, Table } from "antd";
+import React, { useEffect, useRef } from "react";
+import { connect, ConnectRC, NMDGlobal, NMDFootball } from "umi";
+import SelfStyle from "./LFootballPredict.less";
+import SFootball from "../SFootball";
+import qs from "qs";
+import NFootball from "../NFootball";
+import { PageFooter } from "@/common/components/page";
 
 import FootballOddsModal, {
   IFootballOddsModal,
-} from '../components/FootballOddsModal';
+} from "../components/FootballOddsModal";
 
 export interface IPFootballPredictProps {
   MDFootball: NMDFootball.IState;
@@ -19,16 +19,16 @@ export interface IPFootballPredictProps {
 
 import BonusPreviewModal, {
   IBonusPreviewModal,
-} from '../components/BonusPreviewModal';
-import CrawlingmModal, { ICrawlingmModal } from '../components/CrawlingmModal';
+} from "../components/BonusPreviewModal";
+import CrawlingmModal, { ICrawlingmModal } from "../components/CrawlingmModal";
 
 import GameResultModal, {
   IGameResultModal,
-} from '../components/GameResultModal';
+} from "../components/GameResultModal";
 
 import AddPredictModal, {
   IAddPredictModal,
-} from '../components/AddPredictModal';
+} from "../components/AddPredictModal";
 const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
   const { MDFootball } = props;
   const footballOddsModalRef = useRef<IFootballOddsModal>();
@@ -41,7 +41,7 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
     ignoreQueryPrefix: true,
   }) as {} as NFootball.IUrlQuery;
   useEffect(() => {
-    document.title = '结果';
+    document.title = "结果";
     SFootball.getTeamOddList(urlQuery.id);
   }, []);
 
@@ -74,14 +74,14 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
         size="small"
         columns={[
           {
-            title: '场次',
-            key: 'team',
+            title: "场次",
+            key: "team",
             render: renderTeamColumn,
           },
           {
-            title: '时间',
-            key: 'time',
-            dataIndex: 'time',
+            title: "时间",
+            key: "time",
+            dataIndex: "time",
           },
           // {
           //   title: "操作",
@@ -94,10 +94,11 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
       ></Table>
       <PageFooter>
         <Button onClick={() => showEditBaseModal()}>基础信息</Button>
-        <Button onClick={() => showCrawlingmModal()}>爬取</Button>
+        <Button onClick={() => showCrawlingmModal()}>录入</Button>
         <Button onClick={() => onShowBonusPreviewModal()}>选赔率</Button>
-
-        <Button onClick={() => onShowGameResultModal()}>比赛结果</Button>
+        {MDFootball.teamOddList.length > 0 && (
+          <Button onClick={() => onShowGameResultModal()}>比赛结果</Button>
+        )}
       </PageFooter>
     </div>
   );
@@ -113,7 +114,7 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
         MDFootball.teamOddList
       );
     } else {
-      message.error('请录入');
+      message.error("请录入");
     }
   }
 
