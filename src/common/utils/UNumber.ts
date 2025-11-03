@@ -1,5 +1,11 @@
 export namespace UNumber {
   export function formatWithYuanUnit(yuan: number, digit = 3) {
+    if (isNaN(yuan)) {
+      return "";
+    }
+    if (yuan == 0 || yuan == -Infinity) {
+      return "0";
+    }
     let stuffix = "";
     if (Math.ceil(yuan) !== yuan) {
       let list = (yuan + "").split(".");
