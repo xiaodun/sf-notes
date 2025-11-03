@@ -162,7 +162,6 @@ export namespace USwagger {
             if (version == "3" && values.$ref) {
               originalRef = values.$ref.split("/").pop();
             }
-            console.log("wx", values, originalRef);
             if (originalRef) {
               if (!values.type) {
                 type = definitions[originalRef].type;
