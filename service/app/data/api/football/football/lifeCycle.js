@@ -19,15 +19,21 @@
           const request = require('request');
           const syncRequest = require('sync-request');
           request(listHref, function (error, response, body) {
-            body = JSON.parse(body);
-            const listInfo = body.value.matchResult.reduce((total, cur) => {
-              if (codeList.includes(cur.matchNum)) {
-                total[cur.matchNum] = { matchId: cur.matchId };
-              }
-              return total;
-            }, {});
+            let listInfo = {};
+            try {
 
-            let resultInfos = {};
+              
+              body = JSON.parse(body);
+               listInfo = body.value.matchResult.reduce((total, cur) => {
+                if (codeList.includes(cur.matchNum)) {
+                  total[cur.matchNum] = { matchId: cur.matchId };
+                }
+                return total;
+              }, {});
+            } catch (error) {
+              console
+            }
+
 
             callback(listInfo);
           });
