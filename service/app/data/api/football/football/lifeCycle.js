@@ -31,7 +31,7 @@
                 return total;
               }, {});
             } catch (error) {
-              console
+              console.log('getGameResultList error', error);
             }
 
 
