@@ -205,25 +205,18 @@ const RecentFootballResultsModal: ForwardRefRenderFunction<
               key: "game",
             },
             {
-              title: "胜",
-              dataIndex: "win",
-              key: "win",
-            },
-            {
-              title: "平",
-              dataIndex: "draw",
-              key: "draw",
-            },
-            {
-              title: "负",
-              dataIndex: "lose",
-              key: "lose",
+              title: "胜平负",
+              dataIndex: "single",
+              key: "single",
+              render: (value, record) =>
+                renderDetail(value, record.singleDesc, record),
             },
             {
               title: "让球胜平负",
               dataIndex: "handicap",
               key: "handicap",
-              render: (value) => (value ? value : "-"),
+              render: (value, record) =>
+                renderDetail(value, record.handicapDesc, record),
             },
             {
               title: "半全场",
