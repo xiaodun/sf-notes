@@ -110,6 +110,7 @@ export namespace NFootball {
     singleDesc: string; // 胜平负描述
     handicap: number; // 让球胜平负赔率
     handicapDesc: string; // 让球胜平负描述
+    code: string; // 比赛编号
 
     half: number; // 半全场赔率
     halfDesc: string; // 半全场描述
