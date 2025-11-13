@@ -1,4 +1,4 @@
-·(function () {
+(function () {
   return function () {
     const fs = require('fs');
     const path = require('path');
