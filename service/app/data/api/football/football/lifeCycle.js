@@ -1,4 +1,4 @@
-(function () {
+·(function () {
   return function () {
     const fs = require('fs');
     const path = require('path');
@@ -349,7 +349,6 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
             try {
               try {
                 body = JSON.parse(body);
-                console.log('getRecentMatches body', JSON.stringify(body));
               } catch (error) {
                 isMock = true;
                 body = JSON.parse(
@@ -424,7 +423,6 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
               const response = syncRequest('GET', apiUrl);
 
               const body = response.getBody().toString();
-              console.log('getMatchOddsDetail response', body);
 
               try {
                 const parsedBody = JSON.parse(body);
