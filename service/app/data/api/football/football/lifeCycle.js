@@ -8,36 +8,6 @@
         external.getPredictDataFolderPath = (id) => {
           return path.join(rootPath, id + '');
         };
-        external.getGameResultList = (
-          matchBeginDate,
-          matchEndDate,
-          codeList,
-          callback
-        ) => {
-          let listHref = `https://webapi.sporttery.cn/gateway/jc/football/getMatchResultV1.qry?matchPage=1&matchBeginDate=${matchBeginDate}&matchEndDate=${matchEndDate}&leagueId=&pageSize=300&pageNo=1&isFix=0&pcOrWap=1`;
-          console.log('getGameResultList', listHref);
-          const request = require('request');
-          const syncRequest = require('sync-request');
-          request(listHref, function (error, response, body) {
-            let listInfo = {};
-            try {
-
-              
-              body = JSON.parse(body);
-               listInfo = body.value.matchResult.reduce((total, cur) => {
-                if (codeList.includes(cur.matchNum)) {
-                  total[cur.matchNum] = { matchId: cur.matchId };
-                }
-                return total;
-              }, {});
-            } catch (error) {
-              console.log('getGameResultList error', error);
-            }
-
-
-            callback(listInfo);
-          });
-        };
 
         external.getNoStartGameList = (callback) => {
           let href =
