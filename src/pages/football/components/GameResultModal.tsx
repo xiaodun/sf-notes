@@ -200,36 +200,134 @@ const GameResultModal: ForwardRefRenderFunction<
         drafState.loading = true;
       })
     );
+
+    // 从 teamOddList 中获取日期范围
     const dateList = MDFootball.teamOddList.map((item) => item.date).sort();
-    const codeList = MDFootball.teamOddList.map((item) => item.code).sort();
-    SFootball.getGameResultList(
-      dateList[0],
+    const startDate = dateList[0];
+    const endDate = moment(dateList[dateList.length - 1])
+      .add(1, "days")
+      .format("YYYY-MM-DD");
 
-      moment(dateList[dateList.length - 1])
-        .add(1, "days")
-        .format("YYYY-MM-DD"),
-      codeList
-    ).then((gameRsp) => {
-      let matchIds: string[] = [];
+    // 使用 getRecentMatches 替代 getGameResultList
+    SFootball.getRecentMatches({
+      startDate,
+      endDate,
+    })
+      .then((recentRsp) => {
+        if (!recentRsp.success) {
+          setState(
+            produce(newState, (drafState) => {
+              drafState.loading = false;
+            })
+          );
+          return;
+        }
 
-      Object.keys(gameRsp.data).forEach((key) => {
-        matchIds.push(gameRsp.data[key].matchId);
-      });
-      SFootball.getMatchOddsDetail(matchIds).then((detailRsp) => {
-        setMatchOddsData(
-          produce(matchOddsData, (draft) => {
-            Object.keys(gameRsp.data).forEach((codeKey) => {
-              draft[codeKey] = detailRsp.data[gameRsp.data[codeKey].matchId];
+        // 创建 code 到 matchId 的映射（通过匹配找到）
+        const codeToMatchIdMap: { [code: string]: string } = {};
+
+        // 遍历 teamOddList，在 getRecentMatches 返回的列表中查找匹配的比赛
+        MDFootball.teamOddList.forEach((teamOdd) => {
+          const matchedMatch = recentRsp.data.list.find(
+            (match) => match.code === teamOdd.code
+          );
+
+          if (matchedMatch) {
+            // 确保 matchId 是字符串类型
+            const matchIdStr =
+              typeof matchedMatch.matchId === "number"
+                ? String(matchedMatch.matchId)
+                : matchedMatch.matchId;
+            codeToMatchIdMap[teamOdd.code] = matchIdStr;
+            console.log("匹配成功:", {
+              code: teamOdd.code,
+              matchId: matchIdStr,
+              game: matchedMatch.game,
             });
-          })
+          } else {
+            console.log("未找到匹配:", {
+              code: teamOdd.code,
+              date: teamOdd.date,
+              homeTeam: teamOdd.homeTeam,
+              visitingTeam: teamOdd.visitingTeam,
+            });
+          }
+        });
+
+        // 获取所有匹配的 matchId
+        const matchedMatchIds = Object.values(codeToMatchIdMap).filter(
+          (id) => id
         );
+
+        console.log("匹配结果:", {
+          matchedCount: matchedMatchIds.length,
+          codeToMatchIdMap,
+          matchedMatchIds,
+        });
+
+        if (matchedMatchIds.length === 0) {
+          console.warn("没有匹配到任何比赛，请检查日期和队伍名称是否一致");
+          setState(
+            produce(newState, (drafState) => {
+              drafState.loading = false;
+            })
+          );
+          return;
+        }
+
+        // 获取详细赔率信息
+        SFootball.getMatchOddsDetail(matchedMatchIds)
+          .then((detailRsp) => {
+            if (!detailRsp.success) {
+              setState(
+                produce(newState, (drafState) => {
+                  drafState.loading = false;
+                })
+              );
+              return;
+            }
+
+            // 构建 matchOddsData，key 是 code
+            setMatchOddsData(
+              produce(matchOddsData, (draft) => {
+                Object.entries(codeToMatchIdMap).forEach(([code, matchId]) => {
+                  // 尝试字符串和数字两种 key
+                  const detailData =
+                    detailRsp.data[matchId] ||
+                    detailRsp.data[Number(matchId)] ||
+                    detailRsp.data[String(matchId)];
+                  if (detailData) {
+                    draft[code] = detailData;
+                  } else {
+                    console.warn("未找到详细赔率数据:", { code, matchId });
+                  }
+                });
+              })
+            );
+
+            setState(
+              produce(newState, (drafState) => {
+                drafState.loading = false;
+              })
+            );
+          })
+          .catch((error) => {
+            console.error("获取详细赔率失败:", error);
+            setState(
+              produce(newState, (drafState) => {
+                drafState.loading = false;
+              })
+            );
+          });
+      })
+      .catch((error) => {
+        console.error("获取比赛列表失败:", error);
         setState(
           produce(newState, (drafState) => {
             drafState.loading = false;
           })
         );
       });
-    });
   }
   function onCancel() {
     setState(defaultState);
@@ -419,9 +517,88 @@ const GameResultModal: ForwardRefRenderFunction<
     ];
   }
   function getCountOdds() {
-    return UNumber.formatWithYuanUnit(
-      Math.max(...Object.values(bonusItems).map((item) => item.count))
-    );
+    // 如果没有比赛结果数据，返回默认值
+    if (Object.keys(matchOddsData).length === 0) {
+      return "暂无比赛结果";
+    }
+
+    // 存储每个比赛的最高赔率信息
+    const maxOddsList: Array<{ desc: string; odds: number }> = [];
+    let totalOdds = 1;
+
+    // 遍历所有比赛结果
+    Object.values(matchOddsData).forEach((match) => {
+      // 收集所有可用的赔率选项
+      const oddsOptions: Array<{ desc: string; odds: number }> = [];
+
+      // 胜平负赔率
+      if (match.single && match.single > 0) {
+        oddsOptions.push({
+          desc: match.singleDesc,
+          odds: match.single,
+        });
+      }
+
+      // 让球胜平负赔率
+      if (match.handicap && match.handicap > 0) {
+        oddsOptions.push({
+          desc: match.handicapDesc,
+          odds: match.handicap,
+        });
+      }
+
+      // 半全场赔率
+      if (match.half && match.half > 0) {
+        oddsOptions.push({
+          desc: match.halfDesc,
+          odds: match.half,
+        });
+      }
+
+      // 总进球赔率
+      if (match.goal && match.goal > 0) {
+        oddsOptions.push({
+          desc: match.goalDesc,
+          odds: match.goal,
+        });
+      }
+
+      // 比分赔率（需要转换为数字）
+      if (match.score && match.scoreDesc) {
+        const scoreOdds =
+          typeof match.score === "string"
+            ? parseFloat(match.score)
+            : match.score;
+        if (!isNaN(scoreOdds) && scoreOdds > 0) {
+          oddsOptions.push({
+            desc: match.scoreDesc,
+            odds: scoreOdds,
+          });
+        }
+      }
+
+      // 找到最高赔率
+      if (oddsOptions.length > 0) {
+        const maxOdds = oddsOptions.reduce((prev, current) =>
+          current.odds > prev.odds ? current : prev
+        );
+        maxOddsList.push(maxOdds);
+        totalOdds *= maxOdds.odds;
+      }
+    });
+
+    // 如果没有找到任何赔率，返回默认值
+    if (maxOddsList.length === 0) {
+      return "暂无有效赔率";
+    }
+
+    // 格式化展示：胜@2.3x3:0@18=总赔率
+    const oddsText = maxOddsList
+      .map((item) => `${item.desc}@${item.odds}`)
+      .join("x");
+    const totalOddsFormatted = UNumber.formatWithYuanUnit(totalOdds);
+
+    return `${oddsText}=${totalOddsFormatted}`;
   }
 
   // 获取表格数据源
