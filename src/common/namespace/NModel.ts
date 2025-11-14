@@ -4,7 +4,6 @@ import {
   NMDNotes,
   NMDGlobal,
   NMDProject,
-  NMDActivity,
   NMDIterative,
   NMDFootball,
 } from "umi";
@@ -26,7 +25,6 @@ namespace NModel {
     MDNotes = "MDNotes",
     MDGlobal = "MDGlobal",
     MDProject = "MDProject",
-    MDActivity = "MDActivity",
     MDIterative = "MDIterative",
     MDFootball = "MDFootball",
   }
@@ -43,7 +41,6 @@ namespace NModel {
     [ENames.MDNotes]: NMDNotes.IState;
     [ENames.MDGlobal]: NMDGlobal.IState;
     [ENames.MDProject]: NMDProject.IState;
-    [ENames.MDActivity]: NMDActivity.IState;
     [ENames.MDIterative]: NMDIterative.IState;
     [ENames.MDFootball]: NMDFootball.IState;
   }
