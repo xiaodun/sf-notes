@@ -10,7 +10,6 @@ export namespace NRouter {
   export const projectPath = "/project";
   export const projectSnippetPath = projectPath + "/snippet";
   export const projectSwaggerPath = projectPath + "/swagger";
-  export const activityPath = "/activity";
   export const iterativePath = "/iterative";
   export const iterativeReleasePath = iterativePath + "/release";
   export const footballPath = "/football";
@@ -59,11 +58,6 @@ export namespace NRouter {
     {
       path: projectSwaggerPath,
       component: "." + projectSwaggerPath,
-      wrappers: [rootComponentPath],
-    },
-    {
-      path: activityPath,
-      component: "." + activityPath,
       wrappers: [rootComponentPath],
     },
     {
