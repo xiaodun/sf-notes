@@ -1,0 +1,309 @@
+.jokesContainer {
+  display: flex;
+  flex-direction: column;
+  // min-height: 100vh;
+  padding: 0;
+  padding-bottom: 0; // 确保容器本身没有底部padding
+  box-sizing: border-box;
+}
+
+.header {
+  z-index: 100;
+  background: #fafafa;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  margin-bottom: 0;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.navButtons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  
+  :global(.ant-btn) {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+    
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+    }
+    
+    &:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
+  }
+}
+
+.counterContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.jumpInput {
+  text-align: center;
+  
+  input {
+    text-align: center;
+    padding: 4px 8px;
+    border-color: rgba(0, 0, 0, 0.25);
+    color: rgba(0, 0, 0, 0.85);
+    font-weight: 500;
+    
+    &:focus {
+      border-color: #40a9ff;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+    }
+    
+    &::placeholder {
+      color: rgba(0, 0, 0, 0.45);
+    }
+  }
+}
+
+.counter {
+  font-size: 16px;
+  font-weight: 500;
+  color: #666;
+}
+
+.contentContainer {
+  position: relative;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 150px; // 为底部固定栏留出足够空间（72px高度 + 78px额外间距，确保不被截取）
+  margin-bottom: 0; // 确保没有额外的margin
+  user-select: none; // 防止拖拽时选中文本
+  touch-action: pan-y; // 移动端允许垂直滚动，但水平滑动由我们处理
+  // 隐藏滚动条但保持滚动功能
+  scrollbar-width: none; // Firefox
+  -ms-overflow-style: none; // IE and Edge
+  
+  &::-webkit-scrollbar {
+    display: none; // Chrome, Safari, Opera
+  }
+
+  &.dragging {
+    cursor: grabbing !important;
+    touch-action: none; // 拖拽时禁用默认触摸行为
+    
+    * {
+      pointer-events: none; // 拖拽时禁用所有子元素的交互
+    }
+  }
+
+  // 允许链接和图片选中（用于复制链接等操作）
+  .contentLink,
+  .contentImg {
+    user-select: text;
+    pointer-events: auto;
+    touch-action: auto; // 链接和图片保持默认触摸行为
+  }
+
+}
+
+.contentContainer.transitioning {
+  scroll-behavior: smooth;
+}
+
+.jokeItem {
+  width: 100%;
+  max-width: 800px;
+  padding: 32px 40px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: width, height 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+.jokeContent {
+  width: 100%;
+}
+
+.upperContent {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #666;
+  word-wrap: break-word;
+
+  p {
+    margin: 8px 0;
+    line-height: 1.8;
+  }
+
+  .contentImg {
+    max-width: 100%;
+    max-height: 400px;
+    width: auto;
+    height: auto;
+    display: block;
+    margin: 12px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    object-fit: contain;
+
+    &:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  .contentLink {
+    color: #1890ff;
+    text-decoration: none;
+    word-break: break-all;
+    user-select: text; // 链接允许选中文本
+    pointer-events: auto; // 链接保持可点击
+    cursor: pointer; // 链接显示手型光标
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.viewButtonContainer {
+  display: flex;
+  justify-content: center;
+  padding-top: 24px ;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.lowerContent {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #666;
+  word-wrap: break-word;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+
+  p {
+    margin: 8px 0;
+    line-height: 1.8;
+  }
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #999;
+  font-size: 16px;
+}
+
+// 移动端样式
+@media screen and (max-width: 768px) {
+  .jokesContainer {
+    height: 100vh;
+    height: 100dvh; // 支持动态视口高度（移动端浏览器地址栏）
+  }
+
+  .header {
+    padding: 12px 16px;
+  }
+
+  .navButtons {
+    gap: 12px;
+  }
+
+  .counterContainer {
+    gap: 4px;
+    padding: 2px 8px;
+  }
+
+  .jumpInput {
+    input {
+      padding: 2px 4px;
+      font-size: 14px;
+      border-color: rgba(0, 0, 0, 0.25);
+      color: rgba(0, 0, 0, 0.85);
+      font-weight: 500;
+      
+      &:focus {
+        border-color: #40a9ff;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+      }
+      
+      &::placeholder {
+        color: rgba(0, 0, 0, 0.45);
+      }
+    }
+  }
+
+  .counter {
+    font-size: 14px;
+  }
+
+  .contentContainer {
+    padding: 12px 8px;
+    padding-bottom: 150px; // 为底部固定栏留出足够空间（72px高度 + 78px额外间距，确保不被截取）
+  }
+
+  .jokeItem {
+    max-width: 100%;
+    padding: 20px;
+    min-height: auto;
+  }
+
+  .upperContent,
+  .lowerContent {
+    font-size: 14px;
+    line-height: 1.6;
+    
+    .contentImg {
+      max-height: 300px;
+    }
+  }
+
+
+}
+
+// 使用 .mobile 类的方式（备用）
+.jokesContainer.mobile {
+  .header {
+    padding: 12px 16px;
+  }
+
+  .navButtons {
+    gap: 12px;
+  }
+
+  .jokeItem {
+    max-width: 100%;
+    padding: 20px;
+  }
+
+  .upperContent,
+  .lowerContent {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+}
+
+
