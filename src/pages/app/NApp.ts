@@ -37,6 +37,11 @@ namespace NApp {
       linkType: "internal",
     },
     {
+      name: "段子",
+      path: NRouter.jokesPath,
+      linkType: "internal",
+    },
+    {
       name: "测试用例",
       path: NRouter.testPath,
       linkType: "internal",
