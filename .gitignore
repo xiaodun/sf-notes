@@ -12,7 +12,7 @@ src/.umi/
 *.ntvs*
 *.njsproj
 *.sln
-service/app/data/**/*.json
-!service/app/data/**/mockData/
-!service/app/data/**/mockData/**/*.json
+service/app/data/api/football/football/**/*.json
+# !service/app/data/**/mockData/
+# !service/app/data/**/mockData/**/*.json
 service/app/data/**/upload_*
