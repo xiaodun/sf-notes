@@ -42,6 +42,11 @@ namespace NApp {
       linkType: "internal",
     },
     {
+      name: "名篇",
+      path: NRouter.classicsPath,
+      linkType: "internal",
+    },
+    {
       name: "测试用例",
       path: NRouter.testPath,
       linkType: "internal",
