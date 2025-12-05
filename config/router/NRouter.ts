@@ -15,6 +15,7 @@ export namespace NRouter {
   export const footballPath = "/football";
   export const footballPredictPath = footballPath + "/predict";
   export const jokesPath = "/jokes";
+  export const classicsPath = "/classics";
   export const routes: IRoute[] = [
     {
       path: rootPath,
@@ -85,6 +86,11 @@ export namespace NRouter {
     {
       path: jokesPath,
       component: "." + jokesPath,
+      wrappers: [rootComponentPath],
+    },
+    {
+      path: classicsPath,
+      component: "." + classicsPath,
       wrappers: [rootComponentPath],
     },
   ];
