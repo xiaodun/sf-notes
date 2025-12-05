@@ -8,6 +8,7 @@ import {
   NMDFootball,
 } from "umi";
 import { NMDJokes } from "@/pages/jokes/models/MDJokes";
+import { NMDClassics } from "@/pages/classics/models/MDClassics";
 interface NModel<S> {
   namespace: string;
   state?: S;
@@ -29,6 +30,7 @@ namespace NModel {
     MDIterative = "MDIterative",
     MDFootball = "MDFootball",
     MDJokes = "MDJokes",
+    MDClassics = "MDClassics",
   }
   export class IAction<P = any> {
     type: string;
@@ -46,6 +48,7 @@ namespace NModel {
     [ENames.MDIterative]: NMDIterative.IState;
     [ENames.MDFootball]: NMDFootball.IState;
     [ENames.MDJokes]: NMDJokes.IState;
+    [ENames.MDClassics]: NMDClassics.IState;
   }
   export function dispatch(action: NModel.IAction) {
     window.umiDispatch({
