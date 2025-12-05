@@ -1,0 +1,36 @@
+{
+    "authors": [
+        {
+            "name": "123",
+            "dynastyId": "1764906294950",
+            "id": "1764906357052",
+            "createTime": 1764906357052,
+            "updateTime": "2025-12-05T03:45:57.052Z",
+            "deleted": true
+        },
+        {
+            "name": "1",
+            "dynastyId": "1764906562260",
+            "id": "1764906565818",
+            "createTime": 1764906565818,
+            "updateTime": "2025-12-05T03:49:25.818Z",
+            "deleted": true
+        }
+    ],
+    "dynasties": [
+        {
+            "name": "宋1",
+            "id": "1764906294950",
+            "createTime": 1764906294950,
+            "updateTime": "2025-12-05T03:45:41.623Z",
+            "deleted": true
+        },
+        {
+            "name": "12",
+            "id": "1764906562260",
+            "createTime": 1764906562260,
+            "updateTime": "2025-12-05T03:49:22.260Z",
+            "deleted": true
+        }
+    ]
+}
