@@ -1,0 +1,161 @@
+.classicsContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 0;
+  padding-bottom: 0;
+  box-sizing: border-box;
+}
+
+.searchBar {
+  padding: 16px 20px;
+  background: #fafafa;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+}
+
+.contentContainer {
+  position: relative;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-bottom: 150px;
+  margin-bottom: 0;
+  flex: 1;
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: #999;
+  font-size: 16px;
+}
+
+.classicItem {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: 20px;
+}
+
+.classicContent {
+  position: relative;
+
+  .actionTrigger {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 10;
+  }
+
+  .moreButton {
+    color: rgba(0, 0, 0, 0.45);
+    font-size: 18px;
+    padding: 4px 8px;
+
+    &:hover {
+      color: rgba(0, 0, 0, 0.85);
+      background: rgba(0, 0, 0, 0.06);
+    }
+  }
+
+  .title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 16px;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .author {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 24px;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .content {
+    font-size: 16px;
+    color: #333;
+    line-height: 2;
+    word-break: break-word;
+
+    p {
+      margin: 0;
+      margin-bottom: 12px;
+      text-align: center;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .actions {
+    margin-top: 24px;
+    text-align: center;
+  }
+}
+
+.loadingMore,
+.noMore {
+  text-align: center;
+  padding: 20px;
+  color: #999;
+  font-size: 14px;
+}
+
+// 移动端样式
+@media screen and (max-width: 768px) {
+  .classicsContainer {
+    min-height: 100dvh;
+  }
+
+  .searchBar {
+    padding: 12px 16px;
+  }
+
+  .contentContainer {
+    padding: 12px 8px;
+    padding-bottom: 150px;
+  }
+
+  .classicItem {
+    max-width: 100%;
+    padding: 20px;
+    margin-bottom: 12px;
+  }
+
+  .classicContent {
+    .title {
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+
+    .author {
+      font-size: 16px;
+      margin-bottom: 16px;
+    }
+
+    .content {
+      font-size: 14px;
+      line-height: 1.8;
+
+      p {
+        margin-bottom: 8px;
+      }
+    }
+  }
+}
+
