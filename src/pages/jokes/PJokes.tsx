@@ -8,7 +8,14 @@ import { connect } from "dva";
 import NModel from "@/common/namespace/NModel";
 import { ConnectRC } from "umi";
 import { NMDJokes } from "./models/MDJokes";
-import { LeftOutlined, RightOutlined } from "@ant-design/icons";
+import {
+  LeftOutlined,
+  RightOutlined,
+  PlusOutlined,
+  CopyOutlined,
+  EditOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 import Browser from "@/utils/browser";
 import NJokes from "./NJokes";
 
@@ -417,6 +424,125 @@ const PJokes: ConnectRC<PJokesProps> = (props) => {
     });
   }
 
+  // 复制段子上半部分内容（不包含下半部分）
+  function onCopyJoke() {
+    if (!currentJoke) return;
+
+    const upperContent = currentJoke.upperContent || "";
+    const base64 = currentJoke.base64 || {};
+
+    // 处理上半部分内容，将链接和图片转换为文本格式
+    const textToCopy = processContentForCopy(upperContent, base64);
+
+    // 使用 Clipboard API 复制文本
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard
+        .writeText(textToCopy)
+        .then(() => {
+          message.success("复制成功");
+        })
+        .catch((err) => {
+          console.error("复制失败:", err);
+          // 降级方案：使用传统方法
+          fallbackCopyTextToClipboard(textToCopy);
+        });
+    } else {
+      // 降级方案：使用传统方法
+      fallbackCopyTextToClipboard(textToCopy);
+    }
+  }
+
+  // 复制段子下半部分内容
+  function onCopyLowerContent() {
+    if (!currentJoke) return;
+
+    const lowerContent = currentJoke.lowerContent || "";
+    if (!lowerContent.trim()) {
+      message.warning("没有下半段内容");
+      return;
+    }
+
+    // 使用 Clipboard API 复制文本
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard
+        .writeText(lowerContent)
+        .then(() => {
+          message.success("复制成功");
+        })
+        .catch((err) => {
+          console.error("复制失败:", err);
+          // 降级方案：使用传统方法
+          fallbackCopyTextToClipboard(lowerContent);
+        });
+    } else {
+      // 降级方案：使用传统方法
+      fallbackCopyTextToClipboard(lowerContent);
+    }
+  }
+
+  // 处理内容用于复制（保留格式，处理链接和图片）
+  function processContentForCopy(content: string, base64: Object): string {
+    if (!content) return "";
+    const lines = content.split("\n");
+    const linkPattern = /(https?:\/\/[^\s]+|base64img:\/\/[^\s]+)/g;
+
+    return lines
+      .map((line) => {
+        if (!line.trim()) {
+          return "";
+        }
+
+        // 替换链接和图片为文本形式
+        let processedLine = line;
+        let match;
+
+        // 重置正则表达式的 lastIndex
+        linkPattern.lastIndex = 0;
+
+        while ((match = linkPattern.exec(line)) !== null) {
+          const link = match[0];
+          const isImg = link.indexOf(NJokes.imgProtocolKey) === 0;
+
+          if (isImg) {
+            // 图片：保留 base64img 协议标识，或者可以替换为 [图片]
+            processedLine = processedLine.replace(link, `[图片: ${link}]`);
+          } else {
+            // 链接：保留链接文本
+            // 链接已经在原文本中，不需要替换
+          }
+        }
+
+        return processedLine;
+      })
+      .join("\n");
+  }
+
+  // 降级复制方案（兼容旧浏览器）
+  function fallbackCopyTextToClipboard(text: string) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    textArea.style.top = "-999999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+      const successful = document.execCommand("copy");
+      if (successful) {
+        message.success("复制成功");
+      } else {
+        message.error("复制失败");
+      }
+    } catch (err) {
+      console.error("复制失败:", err);
+      message.error("复制失败");
+    }
+
+    document.body.removeChild(textArea);
+  }
+
   function parseContent(content: string, base64: Object) {
     if (!content) return null;
     const lines = content.split("\n");
@@ -576,6 +702,15 @@ const PJokes: ConnectRC<PJokesProps> = (props) => {
                       )}
                       {isExpanded && (
                         <div className={SelfStyle.lowerContent}>
+                          <div className={SelfStyle.lowerContentHeader}>
+                            <Button
+                              size="small"
+                              icon={<CopyOutlined />}
+                              onClick={onCopyLowerContent}
+                            >
+                              复制下半段
+                            </Button>
+                          </div>
                           {lowerContent.split("\n").map((line, i) => (
                             <p key={i}>{line || "\u00A0"}</p>
                           ))}
@@ -591,20 +726,36 @@ const PJokes: ConnectRC<PJokesProps> = (props) => {
       </div>
 
       <PageFooter>
-        <Button onClick={onAddJoke} size={isMobile ? "small" : "middle"}>
-          添加
+        <Button
+          onClick={onAddJoke}
+          size={isMobile ? "small" : "middle"}
+          icon={isMobile ? <PlusOutlined /> : undefined}
+        >
+          {isMobile ? "" : "添加"}
         </Button>
         {currentJoke && (
           <>
-            <Button onClick={onEditJoke} size={isMobile ? "small" : "middle"}>
-              修改
+            <Button
+              onClick={onCopyJoke}
+              size={isMobile ? "small" : "middle"}
+              icon={isMobile ? <CopyOutlined /> : undefined}
+            >
+              {isMobile ? "" : "复制"}
+            </Button>
+            <Button
+              onClick={onEditJoke}
+              size={isMobile ? "small" : "middle"}
+              icon={isMobile ? <EditOutlined /> : undefined}
+            >
+              {isMobile ? "" : "修改"}
             </Button>
             <Button
               danger
               onClick={onDeleteJoke}
               size={isMobile ? "small" : "middle"}
+              icon={isMobile ? <DeleteOutlined /> : undefined}
             >
-              删除
+              {isMobile ? "" : "删除"}
             </Button>
           </>
         )}
