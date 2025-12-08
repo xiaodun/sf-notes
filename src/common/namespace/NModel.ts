@@ -9,6 +9,7 @@ import {
 } from "umi";
 import { NMDJokes } from "@/pages/jokes/models/MDJokes";
 import { NMDClassics } from "@/pages/classics/models/MDClassics";
+import { NMDMaxim } from "@/pages/maxim/models/MDMaxim";
 interface NModel<S> {
   namespace: string;
   state?: S;
@@ -31,6 +32,7 @@ namespace NModel {
     MDFootball = "MDFootball",
     MDJokes = "MDJokes",
     MDClassics = "MDClassics",
+    MDMaxim = "MDMaxim",
   }
   export class IAction<P = any> {
     type: string;
@@ -49,6 +51,7 @@ namespace NModel {
     [ENames.MDFootball]: NMDFootball.IState;
     [ENames.MDJokes]: NMDJokes.IState;
     [ENames.MDClassics]: NMDClassics.IState;
+    [ENames.MDMaxim]: NMDMaxim.IState;
   }
   export function dispatch(action: NModel.IAction) {
     window.umiDispatch({
