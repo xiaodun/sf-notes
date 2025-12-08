@@ -3,13 +3,26 @@ import React, {
   ForwardRefRenderFunction,
   useImperativeHandle,
   useState,
+  useCallback,
+  useEffect,
 } from "react";
-import { Modal, Button, Table, Alert, Checkbox, message } from "antd";
+import {
+  Modal,
+  Button,
+  Table,
+  Alert,
+  Checkbox,
+  message,
+  Input,
+  Space,
+} from "antd";
 import {
   CheckOutlined,
   CloseOutlined,
   DeleteOutlined,
   CopyOutlined,
+  PlusOutlined,
+  SaveOutlined,
 } from "@ant-design/icons";
 import { produce } from "immer";
 import { NMDFootball } from "umi";
@@ -62,6 +75,14 @@ const GameResultModal: ForwardRefRenderFunction<
   const [selectedRows, setSelectedRows] = useState<TableRecord[]>([]);
   const [qrModalVisible, setQrModalVisible] = useState<boolean>(false);
   const [qrCodeData, setQrCodeData] = useState<string>("");
+  const [dynamicContent, setDynamicContent] = useState<string>("");
+  const [staticContent, setStaticContent] = useState<string>("");
+  const [isEditingStaticContent, setIsEditingStaticContent] =
+    useState<boolean>(false);
+  const [tempStaticContent, setTempStaticContent] = useState<string>("");
+
+  // localStorage key
+  const STATIC_CONTENT_KEY = "football_static_content";
 
   // 获取预测信息
   const fetchPredictInfo = (id: string, newState: IGameResultModalState) => {
@@ -88,9 +109,143 @@ const GameResultModal: ForwardRefRenderFunction<
       setSelectedRows([]);
 
       fetchPredictInfo(id, newState);
-      getGameResultList(newState);
+
+      // 先从后台加载已存储的比赛结果
+      SFootball.getMatchOddsData(id)
+        .then((rsp) => {
+          // 检查是否有有效数据
+          const hasStoredData =
+            rsp.success &&
+            rsp.data &&
+            typeof rsp.data === "object" &&
+            Object.keys(rsp.data).length > 0;
+
+          if (hasStoredData) {
+            setMatchOddsData(rsp.data);
+            // 如果已有数据，设置 loading 为 false，不再调用 getGameResultList
+            setState(
+              produce(newState, (drafState) => {
+                drafState.loading = false;
+              })
+            );
+            // 明确返回，不执行后续代码
+            return;
+          }
+
+          // 如果没有存储的数据，才调用 getGameResultList 去获取
+          getGameResultList(newState);
+        })
+        .catch((error) => {
+          console.error("从后台加载比赛结果失败:", error);
+          // 加载失败时，仍然调用 getGameResultList 去获取
+          getGameResultList(newState);
+        });
     },
   }));
+
+  // 生成二维码内容
+  const generateQRCodeContent = useCallback(() => {
+    // 组合所有内容：动态内容
+    // 注意：静态内容已经追加到动态内容中了，这里不需要重复添加
+    return dynamicContent.trim();
+  }, [dynamicContent]);
+
+  // 更新二维码内容
+  const updateQRCodeData = useCallback(() => {
+    const content = generateQRCodeContent();
+    setQrCodeData(content);
+  }, [generateQRCodeContent]);
+
+  // 当内容变化时更新二维码
+  useEffect(() => {
+    if (qrModalVisible) {
+      updateQRCodeData();
+    }
+  }, [dynamicContent, qrModalVisible, updateQRCodeData]);
+
+  // 从localStorage加载静态内容
+  const loadStaticContentFromStorage = useCallback(() => {
+    try {
+      const saved = localStorage.getItem(STATIC_CONTENT_KEY);
+      if (saved) {
+        return saved;
+      }
+    } catch (error) {
+      console.error("加载静态内容失败:", error);
+    }
+    return "";
+  }, []);
+
+  // 保存静态内容到localStorage
+  const saveStaticContentToStorage = useCallback((content: string) => {
+    try {
+      localStorage.setItem(STATIC_CONTENT_KEY, content);
+    } catch (error) {
+      console.error("保存静态内容失败:", error);
+    }
+  }, []);
+
+  // 处理复制选中的数据
+  function handleCopySelected() {
+    // 生成初始动态内容：根据选中的比赛数量，生成"第一场打"、"第二场打"等
+    const firstRowItems = selectedRows.filter((item) => item.isFirstRow);
+    const totalMatches = firstRowItems.reduce(
+      (sum, item) => sum + item.bonusItem.list.length,
+      0
+    );
+    let initialDynamicContent = Array.from(
+      { length: totalMatches },
+      (_, i) => `第${i + 1}场打`
+    ).join("\n");
+
+    // 从localStorage加载静态内容并追加到动态内容
+    const savedStaticContent = loadStaticContentFromStorage();
+    if (savedStaticContent) {
+      initialDynamicContent += "\n" + savedStaticContent;
+    }
+
+    // 初始化状态
+    setDynamicContent(initialDynamicContent);
+    setStaticContent(savedStaticContent);
+    setIsEditingStaticContent(false);
+    setTempStaticContent("");
+
+    // 显示模态框
+    setQrModalVisible(true);
+  }
+
+  // 开始编辑静态内容
+  const handleStartEditStaticContent = () => {
+    setTempStaticContent(staticContent);
+    setIsEditingStaticContent(true);
+  };
+
+  // 取消编辑静态内容
+  const handleCancelEditStaticContent = () => {
+    setTempStaticContent("");
+    setIsEditingStaticContent(false);
+  };
+
+  // 保存静态内容
+  const handleSaveStaticContent = () => {
+    const content = tempStaticContent.trim();
+    setStaticContent(content);
+    saveStaticContentToStorage(content);
+
+    // 追加到动态内容
+    if (content) {
+      setDynamicContent((prev) => {
+        // 如果动态内容末尾已经有这个静态内容，就不重复添加
+        if (prev.endsWith(content)) {
+          return prev;
+        }
+        return prev + "\n" + content;
+      });
+    }
+
+    setIsEditingStaticContent(false);
+    setTempStaticContent("");
+  };
 
   // 处理行选择变化
   const rowSelection = {
@@ -183,21 +338,93 @@ const GameResultModal: ForwardRefRenderFunction<
           </Button>,
         ]}
         centered
-        width={400}
+        width={600}
       >
-        <div style={{ textAlign: "center", padding: "20px" }}>
-          <div style={{ marginBottom: "16px" }}>
+        <Space direction="vertical" style={{ width: "100%" }} size="middle">
+          <div style={{ textAlign: "center" }}>
             {/* @ts-ignore */}
             <QRCode value={qrCodeData} size={200} level="M" />
           </div>
-        </div>
+
+          {/* 动态内容（可编辑） */}
+          <div>
+            <div style={{ marginBottom: 8, fontWeight: 500 }}>动态内容：</div>
+            <Input.TextArea
+              value={dynamicContent}
+              onChange={(e) => setDynamicContent(e.target.value)}
+              placeholder="可编辑的动态内容"
+              autoSize={{ minRows: 3, maxRows: 6 }}
+            />
+          </div>
+
+          {/* 静态内容（放在最后） */}
+          <div>
+            <div
+              style={{
+                marginBottom: 8,
+                fontWeight: 500,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <span>静态内容：</span>
+              {!isEditingStaticContent && (
+                <Button
+                  size="small"
+                  icon={<SaveOutlined />}
+                  onClick={handleStartEditStaticContent}
+                >
+                  修改
+                </Button>
+              )}
+            </div>
+            {isEditingStaticContent ? (
+              <Space
+                direction="vertical"
+                style={{ width: "100%" }}
+                size="small"
+              >
+                <Input.TextArea
+                  value={tempStaticContent}
+                  onChange={(e) => setTempStaticContent(e.target.value)}
+                  placeholder="可设置静态内容，保存后将追加到动态内容"
+                  autoSize={{ minRows: 3, maxRows: 6 }}
+                />
+                <Space>
+                  <Button
+                    size="small"
+                    type="primary"
+                    icon={<SaveOutlined />}
+                    onClick={handleSaveStaticContent}
+                  >
+                    保存
+                  </Button>
+                  <Button size="small" onClick={handleCancelEditStaticContent}>
+                    取消
+                  </Button>
+                </Space>
+              </Space>
+            ) : (
+              <Input.TextArea
+                value={staticContent}
+                readOnly
+                placeholder="暂无静态内容，点击修改按钮添加"
+                autoSize={{ minRows: 3, maxRows: 6 }}
+                style={{ backgroundColor: "#f5f5f5" }}
+              />
+            )}
+          </div>
+        </Space>
       </Modal>
     </>
   );
   function getGameResultList(newState: IGameResultModalState) {
+    const currentId = newState.id || state.id;
     setState(
       produce(newState, (drafState) => {
         drafState.loading = true;
+        drafState.id = currentId;
       })
     );
 
@@ -239,18 +466,6 @@ const GameResultModal: ForwardRefRenderFunction<
                 ? String(matchedMatch.matchId)
                 : matchedMatch.matchId;
             codeToMatchIdMap[teamOdd.code] = matchIdStr;
-            console.log("匹配成功:", {
-              code: teamOdd.code,
-              matchId: matchIdStr,
-              game: matchedMatch.game,
-            });
-          } else {
-            console.log("未找到匹配:", {
-              code: teamOdd.code,
-              date: teamOdd.date,
-              homeTeam: teamOdd.homeTeam,
-              visitingTeam: teamOdd.visitingTeam,
-            });
           }
         });
 
@@ -258,12 +473,6 @@ const GameResultModal: ForwardRefRenderFunction<
         const matchedMatchIds = Object.values(codeToMatchIdMap).filter(
           (id) => id
         );
-
-        console.log("匹配结果:", {
-          matchedCount: matchedMatchIds.length,
-          codeToMatchIdMap,
-          matchedMatchIds,
-        });
 
         if (matchedMatchIds.length === 0) {
           console.warn("没有匹配到任何比赛，请检查日期和队伍名称是否一致");
@@ -288,22 +497,53 @@ const GameResultModal: ForwardRefRenderFunction<
             }
 
             // 构建 matchOddsData，key 是 code
-            setMatchOddsData(
-              produce(matchOddsData, (draft) => {
-                Object.entries(codeToMatchIdMap).forEach(([code, matchId]) => {
-                  // 尝试字符串和数字两种 key
-                  const detailData =
-                    detailRsp.data[matchId] ||
-                    detailRsp.data[Number(matchId)] ||
-                    detailRsp.data[String(matchId)];
-                  if (detailData) {
-                    draft[code] = detailData;
-                  } else {
-                    console.warn("未找到详细赔率数据:", { code, matchId });
-                  }
-                });
-              })
-            );
+            const newMatchOddsData: {
+              [key: string]: NFootball.IFootballMatch;
+            } = {};
+            Object.entries(codeToMatchIdMap).forEach(([code, matchId]) => {
+              // 尝试字符串和数字两种 key
+              const detailData =
+                detailRsp.data[matchId] ||
+                detailRsp.data[Number(matchId)] ||
+                detailRsp.data[String(matchId)];
+              if (detailData) {
+                newMatchOddsData[code] = detailData;
+              } else {
+                console.warn("未找到详细赔率数据:", { code, matchId });
+              }
+            });
+
+            // 合并到现有数据（只合并新的数据，不覆盖已有的）
+            const updatedMatchOddsData = {
+              ...matchOddsData,
+              ...newMatchOddsData,
+            };
+
+            // 检查是否有新数据需要保存
+            const hasNewData = Object.keys(newMatchOddsData).length > 0;
+            if (hasNewData) {
+              setMatchOddsData(updatedMatchOddsData);
+            } else {
+              // 如果没有新数据，说明所有数据都已经存在，不需要保存
+              setState(
+                produce(newState, (drafState) => {
+                  drafState.loading = false;
+                })
+              );
+              return;
+            }
+
+            // 保存到后台（使用 newState.id 确保有值）
+            const saveId = newState.id || state.id;
+            if (saveId) {
+              SFootball.saveMatchOddsData(saveId, updatedMatchOddsData).catch(
+                (error) => {
+                  console.error("保存比赛结果到后台失败:", error);
+                }
+              );
+            } else {
+              console.error("无法保存比赛结果：id 为空");
+            }
 
             setState(
               produce(newState, (drafState) => {
@@ -739,20 +979,6 @@ const GameResultModal: ForwardRefRenderFunction<
         })
       );
     }
-  }
-
-  // 处理复制选中的数据
-  function handleCopySelected() {
-    let copyStr = selectedRows
-      .filter((item) => item.isFirstRow)
-      .map((item) =>
-        item.bonusItem.list.map((item) => item.codeDesc).join("\n")
-      )
-      .join("\n-----------------------------------------------------------\n");
-
-    // 设置二维码数据并显示模态框
-    setQrCodeData(copyStr);
-    setQrModalVisible(true);
   }
 };
 export default forwardRef(GameResultModal);
