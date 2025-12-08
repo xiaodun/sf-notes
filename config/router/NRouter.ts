@@ -16,6 +16,7 @@ export namespace NRouter {
   export const footballPredictPath = footballPath + "/predict";
   export const jokesPath = "/jokes";
   export const classicsPath = "/classics";
+  export const maximPath = "/maxim";
   export const routes: IRoute[] = [
     {
       path: rootPath,
@@ -91,6 +92,11 @@ export namespace NRouter {
     {
       path: classicsPath,
       component: "." + classicsPath,
+      wrappers: [rootComponentPath],
+    },
+    {
+      path: maximPath,
+      component: "." + maximPath,
       wrappers: [rootComponentPath],
     },
   ];
