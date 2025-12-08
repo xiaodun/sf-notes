@@ -47,6 +47,11 @@ namespace NApp {
       linkType: "internal",
     },
     {
+      name: "警句",
+      path: NRouter.maximPath,
+      linkType: "internal",
+    },
+    {
       name: "测试用例",
       path: NRouter.testPath,
       linkType: "internal",
