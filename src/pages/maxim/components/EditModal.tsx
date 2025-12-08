@@ -114,7 +114,7 @@ export const EditModal: ForwardRefRenderFunction<
     const content = state.data.content;
     // 将多个换行符合并为一个空格，统一处理
     let merged = content.replace(/\n+/g, " ").replace(/\s+/g, " ").trim();
-    
+
     if (!merged) {
       message.warning("没有内容需要格式化");
       return;
@@ -124,18 +124,18 @@ export const EditModal: ForwardRefRenderFunction<
     const maxCharsPerLine = 30;
     const lines: string[] = [];
     let startIndex = 0;
-    
+
     while (startIndex < merged.length) {
       // 如果剩余内容不足一行，直接添加
       if (merged.length - startIndex <= maxCharsPerLine) {
         lines.push(merged.substring(startIndex).trim());
         break;
       }
-      
+
       // 从 startIndex + maxCharsPerLine 开始向前查找最近的标点符号
       let endIndex = Math.min(startIndex + maxCharsPerLine, merged.length);
       let foundBreakPoint = false;
-      
+
       // 优先查找句号、问号、感叹号、分号
       for (let i = endIndex; i > startIndex + maxCharsPerLine * 0.7; i--) {
         if (/[。！？；]/.test(merged[i])) {
@@ -144,7 +144,7 @@ export const EditModal: ForwardRefRenderFunction<
           break;
         }
       }
-      
+
       // 如果没找到，查找逗号、顿号
       if (!foundBreakPoint) {
         for (let i = endIndex; i > startIndex + maxCharsPerLine * 0.7; i--) {
@@ -155,16 +155,16 @@ export const EditModal: ForwardRefRenderFunction<
           }
         }
       }
-      
+
       // 如果还是没找到，就在最大长度处断行（避免截断）
       if (!foundBreakPoint) {
         endIndex = startIndex + maxCharsPerLine;
       }
-      
+
       lines.push(merged.substring(startIndex, endIndex).trim());
       startIndex = endIndex;
     }
-    
+
     const formatted = lines.join("\n");
     const newState = produce(state, (drafState) => {
       if (drafState.data) {
