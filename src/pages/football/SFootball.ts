@@ -174,5 +174,39 @@ namespace SFootball {
       },
     });
   }
+
+  /**
+   * 保存比赛结果
+   */
+  export async function saveMatchOddsData(
+    id: string,
+    matchOddsData: {
+      [key: string]: NFootball.IFootballMatch;
+    }
+  ): Promise<NRsp<boolean>> {
+    return request({
+      url: "/football/saveMatchOddsData",
+      method: "post",
+      data: {
+        id,
+        matchOddsData,
+      },
+    });
+  }
+
+  /**
+   * 获取保存的比赛结果
+   */
+  export async function getMatchOddsData(
+    id: string
+  ): Promise<NRsp<{ [key: string]: NFootball.IFootballMatch }>> {
+    return request({
+      url: "/football/getMatchOddsData",
+      method: "post",
+      data: {
+        id,
+      },
+    });
+  }
 }
 export default SFootball;
