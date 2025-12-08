@@ -1,0 +1,121 @@
+.maximContainer {
+  min-height: 100vh;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+.contentContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.listContainer {
+  padding: 20px;
+}
+
+.randomContainer {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.maximItem {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto 20px;
+  padding: 32px 40px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.maximActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.maximContent {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #666;
+  word-wrap: break-word;
+
+  p {
+    margin: 8px 0;
+    line-height: 1.8;
+  }
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #999;
+  font-size: 16px;
+}
+
+.loadingMore {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  color: #999;
+}
+
+.noMore {
+  text-align: center;
+  padding: 20px;
+  color: #999;
+  font-size: 14px;
+}
+
+// 移动端样式
+@media screen and (max-width: 768px) {
+  .listContainer {
+    padding: 12px 8px;
+  }
+
+  .maximItem {
+    max-width: 100%;
+    padding: 20px;
+  }
+
+  .maximContent {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+}
+
+// 使用 .mobile 类的方式（备用）
+.maximContainer.mobile {
+  .maximItem {
+    max-width: 100%;
+    padding: 20px;
+  }
+
+  .maximContent {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+}
+
