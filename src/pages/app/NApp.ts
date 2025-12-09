@@ -52,6 +52,11 @@ namespace NApp {
       linkType: "internal",
     },
     {
+      name: "大乐透",
+      path: NRouter.lotteryPath,
+      linkType: "internal",
+    },
+    {
       name: "测试用例",
       path: NRouter.testPath,
       linkType: "internal",
