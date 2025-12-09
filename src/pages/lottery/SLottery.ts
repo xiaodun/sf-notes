@@ -47,6 +47,56 @@ namespace SLottery {
       data: { id },
     });
   }
+
+  /**
+   * 获取全局固定号码
+   */
+  export async function getFixedNumbers(): Promise<
+    NRsp<import("./NLottery").IFixedNumber[]>
+  > {
+    return request({
+      url: "/lottery/getFixedNumbers",
+      method: "get",
+    });
+  }
+
+  /**
+   * 保存全局固定号码
+   */
+  export async function saveFixedNumbers(
+    data: import("./NLottery").IFixedNumber[]
+  ): Promise<NRsp<boolean>> {
+    return request({
+      url: "/lottery/saveFixedNumbers",
+      method: "post",
+      data,
+    });
+  }
+
+  /**
+   * 获取大乐透配置
+   */
+  export async function getLotteryConfig(): Promise<
+    NRsp<{ includeFixedNumbers: boolean }>
+  > {
+    return request({
+      url: "/lottery/getLotteryConfig",
+      method: "get",
+    });
+  }
+
+  /**
+   * 保存大乐透配置
+   */
+  export async function saveLotteryConfig(data: {
+    includeFixedNumbers: boolean;
+  }): Promise<NRsp<boolean>> {
+    return request({
+      url: "/lottery/saveLotteryConfig",
+      method: "post",
+      data,
+    });
+  }
 }
 
 export default SLottery;
