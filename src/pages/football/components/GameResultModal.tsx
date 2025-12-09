@@ -76,10 +76,6 @@ const GameResultModal: ForwardRefRenderFunction<
   const [qrModalVisible, setQrModalVisible] = useState<boolean>(false);
   const [qrCodeData, setQrCodeData] = useState<string>("");
   const [dynamicContent, setDynamicContent] = useState<string>("");
-  const [staticContent, setStaticContent] = useState<string>("");
-
-  // localStorage key
-  const APPEND_CONTENT_KEY = "football_append_content";
 
   // 获取预测信息
   const fetchPredictInfo = (id: string, newState: IGameResultModalState) => {
@@ -192,7 +188,7 @@ const GameResultModal: ForwardRefRenderFunction<
       }
     });
 
-    // 组合：预测信息 + 投注信息（第X场打）+ 追加内容
+    // 组合：预测信息 + 投注信息（第X场打）
     let qrContent = qrContentLines.join("\n");
 
     // 添加分隔符：预测信息和投注信息之间
@@ -207,20 +203,8 @@ const GameResultModal: ForwardRefRenderFunction<
       qrContent += dynamicContent.trim();
     }
 
-    // 添加分隔符：投注信息和追加内容之间
-    if (dynamicContent.trim() && staticContent.trim()) {
-      qrContent += "\n";
-      qrContent += "------------------------------------";
-      qrContent += "\n";
-    }
-
-    // 添加追加内容（独立存在，不追加到动态内容）
-    if (staticContent.trim()) {
-      qrContent += staticContent.trim();
-    }
-
     return qrContent.trim();
-  }, [dynamicContent, staticContent, selectedRows, matchOddsData]);
+  }, [dynamicContent, selectedRows, matchOddsData]);
 
   // 更新二维码内容
   const updateQRCodeData = useCallback(() => {
@@ -235,23 +219,11 @@ const GameResultModal: ForwardRefRenderFunction<
     }
   }, [
     dynamicContent,
-    staticContent,
     selectedRows,
     matchOddsData,
     qrModalVisible,
     updateQRCodeData,
   ]);
-
-  // 从localStorage加载追加内容
-  const loadAppendContentFromStorage = useCallback(() => {
-    const saved = localStorage.getItem(APPEND_CONTENT_KEY);
-    return saved || "";
-  }, []);
-
-  // 保存追加内容到localStorage
-  const saveAppendContentToStorage = useCallback((content: string) => {
-    localStorage.setItem(APPEND_CONTENT_KEY, content);
-  }, []);
 
   // 处理复制选中的数据
   function handleCopySelected() {
@@ -267,27 +239,12 @@ const GameResultModal: ForwardRefRenderFunction<
       (_, i) => `第${i + 1}场打`
     ).join("\n");
 
-    // 从localStorage加载追加内容（不追加到投注信息，保持独立）
-    const savedAppendContent = loadAppendContentFromStorage();
-
     // 初始化状态
     setDynamicContent(initialDynamicContent);
-    setStaticContent(savedAppendContent);
 
     // 显示模态框
     setQrModalVisible(true);
   }
-
-  // 处理追加内容变化（自动保存）
-  const handleAppendContentChange = useCallback(
-    (value: string) => {
-      setStaticContent(value);
-      // 自动保存到localStorage
-      saveAppendContentToStorage(value);
-      // 二维码内容会自动更新（通过useEffect监听staticContent变化）
-    },
-    [saveAppendContentToStorage]
-  );
 
   // 处理行选择变化
   const rowSelection = {
@@ -395,17 +352,6 @@ const GameResultModal: ForwardRefRenderFunction<
               value={dynamicContent}
               onChange={(e) => setDynamicContent(e.target.value)}
               placeholder="可编辑的投注信息"
-              autoSize={{ minRows: 3, maxRows: 6 }}
-            />
-          </div>
-
-          {/* 追加内容（放在最后，默认可编辑，自动保存） */}
-          <div>
-            <div style={{ marginBottom: 8, fontWeight: 500 }}>追加内容：</div>
-            <Input.TextArea
-              value={staticContent}
-              onChange={(e) => handleAppendContentChange(e.target.value)}
-              placeholder="可设置追加内容，内容变化会自动保存并更新二维码"
               autoSize={{ minRows: 3, maxRows: 6 }}
             />
           </div>
