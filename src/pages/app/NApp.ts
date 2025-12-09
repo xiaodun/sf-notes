@@ -32,8 +32,8 @@ namespace NApp {
       linkType: "external", // 外部链接
     },
     {
-      name: "二维码",
-      path: NRouter.qrCodePath,
+      name: "大乐透",
+      path: NRouter.lotteryPath,
       linkType: "internal",
     },
     {
@@ -52,8 +52,8 @@ namespace NApp {
       linkType: "internal",
     },
     {
-      name: "大乐透",
-      path: NRouter.lotteryPath,
+      name: "二维码",
+      path: NRouter.qrCodePath,
       linkType: "internal",
     },
     {
