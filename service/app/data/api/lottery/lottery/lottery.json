@@ -1,3 +1,5 @@
 {
-    "lotteryList": []
+    "lotteryList": [],
+    "fixedNumbers": [],
+    "includeFixedNumbers": true
 }
