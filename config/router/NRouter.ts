@@ -17,6 +17,8 @@ export namespace NRouter {
   export const jokesPath = "/jokes";
   export const classicsPath = "/classics";
   export const maximPath = "/maxim";
+  export const lotteryPath = "/lottery";
+  export const lotteryPredictPath = lotteryPath + "/predict";
   export const routes: IRoute[] = [
     {
       path: rootPath,
@@ -97,6 +99,16 @@ export namespace NRouter {
     {
       path: maximPath,
       component: "." + maximPath,
+      wrappers: [rootComponentPath],
+    },
+    {
+      path: lotteryPath,
+      component: "." + lotteryPath,
+      wrappers: [rootComponentPath],
+    },
+    {
+      path: lotteryPredictPath,
+      component: "." + lotteryPredictPath,
       wrappers: [rootComponentPath],
     },
   ];
