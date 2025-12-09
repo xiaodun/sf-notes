@@ -77,12 +77,9 @@ const GameResultModal: ForwardRefRenderFunction<
   const [qrCodeData, setQrCodeData] = useState<string>("");
   const [dynamicContent, setDynamicContent] = useState<string>("");
   const [staticContent, setStaticContent] = useState<string>("");
-  const [isEditingStaticContent, setIsEditingStaticContent] =
-    useState<boolean>(false);
-  const [tempStaticContent, setTempStaticContent] = useState<string>("");
 
   // localStorage key
-  const STATIC_CONTENT_KEY = "football_static_content";
+  const APPEND_CONTENT_KEY = "football_append_content";
 
   // 获取预测信息
   const fetchPredictInfo = (id: string, newState: IGameResultModalState) => {
@@ -145,10 +142,85 @@ const GameResultModal: ForwardRefRenderFunction<
 
   // 生成二维码内容
   const generateQRCodeContent = useCallback(() => {
-    // 组合所有内容：动态内容
-    // 注意：静态内容已经追加到动态内容中了，这里不需要重复添加
-    return dynamicContent.trim();
-  }, [dynamicContent]);
+    // 二维码内容应该包含预测信息（比赛信息）
+    // 获取选中的第一行（每个bonusItem的第一行代表一组预测）
+    const firstRowItems = selectedRows.filter((item) => item.isFirstRow);
+
+    const qrContentLines: string[] = [];
+
+    firstRowItems.forEach((firstRowItem, groupIndex) => {
+      // 遍历该组中的每场比赛，获取预测信息
+      // 格式：code 预测结果（如：2001 总进0球、2003 让1球胜、2004 胜/胜）
+      firstRowItem.bonusItem.list.forEach((item, matchIndex) => {
+        // 获取预测结果描述
+        let predictResult = item.codeDesc || "";
+
+        // 如果codeDesc包含code（重复），需要去掉
+        // codeDesc可能是 "2001 总进0球" 或 "总进0球"，需要处理
+        if (predictResult && item.code) {
+          // 如果codeDesc以code开头，去掉重复的code
+          if (predictResult.startsWith(item.code)) {
+            predictResult = predictResult.substring(item.code.length).trim();
+          }
+        }
+
+        // 处理让球部分：去掉空格（如"让1球 胜" -> "让1球胜"）
+        // 让球格式通常是"让X球 胜/平/负"，需要去掉空格
+        if (predictResult.includes("让") && predictResult.includes("球")) {
+          // 匹配"让X球 胜"这种格式，去掉空格
+          predictResult = predictResult.replace(
+            /让(\d+)球\s+([胜平负])/g,
+            "让$1球$2"
+          );
+        }
+
+        // 构建预测信息文本：code + 预测结果
+        // 格式：2001 总进0球
+        if (item.code && predictResult) {
+          qrContentLines.push(`${item.code} ${predictResult}`);
+        } else if (item.code) {
+          // 如果没有预测结果，只显示code
+          qrContentLines.push(item.code);
+        }
+      });
+
+      // 每场预测之间添加分隔符（除了最后一场）
+      if (groupIndex < firstRowItems.length - 1) {
+        qrContentLines.push(""); // 空行
+        qrContentLines.push("------------------------------------"); // 用"-"填充的分隔符
+        qrContentLines.push(""); // 空行
+      }
+    });
+
+    // 组合：预测信息 + 投注信息（第X场打）+ 追加内容
+    let qrContent = qrContentLines.join("\n");
+
+    // 添加分隔符：预测信息和投注信息之间
+    if (qrContent.trim() && dynamicContent.trim()) {
+      qrContent += "\n";
+      qrContent += "------------------------------------";
+      qrContent += "\n";
+    }
+
+    // 添加投注信息（第X场打）
+    if (dynamicContent.trim()) {
+      qrContent += dynamicContent.trim();
+    }
+
+    // 添加分隔符：投注信息和追加内容之间
+    if (dynamicContent.trim() && staticContent.trim()) {
+      qrContent += "\n";
+      qrContent += "------------------------------------";
+      qrContent += "\n";
+    }
+
+    // 添加追加内容（独立存在，不追加到动态内容）
+    if (staticContent.trim()) {
+      qrContent += staticContent.trim();
+    }
+
+    return qrContent.trim();
+  }, [dynamicContent, staticContent, selectedRows, matchOddsData]);
 
   // 更新二维码内容
   const updateQRCodeData = useCallback(() => {
@@ -161,91 +233,61 @@ const GameResultModal: ForwardRefRenderFunction<
     if (qrModalVisible) {
       updateQRCodeData();
     }
-  }, [dynamicContent, qrModalVisible, updateQRCodeData]);
+  }, [
+    dynamicContent,
+    staticContent,
+    selectedRows,
+    matchOddsData,
+    qrModalVisible,
+    updateQRCodeData,
+  ]);
 
-  // 从localStorage加载静态内容
-  const loadStaticContentFromStorage = useCallback(() => {
-    try {
-      const saved = localStorage.getItem(STATIC_CONTENT_KEY);
-      if (saved) {
-        return saved;
-      }
-    } catch (error) {
-      console.error("加载静态内容失败:", error);
-    }
-    return "";
+  // 从localStorage加载追加内容
+  const loadAppendContentFromStorage = useCallback(() => {
+    const saved = localStorage.getItem(APPEND_CONTENT_KEY);
+    return saved || "";
   }, []);
 
-  // 保存静态内容到localStorage
-  const saveStaticContentToStorage = useCallback((content: string) => {
-    try {
-      localStorage.setItem(STATIC_CONTENT_KEY, content);
-    } catch (error) {
-      console.error("保存静态内容失败:", error);
-    }
+  // 保存追加内容到localStorage
+  const saveAppendContentToStorage = useCallback((content: string) => {
+    localStorage.setItem(APPEND_CONTENT_KEY, content);
   }, []);
 
   // 处理复制选中的数据
   function handleCopySelected() {
-    // 生成初始动态内容：根据选中的比赛数量，生成"第一场打"、"第二场打"等
+    // 获取选中的第一行（每个bonusItem的第一行代表一组预测）
     const firstRowItems = selectedRows.filter((item) => item.isFirstRow);
-    const totalMatches = firstRowItems.reduce(
-      (sum, item) => sum + item.bonusItem.list.length,
-      0
-    );
+
+    // 根据勾选的预测信息个数，生成投注信息：第一场打、第二场打、第三场打...
+    // 每个预测信息有多场比赛，但投注信息只根据预测信息的个数来生成
+    // 投注信息只包含"第X场打"，不包含队伍和比分信息
+    const selectedCount = firstRowItems.length;
     let initialDynamicContent = Array.from(
-      { length: totalMatches },
+      { length: selectedCount },
       (_, i) => `第${i + 1}场打`
     ).join("\n");
 
-    // 从localStorage加载静态内容并追加到动态内容
-    const savedStaticContent = loadStaticContentFromStorage();
-    if (savedStaticContent) {
-      initialDynamicContent += "\n" + savedStaticContent;
-    }
+    // 从localStorage加载追加内容（不追加到投注信息，保持独立）
+    const savedAppendContent = loadAppendContentFromStorage();
 
     // 初始化状态
     setDynamicContent(initialDynamicContent);
-    setStaticContent(savedStaticContent);
-    setIsEditingStaticContent(false);
-    setTempStaticContent("");
+    setStaticContent(savedAppendContent);
 
     // 显示模态框
     setQrModalVisible(true);
   }
 
-  // 开始编辑静态内容
-  const handleStartEditStaticContent = () => {
-    setTempStaticContent(staticContent);
-    setIsEditingStaticContent(true);
-  };
-
-  // 取消编辑静态内容
-  const handleCancelEditStaticContent = () => {
-    setTempStaticContent("");
-    setIsEditingStaticContent(false);
-  };
-
-  // 保存静态内容
-  const handleSaveStaticContent = () => {
-    const content = tempStaticContent.trim();
-    setStaticContent(content);
-    saveStaticContentToStorage(content);
-
-    // 追加到动态内容
-    if (content) {
-      setDynamicContent((prev) => {
-        // 如果动态内容末尾已经有这个静态内容，就不重复添加
-        if (prev.endsWith(content)) {
-          return prev;
-        }
-        return prev + "\n" + content;
-      });
-    }
-
-    setIsEditingStaticContent(false);
-    setTempStaticContent("");
-  };
+  // 处理追加内容变化（自动保存）
+  const handleAppendContentChange = useCallback(
+    (value: string) => {
+      setStaticContent(value);
+      // 自动保存到localStorage
+      saveAppendContentToStorage(value);
+      // 二维码内容会自动更新（通过useEffect监听staticContent变化）
+    },
+    [saveAppendContentToStorage]
+  );
 
   // 处理行选择变化
   const rowSelection = {
@@ -346,74 +388,26 @@ const GameResultModal: ForwardRefRenderFunction<
             <QRCode value={qrCodeData} size={200} level="M" />
           </div>
 
-          {/* 动态内容（可编辑） */}
+          {/* 投注信息（可编辑） */}
           <div>
-            <div style={{ marginBottom: 8, fontWeight: 500 }}>动态内容：</div>
+            <div style={{ marginBottom: 8, fontWeight: 500 }}>投注信息：</div>
             <Input.TextArea
               value={dynamicContent}
               onChange={(e) => setDynamicContent(e.target.value)}
-              placeholder="可编辑的动态内容"
+              placeholder="可编辑的投注信息"
               autoSize={{ minRows: 3, maxRows: 6 }}
             />
           </div>
 
-          {/* 静态内容（放在最后） */}
+          {/* 追加内容（放在最后，默认可编辑，自动保存） */}
           <div>
-            <div
-              style={{
-                marginBottom: 8,
-                fontWeight: 500,
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <span>静态内容：</span>
-              {!isEditingStaticContent && (
-                <Button
-                  size="small"
-                  icon={<SaveOutlined />}
-                  onClick={handleStartEditStaticContent}
-                >
-                  修改
-                </Button>
-              )}
-            </div>
-            {isEditingStaticContent ? (
-              <Space
-                direction="vertical"
-                style={{ width: "100%" }}
-                size="small"
-              >
-                <Input.TextArea
-                  value={tempStaticContent}
-                  onChange={(e) => setTempStaticContent(e.target.value)}
-                  placeholder="可设置静态内容，保存后将追加到动态内容"
-                  autoSize={{ minRows: 3, maxRows: 6 }}
-                />
-                <Space>
-                  <Button
-                    size="small"
-                    type="primary"
-                    icon={<SaveOutlined />}
-                    onClick={handleSaveStaticContent}
-                  >
-                    保存
-                  </Button>
-                  <Button size="small" onClick={handleCancelEditStaticContent}>
-                    取消
-                  </Button>
-                </Space>
-              </Space>
-            ) : (
-              <Input.TextArea
-                value={staticContent}
-                readOnly
-                placeholder="暂无静态内容，点击修改按钮添加"
-                autoSize={{ minRows: 3, maxRows: 6 }}
-                style={{ backgroundColor: "#f5f5f5" }}
-              />
-            )}
+            <div style={{ marginBottom: 8, fontWeight: 500 }}>追加内容：</div>
+            <Input.TextArea
+              value={staticContent}
+              onChange={(e) => handleAppendContentChange(e.target.value)}
+              placeholder="可设置追加内容，内容变化会自动保存并更新二维码"
+              autoSize={{ minRows: 3, maxRows: 6 }}
+            />
           </div>
         </Space>
       </Modal>
