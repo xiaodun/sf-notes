@@ -2,13 +2,18 @@
   min-height: 100vh;
   padding: 0;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
-
 
 .contentContainer {
   position: relative;
   display: flex;
   flex-direction: column;
+  flex: 1;
+  padding-bottom: 100px; // 为底部固定区域预留空间，避免内容被遮挡
+  min-height: calc(100vh - 72px); // 减去底部区域高度，确保内容区域至少占满剩余空间
 }
 
 .listContainer {
