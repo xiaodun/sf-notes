@@ -105,74 +105,54 @@ export const EditModal: ForwardRefRenderFunction<
     setState({ ...defaultState });
   }
 
-  // 格式化内容：按字符数分段，但不截断句子
+  // 格式化内容：以中文标点符号为分割点，每句话加一个空行
+  // 支持的标点符号：句号。、问号？、感叹号！、分号；
   function formatContent() {
     if (!state.data?.content) {
       message.warning("没有内容需要格式化");
       return;
     }
-    const content = state.data.content;
-    // 将多个换行符合并为一个空格，统一处理
-    let merged = content.replace(/\n+/g, " ").replace(/\s+/g, " ").trim();
+    const content = state.data.content.trim();
 
-    if (!merged) {
+    if (!content) {
       message.warning("没有内容需要格式化");
       return;
     }
 
-    // 每行最大字符数（中文字符算1个，标点符号也算1个）
-    const maxCharsPerLine = 30;
-    const lines: string[] = [];
-    let startIndex = 0;
+    // 按中文标点符号分割，保留标点符号
+    // 匹配：句号。、问号？、感叹号！、分号；
+    const sentences = content
+      .split(/([。？！；])/)
+      .filter((item) => item.trim());
+    const result: string[] = [];
+    let currentSentence = "";
 
-    while (startIndex < merged.length) {
-      // 如果剩余内容不足一行，直接添加
-      if (merged.length - startIndex <= maxCharsPerLine) {
-        lines.push(merged.substring(startIndex).trim());
-        break;
-      }
-
-      // 从 startIndex + maxCharsPerLine 开始向前查找最近的标点符号
-      let endIndex = Math.min(startIndex + maxCharsPerLine, merged.length);
-      let foundBreakPoint = false;
-
-      // 优先查找句号、问号、感叹号、分号
-      for (let i = endIndex; i > startIndex + maxCharsPerLine * 0.7; i--) {
-        if (/[。！？；]/.test(merged[i])) {
-          endIndex = i + 1;
-          foundBreakPoint = true;
-          break;
+    sentences.forEach((item) => {
+      // 检查是否是结束标点符号
+      if (/[。？！；]/.test(item)) {
+        currentSentence += item;
+        if (currentSentence.trim()) {
+          result.push(currentSentence.trim());
+          result.push(""); // 每句话后加一个空行
         }
+        currentSentence = "";
+      } else {
+        currentSentence += item;
       }
+    });
 
-      // 如果没找到，查找逗号、顿号
-      if (!foundBreakPoint) {
-        for (let i = endIndex; i > startIndex + maxCharsPerLine * 0.7; i--) {
-          if (/[，、]/.test(merged[i])) {
-            endIndex = i + 1;
-            foundBreakPoint = true;
-            break;
-          }
-        }
-      }
-
-      // 如果还是没找到，就在最大长度处断行（避免截断）
-      if (!foundBreakPoint) {
-        endIndex = startIndex + maxCharsPerLine;
-      }
-
-      lines.push(merged.substring(startIndex, endIndex).trim());
-      startIndex = endIndex;
+    // 处理最后没有标点符号的内容
+    if (currentSentence.trim()) {
+      result.push(currentSentence.trim());
     }
 
-    const formatted = lines.join("\n");
+    const formatted = result.join("\n");
     const newState = produce(state, (drafState) => {
       if (drafState.data) {
         drafState.data.content = formatted;
       }
     });
     setState(newState);
-    message.success("格式化完成：已按字符数分段");
   }
 
   return (
@@ -202,7 +182,7 @@ export const EditModal: ForwardRefRenderFunction<
               size="small"
               icon={<FormatPainterOutlined />}
               onClick={formatContent}
-              title="格式化内容：按字符数分段，避免截断句子"
+              title="格式化内容：以标点符号（。？！；）为分割点，每句话加一个空行"
             >
               格式化
             </Button>
@@ -210,7 +190,7 @@ export const EditModal: ForwardRefRenderFunction<
           <Input.TextArea
             ref={textAreaRef}
             value={state.data?.content || ""}
-            placeholder="请输入内容（支持粘贴，点击格式化按钮可按字符数分段）"
+            placeholder="请输入内容（支持粘贴，点击格式化按钮可按标点符号（。？！；）分隔并添加空行）"
             autoSize={{ minRows: 6 }}
             onChange={(e) => {
               const newState = produce(state, (drafState) => {
