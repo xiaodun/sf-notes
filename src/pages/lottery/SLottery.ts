@@ -97,6 +97,19 @@ namespace SLottery {
       data,
     });
   }
+
+  /**
+   * 获取中奖号码
+   */
+  export async function getWinningNumbers(
+    drawDate: string
+  ): Promise<NRsp<import("./NLottery").ILotteryNumbers>> {
+    return request({
+      url: "/lottery/getWinningNumbers",
+      method: "get",
+      params: { drawDate },
+    });
+  }
 }
 
 export default SLottery;
