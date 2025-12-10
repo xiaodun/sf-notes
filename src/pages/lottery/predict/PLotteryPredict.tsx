@@ -1,9 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { Button, Space, InputNumber, Card, Modal, Checkbox } from "antd";
+import {
+  Button,
+  Space,
+  InputNumber,
+  Card,
+  Modal,
+  Checkbox,
+  DatePicker,
+  Tag,
+} from "antd";
 import { CopyOutlined } from "@ant-design/icons";
+import moment, { Moment } from "moment";
 import qs from "qs";
 import NRouter from "@/../config/router/NRouter";
-import NLottery, { ILotteryNumbers, IFixedNumber } from "../NLottery";
+import NLottery, {
+  ILotteryNumbers,
+  IFixedNumber,
+  IMatchResult,
+  IPrizeInfo,
+} from "../NLottery";
 import SLottery from "../SLottery";
 import QRCode from "qrcode.react";
 import UCopy from "@/common/utils/UCopy";
@@ -21,24 +36,75 @@ const PLotteryPredict: React.FC<IPLotteryPredictProps> = () => {
   >([]);
   const [qrCodeVisible, setQrCodeVisible] = useState(false);
   const [includeFixedNumbers, setIncludeFixedNumbers] = useState(true);
+  const [matchResults, setMatchResults] = useState<IMatchResult[]>([]);
+  const [loadingWinningNumbers, setLoadingWinningNumbers] = useState(false);
 
   const urlQuery = qs.parse(window.location.search, {
     ignoreQueryPrefix: true,
   }) as { id: string };
 
   useEffect(() => {
-    document.title = "大乐透预测";
     if (urlQuery.id) {
       loadLottery();
     }
   }, [urlQuery.id]);
+  useEffect(() => {
+    document.title = "今天中大奖！";
+  }, []);
+
+  /**
+   * 计算下一个开奖日期（大乐透每周一、三、六开奖，销售截止时间21:00）
+   */
+  function calculateNextDrawDate(createTime: number): string {
+    const createDate = moment(createTime);
+    const dayOfWeek = createDate.day(); // 0=周日, 1=周一, ..., 6=周六
+
+    // 大乐透开奖日：周一(1)、周三(3)、周六(6)
+    const drawDays = [1, 3, 6];
+
+    // 如果创建日期就是开奖日，且时间在21:00之前，则当天开奖
+    if (drawDays.includes(dayOfWeek)) {
+      const cutoffTime = createDate.clone().hour(21).minute(0);
+      if (createDate.isBefore(cutoffTime)) {
+        return createDate.format("YYYY-MM-DD");
+      }
+    }
+
+    // 否则找下一个开奖日
+    let nextDate = createDate.clone().add(1, "day");
+    let attempts = 0;
+    while (attempts < 7) {
+      const nextDayOfWeek = nextDate.day();
+      if (drawDays.includes(nextDayOfWeek)) {
+        return nextDate.format("YYYY-MM-DD");
+      }
+      nextDate = nextDate.clone().add(1, "day");
+      attempts++;
+    }
+
+    // 如果7天内没找到，返回创建日期后的第一个周一
+    return createDate
+      .clone()
+      .add(1, "week")
+      .startOf("week")
+      .add(1, "day")
+      .format("YYYY-MM-DD");
+  }
 
   function loadLottery() {
     SLottery.getLotteryList().then((rsp) => {
       if (rsp.success && rsp.data) {
         const found = rsp.data.find((item) => item.id === urlQuery.id);
         if (found) {
+          // 如果没有开奖日期，根据创建时间计算
+          if (!found.drawDate) {
+            found.drawDate = calculateNextDrawDate(found.createTime);
+          }
           setLottery(found);
+          // 如果有中奖号码，计算匹配结果
+          if (found.winningNumbers) {
+            calculateMatchResults(found);
+          }
         } else {
           window.umiHistory.push(NRouter.lotteryPath);
         }
@@ -229,74 +295,617 @@ const PLotteryPredict: React.FC<IPLotteryPredictProps> = () => {
     return <div>加载中...</div>;
   }
 
+  /**
+   * 匹配中奖等级
+   */
+  function matchPrizeLevel(
+    betNumbers: ILotteryNumbers,
+    winningNumbers: ILotteryNumbers
+  ): IPrizeInfo | null {
+    const frontMatch = betNumbers.front.filter((n) =>
+      winningNumbers.front.includes(n)
+    ).length;
+    const backMatch = betNumbers.back.filter((n) =>
+      winningNumbers.back.includes(n)
+    ).length;
+
+    // 大乐透中奖规则
+    if (frontMatch === 5 && backMatch === 2) {
+      return { level: 1, levelName: "一等奖", bonus: undefined }; // 浮动奖金
+    } else if (frontMatch === 5 && backMatch === 1) {
+      return { level: 2, levelName: "二等奖", bonus: undefined }; // 浮动奖金
+    } else if (frontMatch === 5 && backMatch === 0) {
+      return { level: 3, levelName: "三等奖", bonus: 10000 };
+    } else if (frontMatch === 4 && backMatch === 2) {
+      return { level: 4, levelName: "四等奖", bonus: 3000 };
+    } else if (frontMatch === 4 && backMatch === 1) {
+      return { level: 5, levelName: "五等奖", bonus: 300 };
+    } else if (frontMatch === 3 && backMatch === 2) {
+      return { level: 6, levelName: "六等奖", bonus: 200 };
+    } else if (frontMatch === 4 && backMatch === 0) {
+      return { level: 7, levelName: "七等奖", bonus: 100 };
+    } else if (
+      (frontMatch === 3 && backMatch === 1) ||
+      (frontMatch === 2 && backMatch === 2)
+    ) {
+      return { level: 8, levelName: "八等奖", bonus: 15 };
+    } else if (
+      (frontMatch === 3 && backMatch === 0) ||
+      (frontMatch === 2 && backMatch === 1) ||
+      (frontMatch === 1 && backMatch === 2) ||
+      (frontMatch === 0 && backMatch === 2)
+    ) {
+      return { level: 9, levelName: "九等奖", bonus: 5 };
+    }
+    return null;
+  }
+
+  /**
+   * 计算匹配结果（只计算随机号码，固定号码单独显示）
+   */
+  function calculateMatchResults(lotteryData: NLottery) {
+    if (!lotteryData.winningNumbers) {
+      setMatchResults([]);
+      return;
+    }
+
+    const results: IMatchResult[] = [];
+
+    // 只计算随机号码
+    lotteryData.numbersList.forEach((numbers) => {
+      const prizeInfo = matchPrizeLevel(numbers, lotteryData.winningNumbers!);
+      results.push({
+        numbers,
+        isFixed: false,
+        prizeInfo: prizeInfo || undefined,
+      });
+    });
+
+    // 排序：中奖的排在前面，按等级从高到低
+    results.sort((a, b) => {
+      if (a.prizeInfo && !b.prizeInfo) return -1;
+      if (!a.prizeInfo && b.prizeInfo) return 1;
+      if (a.prizeInfo && b.prizeInfo) {
+        return a.prizeInfo.level - b.prizeInfo.level;
+      }
+      return 0;
+    });
+
+    setMatchResults(results);
+  }
+
+  /**
+   * 获取固定号码的匹配结果
+   */
+  function getFixedNumberPrizeInfo(
+    numbers: ILotteryNumbers
+  ): IPrizeInfo | null {
+    if (!lottery || !lottery.winningNumbers) return null;
+    return matchPrizeLevel(numbers, lottery.winningNumbers);
+  }
+
+  /**
+   * 获取中奖号码
+   */
+  function handleGetWinningNumbers() {
+    if (!lottery || !lottery.drawDate) return;
+
+    setLoadingWinningNumbers(true);
+    SLottery.getWinningNumbers(lottery.drawDate).then((rsp) => {
+      setLoadingWinningNumbers(false);
+      if (rsp.success && rsp.data) {
+        const updatedLottery: NLottery = {
+          ...lottery,
+          winningNumbers: rsp.data,
+          updateTime: new Date().toISOString(),
+        };
+        SLottery.editLottery(updatedLottery).then((editRsp) => {
+          if (editRsp.success) {
+            setLottery(updatedLottery);
+            calculateMatchResults(updatedLottery);
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * 更新开奖日期
+   */
+  function handleDrawDateChange(date: Moment | null) {
+    if (!lottery || !date) return;
+
+    const updatedLottery: NLottery = {
+      ...lottery,
+      drawDate: date.format("YYYY-MM-DD"),
+      updateTime: new Date().toISOString(),
+    };
+
+    SLottery.editLottery(updatedLottery).then((rsp) => {
+      if (rsp.success) {
+        setLottery(updatedLottery);
+      }
+    });
+  }
+
+  /**
+   * 判断是否已到开奖日期（开奖时间20:30）
+   */
+  function isDrawDateReached(): boolean {
+    if (!lottery || !lottery.drawDate) return false;
+    const drawDate = moment(lottery.drawDate).hour(20).minute(30);
+    return moment().isSameOrAfter(drawDate);
+  }
+
+  /**
+   * 获取中奖信息标签颜色
+   */
+  function getPrizeTagColor(level: number): string {
+    const colorMap: { [key: number]: string } = {
+      1: "red", // 一等奖 - 红色
+      2: "orange", // 二等奖 - 橙色
+      3: "gold", // 三等奖 - 金色
+      4: "purple", // 四等奖 - 紫色
+      5: "blue", // 五等奖 - 蓝色
+      6: "cyan", // 六等奖 - 青色
+      7: "green", // 七等奖 - 绿色
+      8: "lime", // 八等奖 - 浅绿
+      9: "default", // 九等奖 - 默认
+    };
+    return colorMap[level] || "default";
+  }
+
+  /**
+   * 判断号码是否匹配（该号码既在投注号码中，也在中奖号码中）
+   */
+  function isNumberMatched(
+    number: number,
+    betNumbers: number[],
+    winningNumbers: number[]
+  ): boolean {
+    return betNumbers.includes(number) && winningNumbers.includes(number);
+  }
+
   return (
     <div className={SelfStyle.main}>
+      {/* 开奖日期 */}
+      <Card size="small" style={{ marginBottom: 16 }} title="开奖信息">
+        <Space>
+          <span>开奖日期：</span>
+          <DatePicker
+            value={lottery?.drawDate ? moment(lottery.drawDate) : null}
+            onChange={handleDrawDateChange}
+            format="YYYY-MM-DD"
+            allowClear={false}
+          />
+          <Button
+            type="primary"
+            onClick={handleGetWinningNumbers}
+            loading={loadingWinningNumbers}
+          >
+            开奖
+          </Button>
+        </Space>
+      </Card>
+
+      {/* 中奖号码 */}
+      {lottery?.winningNumbers && (
+        <Card
+          size="small"
+          style={{
+            marginBottom: 16,
+            backgroundColor: "#fff7e6",
+            borderColor: "#ffa940",
+            borderWidth: 2,
+          }}
+          title={
+            <span
+              style={{ fontSize: 16, fontWeight: "bold", color: "#d46b08" }}
+            >
+              中奖号码
+            </span>
+          }
+        >
+          <div style={{ textAlign: "center", padding: "16px 0" }}>
+            <Space size="large" style={{ fontSize: 20, fontWeight: "bold" }}>
+              <span>
+                {lottery.winningNumbers.front.map((n) => (
+                  <span
+                    key={n}
+                    style={{
+                      display: "inline-block",
+                      width: 40,
+                      height: 40,
+                      lineHeight: "40px",
+                      backgroundColor: "#ff4d4f",
+                      color: "#fff",
+                      borderRadius: "50%",
+                      margin: "0 4px",
+                      fontSize: 18,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {n < 10 ? `0${n}` : n}
+                  </span>
+                ))}
+              </span>
+              <span style={{ fontSize: 24, color: "#ff4d4f" }}>+</span>
+              <span>
+                {lottery.winningNumbers.back.map((n) => (
+                  <span
+                    key={n}
+                    style={{
+                      display: "inline-block",
+                      width: 40,
+                      height: 40,
+                      lineHeight: "40px",
+                      backgroundColor: "#1890ff",
+                      color: "#fff",
+                      borderRadius: "50%",
+                      margin: "0 4px",
+                      fontSize: 18,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {n < 10 ? `0${n}` : n}
+                  </span>
+                ))}
+              </span>
+            </Space>
+          </div>
+        </Card>
+      )}
+
       {/* 固定号码配置显示 */}
       {globalFixedNumbers.length > 0 && (
         <Card size="small" style={{ marginBottom: 16 }} title="固定号码">
           <div>
             {globalFixedNumbers.map((item, index) => {
-              const frontStr = item.numbers.front
-                .map((n) => (n < 10 ? `0${n}` : String(n)))
-                .join(" ");
-              const backStr = item.numbers.back
-                .map((n) => (n < 10 ? `0${n}` : String(n)))
-                .join(" ");
+              const prizeInfo = getFixedNumberPrizeInfo(item.numbers);
+              const winningNumbers = lottery?.winningNumbers;
+
+              // 计算中奖金额显示
+              // 投注金额的一半是倍数
+              const multiplier =
+                item.betAmount && item.betAmount > 0 ? item.betAmount / 2 : 0;
+
+              let prizeDisplay = "";
+              if (prizeInfo) {
+                if (prizeInfo.level === 1 || prizeInfo.level === 2) {
+                  // 一等奖、二等奖显示倍数
+                  if (multiplier > 0) {
+                    prizeDisplay = ` ${multiplier}倍`;
+                  }
+                } else if (prizeInfo.bonus !== undefined) {
+                  // 其他等级显示：倍数 × 单注奖金 = 总奖金
+                  if (multiplier > 0) {
+                    const totalBonus = prizeInfo.bonus * multiplier;
+                    prizeDisplay = ` ${multiplier}倍 × ¥${prizeInfo.bonus} = ¥${totalBonus}`;
+                  } else {
+                    prizeDisplay = ` ¥${prizeInfo.bonus}`;
+                  }
+                }
+              }
+
               return (
-                <div key={index} style={{ marginBottom: 8 }}>
-                  <div>
-                    {frontStr} + {backStr}
+                <Card
+                  key={index}
+                  size="small"
+                  style={{
+                    marginBottom: 8,
+                    backgroundColor: prizeInfo ? "#f6ffed" : "transparent",
+                    borderColor: prizeInfo ? "#52c41a" : undefined,
+                  }}
+                  title={
+                    prizeInfo ? (
+                      <Tag
+                        color={getPrizeTagColor(prizeInfo.level)}
+                        style={{ fontSize: 14 }}
+                      >
+                        {prizeInfo.levelName}
+                        {prizeDisplay}
+                      </Tag>
+                    ) : null
+                  }
+                  extra={
+                    <Button
+                      type="link"
+                      icon={<CopyOutlined />}
+                      onClick={() => {
+                        const numbersStr = formatNumbers(item.numbers);
+                        UCopy.copyStr(numbersStr);
+                      }}
+                    >
+                      复制
+                    </Button>
+                  }
+                >
+                  <div className={SelfStyle.numberItem}>
+                    <Space size="large">
+                      <span className={SelfStyle.frontNumbers}>
+                        {item.numbers.front.map((n) => {
+                          const isMatched =
+                            winningNumbers &&
+                            isNumberMatched(
+                              n,
+                              item.numbers.front,
+                              winningNumbers.front
+                            );
+                          return (
+                            <span
+                              key={n}
+                              className={SelfStyle.number}
+                              style={{
+                                backgroundColor: isMatched
+                                  ? "#52c41a"
+                                  : "transparent",
+                                color: isMatched ? "#fff" : undefined,
+                                borderRadius: 4,
+                                padding: "2px 4px",
+                              }}
+                            >
+                              {n < 10 ? `0${n}` : n}
+                            </span>
+                          );
+                        })}
+                      </span>
+                      <span className={SelfStyle.separator}>+</span>
+                      <span className={SelfStyle.backNumbers}>
+                        {item.numbers.back.map((n) => {
+                          const isMatched =
+                            winningNumbers &&
+                            isNumberMatched(
+                              n,
+                              item.numbers.back,
+                              winningNumbers.back
+                            );
+                          return (
+                            <span
+                              key={n}
+                              className={SelfStyle.number}
+                              style={{
+                                backgroundColor: isMatched
+                                  ? "#52c41a"
+                                  : "transparent",
+                                color: isMatched ? "#fff" : undefined,
+                                borderRadius: 4,
+                                padding: "2px 4px",
+                              }}
+                            >
+                              {n < 10 ? `0${n}` : n}
+                            </span>
+                          );
+                        })}
+                      </span>
+                      {item.betAmount && item.betAmount > 0 && (
+                        <span style={{ color: "#999", fontSize: 12 }}>
+                          投注：{item.betAmount}元
+                        </span>
+                      )}
+                    </Space>
                   </div>
-                  {item.betAmount && item.betAmount > 0 && (
-                    <div style={{ color: "#999", fontSize: 12, marginTop: 4 }}>
-                      投注金额：{item.betAmount}元
-                    </div>
-                  )}
-                </div>
+                </Card>
               );
             })}
           </div>
         </Card>
       )}
 
+      {/* 随机号码列表 */}
       <div className={SelfStyle.numbersList}>
-        {lottery.numbersList.map((numbers, index) => (
-          <Card
-            key={index}
-            size="small"
-            style={{ marginBottom: 8 }}
-            extra={
-              <Button
-                type="link"
-                danger
-                onClick={() => handleDeleteNumber(index)}
-              >
-                删除
-              </Button>
-            }
-          >
-            <div className={SelfStyle.numberItem}>
-              <span className={SelfStyle.label}>第{index + 1}组：</span>
-              <Space size="large">
-                <span className={SelfStyle.frontNumbers}>
-                  {numbers.front.map((n) => (
-                    <span key={n} className={SelfStyle.number}>
-                      {n < 10 ? `0${n}` : n}
+        {matchResults.length > 0
+          ? matchResults.map((result, index) => {
+              const originalIndex = lottery.numbersList.findIndex(
+                (n) =>
+                  JSON.stringify(n.front) ===
+                    JSON.stringify(result.numbers.front) &&
+                  JSON.stringify(n.back) === JSON.stringify(result.numbers.back)
+              );
+              const winningNumbers = lottery?.winningNumbers;
+              return (
+                <Card
+                  key={index}
+                  size="small"
+                  style={{
+                    marginBottom: 8,
+                    backgroundColor: result.prizeInfo
+                      ? "#f6ffed"
+                      : "transparent",
+                    borderColor: result.prizeInfo ? "#52c41a" : undefined,
+                  }}
+                  title={
+                    result.prizeInfo ? (
+                      <Tag
+                        color={getPrizeTagColor(result.prizeInfo.level)}
+                        style={{ fontSize: 14 }}
+                      >
+                        {result.prizeInfo.levelName}
+                        {result.prizeInfo.bonus !== undefined &&
+                          ` ¥${result.prizeInfo.bonus}`}
+                      </Tag>
+                    ) : null
+                  }
+                  extra={
+                    <Space>
+                      <Button
+                        type="link"
+                        icon={<CopyOutlined />}
+                        onClick={() => {
+                          const numbersStr = formatNumbers(result.numbers);
+                          UCopy.copyStr(numbersStr);
+                        }}
+                      >
+                        复制
+                      </Button>
+                      {originalIndex >= 0 && (
+                        <Button
+                          type="link"
+                          danger
+                          onClick={() => handleDeleteNumber(originalIndex)}
+                        >
+                          删除
+                        </Button>
+                      )}
+                    </Space>
+                  }
+                >
+                  <div className={SelfStyle.numberItem}>
+                    <span className={SelfStyle.label}>
+                      第{originalIndex >= 0 ? originalIndex + 1 : index + 1}组：
                     </span>
-                  ))}
-                </span>
-                <span className={SelfStyle.separator}>+</span>
-                <span className={SelfStyle.backNumbers}>
-                  {numbers.back.map((n) => (
-                    <span key={n} className={SelfStyle.number}>
-                      {n < 10 ? `0${n}` : n}
-                    </span>
-                  ))}
-                </span>
-              </Space>
-            </div>
-          </Card>
-        ))}
+                    <Space size="large">
+                      <span className={SelfStyle.frontNumbers}>
+                        {result.numbers.front.map((n) => {
+                          const isMatched =
+                            winningNumbers &&
+                            isNumberMatched(
+                              n,
+                              result.numbers.front,
+                              winningNumbers.front
+                            );
+                          return (
+                            <span
+                              key={n}
+                              className={SelfStyle.number}
+                              style={{
+                                backgroundColor: isMatched
+                                  ? "#52c41a"
+                                  : "transparent",
+                                color: isMatched ? "#fff" : undefined,
+                                borderRadius: 4,
+                                padding: "2px 4px",
+                              }}
+                            >
+                              {n < 10 ? `0${n}` : n}
+                            </span>
+                          );
+                        })}
+                      </span>
+                      <span className={SelfStyle.separator}>+</span>
+                      <span className={SelfStyle.backNumbers}>
+                        {result.numbers.back.map((n) => {
+                          const isMatched =
+                            winningNumbers &&
+                            isNumberMatched(
+                              n,
+                              result.numbers.back,
+                              winningNumbers.back
+                            );
+                          return (
+                            <span
+                              key={n}
+                              className={SelfStyle.number}
+                              style={{
+                                backgroundColor: isMatched
+                                  ? "#52c41a"
+                                  : "transparent",
+                                color: isMatched ? "#fff" : undefined,
+                                borderRadius: 4,
+                                padding: "2px 4px",
+                              }}
+                            >
+                              {n < 10 ? `0${n}` : n}
+                            </span>
+                          );
+                        })}
+                      </span>
+                    </Space>
+                  </div>
+                </Card>
+              );
+            })
+          : lottery.numbersList.map((numbers, index) => {
+              const winningNumbers = lottery?.winningNumbers;
+              return (
+                <Card
+                  key={index}
+                  size="small"
+                  style={{ marginBottom: 8 }}
+                  extra={
+                    <Space>
+                      <Button
+                        type="link"
+                        icon={<CopyOutlined />}
+                        onClick={() => {
+                          const numbersStr = formatNumbers(numbers);
+                          UCopy.copyStr(numbersStr);
+                        }}
+                      >
+                        复制
+                      </Button>
+                      <Button
+                        type="link"
+                        danger
+                        onClick={() => handleDeleteNumber(index)}
+                      >
+                        删除
+                      </Button>
+                    </Space>
+                  }
+                >
+                  <div className={SelfStyle.numberItem}>
+                    <span className={SelfStyle.label}>第{index + 1}组：</span>
+                    <Space size="large">
+                      <span className={SelfStyle.frontNumbers}>
+                        {numbers.front.map((n) => {
+                          const isMatched =
+                            winningNumbers &&
+                            isNumberMatched(
+                              n,
+                              numbers.front,
+                              winningNumbers.front
+                            );
+                          return (
+                            <span
+                              key={n}
+                              className={SelfStyle.number}
+                              style={{
+                                backgroundColor: isMatched
+                                  ? "#52c41a"
+                                  : "transparent",
+                                color: isMatched ? "#fff" : undefined,
+                                borderRadius: 4,
+                                padding: "2px 4px",
+                              }}
+                            >
+                              {n < 10 ? `0${n}` : n}
+                            </span>
+                          );
+                        })}
+                      </span>
+                      <span className={SelfStyle.separator}>+</span>
+                      <span className={SelfStyle.backNumbers}>
+                        {numbers.back.map((n) => {
+                          const isMatched =
+                            winningNumbers &&
+                            isNumberMatched(
+                              n,
+                              numbers.back,
+                              winningNumbers.back
+                            );
+                          return (
+                            <span
+                              key={n}
+                              className={SelfStyle.number}
+                              style={{
+                                backgroundColor: isMatched
+                                  ? "#52c41a"
+                                  : "transparent",
+                                color: isMatched ? "#fff" : undefined,
+                                borderRadius: 4,
+                                padding: "2px 4px",
+                              }}
+                            >
+                              {n < 10 ? `0${n}` : n}
+                            </span>
+                          );
+                        })}
+                      </span>
+                    </Space>
+                  </div>
+                </Card>
+              );
+            })}
       </div>
 
       <div className={SelfStyle.bottomActions}>
