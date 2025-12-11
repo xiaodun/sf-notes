@@ -7,6 +7,7 @@ import {
   Modal,
   Checkbox,
   DatePicker,
+  Select,
   Tag,
 } from "antd";
 import { CopyOutlined } from "@ant-design/icons";
@@ -89,6 +90,39 @@ const PLotteryPredict: React.FC<IPLotteryPredictProps> = () => {
       .startOf("week")
       .add(1, "day")
       .format("YYYY-MM-DD");
+  }
+
+  /**
+   * 生成最近一个月的开奖日期列表（大乐透每周一、三、六开奖）
+   */
+  function generateDrawDateOptions(): string[] {
+    const drawDays = [1, 3, 6]; // 周一、周三、周六
+    const dates: string[] = [];
+    const today = moment();
+    const oneMonthAgo = moment().subtract(1, "month");
+
+    // 从一个月前开始，找到第一个开奖日
+    let currentDate = oneMonthAgo.clone();
+    while (!drawDays.includes(currentDate.day())) {
+      currentDate.add(1, "day");
+    }
+
+    // 生成从一个月前到今天的开奖日期列表
+    while (currentDate.isSameOrBefore(today)) {
+      if (drawDays.includes(currentDate.day())) {
+        dates.push(currentDate.format("YYYY-MM-DD"));
+      }
+      currentDate.add(1, "day");
+    }
+
+    // 如果列表为空，至少包含今天（如果是开奖日）或下一个开奖日
+    if (dates.length === 0) {
+      const nextDrawDate = calculateNextDrawDate(today.valueOf());
+      dates.push(nextDrawDate);
+    }
+
+    // 按时间倒序排列（最新的在前面）
+    return dates.reverse();
   }
 
   function loadLottery() {
@@ -412,12 +446,12 @@ const PLotteryPredict: React.FC<IPLotteryPredictProps> = () => {
   /**
    * 更新开奖日期
    */
-  function handleDrawDateChange(date: Moment | null) {
+  function handleDrawDateChange(date: string) {
     if (!lottery || !date) return;
 
     const updatedLottery: NLottery = {
       ...lottery,
-      drawDate: date.format("YYYY-MM-DD"),
+      drawDate: date,
       updateTime: new Date().toISOString(),
     };
 
@@ -472,12 +506,18 @@ const PLotteryPredict: React.FC<IPLotteryPredictProps> = () => {
       <Card size="small" style={{ marginBottom: 16 }} title="开奖信息">
         <Space>
           <span>开奖日期：</span>
-          <DatePicker
-            value={lottery?.drawDate ? moment(lottery.drawDate) : null}
+          <Select
+            value={lottery?.drawDate || undefined}
             onChange={handleDrawDateChange}
-            format="YYYY-MM-DD"
-            allowClear={false}
-          />
+            style={{ width: 150 }}
+            placeholder="请选择开奖日期"
+          >
+            {generateDrawDateOptions().map((date) => (
+              <Select.Option key={date} value={date}>
+                {date}
+              </Select.Option>
+            ))}
+          </Select>
           <Button
             type="primary"
             onClick={handleGetWinningNumbers}
@@ -492,6 +532,7 @@ const PLotteryPredict: React.FC<IPLotteryPredictProps> = () => {
       {lottery?.winningNumbers && (
         <Card
           size="small"
+          className={SelfStyle.winningNumbersCard}
           style={{
             marginBottom: 16,
             backgroundColor: "#fff7e6",
