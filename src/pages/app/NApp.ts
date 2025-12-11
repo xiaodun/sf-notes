@@ -34,7 +34,7 @@ namespace NApp {
     {
       name: "大乐透",
       path: NRouter.lotteryPath,
-      linkType: "internal",
+      linkType: "external",
     },
     {
       name: "段子",
