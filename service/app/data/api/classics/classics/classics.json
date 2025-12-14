@@ -23,6 +23,22 @@
             "createTime": 1765162386588,
             "updateTime": "2025-12-08T02:53:06.588Z",
             "deleted": false
+        },
+        {
+            "name": "毛泽东",
+            "dynastyId": "1765696686377",
+            "id": "1765696698173",
+            "createTime": 1765696698173,
+            "updateTime": "2025-12-14T07:18:18.173Z",
+            "deleted": false
+        },
+        {
+            "name": "荀子",
+            "dynastyId": "1765696965026",
+            "id": "1765696973399",
+            "createTime": 1765696973399,
+            "updateTime": "2025-12-14T07:22:53.399Z",
+            "deleted": false
         }
     ],
     "dynasties": [
@@ -38,6 +54,20 @@
             "id": "1765161965432",
             "createTime": 1765161965432,
             "updateTime": "2025-12-08T02:46:05.432Z",
+            "deleted": false
+        },
+        {
+            "name": "中华人民共和国",
+            "id": "1765696686377",
+            "createTime": 1765696686377,
+            "updateTime": "2025-12-14T07:18:06.377Z",
+            "deleted": false
+        },
+        {
+            "name": "战国",
+            "id": "1765696965026",
+            "createTime": 1765696965026,
+            "updateTime": "2025-12-14T07:22:45.026Z",
             "deleted": false
         }
     ]
