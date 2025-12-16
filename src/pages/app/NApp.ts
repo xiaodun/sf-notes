@@ -37,6 +37,11 @@ namespace NApp {
       linkType: "external",
     },
     {
+      name: "七星彩",
+      path: NRouter.sevenStarPath,
+      linkType: "external",
+    },
+    {
       name: "段子",
       path: NRouter.jokesPath,
       linkType: "internal",
