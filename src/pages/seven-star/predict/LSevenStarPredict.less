@@ -1,0 +1,60 @@
+.main {
+  padding: 16px;
+  padding-bottom: 80px; // 为底部按钮留出空间
+}
+
+.numbersList {
+  margin-bottom: 16px;
+}
+
+.numberItem {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+}
+
+.label {
+  margin-right: 12px;
+  font-weight: 500;
+}
+
+.numbers {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.number {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+  text-align: center;
+  background: #f0f0f0;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.bottomActions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: #fff;
+  border-top: 1px solid #f0f0f0;
+  text-align: center;
+  z-index: 100;
+}
+
+.previewNumbersList {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.winningNumbersCard {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
