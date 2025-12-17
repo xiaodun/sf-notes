@@ -22,7 +22,10 @@
       data: argData,
       response: {
         code: 200,
-        data: {},
+        data: {
+          success: true,
+          data: argParams,
+        },
       },
     };
   };
