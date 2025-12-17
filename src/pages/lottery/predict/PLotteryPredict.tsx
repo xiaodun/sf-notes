@@ -285,6 +285,8 @@ const PLotteryPredict: React.FC<IPLotteryPredictProps> = () => {
     }
 
     const contentLines: string[] = [];
+    // 第一行：彩票类型
+    contentLines.push("大乐透投注\n");
 
     // 固定号码（格式与随机号码一致，包含投注金额，换行显示）
     // 根据勾选状态决定是否包含固定号码
