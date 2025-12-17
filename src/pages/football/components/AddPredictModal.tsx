@@ -10,6 +10,7 @@ import { produce } from "immer";
 import NFootball from "../NFootball";
 import SFootball from "../SFootball";
 import moment from "moment";
+import NRouter from "@/../config/router/NRouter";
 
 export interface IAddPredictModal {
   showModal: (isEdit: boolean, id?: string) => void;
@@ -104,10 +105,19 @@ const AddPredictModal: ForwardRefRenderFunction<
       if (state.isEdit) {
         params.id = state.id;
         params.isEdit = state.isEdit;
+        await SFootball.createPredict(params);
+        props.onOk();
+        onCancel();
+      } else {
+        // 创建预测成功后，直接跳转到预测详情页
+        const rsp = await SFootball.createPredict(params);
+        if (rsp.success && rsp.data) {
+          onCancel();
+          window.umiHistory.push(
+            `${NRouter.footballPredictPath}?id=${rsp.data.id}`
+          );
+        }
       }
-      await SFootball.createPredict(params);
-      props.onOk();
-      onCancel();
     });
   }
 };
