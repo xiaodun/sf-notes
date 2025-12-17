@@ -39,6 +39,30 @@
             "createTime": 1765696973399,
             "updateTime": "2025-12-14T07:22:53.399Z",
             "deleted": false
+        },
+        {
+            "name": "李清照",
+            "dynastyId": "1764920353483",
+            "id": "1765934465544",
+            "createTime": 1765934465544,
+            "updateTime": "2025-12-17T01:21:05.544Z",
+            "deleted": false
+        },
+        {
+            "name": "苏轼",
+            "dynastyId": "1764920353483",
+            "id": "1765934569673",
+            "createTime": 1765934569673,
+            "updateTime": "2025-12-17T01:22:49.673Z",
+            "deleted": false
+        },
+        {
+            "name": "杜甫",
+            "dynastyId": "1765161965432",
+            "id": "1765934734778",
+            "createTime": 1765934734778,
+            "updateTime": "2025-12-17T01:25:34.778Z",
+            "deleted": false
         }
     ],
     "dynasties": [
