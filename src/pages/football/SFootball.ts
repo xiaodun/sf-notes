@@ -60,7 +60,9 @@ namespace SFootball {
       },
     });
   }
-  export async function createPredict(data: NFootball): Promise<NRsp<boolean>> {
+  export async function createPredict(
+    data: NFootball
+  ): Promise<NRsp<NFootball>> {
     return request({
       url: "/football/createPredict",
       method: "post",
