@@ -268,6 +268,8 @@ const PSevenStarPredict: React.FC<IPSevenStarPredictProps> = () => {
     }
 
     const contentLines: string[] = [];
+    // 第一行：彩票类型
+    contentLines.push("七星彩投注\n");
 
     // 固定号码（格式与随机号码一致，包含投注金额，换行显示）
     if (
