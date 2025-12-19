@@ -17,6 +17,7 @@ import type { ColumnsType } from "antd/es/table";
 export interface IDynastyManageModalProps {
   onOk: () => void; // 朝代添加后的回调（用于从主页面打开时刷新）
   onDynastyAdded?: () => Promise<void>; // 朝代添加后的回调（用于从管理作者打开时刷新管理作者中的朝代列表）
+  onDynastyAddedWithId?: (dynastyId: string) => void; // 朝代添加后的回调，返回新创建的朝代ID
 }
 
 export interface IDynastyManageModalState {
@@ -43,6 +44,7 @@ export const DynastyManageModal: ForwardRefRenderFunction<
     useState<Partial<IDynastyManageModalState>>(defaultState);
   const [newDynasty, setNewDynasty] = useState({ name: "" });
   const containerRef = useRef<HTMLDivElement>(null);
+  const dynastyNameInputRef = useRef<any>(null);
 
   useImperativeHandle(ref, () => ({
     showModal: () => {
@@ -51,6 +53,10 @@ export const DynastyManageModal: ForwardRefRenderFunction<
         open: true,
       });
       loadDynasties();
+      // 使用 setTimeout 确保模态框已渲染后再聚焦
+      setTimeout(() => {
+        dynastyNameInputRef.current?.focus();
+      }, 100);
     },
   }));
 
@@ -91,12 +97,30 @@ export const DynastyManageModal: ForwardRefRenderFunction<
       });
 
       if (rsp.success) {
+        // 获取新创建的朝代ID
+        // 根据日志，rsp 对象本身可能包含 id 字段，或者 rsp.data 包含
+        const newDynasty = (rsp.data as NDynasty) || (rsp as any);
+        const newDynastyId = newDynasty?.id || (rsp as any)?.id || "";
         setNewDynasty({ name: "" });
         handleClose();
-        // 根据打开方式调用不同的回调，避免重复调用
-        // 如果是从管理作者打开的，只调用 onDynastyAdded 刷新管理作者中的朝代列表
+        // 根据打开方式调用不同的回调
+        // 如果是从管理作者打开的（有 onDynastyAdded），只调用 onDynastyAdded 刷新列表，然后调用 onDynastyAddedWithId 选择朝代
+        // 如果是从主页面打开的（没有 onDynastyAdded），只调用 onDynastyAddedWithId
         if (props.onDynastyAdded) {
+          // 从管理作者打开的
           await props.onDynastyAdded();
+          // 刷新列表后，调用 onDynastyAddedWithId 在管理作者中选择该朝代
+          if (props.onDynastyAddedWithId && newDynastyId) {
+            setTimeout(() => {
+              props.onDynastyAddedWithId?.(newDynastyId);
+            }, 200);
+          } else if (props.onDynastyAddedWithId && (rsp as any)?.id) {
+            // fallback
+            const fallbackId = (rsp as any).id;
+            setTimeout(() => {
+              props.onDynastyAddedWithId?.(fallbackId);
+            }, 200);
+          }
         }
       } else {
         message.error(rsp.msg || "添加失败");
@@ -273,6 +297,7 @@ export const DynastyManageModal: ForwardRefRenderFunction<
         <div>
           <div style={{ marginBottom: 8, fontWeight: 500 }}>添加朝代：</div>
           <Input
+            ref={dynastyNameInputRef}
             placeholder="朝代名称"
             value={newDynasty.name}
             onChange={(e) => setNewDynasty({ name: e.target.value })}
