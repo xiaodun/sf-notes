@@ -402,9 +402,54 @@ const PClassics: ConnectRC<PClassicsProps> = (props) => {
     await authorManageModalRef.current?.refreshDynasties();
   }, []);
 
+  // 从管理作者模态框打开朝代管理，朝代添加后的回调（用于在管理作者中选择该朝代）
+  const handleDynastyAddedFromAuthorWithId = useCallback(
+    async (dynastyId: string) => {
+      // 朝代添加后，在管理作者模态框中自动选择该朝代
+      // 这个逻辑需要在AuthorManageModal中实现，通过ref调用
+      // 这里只负责通知，实际选择逻辑在AuthorManageModal中
+      if (authorManageModalRef.current && dynastyId) {
+        // 通过ref调用AuthorManageModal的方法来选择朝代
+        authorManageModalRef.current.setDynastyId?.(dynastyId);
+      }
+    },
+    []
+  );
+
   // 作者添加后的回调
   const handleAuthorAdded = useCallback(async () => {
     await loadAuthors();
+  }, [loadAuthors]);
+
+  // 作者添加后的回调，自动回填到EditModal
+  const handleAuthorAddedWithId = useCallback(
+    (authorId: string) => {
+      // 等待作者列表刷新后，自动回填到EditModal
+      // 需要确保authors已经更新，所以使用MDClassics.authors
+      setTimeout(() => {
+        if (editModalRef.current && authorId) {
+          // 验证作者是否存在于列表中
+          const authorExists = MDClassics.authors.some(
+            (author) => author.id === authorId
+          );
+          if (authorExists) {
+            // 通过直接设置state来更新作者选择
+            editModalRef.current.setAuthorId?.(authorId);
+          } else {
+            // 如果作者还不存在，再等一会儿
+            setTimeout(() => {
+              editModalRef.current?.setAuthorId?.(authorId);
+            }, 200);
+          }
+        }
+      }, 100);
+    },
+    [MDClassics.authors]
+  );
+
+  // 朝代添加后的回调（从主页面打开朝代管理时，不需要处理，因为主页面没有朝代选择框）
+  const handleDynastyAddedWithId = useCallback(async (dynastyId: string) => {
+    // 主页面没有朝代选择框，所以不需要处理
   }, []);
 
   // 获取作者对应的朝代名称
@@ -606,17 +651,22 @@ const PClassics: ConnectRC<PClassicsProps> = (props) => {
         authors={authors}
         dynasties={dynasties}
         onAuthorChange={handleAuthorChange}
+        onAuthorAdded={handleAuthorAddedWithId}
+        onDynastyAdded={handleDynastyAddedWithId}
       />
       <AuthorManageModal
         ref={authorManageModalRef}
         onOk={handleAuthorAdded}
         onOpenDynastyModal={handleDynastyChangeFromAuthor}
         MDClassics={MDClassics}
+        onAuthorAdded={handleAuthorAddedWithId}
+        onDynastyAddedWithId={handleDynastyAddedFromAuthorWithId}
       />
       <DynastyManageModal
         ref={dynastyManageModalRef}
         onOk={handleDynastyAdded}
         onDynastyAdded={handleDynastyAddedFromAuthor}
+        onDynastyAddedWithId={handleDynastyAddedFromAuthorWithId}
       />
     </div>
   );
