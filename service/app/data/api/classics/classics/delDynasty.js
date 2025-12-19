@@ -3,7 +3,7 @@
     const { id } = argParams;
     const data = argData || { authors: [], dynasties: [], classics: [] };
     data.dynasties = data.dynasties || [];
-    const index = data.dynasties.findIndex((item) => item.id === id && !item.deleted);
+    const index = data.dynasties.findIndex((item) => item.id === id);
 
     if (index === -1) {
       return {
@@ -20,7 +20,7 @@
 
     // 检查是否有作者使用该朝代
     const hasAuthors = (data.authors || []).some(
-      (item) => !item.deleted && item.dynastyId === id
+      (item) => item.dynastyId === id
     );
     if (hasAuthors) {
       return {
@@ -35,7 +35,8 @@
       };
     }
 
-    data.dynasties[index].deleted = true;
+    // 真删除：从数组中移除
+    data.dynasties.splice(index, 1);
 
     return {
       isWrite: true,
