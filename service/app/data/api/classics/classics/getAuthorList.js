@@ -2,7 +2,7 @@
   return function (argData, argParams) {
     const { name, dynastyId, page = 1, pageSize = 20 } = argParams || {};
     const data = argData || { authors: [], dynasties: [], classics: [] };
-    let allAuthors = (data.authors || []).filter((item) => !item.deleted);
+    let allAuthors = data.authors || [];
 
     // 搜索过滤
     if (name) {
