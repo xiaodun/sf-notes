@@ -7,6 +7,7 @@ import {
   forwardRef,
   ForwardRefRenderFunction,
   useEffect,
+  useRef,
 } from "react";
 import { Modal, Input, Space, Button, Select, message, Dropdown } from "antd";
 import type { MenuProps } from "antd";
@@ -22,6 +23,8 @@ export interface IEditModalProps {
   dynasties: NDynasty[];
   onOk: (shouldResetToFirst?: boolean, updatedClassic?: NClassics) => void;
   onAuthorChange: () => void; // 作者列表变化时的回调
+  onAuthorAdded?: (authorId: string) => void; // 作者添加后的回调，返回新创建的作者ID
+  onDynastyAdded?: (dynastyId: string) => void; // 朝代添加后的回调，返回新创建的朝代ID
 }
 
 export interface IEditModalState {
@@ -32,6 +35,7 @@ export interface IEditModalState {
 
 export interface IEditModal {
   showModal: (data?: NClassics) => void;
+  setAuthorId?: (authorId: string) => void; // 设置作者ID的方法
 }
 
 const defaultState: IEditModalState = {
@@ -51,6 +55,7 @@ export const EditModal: ForwardRefRenderFunction<
   IEditModalProps
 > = (props, ref) => {
   const [state, setState] = useState<Partial<IEditModalState>>(defaultState);
+  const titleInputRef = useRef<any>(null);
   // 直接使用 props 传递的 authors 和 dynasties，不进行额外的接口调用
   // 父组件会在需要时更新这些数据（如打开模态框时、作者/朝代管理后）
   const authors = props.authors || [];
@@ -84,6 +89,21 @@ export const EditModal: ForwardRefRenderFunction<
       });
 
       setState(newState);
+      // 使用 setTimeout 确保模态框已渲染后再聚焦
+      setTimeout(() => {
+        titleInputRef.current?.focus();
+      }, 100);
+    },
+    setAuthorId: (authorId: string) => {
+      if (authorId) {
+        setState(
+          produce(state, (drafState) => {
+            if (drafState.data) {
+              drafState.data.authorId = authorId;
+            }
+          })
+        );
+      }
     },
   }));
 
@@ -186,6 +206,7 @@ export const EditModal: ForwardRefRenderFunction<
         <div>
           <div style={{ marginBottom: 8, fontWeight: 500 }}>标题：</div>
           <Input
+            ref={titleInputRef}
             value={state.data?.title || ""}
             placeholder="请输入标题"
             onChange={(e) => handleDataChange("title", e.target.value)}
@@ -217,6 +238,7 @@ export const EditModal: ForwardRefRenderFunction<
                 props.onAuthorChange();
                 // 等待作者管理模态框关闭后，刷新作者和朝代列表
                 // 这里通过 props 传递的 authors 和 dynasties 会在父组件更新后自动更新
+                // 如果添加了新作者，会在 handleAuthorAdded 回调中自动回填
               }}
             >
               管理作者
