@@ -15,6 +15,7 @@ import {
   message,
   Input,
   Space,
+  InputNumber,
 } from "antd";
 import {
   CheckOutlined,
@@ -75,7 +76,7 @@ const GameResultModal: ForwardRefRenderFunction<
   const [selectedRows, setSelectedRows] = useState<TableRecord[]>([]);
   const [qrModalVisible, setQrModalVisible] = useState<boolean>(false);
   const [qrCodeData, setQrCodeData] = useState<string>("");
-  const [dynamicContent, setDynamicContent] = useState<string>("");
+  const [betAmounts, setBetAmounts] = useState<{ [key: number]: number }>({}); // 存储每场的投注金额，key是场次索引
 
   // 获取预测信息
   const fetchPredictInfo = (id: string, newState: IGameResultModalState) => {
@@ -100,6 +101,8 @@ const GameResultModal: ForwardRefRenderFunction<
       // 重置选中状态
       setSelectedRowKeys([]);
       setSelectedRows([]);
+      // 重置投注金额
+      setBetAmounts({});
 
       fetchPredictInfo(id, newState);
 
@@ -143,8 +146,13 @@ const GameResultModal: ForwardRefRenderFunction<
     const firstRowItems = selectedRows.filter((item) => item.isFirstRow);
 
     const qrContentLines: string[] = [];
+    let totalAmount = 0; // 总金额
 
     firstRowItems.forEach((firstRowItem, groupIndex) => {
+      // 获取该场的投注金额（场次索引从0开始）
+      const betAmount = betAmounts[groupIndex] || 0;
+      totalAmount += betAmount;
+
       // 遍历该组中的每场比赛，获取预测信息
       // 格式：code 预测结果（如：2001 总进0球、2003 让1球胜、2004 胜/胜）
       firstRowItem.bonusItem.list.forEach((item, matchIndex) => {
@@ -172,13 +180,24 @@ const GameResultModal: ForwardRefRenderFunction<
 
         // 构建预测信息文本：code + 预测结果
         // 格式：2001 总进0球
+        let lineContent = "";
         if (item.code && predictResult) {
-          qrContentLines.push(`${item.code} ${predictResult}`);
+          lineContent = `${item.code} ${predictResult}`;
         } else if (item.code) {
           // 如果没有预测结果，只显示code
-          qrContentLines.push(item.code);
+          lineContent = item.code;
+        }
+
+        if (lineContent) {
+          qrContentLines.push(lineContent);
         }
       });
+
+      // 如果是该组的最后一场比赛，追加投注金额（换行显示）
+      if (betAmount > 0) {
+        qrContentLines.push(""); // 空行
+        qrContentLines.push(`投金额：${betAmount}`);
+      }
 
       // 每场预测之间添加分隔符（除了最后一场）
       if (groupIndex < firstRowItems.length - 1) {
@@ -188,23 +207,19 @@ const GameResultModal: ForwardRefRenderFunction<
       }
     });
 
-    // 组合：预测信息 + 投注信息（第X场打）
+    // 组合：预测信息
     let qrContent = qrContentLines.join("\n");
 
-    // 添加分隔符：预测信息和投注信息之间
-    if (qrContent.trim() && dynamicContent.trim()) {
+    // 如果有总金额，在最后追加
+    if (totalAmount > 0) {
       qrContent += "\n";
       qrContent += "------------------------------------";
       qrContent += "\n";
-    }
-
-    // 添加投注信息（第X场打）
-    if (dynamicContent.trim()) {
-      qrContent += dynamicContent.trim();
+      qrContent += `总计：${totalAmount}`;
     }
 
     return qrContent.trim();
-  }, [dynamicContent, selectedRows, matchOddsData]);
+  }, [betAmounts, selectedRows, matchOddsData]);
 
   // 更新二维码内容
   const updateQRCodeData = useCallback(() => {
@@ -218,7 +233,7 @@ const GameResultModal: ForwardRefRenderFunction<
       updateQRCodeData();
     }
   }, [
-    dynamicContent,
+    betAmounts,
     selectedRows,
     matchOddsData,
     qrModalVisible,
@@ -230,17 +245,14 @@ const GameResultModal: ForwardRefRenderFunction<
     // 获取选中的第一行（每个bonusItem的第一行代表一组预测）
     const firstRowItems = selectedRows.filter((item) => item.isFirstRow);
 
-    // 根据勾选的预测信息个数，生成投注信息：第一场打、第二场打、第三场打...
-    // 每个预测信息有多场比赛，但投注信息只根据预测信息的个数来生成
-    // 投注信息只包含"第X场打"，不包含队伍和比分信息
-    const selectedCount = firstRowItems.length;
-    let initialDynamicContent = Array.from(
-      { length: selectedCount },
-      (_, i) => `第${i + 1}场打`
-    ).join("\n");
+    // 初始化投注金额对象，默认值为10
+    const initialBetAmounts: { [key: number]: number } = {};
+    firstRowItems.forEach((_, index) => {
+      initialBetAmounts[index] = 10;
+    });
 
     // 初始化状态
-    setDynamicContent(initialDynamicContent);
+    setBetAmounts(initialBetAmounts);
 
     // 显示模态框
     setQrModalVisible(true);
@@ -321,9 +333,18 @@ const GameResultModal: ForwardRefRenderFunction<
       <Modal
         title="预测数据二维码"
         open={qrModalVisible}
-        onCancel={() => setQrModalVisible(false)}
+        onCancel={() => {
+          setQrModalVisible(false);
+          setBetAmounts({}); // 重置投注金额
+        }}
         footer={[
-          <Button key="close" onClick={() => setQrModalVisible(false)}>
+          <Button
+            key="close"
+            onClick={() => {
+              setQrModalVisible(false);
+              setBetAmounts({}); // 重置投注金额
+            }}
+          >
             关闭
           </Button>,
           <Button
@@ -348,12 +369,32 @@ const GameResultModal: ForwardRefRenderFunction<
           {/* 投注信息（可编辑） */}
           <div>
             <div style={{ marginBottom: 8, fontWeight: 500 }}>投注信息：</div>
-            <Input.TextArea
-              value={dynamicContent}
-              onChange={(e) => setDynamicContent(e.target.value)}
-              placeholder="可编辑的投注信息"
-              autoSize={{ minRows: 3, maxRows: 6 }}
-            />
+            <Space direction="vertical" style={{ width: "100%" }} size="middle">
+              {selectedRows
+                .filter((item) => item.isFirstRow)
+                .map((firstRowItem, index) => (
+                  <div
+                    key={index}
+                    style={{ display: "flex", alignItems: "center", gap: 8 }}
+                  >
+                    <span style={{ minWidth: 80 }}>第{index + 1}场打：</span>
+                    <InputNumber
+                      style={{ flex: 1 }}
+                      value={betAmounts[index] ?? 10}
+                      onChange={(value) => {
+                        setBetAmounts((prev) => ({
+                          ...prev,
+                          [index]: value || 0,
+                        }));
+                      }}
+                      min={0}
+                      precision={0}
+                      step={10}
+                      placeholder="请输入投注金额"
+                    />
+                  </div>
+                ))}
+            </Space>
           </div>
         </Space>
       </Modal>
@@ -516,6 +557,8 @@ const GameResultModal: ForwardRefRenderFunction<
     // 重置选中状态
     setSelectedRowKeys([]);
     setSelectedRows([]);
+    // 重置投注金额
+    setBetAmounts({});
   }
 
   // 获取表格列配置
