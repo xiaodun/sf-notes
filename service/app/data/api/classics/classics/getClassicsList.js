@@ -24,9 +24,7 @@
               const filePath = path.join(filesDir, file);
               const fileContent = fs.readFileSync(filePath, "utf8");
               const classic = JSON.parse(fileContent);
-              if (!classic.deleted) {
-                allClassics.push(classic);
-              }
+              allClassics.push(classic);
             } catch (error) {
               console.error(`Error reading file ${file}:`, error);
             }
@@ -60,7 +58,7 @@
         }
       }
       const authorIds = authorsList
-        .filter((author) => author.dynastyId === dynastyId && !author.deleted)
+        .filter((author) => author.dynastyId === dynastyId)
         .map((author) => author.id);
       allClassics = allClassics.filter((item) => authorIds.includes(item.authorId));
     }
