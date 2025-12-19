@@ -39,7 +39,7 @@
               const otherFilePath = path.join(filesDir, file);
               const otherContent = fs.readFileSync(otherFilePath, "utf8");
               const other = JSON.parse(otherContent);
-              if (!other.deleted && other.title === updateData.title.trim()) {
+              if (other.title === updateData.title.trim()) {
                 return {
                   isWrite: false,
                   response: {
