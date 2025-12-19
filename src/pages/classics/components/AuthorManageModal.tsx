@@ -23,6 +23,8 @@ export interface IAuthorManageModalProps {
   onOpenDynastyModal?: () => void; // 打开朝代管理模态框的回调
   onDynastyAdded?: () => void; // 朝代添加后的回调，用于刷新朝代列表
   MDClassics: NMDClassics.IState; // 从父组件传递的 MDClassics 数据
+  onAuthorAdded?: (authorId: string) => void; // 作者添加后的回调，返回新创建的作者ID
+  onDynastyAddedWithId?: (dynastyId: string) => void; // 朝代添加后的回调，返回新创建的朝代ID（用于从管理作者打开时）
 }
 
 export interface IAuthorManageModalState {
@@ -34,6 +36,7 @@ export interface IAuthorManageModalState {
 export interface IAuthorManageModal {
   showModal: () => void;
   refreshDynasties: () => Promise<void>; // 刷新朝代列表
+  setDynastyId?: (dynastyId: string) => void; // 设置朝代ID的方法
 }
 
 const defaultState: IAuthorManageModalState = {
@@ -50,6 +53,7 @@ const AuthorManageModalComponent: ForwardRefRenderFunction<
     useState<Partial<IAuthorManageModalState>>(defaultState);
   const [newAuthor, setNewAuthor] = useState({ name: "", dynastyId: "" });
   const containerRef = useRef<HTMLDivElement>(null);
+  const authorNameInputRef = useRef<any>(null);
 
   // 从 props 获取 MDClassics 数据
   const { MDClassics } = props;
@@ -79,10 +83,20 @@ const AuthorManageModalComponent: ForwardRefRenderFunction<
         // 如果已有数据，直接设置到本地 state
         setState((prev) => ({ ...prev, authors: MDClassics.authors }));
       }
+      // 使用 setTimeout 确保模态框已渲染后再聚焦
+      setTimeout(() => {
+        authorNameInputRef.current?.focus();
+      }, 100);
     },
     refreshDynasties: async () => {
       // 刷新朝代列表，更新到 MDClassics
       await loadDynasties();
+    },
+    setDynastyId: (dynastyId: string) => {
+      // 设置朝代ID，用于在添加作者时自动选择该朝代
+      if (dynastyId) {
+        setNewAuthor((prev) => ({ ...prev, dynastyId }));
+      }
     },
   }));
 
@@ -100,7 +114,7 @@ const AuthorManageModalComponent: ForwardRefRenderFunction<
         NModel.dispatch(new NMDClassics.ARSetDynasties(rsp.list));
       }
     } catch (error) {
-      console.error("加载朝代列表失败:", error);
+      // 加载失败已在UI中提示
     } finally {
       loadingRef.current.dynasties = false;
       NModel.dispatch(new NMDClassics.ARSetDynastiesLoading(false));
@@ -161,17 +175,34 @@ const AuthorManageModalComponent: ForwardRefRenderFunction<
       });
 
       if (rsp.success) {
+        // 获取新创建的作者ID
+        // 根据日志，rsp 对象本身可能包含 id 字段，或者 rsp.data 包含
+        const newAuthor = (rsp.data as NAuthor) || (rsp as any);
+        const newAuthorId = newAuthor?.id || (rsp as any)?.id || "";
         setNewAuthor({ name: "", dynastyId: "" });
         // 刷新作者列表，更新到 MDClassics
         if (!loadingRef.current.authors) {
           loadingRef.current.authors = true;
-          loadAuthors().finally(() => {
+          await loadAuthors().finally(() => {
             loadingRef.current.authors = false;
           });
         }
         props.onOk();
         // 添加后自动关闭
         handleClose();
+        // 如果有回调，通知父组件新创建的作者ID（在列表刷新后）
+        if (props.onAuthorAdded && newAuthorId) {
+          // 等待一下确保数据已更新到MDClassics和EditModal的props
+          setTimeout(() => {
+            props.onAuthorAdded?.(newAuthorId);
+          }, 300); // 增加延迟确保数据已刷新
+        } else if (props.onAuthorAdded && (rsp as any)?.id) {
+          // 如果 newAuthorId 为空，但 rsp 有 id，尝试使用 rsp.id
+          const fallbackId = (rsp as any).id;
+          setTimeout(() => {
+            props.onAuthorAdded?.(fallbackId);
+          }, 300);
+        }
       } else {
         message.error(rsp.msg || "添加失败");
       }
@@ -398,6 +429,7 @@ const AuthorManageModalComponent: ForwardRefRenderFunction<
           <div style={{ marginBottom: 8, fontWeight: 500 }}>添加作者：</div>
           <Space wrap style={{ width: "100%" }}>
             <Input
+              ref={authorNameInputRef}
               placeholder="作者姓名"
               value={newAuthor.name}
               onChange={(e) =>
@@ -411,7 +443,7 @@ const AuthorManageModalComponent: ForwardRefRenderFunction<
               onChange={(value) =>
                 setNewAuthor({ ...newAuthor, dynastyId: value })
               }
-              style={{ width: 150 }}
+              style={{ width: 100 }}
               options={dynasties.map((dynasty) => ({
                 label: dynasty.name,
                 value: dynasty.id,
