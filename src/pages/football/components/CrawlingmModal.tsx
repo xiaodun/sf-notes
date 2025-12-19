@@ -226,13 +226,17 @@ const CrawlingmModal: ForwardRefRenderFunction<
     let newCodeList: string[];
 
     if (currentSelectedCount >= 4) {
-      // 如果已经有4个或更多，则替换为新的4个
-      const codesToSelect = unselectedCodes.slice(0, needSelectCount);
+      // 如果已经有4个或更多，则随机替换为新的4个
+      // 随机打乱数组
+      const shuffled = [...unselectedCodes].sort(() => Math.random() - 0.5);
+      const codesToSelect = shuffled.slice(0, needSelectCount);
       newCodeList = codesToSelect;
     } else {
-      // 如果少于4个，则补充到4个
+      // 如果少于4个，则随机补充到4个
       const needMore = needSelectCount - currentSelectedCount;
-      const codesToSelect = unselectedCodes.slice(0, needMore);
+      // 随机打乱数组
+      const shuffled = [...unselectedCodes].sort(() => Math.random() - 0.5);
+      const codesToSelect = shuffled.slice(0, needMore);
       newCodeList = [...state.codeList, ...codesToSelect];
     }
 
