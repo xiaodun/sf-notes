@@ -29,7 +29,6 @@
               const existing = JSON.parse(fileContent);
               // 检查是否属于同一作者
               if (
-                !existing.deleted &&
                 existing.authorId === classic.authorId &&
                 existing.title.trim() === classic.title.trim() &&
                 existing.content.trim() === classic.content.trim()
@@ -60,7 +59,6 @@
       id: Date.now() + "",
       createTime: Date.now(),
       updateTime: new Date().toISOString(),
-      deleted: false,
     };
 
     // 保存到单独的文件
