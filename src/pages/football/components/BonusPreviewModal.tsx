@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Modal, Button, Table, Space, message } from "antd";
+import { Modal, Button, Table, Space, message, Radio } from "antd";
 import NFootball from "../NFootball";
 import UCopy from "@/common/utils/UCopy";
 import { produce } from "immer";
@@ -30,8 +30,9 @@ export interface IBonusPreviewModalState {
   currentResultIndex: number;
   tableLoading: boolean;
   teamOddList: Array<NFootball.ITeamRecordOdds>;
-
   oddResultList: Array<NFootball.IOddResult>;
+  filterType: "all" | "single" | "half" | "goal" | "score";
+  filterGameCount: number; // 筛选的比赛场数
 }
 const defaultState: IBonusPreviewModalState = {
   id: null,
@@ -43,6 +44,8 @@ const defaultState: IBonusPreviewModalState = {
   tableLoading: false,
   oddResultList: [],
   teamOddList: [],
+  filterType: "all",
+  filterGameCount: 4, // 默认4场
 };
 const BonusPreviewModal: ForwardRefRenderFunction<
   IBonusPreviewModal,
@@ -68,17 +71,23 @@ const BonusPreviewModal: ForwardRefRenderFunction<
     workerRef.current.onmessage = (e) => {
       const { success, data, error } = e.data;
       if (success) {
-        // 不在这里过滤，保留所有数据用于预览模式
+        // 保留所有数据用于筛选
         allOddResultListRef.current = data;
-        setState((preState) => ({
-          ...preState,
-          total: data.length,
-          tableLoading: false,
-          oddResultList: data.slice(
-            (preState.currentPage - 1) * pageSize,
-            preState.currentPage * pageSize
-          ),
-        }));
+        // 应用当前筛选条件（使用最新的 state）
+        setState((preState) => {
+          const filteredData = filterOddResultList(
+            data,
+            preState.filterType,
+            preState.filterGameCount
+          );
+          return {
+            ...preState,
+            total: filteredData.length,
+            tableLoading: false,
+            currentPage: 1,
+            oddResultList: filteredData.slice(0, pageSize),
+          };
+        });
       } else {
         console.error("Worker error:", error);
       }
@@ -100,6 +109,9 @@ const BonusPreviewModal: ForwardRefRenderFunction<
           draft.id = id;
           draft.teamCount = teamOddList.length;
           draft.teamOddList = teamOddList;
+          draft.filterType = "all"; // 重置筛选条件
+          draft.filterGameCount = 4; // 重置场数筛选为默认4
+          draft.currentPage = 1; // 重置页码
         })
       );
       setAddedItems(new Map());
@@ -125,6 +137,9 @@ const BonusPreviewModal: ForwardRefRenderFunction<
           <Button size="small" onClick={() => onResultRandom(false)}>
             预览
           </Button>
+          <Button size="small" onClick={onRandomPage}>
+            随机页数
+          </Button>
           <Button type="primary" onClick={onCancel}>
             关闭
           </Button>
@@ -133,6 +148,37 @@ const BonusPreviewModal: ForwardRefRenderFunction<
       onCancel={onCancel}
       centered
     >
+      <div style={{ marginBottom: 16 }}>
+        <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+          <div>
+            <span style={{ marginRight: 8 }}>类型：</span>
+            <Radio.Group
+              value={state.filterType}
+              onChange={(e) => handleFilterChange(e.target.value)}
+              buttonStyle="solid"
+            >
+              <Radio.Button value="all">全部</Radio.Button>
+              <Radio.Button value="single">胜平负</Radio.Button>
+              <Radio.Button value="half">半全场</Radio.Button>
+              <Radio.Button value="goal">总进球</Radio.Button>
+              <Radio.Button value="score">比分</Radio.Button>
+            </Radio.Group>
+          </div>
+          <div>
+            <span style={{ marginRight: 8 }}>场数：</span>
+            <Radio.Group
+              value={state.filterGameCount}
+              onChange={(e) => handleGameCountChange(e.target.value)}
+              buttonStyle="solid"
+            >
+              <Radio.Button value={4}>4</Radio.Button>
+              <Radio.Button value={3}>3</Radio.Button>
+              <Radio.Button value={2}>2</Radio.Button>
+              <Radio.Button value={1}>1</Radio.Button>
+            </Radio.Group>
+          </div>
+        </Space>
+      </div>
       <div className={SelfStyle.main}>
         <Table
           className={
@@ -187,10 +233,131 @@ const BonusPreviewModal: ForwardRefRenderFunction<
     setState(
       produce(state, (drafState) => {
         drafState.currentPage = page;
-        // 预览模式不需要过滤，使用所有数据
-        drafState.oddResultList = allOddResultListRef.current.slice(
+        // 应用筛选后的数据
+        const filteredData = filterOddResultList(
+          allOddResultListRef.current,
+          drafState.filterType,
+          drafState.filterGameCount
+        );
+        drafState.oddResultList = filteredData.slice(
           (page - 1) * pageSize,
           page * pageSize
+        );
+      })
+    );
+  }
+
+  // 筛选赔率结果列表
+  function filterOddResultList(
+    data: Array<NFootball.IOddResult>,
+    filterType: "all" | "single" | "half" | "goal" | "score",
+    filterGameCount: number
+  ): Array<NFootball.IOddResult> {
+    return data.filter((oddResult) => {
+      // 先按场数筛选
+      if (oddResult.list.length !== filterGameCount) {
+        return false;
+      }
+
+      // 再按类型筛选
+      if (filterType === "all") {
+        return true;
+      }
+
+      // 检查所有场次是否都是指定类型
+      return oddResult.list.every((item) => {
+        if (filterType === "single") {
+          // 胜平负包括让球胜平负
+          return (
+            item.isWin ||
+            item.isDraw ||
+            item.isLose ||
+            item.isHandicapWin ||
+            item.isHandicapDraw ||
+            item.isHandicapLose
+          );
+        } else if (filterType === "half") {
+          return item.isHalf;
+        } else if (filterType === "goal") {
+          return item.isGoal;
+        } else if (filterType === "score") {
+          return item.isScore;
+        }
+        return false;
+      });
+    });
+  }
+
+  // 处理筛选类型变化
+  function handleFilterChange(
+    filterType: "all" | "single" | "half" | "goal" | "score"
+  ) {
+    setState((preState) => {
+      const filteredData = filterOddResultList(
+        allOddResultListRef.current,
+        filterType,
+        preState.filterGameCount
+      );
+      return {
+        ...preState,
+        filterType,
+        currentPage: 1, // 重置到第一页
+        total: filteredData.length,
+        oddResultList: filteredData.slice(0, pageSize),
+      };
+    });
+  }
+
+  // 处理场数筛选变化
+  function handleGameCountChange(gameCount: number) {
+    setState((preState) => {
+      const filteredData = filterOddResultList(
+        allOddResultListRef.current,
+        preState.filterType,
+        gameCount
+      );
+      return {
+        ...preState,
+        filterGameCount: gameCount,
+        currentPage: 1, // 重置到第一页
+        total: filteredData.length,
+        oddResultList: filteredData.slice(0, pageSize),
+      };
+    });
+  }
+
+  // 随机页数
+  function onRandomPage() {
+    // 获取筛选后的数据
+    const filteredData = filterOddResultList(
+      allOddResultListRef.current,
+      state.filterType,
+      state.filterGameCount
+    );
+
+    if (filteredData.length === 0) {
+      message.warning("没有数据");
+      return;
+    }
+
+    // 计算最大页数
+    const maxPage = Math.ceil(filteredData.length / pageSize);
+
+    if (maxPage === 0) {
+      message.warning("没有数据");
+      return;
+    }
+
+    // 随机生成页数（1 到 maxPage）
+    const randomPage = Math.floor(Math.random() * maxPage) + 1;
+
+    // 跳转到随机页
+    setState(
+      produce(state, (drafState) => {
+        drafState.currentPage = randomPage;
+        drafState.oddResultList = filteredData.slice(
+          (randomPage - 1) * pageSize,
+          randomPage * pageSize
         );
       })
     );
@@ -200,10 +367,14 @@ const BonusPreviewModal: ForwardRefRenderFunction<
     setState(
       produce(state, (drafState) => {
         if (isRandom) {
-          // 获取所有数据
-          const allList = allOddResultListRef.current;
+          // 获取筛选后的数据
+          const filteredList = filterOddResultList(
+            allOddResultListRef.current,
+            drafState.filterType,
+            drafState.filterGameCount
+          );
 
-          if (allList.length === 0) {
+          if (filteredList.length === 0) {
             message.warning("没有数据");
             return;
           }
@@ -214,8 +385,8 @@ const BonusPreviewModal: ForwardRefRenderFunction<
           let selectedItem: NFootball.IOddResult;
 
           do {
-            randomIndex = Math.floor(Math.random() * allList.length);
-            selectedItem = allList[randomIndex];
+            randomIndex = Math.floor(Math.random() * filteredList.length);
+            selectedItem = filteredList[randomIndex];
             attempts++;
 
             // 如果符合条件（1000-250000，不包含250000），跳出循环
@@ -236,8 +407,13 @@ const BonusPreviewModal: ForwardRefRenderFunction<
           drafState.oddResultList = [selectedItem];
         } else {
           drafState.currentResultIndex = null;
-          // 预览模式不需要过滤，使用所有数据
-          drafState.oddResultList = allOddResultListRef.current.slice(
+          // 预览模式使用筛选后的数据
+          const filteredList = filterOddResultList(
+            allOddResultListRef.current,
+            drafState.filterType,
+            drafState.filterGameCount
+          );
+          drafState.oddResultList = filteredList.slice(
             (state.currentPage - 1) * pageSize,
             state.currentPage * pageSize
           );
@@ -311,6 +487,8 @@ const BonusPreviewModal: ForwardRefRenderFunction<
   function onCancel() {
     setState(defaultState);
     setAddedItems(new Map());
+    // 重置筛选条件
+    allOddResultListRef.current = [];
   }
 };
 export default forwardRef(BonusPreviewModal);
