@@ -5,7 +5,7 @@
 
     // 防重复：检查朝代名是否已存在
     const existing = (data.dynasties || []).find(
-      (item) => !item.deleted && item.name.trim() === name.trim()
+      (item) => item.name.trim() === name.trim()
     );
     if (existing) {
       return {
@@ -25,7 +25,6 @@
       id: Date.now() + "",
       createTime: Date.now(),
       updateTime: new Date().toISOString(),
-      deleted: false,
     };
 
     data.dynasties = data.dynasties || [];
