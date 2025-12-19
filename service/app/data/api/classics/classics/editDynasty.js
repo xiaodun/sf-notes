@@ -3,7 +3,7 @@
     const { id, ...updateData } = argParams;
     const data = argData || { authors: [], dynasties: [], classics: [] };
     data.dynasties = data.dynasties || [];
-    const index = data.dynasties.findIndex((item) => item.id === id && !item.deleted);
+    const index = data.dynasties.findIndex((item) => item.id === id);
 
     if (index === -1) {
       return {
@@ -22,7 +22,7 @@
     if (updateData.name && updateData.name !== data.dynasties[index].name) {
       const existing = data.dynasties.find(
         (item) =>
-          !item.deleted && item.id !== id && item.name.trim() === updateData.name.trim()
+          item.id !== id && item.name.trim() === updateData.name.trim()
       );
       if (existing) {
         return {
