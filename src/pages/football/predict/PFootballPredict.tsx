@@ -93,6 +93,7 @@ const PFootballPredict: ConnectRC<IPFootballPredictProps> = (props) => {
         pagination={false}
       ></Table>
       <PageFooter>
+        <Button onClick={() => window.history.back()}>返回</Button>
         <Button onClick={() => showEditBaseModal()}>基础信息</Button>
         <Button onClick={() => showCrawlingmModal()}>录入</Button>
         <Button onClick={() => onShowBonusPreviewModal()}>选赔率</Button>
