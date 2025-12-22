@@ -16,36 +16,10 @@ export interface PMaximProps {
   MDMaxim: NMDMaxim.IState;
 }
 
-// 格式化警句：以中文标点符号为分割点，每句话加一个空行
-// 支持的标点符号：句号。、问号？、感叹号！、分号；
+// 不做格式化处理，直接返回原始内容
 const formatMaximContent = (content: string) => {
-  if (!content) return [];
-  // 按中文标点符号分割，保留标点符号
-  // 匹配：句号。、问号？、感叹号！、分号；
-  const sentences = content.split(/([。？！；])/).filter((item) => item.trim());
-  const result: string[] = [];
-  let currentSentence = "";
-
-  sentences.forEach((item) => {
-    // 检查是否是结束标点符号
-    if (/[。？！；]/.test(item)) {
-      currentSentence += item;
-      if (currentSentence.trim()) {
-        result.push(currentSentence.trim());
-        result.push(""); // 每句话后加一个空行
-      }
-      currentSentence = "";
-    } else {
-      currentSentence += item;
-    }
-  });
-
-  // 处理最后没有标点符号的内容
-  if (currentSentence.trim()) {
-    result.push(currentSentence.trim());
-  }
-
-  return result;
+  if (!content) return "";
+  return content;
 };
 
 const PMaxim: ConnectRC<PMaximProps> = (props) => {
@@ -311,9 +285,7 @@ const PMaxim: ConnectRC<PMaximProps> = (props) => {
             {MDMaxim.rsp.list.map((maxim, index) => (
               <div key={maxim.id || index} className={SelfStyle.maximItem}>
                 <div className={SelfStyle.maximContent}>
-                  {formatMaximContent(maxim.content).map((line, i) => (
-                    <p key={i}>{line || "\u00A0"}</p>
-                  ))}
+                  {formatMaximContent(maxim.content)}
                 </div>
                 <div className={SelfStyle.maximActions}>
                   <Button
@@ -349,9 +321,7 @@ const PMaxim: ConnectRC<PMaximProps> = (props) => {
             {currentMaxim && (
               <div className={SelfStyle.maximItem}>
                 <div className={SelfStyle.maximContent}>
-                  {formatMaximContent(currentMaxim.content).map((line, i) => (
-                    <p key={i}>{line || "\u00A0"}</p>
-                  ))}
+                  {formatMaximContent(currentMaxim.content)}
                 </div>
                 <div className={SelfStyle.maximActions}>
                   <Button
