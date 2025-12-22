@@ -105,51 +105,30 @@ export const EditModal: ForwardRefRenderFunction<
     setState({ ...defaultState });
   }
 
-  // 格式化内容：以中文标点符号为分割点，每句话加一个空行
-  // 支持的标点符号：句号。、问号？、感叹号！、分号；
+  // 格式化内容：处理多个引号连在一起的情况，将它们分行展示
   function formatContent() {
     if (!state.data?.content) {
       message.warning("没有内容需要格式化");
       return;
     }
-    const content = state.data.content.trim();
+    let content = state.data.content.trim();
 
     if (!content) {
       message.warning("没有内容需要格式化");
       return;
     }
 
-    // 按中文标点符号分割，保留标点符号
-    // 匹配：句号。、问号？、感叹号！、分号；
-    const sentences = content
-      .split(/([。？！；])/)
-      .filter((item) => item.trim());
-    const result: string[] = [];
-    let currentSentence = "";
+    // 处理多个引号连在一起的情况：检测连续的引号对模式
+    // 支持中文引号（""）和英文引号（""）
+    // 在它们之间插入两个换行符（一个空行），使其分行展示
+    // 处理中文引号：右引号"（U+201D）后面紧跟左引号"（U+201C）
+    content = content.replace(/\u201D\u201C/g, "\u201D\n\n\u201C");
+    // 处理英文引号：右引号"后面紧跟左引号"
+    content = content.replace(/""/g, '"\n\n"');
 
-    sentences.forEach((item) => {
-      // 检查是否是结束标点符号
-      if (/[。？！；]/.test(item)) {
-        currentSentence += item;
-        if (currentSentence.trim()) {
-          result.push(currentSentence.trim());
-          result.push(""); // 每句话后加一个空行
-        }
-        currentSentence = "";
-      } else {
-        currentSentence += item;
-      }
-    });
-
-    // 处理最后没有标点符号的内容
-    if (currentSentence.trim()) {
-      result.push(currentSentence.trim());
-    }
-
-    const formatted = result.join("\n");
     const newState = produce(state, (drafState) => {
       if (drafState.data) {
-        drafState.data.content = formatted;
+        drafState.data.content = content;
       }
     });
     setState(newState);
@@ -182,7 +161,7 @@ export const EditModal: ForwardRefRenderFunction<
               size="small"
               icon={<FormatPainterOutlined />}
               onClick={formatContent}
-              title="格式化内容：以标点符号（。？！；）为分割点，每句话加一个空行"
+              title="格式化内容：将多个连在一起的引号对分行展示（每个引号对之间添加空行）"
             >
               格式化
             </Button>
@@ -190,7 +169,7 @@ export const EditModal: ForwardRefRenderFunction<
           <Input.TextArea
             ref={textAreaRef}
             value={state.data?.content || ""}
-            placeholder="请输入内容（支持粘贴，点击格式化按钮可按标点符号（。？！；）分隔并添加空行）"
+            placeholder="请输入内容（支持粘贴，点击格式化按钮可将多个连在一起的引号对分行展示）"
             autoSize={{ minRows: 6 }}
             onChange={(e) => {
               const newState = produce(state, (drafState) => {
