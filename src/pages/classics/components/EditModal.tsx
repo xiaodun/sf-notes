@@ -187,7 +187,6 @@ export const EditModal: ForwardRefRenderFunction<
     }
 
     handleDataChange("content", formatted);
-    message.success("格式化完成：已保证一句话一段");
   }
 
   return (
