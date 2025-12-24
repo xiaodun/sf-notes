@@ -271,6 +271,8 @@ const PSevenStarPredict: React.FC<IPSevenStarPredictProps> = () => {
     // 第一行：彩票类型
     contentLines.push("七星彩投注\n");
 
+    let totalBetAmount = 0; // 总投注金额
+
     // 固定号码（格式与随机号码一致，包含投注金额，换行显示）
     if (
       includeFixedNumbers &&
@@ -282,6 +284,7 @@ const PSevenStarPredict: React.FC<IPSevenStarPredictProps> = () => {
         contentLines.push(numberLine);
         if (item.betAmount && item.betAmount > 0) {
           contentLines.push(`投注金额：${item.betAmount}元`);
+          totalBetAmount += item.betAmount;
         }
       });
     }
@@ -302,8 +305,15 @@ const PSevenStarPredict: React.FC<IPSevenStarPredictProps> = () => {
       );
       contentLines.push(...randomLines);
       // 投注金额：2 × 随机号码数量
-      const totalAmount = sevenStar.numbersList.length * 2;
-      contentLines.push(`投注金额：${totalAmount}元`);
+      const randomAmount = sevenStar.numbersList.length * 2;
+      contentLines.push(`投注金额：${randomAmount}元`);
+      totalBetAmount += randomAmount;
+    }
+
+    // 显示总投注金额
+    if (totalBetAmount > 0) {
+      contentLines.push("------------------------------------");
+      contentLines.push(`投注总金额：${totalBetAmount}元`);
     }
 
     return contentLines.join("\n");
