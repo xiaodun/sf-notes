@@ -69,7 +69,10 @@ const PSevenStar: ConnectRC<IPSevenStarProps> = (props) => {
             render: renderOptionColumn,
           },
         ]}
-        dataSource={MDSevenStar.rsp.list}
+        dataSource={[...MDSevenStar.rsp.list].sort((a, b) => {
+          // 新添加的记录放在最前面（按创建时间倒序）
+          return (b.createTime || 0) - (a.createTime || 0);
+        })}
         pagination={false}
       ></Table>
       <PageFooter>
