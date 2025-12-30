@@ -288,6 +288,9 @@ const PLotteryPredict: React.FC<IPLotteryPredictProps> = () => {
     // 第一行：彩票类型
     contentLines.push("大乐透投注\n");
 
+    let fixedNumbersTotalAmount = 0; // 固定号码总金额
+    let randomNumbersTotalAmount = 0; // 随机号码总金额
+
     // 固定号码（格式与随机号码一致，包含投注金额，换行显示）
     // 根据勾选状态决定是否包含固定号码
     if (
@@ -300,6 +303,7 @@ const PLotteryPredict: React.FC<IPLotteryPredictProps> = () => {
         contentLines.push(numberLine);
         if (item.betAmount && item.betAmount > 0) {
           contentLines.push(`投注金额：${item.betAmount}元`);
+          fixedNumbersTotalAmount += item.betAmount;
         }
       });
     }
@@ -320,8 +324,15 @@ const PLotteryPredict: React.FC<IPLotteryPredictProps> = () => {
       );
       contentLines.push(...randomLines);
       // 投注金额：2 × 随机号码数量
-      const totalAmount = lottery.numbersList.length * 2;
-      contentLines.push(`投注金额：${totalAmount}元`);
+      randomNumbersTotalAmount = lottery.numbersList.length * 2;
+      contentLines.push(`投注金额：${randomNumbersTotalAmount}元`);
+    }
+
+    // 计算并显示总投注金额
+    const totalAmount = fixedNumbersTotalAmount + randomNumbersTotalAmount;
+    if (totalAmount > 0) {
+      contentLines.push("------------------------------------");
+      contentLines.push(`总投注金额：${totalAmount}元`);
     }
 
     return contentLines.join("\n");

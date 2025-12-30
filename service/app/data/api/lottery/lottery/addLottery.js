@@ -9,7 +9,8 @@
       createTime: Date.now(),
       updateTime: new Date().toISOString(),
     };
-    argData.lotteryList.push(newLottery);
+    // 新添加的预测放在数组前面
+    argData.lotteryList.unshift(newLottery);
     return {
       isWrite: true,
       data: argData,
