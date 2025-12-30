@@ -24,6 +24,10 @@ export interface IFixedNumber {
    * 投注金额（元，整数）
    */
   betAmount: number;
+  /**
+   * 是否启用投注（默认 true，取消投注时为 false，但金额保持不变）
+   */
+  isEnabled?: boolean;
 }
 
 /**

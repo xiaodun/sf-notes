@@ -243,6 +243,8 @@ const PSevenStarPredict: React.FC<IPSevenStarPredictProps> = () => {
   const [globalFixedNumbers, setGlobalFixedNumbers] = useState<IFixedNumber[]>(
     []
   );
+  // 二维码内容（用于强制更新 QRCode 组件）
+  const [qrCodeContent, setQrCodeContent] = useState<string>("");
 
   useEffect(() => {
     // 加载全局固定号码
@@ -251,20 +253,23 @@ const PSevenStarPredict: React.FC<IPSevenStarPredictProps> = () => {
         setGlobalFixedNumbers(rsp.data);
       }
     });
-    // 从后台加载是否包含固定号码的勾选状态
-    SSevenStar.getSevenStarConfig().then((rsp) => {
-      if (rsp.success && rsp.data) {
-        setIncludeFixedNumbers(rsp.data.includeFixedNumbers);
-      }
-    });
   }, []);
 
+  // 当 globalFixedNumbers 或 sevenStar 更新时，如果二维码弹窗已打开，需要更新二维码内容
+  useEffect(() => {
+    if (qrCodeVisible && sevenStar) {
+      updateQRCodeContent();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [globalFixedNumbers, qrCodeVisible, sevenStar]);
+
   /**
-   * 生成二维码内容
+   * 更新二维码内容
    */
-  function generateQRCodeContent(): string {
+  function updateQRCodeContent() {
     if (!sevenStar) {
-      return "";
+      setQrCodeContent("");
+      return;
     }
 
     const contentLines: string[] = [];
@@ -273,13 +278,12 @@ const PSevenStarPredict: React.FC<IPSevenStarPredictProps> = () => {
 
     let totalBetAmount = 0; // 总投注金额
 
-    // 固定号码（格式与随机号码一致，包含投注金额，换行显示）
-    if (
-      includeFixedNumbers &&
-      globalFixedNumbers &&
-      globalFixedNumbers.length > 0
-    ) {
-      globalFixedNumbers.forEach((item) => {
+    // 固定号码（只包含已启用的）
+    const enabledFixedNumbers = globalFixedNumbers.filter(
+      (item) => item.isEnabled !== undefined ? item.isEnabled : item.betAmount > 0
+    );
+    if (enabledFixedNumbers.length > 0) {
+      enabledFixedNumbers.forEach((item) => {
         const numberLine = formatNumbers(item.numbers);
         contentLines.push(numberLine);
         if (item.betAmount && item.betAmount > 0) {
@@ -289,12 +293,8 @@ const PSevenStarPredict: React.FC<IPSevenStarPredictProps> = () => {
       });
     }
 
-    // 分隔符（如果有固定号码，且随机号码不为空）
-    if (
-      includeFixedNumbers &&
-      globalFixedNumbers.length > 0 &&
-      sevenStar.numbersList.length > 0
-    ) {
+    // 分隔符（如果有已启用的固定号码，且随机号码不为空）
+    if (enabledFixedNumbers.length > 0 && sevenStar.numbersList.length > 0) {
       contentLines.push("------------------------------------");
     }
 
@@ -310,13 +310,20 @@ const PSevenStarPredict: React.FC<IPSevenStarPredictProps> = () => {
       totalBetAmount += randomAmount;
     }
 
-    // 显示总投注金额
-    if (totalBetAmount > 0) {
+    // 显示总金额（固定号码个数为0或者随机号码个数为0则无需计算总金额）
+    if (enabledFixedNumbers.length > 0 && sevenStar.numbersList.length > 0 && totalBetAmount > 0) {
       contentLines.push("------------------------------------");
-      contentLines.push(`投注总金额：${totalBetAmount}元`);
+      contentLines.push(`总金额：${totalBetAmount}元`);
     }
 
-    return contentLines.join("\n");
+    setQrCodeContent(contentLines.join("\n"));
+  }
+
+  /**
+   * 生成二维码内容（用于复制）
+   */
+  function generateQRCodeContent(): string {
+    return qrCodeContent;
   }
 
   if (!sevenStar) {
@@ -431,6 +438,29 @@ const PSevenStarPredict: React.FC<IPSevenStarPredictProps> = () => {
   ): IPrizeInfo | null {
     if (!sevenStar || !sevenStar.winningNumbers) return null;
     return matchPrizeLevel(numbers, sevenStar.winningNumbers);
+  }
+
+  /**
+   * 更新固定号码的投注状态和金额，并实时保存（全局生效）
+   */
+  function handleUpdateFixedNumber(
+    index: number,
+    checked: boolean,
+    betAmount: number
+  ) {
+    const newFixedNumbers = [...globalFixedNumbers];
+    // 更新金额和启用状态（如果禁用，保持原金额不变；如果启用，确保金额最小为10）
+    const finalBetAmount = checked 
+      ? (betAmount >= 10 ? betAmount : 10)
+      : newFixedNumbers[index].betAmount;
+    newFixedNumbers[index] = {
+      ...newFixedNumbers[index],
+      betAmount: finalBetAmount,
+      isEnabled: checked,
+    };
+    setGlobalFixedNumbers(newFixedNumbers);
+    // 实时保存（全局生效）
+    SSevenStar.saveFixedNumbers(newFixedNumbers);
   }
 
   /**
@@ -653,7 +683,7 @@ const PSevenStarPredict: React.FC<IPSevenStarPredictProps> = () => {
                   }
                 >
                   <div className={SelfStyle.numberItem}>
-                    <Space size="large">
+                    <Space size="large" wrap>
                       <span className={SelfStyle.numbers}>
                         {item.numbers.numbers.map((n, idx) => {
                           const isMatched =
@@ -681,11 +711,36 @@ const PSevenStarPredict: React.FC<IPSevenStarPredictProps> = () => {
                           );
                         })}
                       </span>
-                      {item.betAmount && item.betAmount > 0 && (
-                        <span style={{ color: "#999", fontSize: 12 }}>
-                          投注：{item.betAmount}元
-                        </span>
-                      )}
+                      <Space>
+                        <Checkbox
+                          checked={item.isEnabled !== undefined ? item.isEnabled : true}
+                          onChange={(e) => {
+                            const newChecked = e.target.checked;
+                            const currentAmount = item.betAmount || 0;
+                            const betAmount = newChecked && currentAmount < 10 ? 10 : currentAmount;
+                            handleUpdateFixedNumber(index, newChecked, betAmount);
+                          }}
+                        >
+                          投注
+                        </Checkbox>
+                        <InputNumber
+                          min={10}
+                          precision={0}
+                          step={10}
+                          value={item.betAmount || 10}
+                          onChange={(value) => {
+                            const newAmount = value && value >= 10 ? value : 10;
+                            handleUpdateFixedNumber(
+                              index,
+                              item.isEnabled !== undefined ? item.isEnabled : true,
+                              newAmount
+                            );
+                          }}
+                          style={{ width: 100 }}
+                          addonAfter="元"
+                          disabled={item.isEnabled === false}
+                        />
+                      </Space>
                     </Space>
                   </div>
                 </Card>
@@ -955,38 +1010,65 @@ const PSevenStarPredict: React.FC<IPSevenStarPredictProps> = () => {
         title="二维码"
         open={qrCodeVisible}
         onCancel={() => setQrCodeVisible(false)}
-        footer={[
-          <Button
-            key="copy"
-            icon={<CopyOutlined />}
-            onClick={() => {
-              const content = generateQRCodeContent();
-              if (content) {
-                UCopy.copyStr(content);
-              }
-            }}
-          >
-            复制
-          </Button>,
-        ]}
+        onOpenChange={(visible) => {
+          if (visible) {
+            // 打开弹窗时，更新二维码内容
+            if (sevenStar) {
+              updateQRCodeContent();
+            }
+          } else {
+            // 关闭弹窗时，清空二维码内容
+            setQrCodeContent("");
+          }
+        }}
+        footer={null}
+        width={600}
       >
-        <div style={{ marginBottom: 16 }}>
-          <Checkbox
-            checked={includeFixedNumbers}
-            onChange={(e) => {
-              const checked = e.target.checked;
-              setIncludeFixedNumbers(checked);
-              // 保存到后台
-              SSevenStar.saveSevenStarConfig({
-                includeFixedNumbers: checked,
-              });
-            }}
-          >
-            包含固定号码
-          </Checkbox>
-        </div>
+        {/* 固定号码列表（只显示已启用的，只读） */}
+        {globalFixedNumbers.filter((item) => item.isEnabled !== undefined ? item.isEnabled : item.betAmount > 0).length > 0 && (
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 8, fontWeight: "bold" }}>固定号码：</div>
+            {globalFixedNumbers
+              .filter((item) => item.isEnabled !== undefined ? item.isEnabled : item.betAmount > 0)
+              .map((item, index) => (
+                <div
+                  key={index}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    marginBottom: 8,
+                    padding: 8,
+                    border: "1px solid #d9d9d9",
+                    borderRadius: 4,
+                  }}
+                >
+                  <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8 }}>
+                    <span>{formatNumbers(item.numbers)}</span>
+                    <span style={{ color: "#666", fontSize: 14 }}>
+                      投注金额：{item.betAmount}元
+                    </span>
+                  </div>
+                </div>
+              ))}
+          </div>
+        )}
         <div style={{ textAlign: "center", padding: "20px 0" }}>
-          <QRCode value={generateQRCodeContent()} size={256} />
+          <div style={{ marginBottom: 16 }}>
+            <Button
+              type="primary"
+              icon={<CopyOutlined />}
+              onClick={() => {
+                const content = generateQRCodeContent();
+                if (content) {
+                  UCopy.copyStr(content);
+                }
+              }}
+            >
+              复制
+            </Button>
+          </div>
+          <QRCode value={qrCodeContent} size={256} />
         </div>
       </Modal>
     </div>
