@@ -63,6 +63,13 @@
             "createTime": 1765934734778,
             "updateTime": "2025-12-17T01:25:34.778Z",
             "deleted": false
+        },
+        {
+            "name": "吕蒙正",
+            "dynastyId": "1764920353483",
+            "id": "1767358580279",
+            "createTime": 1767358580279,
+            "updateTime": "2026-01-02T12:56:20.280Z"
         }
     ],
     "dynasties": [
