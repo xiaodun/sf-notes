@@ -3,7 +3,9 @@ import SelfStyle from "./LJokes.less";
 import SJokes from "./SJokes";
 import { Button, message, Input } from "antd";
 import EditModal, { IEditModal } from "./components/EditModal";
+import BatchCopyModal, { IBatchCopyModal } from "./components/BatchCopyModal";
 import { PageFooter } from "@/common/components/page";
+import UCopy from "@/common/utils/UCopy";
 import { connect } from "dva";
 import NModel from "@/common/namespace/NModel";
 import { ConnectRC } from "umi";
@@ -15,6 +17,7 @@ import {
   CopyOutlined,
   EditOutlined,
   DeleteOutlined,
+  MoreOutlined,
 } from "@ant-design/icons";
 import Browser from "@/utils/browser";
 import NJokes from "./NJokes";
@@ -25,6 +28,7 @@ export interface PJokesProps {
 const PJokes: ConnectRC<PJokesProps> = (props) => {
   const { MDJokes } = props;
   const editModalRef = useRef<IEditModal>();
+  const batchCopyModalRef = useRef<IBatchCopyModal>();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [expandedJokes, setExpandedJokes] = useState<Set<string>>(new Set());
@@ -434,22 +438,8 @@ const PJokes: ConnectRC<PJokesProps> = (props) => {
     // 处理上半部分内容，将链接和图片转换为文本格式
     const textToCopy = processContentForCopy(upperContent, base64);
 
-    // 使用 Clipboard API 复制文本
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard
-        .writeText(textToCopy)
-        .then(() => {
-          message.success("复制成功");
-        })
-        .catch((err) => {
-          console.error("复制失败:", err);
-          // 降级方案：使用传统方法
-          fallbackCopyTextToClipboard(textToCopy);
-        });
-    } else {
-      // 降级方案：使用传统方法
-      fallbackCopyTextToClipboard(textToCopy);
-    }
+    // 使用公共复制组件
+    UCopy.copyStr(textToCopy);
   }
 
   // 复制段子下半部分内容
@@ -462,22 +452,8 @@ const PJokes: ConnectRC<PJokesProps> = (props) => {
       return;
     }
 
-    // 使用 Clipboard API 复制文本
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard
-        .writeText(lowerContent)
-        .then(() => {
-          message.success("复制成功");
-        })
-        .catch((err) => {
-          console.error("复制失败:", err);
-          // 降级方案：使用传统方法
-          fallbackCopyTextToClipboard(lowerContent);
-        });
-    } else {
-      // 降级方案：使用传统方法
-      fallbackCopyTextToClipboard(lowerContent);
-    }
+    // 使用公共复制组件
+    UCopy.copyStr(lowerContent);
   }
 
   // 处理内容用于复制（保留格式，处理链接和图片）
@@ -515,32 +491,6 @@ const PJokes: ConnectRC<PJokesProps> = (props) => {
         return processedLine;
       })
       .join("\n");
-  }
-
-  // 降级复制方案（兼容旧浏览器）
-  function fallbackCopyTextToClipboard(text: string) {
-    const textArea = document.createElement("textarea");
-    textArea.value = text;
-    textArea.style.position = "fixed";
-    textArea.style.left = "-999999px";
-    textArea.style.top = "-999999px";
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-
-    try {
-      const successful = document.execCommand("copy");
-      if (successful) {
-        message.success("复制成功");
-      } else {
-        message.error("复制失败");
-      }
-    } catch (err) {
-      console.error("复制失败:", err);
-      message.error("复制失败");
-    }
-
-    document.body.removeChild(textArea);
   }
 
   function parseContent(content: string, base64: Object) {
@@ -654,6 +604,13 @@ const PJokes: ConnectRC<PJokesProps> = (props) => {
             {isMobile ? "" : "下一个"}
             <RightOutlined />
           </Button>
+          <Button
+            onClick={() => batchCopyModalRef.current.showModal()}
+            size={isMobile ? "small" : "middle"}
+            icon={isMobile ? <MoreOutlined /> : undefined}
+          >
+            {isMobile ? "" : "导出"}
+          </Button>
         </div>
       </div>
 
@@ -766,6 +723,10 @@ const PJokes: ConnectRC<PJokesProps> = (props) => {
         ref={editModalRef}
         rsp={MDJokes.rsp}
       ></EditModal>
+      <BatchCopyModal
+        ref={batchCopyModalRef}
+        rsp={MDJokes.rsp}
+      ></BatchCopyModal>
     </div>
   );
 };
