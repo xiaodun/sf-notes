@@ -282,10 +282,7 @@ export const DynastyManageModal: ForwardRefRenderFunction<
       maskClosable={false}
       onCancel={handleClose}
       footer={[
-        <Button key="add" type="primary" onClick={handleAddDynasty}>
-          添加
-        </Button>,
-        <Button key="cancel" onClick={handleClose} style={{ marginLeft: 16 }}>
+        <Button key="cancel" onClick={handleClose}>
           关闭
         </Button>,
       ]}
@@ -296,14 +293,19 @@ export const DynastyManageModal: ForwardRefRenderFunction<
         {/* 添加朝代 */}
         <div>
           <div style={{ marginBottom: 8, fontWeight: 500 }}>添加朝代：</div>
-          <Input
-            ref={dynastyNameInputRef}
-            placeholder="朝代名称"
-            value={newDynasty.name}
-            onChange={(e) => setNewDynasty({ name: e.target.value })}
-            style={{ width: "100%" }}
-            onPressEnter={handleAddDynasty}
-          />
+          <Space style={{ width: "100%" }}>
+            <Input
+              ref={dynastyNameInputRef}
+              placeholder="朝代名称"
+              value={newDynasty.name}
+              onChange={(e) => setNewDynasty({ name: e.target.value })}
+              style={{ flex: 1 }}
+              onPressEnter={handleAddDynasty}
+            />
+            <Button type="primary" onClick={handleAddDynasty}>
+              添加
+            </Button>
+          </Space>
         </div>
 
         {/* 朝代列表 */}

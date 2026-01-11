@@ -413,10 +413,7 @@ const AuthorManageModalComponent: ForwardRefRenderFunction<
       maskClosable={false}
       onCancel={handleClose}
       footer={[
-        <Button key="add" type="primary" onClick={handleAddAuthor}>
-          添加
-        </Button>,
-        <Button key="cancel" onClick={handleClose} style={{ marginLeft: 16 }}>
+        <Button key="cancel" onClick={handleClose}>
           关闭
         </Button>,
       ]}
@@ -457,6 +454,9 @@ const AuthorManageModalComponent: ForwardRefRenderFunction<
               }}
             >
               添加朝代
+            </Button>
+            <Button type="primary" onClick={handleAddAuthor}>
+              添加
             </Button>
           </Space>
         </div>
