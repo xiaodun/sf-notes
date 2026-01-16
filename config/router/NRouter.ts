@@ -22,6 +22,7 @@ export namespace NRouter {
   export const sevenStarPath = "/seven-star";
   export const sevenStarPredictPath = sevenStarPath + "/predict";
   export const behaviorPath = "/behavior";
+  export const behaviorDetailPath = behaviorPath + "/:id";
   export const routes: IRoute[] = [
     {
       path: rootPath,
@@ -127,6 +128,11 @@ export namespace NRouter {
     {
       path: behaviorPath,
       component: "." + behaviorPath,
+      wrappers: [rootComponentPath],
+    },
+    {
+      path: behaviorDetailPath,
+      component: "." + behaviorPath + "/[id]",
       wrappers: [rootComponentPath],
     },
   ];
