@@ -189,6 +189,36 @@ const BehaviorDetail: React.FC = () => {
     return tag.name || "";
   };
 
+  const getTimeDiff = (currentTime: number, previousTime: number): string => {
+    // previousTime 是更新的记录（时间戳更大），currentTime 是较旧的记录
+    // 所以应该用 previousTime - currentTime 来计算时间差
+    const diff = previousTime - currentTime;
+    const diffMinutes = Math.floor(diff / (1000 * 60));
+    const diffHours = Math.floor(diff / (1000 * 60 * 60));
+    const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const diffMonths = moment(previousTime).diff(moment(currentTime), "months");
+    const diffYears = moment(previousTime).diff(moment(currentTime), "years");
+
+    if (diffYears > 0) {
+      return `${diffYears}年`;
+    } else if (diffMonths > 0) {
+      return `${diffMonths}个月`;
+    } else if (diffDays > 0) {
+      // 计算剩余的小时数（去除天数后的剩余小时）
+      const remainingHours = diffHours % 24;
+      if (remainingHours >= 1) {
+        return `${diffDays}天${remainingHours}小时`;
+      }
+      return `${diffDays}天`;
+    } else if (diffHours > 0) {
+      return `${diffHours}小时`;
+    } else if (diffMinutes > 0) {
+      return `${diffMinutes}分钟`;
+    } else {
+      return "刚刚";
+    }
+  };
+
   const getDecryptedTagValue = (recordTag: NBehaviorRecordTag): string => {
     let value: string | number | boolean;
     
@@ -289,40 +319,62 @@ const BehaviorDetail: React.FC = () => {
     <div className={SelfStyle.detailContainer}>
       <div className={SelfStyle.recordsContainer}>
         {records.list && records.list.length > 0 ? (
-          records.list.map((record, index) => (
-            <div key={record.id || index} className={SelfStyle.recordItem}>
-              <div className={SelfStyle.recordHeader}>
-                <div className={SelfStyle.recordHeaderLeft}>
-                  <div className={SelfStyle.recordDatetime}>
-                    {moment(record.datetime).format("YYYY-MM-DD HH:mm")}
+          <div className={SelfStyle.timelineWrapper}>
+            {records.list.map((record, index) => {
+              const previousRecord = index > 0 ? records.list[index - 1] : null;
+              const timeDiff = previousRecord
+                ? getTimeDiff(record.datetime, previousRecord.datetime)
+                : null;
+
+              return (
+                <div key={record.id || index} className={SelfStyle.timelineItem}>
+                  {timeDiff && (
+                    <div className={SelfStyle.timelineNode}>
+                      <div className={SelfStyle.timeDiffLabel}>{timeDiff}</div>
+                      <div className={SelfStyle.timelineDot}></div>
+                    </div>
+                  )}
+                  {!timeDiff && (
+                    <div className={SelfStyle.timelineNode}>
+                      <div className={SelfStyle.timelineDot}></div>
+                    </div>
+                  )}
+                  <div className={SelfStyle.recordItem}>
+                    <div className={SelfStyle.recordHeader}>
+                      <div className={SelfStyle.recordHeaderLeft}>
+                        <div className={SelfStyle.recordDatetime}>
+                          {moment(record.datetime).format("YYYY-MM-DD HH:mm")}
+                        </div>
+                        {renderRecordTags(record)}
+                      </div>
+                      <div className={SelfStyle.recordActions}>
+                        <Button
+                          size="small"
+                          icon={<EditOutlined />}
+                          onClick={() => handleEditRecord(record)}
+                        >
+                          修改
+                        </Button>
+                        <Button
+                          danger
+                          size="small"
+                          icon={<DeleteOutlined />}
+                          onClick={() => handleDeleteRecord(record)}
+                        >
+                          删除
+                        </Button>
+                      </div>
+                    </div>
+                    {getDecryptedDescription(record) && (
+                      <div className={SelfStyle.recordDescription}>
+                        {getDecryptedDescription(record)}
+                      </div>
+                    )}
                   </div>
-                  {renderRecordTags(record)}
                 </div>
-                <div className={SelfStyle.recordActions}>
-                  <Button
-                    size="small"
-                    icon={<EditOutlined />}
-                    onClick={() => handleEditRecord(record)}
-                  >
-                    修改
-                  </Button>
-                  <Button
-                    danger
-                    size="small"
-                    icon={<DeleteOutlined />}
-                    onClick={() => handleDeleteRecord(record)}
-                  >
-                    删除
-                  </Button>
-                </div>
-              </div>
-              {getDecryptedDescription(record) && (
-                <div className={SelfStyle.recordDescription}>
-                  {getDecryptedDescription(record)}
-                </div>
-              )}
-            </div>
-          ))
+              );
+            })}
+          </div>
         ) : (
           <div className={SelfStyle.emptyState}>
             <p>暂无打卡记录，点击下方按钮添加第一条吧！</p>
