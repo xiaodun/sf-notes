@@ -22,6 +22,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   border: 1px solid rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
+  cursor: pointer;
 
   &:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -31,6 +32,18 @@
   &:last-child {
     margin-bottom: 0;
   }
+}
+
+.behaviorHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.behaviorActions {
+  display: flex;
+  gap: 8px;
 }
 
 .behaviorName {
@@ -66,6 +79,82 @@
   text-align: center;
 }
 
+// 详情页样式
+.detailContainer {
+  min-height: 100vh;
+  padding: 20px;
+  padding-bottom: 100px; // 为底部按钮预留空间
+  box-sizing: border-box;
+}
+
+.recordsContainer {
+  max-width: 800px;
+  margin: 0 auto;
+  padding-bottom: 100px; // 与底部导航保持距离
+}
+
+.recordItem {
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 16px 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.recordHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  gap: 12px;
+}
+
+.recordHeaderLeft {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recordDatetime {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.recordTags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.recordActions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.recordDescription {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
 // 移动端样式
 @media screen and (max-width: 768px) {
   .behaviorContainer {
@@ -79,6 +168,14 @@
 
   .behaviorName {
     font-size: 14px;
+  }
+
+  .detailContainer {
+    padding: 12px 8px;
+  }
+
+  .detailContent {
+    padding: 16px;
   }
 }
 

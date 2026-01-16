@@ -6,14 +6,17 @@ import {
   ForwardRefRenderFunction,
 } from "react";
 import { Modal, Input, Space, Button, message, Radio } from "antd";
+import { CopyOutlined } from "@ant-design/icons";
 import React from "react";
 import SBehavior from "../SBehavior";
 import { produce } from "immer";
 import NRsp from "@/common/namespace/NRsp";
+import { encryptText } from "../utils/encrypt";
+import UCopy from "@/common/utils/UCopy";
 
 export interface IAddBehaviorModalProps {
   rsp: NRsp<NBehavior>;
-  onOk: () => void;
+  onOk: (behaviorId?: string) => void; // 返回新建的行为ID，用于跳转
 }
 
 export interface IAddBehaviorModalState {
@@ -64,19 +67,39 @@ export const AddBehaviorModal: ForwardRefRenderFunction<
 
     const behaviorData: NBehavior = {
       name: state.name.trim(),
-      encrypted: state.encrypted ?? false,
       createTime: Date.now(),
       updateTime: new Date().toISOString(),
     };
 
+    // 如果选择了加密，则对"加密"字符串进行加密后存储
+    if (state.encrypted && state.encryptCode) {
+      try {
+        behaviorData.encryptedData = encryptText("加密", state.encryptCode);
+      } catch (error) {
+        message.error("加密失败");
+        return;
+      }
+    }
+
     // 注意：encryptCode 只存在内存中，不存储到后台
     const addRsp = await SBehavior.addItem(behaviorData, 0);
     if (addRsp.success) {
+      // 尝试多种方式获取新创建的行为ID
+      const newBehaviorId = 
+        (addRsp as any).data?.data?.id || 
+        (addRsp as any).data?.id || 
+        behaviorData.id;
       onClose();
-      props.onOk();
+      props.onOk(newBehaviorId);
     } else {
       message.error((addRsp as any).msg || "添加失败");
     }
+  }
+
+  const handleCopyPassword = () => {
+    if (!state.encryptCode) return;
+    const copyText = state.name ? `${state.name}\n${state.encryptCode}` : state.encryptCode;
+    UCopy.copyStr(copyText, { useSuccess: true, useFail: true });
   }
 
   function onClose() {
@@ -155,12 +178,21 @@ export const AddBehaviorModal: ForwardRefRenderFunction<
                 fontSize: 14,
               }}
             >
-              <div style={{ marginBottom: 4 }}>加密密码（仅显示一次）：</div>
+              <div style={{ marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span>加密密码（仅显示一次）：</span>
+                <Button
+                  size="small"
+                  icon={<CopyOutlined />}
+                  onClick={handleCopyPassword}
+                >
+                  复制密码
+                </Button>
+              </div>
               <div style={{ fontSize: 18, fontWeight: "bold", color: "#1890ff" }}>
                 {state.encryptCode}
               </div>
               <div style={{ marginTop: 8, fontSize: 12, color: "#999" }}>
-                提示：此密码只存在内存中，关闭后将无法查看，请妥善保存
+                提示：此密码只存在内存中，关闭后将无法查看，请妥善保存。复制时将包含活动名称和密码。
               </div>
             </div>
           )}
