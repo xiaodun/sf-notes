@@ -1,7 +1,6 @@
 export interface NBehavior {
-  name: string; // 行为名称
-  description?: string; // 行为描述
-  category?: string; // 分类
+  name: string; // 活动名称
+  encrypted?: boolean; // 是否加密
   createTime: number;
   id?: string;
   updateTime: string;
