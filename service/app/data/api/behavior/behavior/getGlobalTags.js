@@ -1,9 +1,7 @@
 (function () {
   return function (argData, argParams) {
-    const list = argData || [];
-    
-    // 过滤出全局标签
-    const globalTags = list.filter((item) => item.isGlobal === true);
+    const data = argData || { behaviors: [], globalTags: [] };
+    const globalTags = data.globalTags || [];
     
     return {
       isWrite: false,

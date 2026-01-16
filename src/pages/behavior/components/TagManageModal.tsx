@@ -10,9 +10,12 @@ import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import React from "react";
 import SBehavior from "../SBehavior";
 import NRsp from "@/common/namespace/NRsp";
+import { encryptText, decryptText } from "../utils/encrypt";
 
 export interface ITagManageModalProps {
   behaviorId?: string; // 如果提供，则为行为标签；否则为全局标签
+  isEncrypted?: boolean; // 行为是否加密
+  password?: string; // 加密行为的密码
   onOk: () => void;
 }
 
@@ -36,7 +39,7 @@ const defaultState: ITagManageModalState = {
   editingTag: null,
   editModalVisible: false,
   editTagName: "",
-  editTagType: "boolean",
+  editTagType: "number",
   editTagValue: null,
 };
 
@@ -82,17 +85,29 @@ export const TagManageModal: ForwardRefRenderFunction<
       editingTag: null,
       editModalVisible: true,
       editTagName: "",
-      editTagType: "boolean",
+      editTagType: "number",
       editTagValue: null,
     }));
   };
 
+  const getTagDisplayName = (tag: NBehaviorTag): string => {
+    if (tag.encryptedName && props.password && props.isEncrypted) {
+      try {
+        return decryptText(tag.encryptedName, props.password);
+      } catch (error) {
+        return "[解密失败]";
+      }
+    }
+    return tag.name || "";
+  };
+
   const handleEdit = (tag: NBehaviorTag) => {
+    const displayName = getTagDisplayName(tag);
     setState((prev) => ({
       ...prev,
       editingTag: tag,
       editModalVisible: true,
-      editTagName: tag.name,
+      editTagName: displayName,
       editTagType: tag.type,
       editTagValue: null,
     }));
@@ -119,13 +134,25 @@ export const TagManageModal: ForwardRefRenderFunction<
 
     const tagData: NBehaviorTag = {
       id: state.editingTag?.id,
-      name: state.editTagName.trim(),
       type: state.editTagType,
       isGlobal: !props.behaviorId,
       behaviorId: props.behaviorId,
       createTime: state.editingTag?.createTime || Date.now(),
       updateTime: new Date().toISOString(),
     };
+
+    // 如果行为是加密的，对标签名称进行加密
+    if (props.isEncrypted && props.password && props.behaviorId) {
+      try {
+        tagData.encryptedName = encryptText(state.editTagName.trim(), props.password);
+        // 不清空 name，保留用于兼容
+      } catch (error) {
+        message.error("加密标签名称失败");
+        return;
+      }
+    } else {
+      tagData.name = state.editTagName.trim();
+    }
 
     try {
       const result = state.editingTag
@@ -194,7 +221,7 @@ export const TagManageModal: ForwardRefRenderFunction<
                 }}
               >
                 <div>
-                  <div style={{ fontWeight: 500 }}>{tag.name}</div>
+                  <div style={{ fontWeight: 500 }}>{getTagDisplayName(tag)}</div>
                   <div style={{ fontSize: 12, color: "#999" }}>
                     类型：{tag.type === "number" ? "数值" : "是否"}
                   </div>
@@ -242,7 +269,7 @@ export const TagManageModal: ForwardRefRenderFunction<
               value={state.editTagName}
               placeholder="请输入标签名称"
               onChange={(e) => {
-                const value = e?.target?.value || e || "";
+                const value = (e?.target?.value as string) || "";
                 setState((prev) => ({
                   ...prev,
                   editTagName: value,

@@ -1,13 +1,14 @@
 (function () {
   return function (argData, argParams) {
-    const list = argData || [];
+    const data = argData || { behaviors: [], globalTags: [] };
+    const behaviors = data.behaviors || [];
     const page = parseInt(argParams?.page) || 1;
     const pageSize = parseInt(argParams?.pageSize) || 10;
     
     // 分页处理
     const start = (page - 1) * pageSize;
     const end = start + pageSize;
-    const paginatedList = list.slice(start, end);
+    const paginatedList = behaviors.slice(start, end);
     
     return {
       isWrite: false,
@@ -16,7 +17,7 @@
         data: {
           success: true,
           list: paginatedList,
-          total: list.length,
+          total: behaviors.length,
         },
       },
     };

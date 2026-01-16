@@ -1,12 +1,11 @@
 (function () {
   return function (argData, argParams) {
-    const list = argData || [];
+    const data = argData || { behaviors: [], globalTags: [] };
     const { behaviorId } = argParams || {};
+    const behaviors = data.behaviors || [];
+    const behavior = behaviors.find((b) => b.id === behaviorId);
     
-    // 过滤出该行为的标签
-    const behaviorTags = list.filter(
-      (item) => item.isGlobal !== true && item.behaviorId === behaviorId
-    );
+    const behaviorTags = behavior?.tags || [];
     
     return {
       isWrite: false,
