@@ -93,11 +93,73 @@
   max-width: 800px;
   margin: 0 auto;
   padding-bottom: 100px; // 与底部导航保持距离
+  position: relative;
+}
+
+.timelineWrapper {
+  position: relative;
+  padding-left: 60px;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 29px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e8e8e8;
+  }
+}
+
+.timelineItem {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 24px;
+
+  &:first-child {
+    padding-top: 0;
+  }
+}
+
+.timelineNode {
+  position: absolute;
+  left: -60px;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 60px;
+  transform: translateY(-50%);
+}
+
+.timeDiffLabel {
+  font-size: 12px;
+  color: #999;
+  white-space: nowrap;
+  margin-bottom: 4px;
+  background: #fff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #e8e8e8;
+  position: relative;
+  z-index: 1;
+}
+
+.timelineDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #1890ff;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #e8e8e8;
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
 }
 
 .recordItem {
   width: 100%;
-  margin-bottom: 16px;
   padding: 16px 20px;
   background: #fff;
   border-radius: 8px;
@@ -108,10 +170,6 @@
   &:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     border-color: rgba(0, 0, 0, 0.1);
-  }
-
-  &:last-child {
-    margin-bottom: 0;
   }
 }
 
