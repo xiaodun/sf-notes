@@ -1,18 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
 import SelfStyle from "./LBehavior.less";
-import { Button } from "antd";
+import { Button, message, Modal } from "antd";
 import { ConnectRC } from "umi";
 import NBehavior from "./NBehavior";
 import { PageFooter } from "@/common/components/page";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined, TagsOutlined } from "@ant-design/icons";
 import AddBehaviorModal, { IAddBehaviorModal } from "./components/AddBehaviorModal";
+import EditBehaviorModal, { IEditBehaviorModal } from "./components/EditBehaviorModal";
+import TagManageModal, { ITagManageModal } from "./components/TagManageModal";
 import SBehavior from "./SBehavior";
 import NRsp from "@/common/namespace/NRsp";
+import NRouter from "@/../config/router/NRouter";
 
 export interface PBehaviorProps {}
 
-const PBehavior: ConnectRC<PBehaviorProps> = () => {
+const PBehavior: ConnectRC<PBehaviorProps> = (props) => {
   const addModalRef = useRef<IAddBehaviorModal>();
+  const editModalRef = useRef<IEditBehaviorModal>();
+  const globalTagModalRef = useRef<ITagManageModal>();
   const [rsp, setRsp] = useState<NRsp<NBehavior>>({
     list: [],
     success: true,
@@ -45,9 +50,46 @@ const PBehavior: ConnectRC<PBehaviorProps> = () => {
     addModalRef.current?.showModal();
   };
 
-  const handleSaveSuccess = async () => {
+  const handleSaveSuccess = async (behaviorId?: string) => {
     // 刷新列表数据
     await reqGetList(true);
+    // 如果提供了ID，跳转到详情页
+    if (behaviorId) {
+      window.location.href = `${NRouter.behaviorPath}/${behaviorId}`;
+    }
+  };
+
+  const handleEdit = (e: React.MouseEvent, item: NBehavior) => {
+    e.stopPropagation();
+    editModalRef.current?.showModal(item);
+  };
+
+  const handleDelete = (e: React.MouseEvent, item: NBehavior) => {
+    e.stopPropagation();
+    Modal.confirm({
+      title: "确认删除",
+      content: `确定要删除"${item.name}"吗？`,
+      onOk: async () => {
+        try {
+          const result = await SBehavior.delItem(item.id!);
+          if (result.success) {
+            await reqGetList(true);
+          } else {
+            message.error("删除失败");
+          }
+        } catch (error) {
+          message.error("删除失败");
+        }
+      },
+    });
+  };
+
+  const handleItemClick = (item: NBehavior) => {
+    window.location.href = `${NRouter.behaviorPath}/${item.id}`;
+  };
+
+  const handleGlobalTags = () => {
+    globalTagModalRef.current?.showModal();
   };
 
   return (
@@ -55,9 +97,32 @@ const PBehavior: ConnectRC<PBehaviorProps> = () => {
       <div className={SelfStyle.listContainer}>
         {rsp.list && rsp.list.length > 0 ? (
           rsp.list.map((item, index) => (
-            <div key={item.id || index} className={SelfStyle.behaviorItem}>
-              <div className={SelfStyle.behaviorName}>{item.name}</div>
-              {item.encrypted && (
+            <div 
+              key={item.id || index} 
+              className={SelfStyle.behaviorItem}
+              onClick={() => handleItemClick(item)}
+            >
+              <div className={SelfStyle.behaviorHeader}>
+                <div className={SelfStyle.behaviorName}>{item.name}</div>
+                <div className={SelfStyle.behaviorActions}>
+                  <Button
+                    size="small"
+                    icon={<EditOutlined />}
+                    onClick={(e) => handleEdit(e, item)}
+                  >
+                    修改
+                  </Button>
+                  <Button
+                    danger
+                    size="small"
+                    icon={<DeleteOutlined />}
+                    onClick={(e) => handleDelete(e, item)}
+                  >
+                    删除
+                  </Button>
+                </div>
+              </div>
+              {item.encryptedData && (
                 <div className={SelfStyle.encryptedTag}>已加密</div>
               )}
               <div className={SelfStyle.behaviorTime}>
@@ -74,6 +139,12 @@ const PBehavior: ConnectRC<PBehaviorProps> = () => {
 
       <PageFooter>
         <Button
+          onClick={handleGlobalTags}
+          icon={<TagsOutlined />}
+        >
+          标签
+        </Button>
+        <Button
           onClick={handleAdd}
           type="primary"
           icon={<PlusOutlined />}
@@ -86,6 +157,15 @@ const PBehavior: ConnectRC<PBehaviorProps> = () => {
         onOk={handleSaveSuccess}
         ref={addModalRef}
         rsp={rsp}
+      />
+      <EditBehaviorModal
+        onOk={handleSaveSuccess}
+        ref={editModalRef}
+        rsp={rsp}
+      />
+      <TagManageModal
+        onOk={handleSaveSuccess}
+        ref={globalTagModalRef}
       />
     </div>
   );
