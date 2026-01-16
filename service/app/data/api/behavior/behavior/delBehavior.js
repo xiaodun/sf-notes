@@ -1,7 +1,8 @@
 (function () {
   return function (argData, argParams) {
-    const list = argData || [];
-    const index = list.findIndex((item) => item.id === argParams.id);
+    const data = argData || { behaviors: [], globalTags: [] };
+    const behaviors = data.behaviors || [];
+    const index = behaviors.findIndex((item) => item.id === argParams.id);
     
     if (index === -1) {
       return {
@@ -17,11 +18,11 @@
     }
     
     // 直接删除，从数组中移除
-    list.splice(index, 1);
+    behaviors.splice(index, 1);
     
     return {
       isWrite: true,
-      data: list,
+      data: data,
       response: {
         code: 200,
         data: {

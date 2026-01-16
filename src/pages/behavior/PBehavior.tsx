@@ -103,7 +103,12 @@ const PBehavior: ConnectRC<PBehaviorProps> = (props) => {
               onClick={() => handleItemClick(item)}
             >
               <div className={SelfStyle.behaviorHeader}>
-                <div className={SelfStyle.behaviorName}>{item.name}</div>
+                <div className={SelfStyle.behaviorName}>
+                  {item.name}
+                  {item.encryptedData && (
+                    <span className={SelfStyle.encryptedTag}>加密</span>
+                  )}
+                </div>
                 <div className={SelfStyle.behaviorActions}>
                   <Button
                     size="small"
@@ -122,9 +127,6 @@ const PBehavior: ConnectRC<PBehaviorProps> = (props) => {
                   </Button>
                 </div>
               </div>
-              {item.encryptedData && (
-                <div className={SelfStyle.encryptedTag}>已加密</div>
-              )}
               <div className={SelfStyle.behaviorTime}>
                 {new Date(item.createTime).toLocaleString()}
               </div>

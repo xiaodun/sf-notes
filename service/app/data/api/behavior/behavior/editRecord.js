@@ -1,9 +1,23 @@
 (function () {
   return function (argData, argParams) {
-    const list = argData || [];
-    const index = list.findIndex((item) => item.id === argParams.id);
+    const data = argData || { behaviors: [], globalTags: [] };
+    const behaviors = data.behaviors || [];
     
-    if (index === -1) {
+    // 查找对应的记录
+    let recordIndex = -1;
+    let targetBehavior = null;
+    
+    for (const behavior of behaviors) {
+      if (behavior.records) {
+        recordIndex = behavior.records.findIndex((item) => item.id === argParams.id);
+        if (recordIndex !== -1) {
+          targetBehavior = behavior;
+          break;
+        }
+      }
+    }
+    
+    if (recordIndex === -1 || !targetBehavior) {
       return {
         isWrite: false,
         response: {
@@ -16,15 +30,15 @@
       };
     }
     
-    list[index] = {
-      ...list[index],
+    targetBehavior.records[recordIndex] = {
+      ...targetBehavior.records[recordIndex],
       ...argParams,
       updateTime: new Date().toISOString(),
     };
     
     return {
       isWrite: true,
-      data: list,
+      data: data,
       response: {
         code: 200,
         data: {

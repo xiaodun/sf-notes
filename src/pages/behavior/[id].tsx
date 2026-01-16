@@ -137,7 +137,7 @@ const BehaviorDetail: React.FC = () => {
   };
 
   const handleRecordSaveSuccess = async () => {
-    await loadRecords();
+    await Promise.all([loadRecords(), loadTags()]);
   };
 
   const handleEditRecord = (record: NBehaviorRecord) => {
@@ -178,6 +178,17 @@ const BehaviorDetail: React.FC = () => {
     return [...globalTags, ...behaviorTags];
   };
 
+  const getTagDisplayName = (tag: NBehaviorTag): string => {
+    if (tag.encryptedName && password && behavior?.encryptedData && !tag.isGlobal) {
+      try {
+        return decryptText(tag.encryptedName, password);
+      } catch (error) {
+        return "[解密失败]";
+      }
+    }
+    return tag.name || "";
+  };
+
   const getDecryptedTagValue = (recordTag: NBehaviorRecordTag): string => {
     let value: string | number | boolean;
     
@@ -215,7 +226,7 @@ const BehaviorDetail: React.FC = () => {
           const displayValue = getDecryptedTagValue(recordTag);
           return (
             <Tag key={idx} color="blue">
-              {tag.name}: {displayValue}
+              {getTagDisplayName(tag)}: {displayValue}
             </Tag>
           );
         })}
@@ -350,6 +361,8 @@ const BehaviorDetail: React.FC = () => {
       />
       <TagManageModal
         behaviorId={params.id}
+        isEncrypted={!!behavior?.encryptedData}
+        password={password}
         onOk={handleRecordSaveSuccess}
         ref={behaviorTagModalRef}
       />

@@ -57,6 +57,9 @@ export const AddRecordModal: ForwardRefRenderFunction<
 
   useImperativeHandle(ref, () => ({
     showModal: async (record?: NBehaviorRecord) => {
+      // 先加载标签
+      await loadTags();
+      
       if (record) {
         // 编辑模式 - 需要解密标签值和描述
         const decryptedTagValues: Record<string, string | number | boolean> = {};
@@ -93,24 +96,23 @@ export const AddRecordModal: ForwardRefRenderFunction<
           }
         }
 
-        setState({
-          ...defaultState,
+        setState((prev) => ({
+          ...prev,
           open: true,
           editingRecord: record,
           datetime: moment(record.datetime),
           description: decryptedDescription,
           selectedTags: record.tags?.map((t) => t.tagId) || [],
           tagValues: decryptedTagValues,
-        });
+        }));
       } else {
         // 新建模式
-        setState({
-          ...defaultState,
+        setState((prev) => ({
+          ...prev,
           open: true,
           editingRecord: null,
-        });
+        }));
       }
-      await loadTags();
     },
   }));
 
@@ -135,6 +137,17 @@ export const AddRecordModal: ForwardRefRenderFunction<
     return [...state.globalTags, ...state.behaviorTags];
   };
 
+  const getTagDisplayName = (tag: NBehaviorTag): string => {
+    if (tag.encryptedName && props.password && props.isEncrypted && !tag.isGlobal) {
+      try {
+        return decryptText(tag.encryptedName, props.password);
+      } catch (error) {
+        return "[解密失败]";
+      }
+    }
+    return tag.name || "";
+  };
+
   async function onOk() {
     if (!state.datetime) {
       message.warning("请选择日期时间");
@@ -151,7 +164,7 @@ export const AddRecordModal: ForwardRefRenderFunction<
 
       let value: string | number | boolean;
       if (tag.type === "number") {
-        value = (state.tagValues[tagId] as number) || 0;
+        value = (state.tagValues[tagId] as number) || 1;
       } else {
         value = state.tagValues[tagId] as boolean ?? false;
       }
@@ -279,7 +292,7 @@ export const AddRecordModal: ForwardRefRenderFunction<
                   const tag = allTags.find((t) => t.id === tagId);
                   if (tag) {
                     if (tag.type === "number") {
-                      newTagValues[tagId] = 0;
+                      newTagValues[tagId] = 1;
                     } else {
                       newTagValues[tagId] = false;
                     }
@@ -301,7 +314,7 @@ export const AddRecordModal: ForwardRefRenderFunction<
             ))}
             {state.behaviorTags.map((tag) => (
               <Select.Option key={tag.id} value={tag.id}>
-                {tag.name}
+                {getTagDisplayName(tag)}
               </Select.Option>
             ))}
           </Select>
@@ -315,18 +328,19 @@ export const AddRecordModal: ForwardRefRenderFunction<
 
               return (
                 <div key={tagId} style={{ marginBottom: 12 }}>
-                  <div style={{ marginBottom: 4, fontWeight: 500 }}>{tag.name}：</div>
+                  <div style={{ marginBottom: 4, fontWeight: 500 }}>{getTagDisplayName(tag)}：</div>
                   {tag.type === "number" ? (
                     <InputNumber
                       value={state.tagValues[tagId] as number}
                       style={{ width: "100%" }}
                       placeholder="请输入数值"
+                      min={1}
                       onChange={(value) => {
                         setState((prev) => ({
                           ...prev,
                           tagValues: {
                             ...prev.tagValues,
-                            [tagId]: value || 0,
+                            [tagId]: value || 1,
                           },
                         }));
                       }}

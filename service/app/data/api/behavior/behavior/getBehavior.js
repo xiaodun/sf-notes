@@ -1,7 +1,8 @@
 (function () {
   return function (argData, argParams) {
-    const list = argData || [];
-    const behavior = list.find((item) => item.id === argParams.id);
+    const data = argData || { behaviors: [], globalTags: [] };
+    const behaviors = data.behaviors || [];
+    const behavior = behaviors.find((item) => item.id === argParams.id);
     
     if (!behavior) {
       return {
