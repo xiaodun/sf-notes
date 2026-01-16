@@ -27,6 +27,11 @@ namespace NApp {
       linkType: "internal",
     },
     {
+      name: "行为",
+      path: NRouter.behaviorPath,
+      linkType: "internal",
+    },
+    {
       name: "足球",
       path: NRouter.footballPath,
       linkType: "external", // 外部链接
