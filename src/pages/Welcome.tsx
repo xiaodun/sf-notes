@@ -28,7 +28,17 @@ export const Welcome: ConnectRC<IWelcomeProps> = (props) => {
     let showHeader = props.MDGlobal.showHeader,
       controlLayout = props.MDGlobal.controlLayout;
 
-    showHeader = true;
+    // 小说阅读页面不显示头部导航，且不控制布局（全屏显示）
+    const isNovelDetailPage = props.match.path === NRouter.novelDetailPath || 
+                              props.match.path.startsWith('/novel/');
+    
+    if (isNovelDetailPage) {
+      showHeader = false;
+      controlLayout = false; // 小说阅读页面全屏显示，不限制宽度
+    } else {
+      showHeader = true;
+    }
+    
     if (
       [
         NRouter.projectSfMockPath,
@@ -38,7 +48,7 @@ export const Welcome: ConnectRC<IWelcomeProps> = (props) => {
       ].includes(props.match.path)
     ) {
       controlLayout = false;
-    } else {
+    } else if (!isNovelDetailPage) {
       controlLayout = true;
     }
     NModel.dispatch(
