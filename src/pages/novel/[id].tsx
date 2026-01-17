@@ -212,20 +212,56 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
       let j = 0;
       
       while (j < processedLine.length) {
-        // 检查是否是【】占位符开始（【】要单独成行）
+        // 检查是否是【】占位符开始
         if (processedLine.substring(j).startsWith('__BRACKET_')) {
-          // 找到占位符的结束位置
-          const endIndex = processedLine.indexOf('__', j + 11);
-          if (endIndex !== -1) {
-            const placeholder = processedLine.substring(j, endIndex + 2);
-            // 如果当前句子不为空，先保存
+          // 收集所有连续的【】占位符（紧挨着或只有空白分隔）
+          const consecutiveBrackets: string[] = [];
+          let currentPos = j;
+          
+          while (currentPos < processedLine.length) {
+            // 检查当前位置是否是【】占位符开始
+            if (!processedLine.substring(currentPos).startsWith('__BRACKET_')) {
+              break;
+            }
+            
+            // 找到【】占位符的结束位置
+            const endIndex = processedLine.indexOf('__', currentPos + 11);
+            if (endIndex !== -1) {
+              const placeholder = processedLine.substring(currentPos, endIndex + 2);
+              consecutiveBrackets.push(placeholder);
+              currentPos = endIndex + 2;
+              // 跳过空白，检查下一个是否是【】占位符
+              const savedPos = currentPos;
+              while (currentPos < processedLine.length && /\s/.test(processedLine[currentPos])) {
+                currentPos++;
+              }
+              // 如果跳过空白后不是【】占位符，停止收集
+              if (!processedLine.substring(currentPos).startsWith('__BRACKET_')) {
+                currentPos = savedPos; // 恢复位置，包括空白
+                break;
+              }
+            } else {
+              break;
+            }
+          }
+          
+          // 如果连续有多个【】，每个【】单独成行
+          if (consecutiveBrackets.length > 1) {
+            // 如果当前句子不为空，先保存前面的内容
             if (currentSentence.trim()) {
               sentenceLines.push(currentSentence.trim());
               currentSentence = "";
             }
-            // 【】占位符单独一行
-            sentenceLines.push(placeholder);
-            j = endIndex + 2;
+            // 每个【】占位符单独成行
+            consecutiveBrackets.forEach(placeholder => {
+              sentenceLines.push(placeholder);
+            });
+            j = currentPos;
+            continue;
+          } else if (consecutiveBrackets.length === 1) {
+            // 如果只有一个【】，和前后内容一起，作为句子的一部分（不单独成行）
+            currentSentence += consecutiveBrackets[0];
+            j = currentPos;
             continue;
           }
         }
@@ -235,13 +271,46 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
           const endIndex = processedLine.indexOf('__', j + 9);
           if (endIndex !== -1) {
             const placeholder = processedLine.substring(j, endIndex + 2);
+            // 获取引号占位符对应的实际内容，检查是否以句号结尾
+            const quoteContent = quoteMap.get(placeholder) || '';
+            const endsWithPunctuation = /[。！？]$/.test(quoteContent);
+            
             // 引号占位符和前后内容一起，作为句子的一部分（不单独成行）
             currentSentence += placeholder;
             j = endIndex + 2;
+            
+            // 如果引号内容以句号结尾，检查后面是什么
+            if (endsWithPunctuation && j < processedLine.length) {
+              // 检查后面是否是另一个占位符
+              const isNextPlaceholder = processedLine.substring(j).startsWith('__QUOTE_') || 
+                                       processedLine.substring(j).startsWith('__BRACKET_');
+              
+              if (isNextPlaceholder) {
+                // 后面是另一个占位符，继续累积（连续引号对话应该在一起）
+                continue;
+              } else {
+                // 后面是普通文本，说明引号对话已经结束，应该分割
+                // 保存当前句子（包含所有连续的引号）
+                if (currentSentence.trim()) {
+                  sentenceLines.push(currentSentence.trim());
+                  currentSentence = "";
+                }
+                // 不 continue，继续 while 循环处理后续字符（j 已经指向普通文本）
+                // 会继续到下面的字符处理逻辑
+              }
+            } else {
+              // 如果引号不以句号结尾，或者已经到行尾，继续循环
+              continue;
+            }
+          } else {
+            // 找不到结束位置，跳过当前字符
+            currentSentence += processedLine[j];
+            j++;
             continue;
           }
         }
         
+        // 处理普通字符
         const char = processedLine[j];
         currentSentence += char;
         
@@ -268,7 +337,7 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
       }
       
       // 恢复所有占位符（引号和【】）
-      const finalSentenceLines = sentenceLines.map(sentence => {
+      let finalSentenceLines = sentenceLines.map(sentence => {
         let restoredSentence = sentence;
         // 先恢复【】占位符
         bracketMap.forEach((bracket, placeholder) => {
@@ -281,11 +350,207 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
         return restoredSentence;
       });
       
-      resultLines.push(...finalSentenceLines);
+      // 后处理：检查每个句子，如果引号后面直接跟着普通文本，进行分割
+      const postProcessedLines: string[] = [];
+      for (const line of finalSentenceLines) {
+        // 使用字符遍历查找引号对
+        const splits: number[] = [0];
+        let i = 0;
+        
+        while (i < line.length) {
+          const char = line[i];
+          
+          // 检查是否是中文开引号 " 或 '
+          if (char === '\u201c' || char === '\u2018') {
+            const closeQuote = char === '\u201c' ? '\u201d' : '\u2019';
+            // 寻找匹配的闭引号
+            let quoteEndIndex = -1;
+            let j = i + 1;
+            
+            while (j < line.length) {
+              if (line[j] === closeQuote) {
+                quoteEndIndex = j;
+                break;
+              }
+              j++;
+            }
+            
+            if (quoteEndIndex !== -1) {
+              // 找到匹配的闭引号，检查引号内容是否以句号结尾
+              const quoteContent = line.substring(i + 1, quoteEndIndex);
+              const endsWithPunctuation = /[。！？]$/.test(quoteContent);
+              
+              if (endsWithPunctuation) {
+                // 检查闭引号后面是什么
+                const afterQuoteIndex = quoteEndIndex + 1;
+                if (afterQuoteIndex < line.length) {
+                  const remainingText = line.substring(afterQuoteIndex);
+                  const trimmedAfter = remainingText.trim();
+                  // 如果后面不是空白，且不是引号、不是【】，而是普通文本，记录分割位置
+                  if (trimmedAfter && 
+                      trimmedAfter[0] !== '"' && 
+                      trimmedAfter[0] !== '"' && 
+                      trimmedAfter[0] !== '' &&
+                      trimmedAfter[0] !== '' &&
+                      trimmedAfter[0] !== '【') {
+                    // 找到第一个非空白字符的位置
+                    let firstNonWhitespace = afterQuoteIndex;
+                    while (firstNonWhitespace < line.length && /\s/.test(line[firstNonWhitespace])) {
+                      firstNonWhitespace++;
+                    }
+                    splits.push(firstNonWhitespace);
+                  }
+                }
+              }
+              
+              i = quoteEndIndex + 1;
+              continue;
+            }
+          }
+          // 检查是否是英文开引号 " 或 '
+          else if (char === '"' || char === "'") {
+            // 寻找匹配的闭引号
+            let quoteEndIndex = -1;
+            let j = i + 1;
+            
+            while (j < line.length) {
+              if (line[j] === char || line[j] === '"' || line[j] === "'") {
+                quoteEndIndex = j;
+                break;
+              }
+              j++;
+            }
+            
+            if (quoteEndIndex !== -1) {
+              // 找到匹配的闭引号
+              const quoteContent = line.substring(i + 1, quoteEndIndex);
+              const endsWithPunctuation = /[。！？]$/.test(quoteContent);
+              
+              if (endsWithPunctuation) {
+                // 检查闭引号后面是什么
+                const afterQuoteIndex = quoteEndIndex + 1;
+                if (afterQuoteIndex < line.length) {
+                  const remainingText = line.substring(afterQuoteIndex);
+                  const trimmedAfter = remainingText.trim();
+                  // 如果后面不是空白，且不是引号、不是【】，而是普通文本，记录分割位置
+                  if (trimmedAfter && 
+                      trimmedAfter[0] !== '"' && 
+                      trimmedAfter[0] !== '"' && 
+                      trimmedAfter[0] !== '' &&
+                      trimmedAfter[0] !== '' &&
+                      trimmedAfter[0] !== '【') {
+                    // 找到第一个非空白字符的位置
+                    let firstNonWhitespace = afterQuoteIndex;
+                    while (firstNonWhitespace < line.length && /\s/.test(line[firstNonWhitespace])) {
+                      firstNonWhitespace++;
+                    }
+                    splits.push(firstNonWhitespace);
+                  }
+                }
+              }
+              
+              i = quoteEndIndex + 1;
+              continue;
+            }
+          }
+          
+          i++;
+        }
+        
+        // 如果有分割点，进行分割
+        if (splits.length > 1) {
+          for (let idx = 0; idx < splits.length; idx++) {
+            const start = splits[idx];
+            const end = idx < splits.length - 1 ? splits[idx + 1] : line.length;
+            const segment = line.substring(start, end).trim();
+            if (segment) {
+              postProcessedLines.push(segment);
+            }
+          }
+        } else {
+          postProcessedLines.push(line);
+        }
+      }
+      
+      resultLines.push(...postProcessedLines);
+    }
+    
+    // 最后检查：如果一行中包含连续的【】（2个或以上），应该分割
+    const finalResultLines: string[] = [];
+    for (const line of resultLines) {
+      // 检查是否包含多个连续的【】
+      const bracketPattern = /【[^】]*】/g;
+      const brackets: Array<{ start: number; end: number }> = [];
+      let match;
+      
+      while ((match = bracketPattern.exec(line)) !== null) {
+        brackets.push({ start: match.index, end: match.index + match[0].length });
+      }
+      
+      // 如果有多于1个【】，查找连续的部分
+      if (brackets.length > 1) {
+        // 查找第一个连续组的开始和结束位置
+        let firstConsecutiveStart = -1;
+        let firstConsecutiveEnd = -1;
+        
+        for (let i = 0; i < brackets.length - 1; i++) {
+          const current = brackets[i];
+          const next = brackets[i + 1];
+          // 检查之间是否只有空白（连续）
+          const between = line.substring(current.end, next.start);
+          if (/^\s*$/.test(between)) {
+            // 找到连续的【】
+            if (firstConsecutiveStart === -1) {
+              firstConsecutiveStart = current.start;
+            }
+            firstConsecutiveEnd = next.end;
+          } else {
+            // 如果已经找到连续组，停止
+            if (firstConsecutiveStart !== -1) {
+              break;
+            }
+          }
+        }
+        
+        // 如果找到连续的【】，进行分割
+        if (firstConsecutiveStart !== -1 && firstConsecutiveEnd !== -1) {
+          // 前面的内容
+          if (firstConsecutiveStart > 0) {
+            const before = line.substring(0, firstConsecutiveStart).trim();
+            if (before) {
+              finalResultLines.push(before);
+            }
+          }
+          // 将连续的【】区域按每个【】分割成单独的行
+          const consecutiveText = line.substring(firstConsecutiveStart, firstConsecutiveEnd);
+          // 使用正则匹配每个【】，单独提取
+          const bracketPattern = /【[^】]*】/g;
+          let bracketMatch;
+          while ((bracketMatch = bracketPattern.exec(consecutiveText)) !== null) {
+            const bracketText = bracketMatch[0].trim();
+            if (bracketText) {
+              finalResultLines.push(bracketText);
+            }
+          }
+          // 后面的内容
+          if (firstConsecutiveEnd < line.length) {
+            const after = line.substring(firstConsecutiveEnd).trim();
+            if (after) {
+              finalResultLines.push(after);
+            }
+          }
+        } else {
+          // 没有连续的【】，直接添加
+          finalResultLines.push(line);
+        }
+      } else {
+        // 只有0或1个【】，直接添加
+        finalResultLines.push(line);
+      }
     }
     
     // 保留原始换行结构，不合并省略号（如果原文中省略号是单独一行，应该保留）
-    return resultLines.join("\n");
+    return finalResultLines.join("\n");
   };
 
   const loadChapterContent = async (chapter: number) => {
