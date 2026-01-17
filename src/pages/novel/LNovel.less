@@ -86,17 +86,31 @@
   .content {
     max-width: 800px;
     margin: 0 auto;
-    line-height: 2;
     font-size: 16px;
     color: #333;
-    white-space: pre-wrap;
-    word-break: break-word;
+    text-align: left; // 左对齐
+
+    .contentLine {
+      margin: 0;
+      margin-bottom: 0.8em;
+      line-height: 1.8;
+      word-break: break-word;
+      
+      // 空行（段落分隔）
+      &:empty {
+        margin-bottom: 1.2em;
+      }
+    }
 
     // 移动端适配
     @media (max-width: 768px) {
       font-size: 15px;
-      line-height: 1.8;
-      padding: 0 8px;
+      padding: 0 12px;
+
+      .contentLine {
+        line-height: 1.7;
+        margin-bottom: 0.7em;
+      }
     }
   }
 }
