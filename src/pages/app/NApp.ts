@@ -32,6 +32,11 @@ namespace NApp {
       linkType: "internal",
     },
     {
+      name: "小说",
+      path: NRouter.novelPath,
+      linkType: "internal",
+    },
+    {
       name: "足球",
       path: NRouter.footballPath,
       linkType: "external", // 外部链接
