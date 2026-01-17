@@ -41,11 +41,10 @@
 }
 
 .detailContainer {
-  display: flex;
-  flex-direction: column;
   height: 100vh;
   overflow: hidden;
   background: #fff;
+  position: relative;
 }
 
 .header {
@@ -55,6 +54,15 @@
   border-bottom: 1px solid #e8e8e8;
   flex-shrink: 0;
   gap: 12px;
+  background: #fff;
+  z-index: 100;
+
+  :global {
+    .ant-btn {
+      display: inline-flex;
+      align-items: center;
+    }
+  }
 
   .title {
     flex: 1;
@@ -71,10 +79,38 @@
 }
 
 .contentWrapper {
-  flex: 1;
+  height: 100vh;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 20px 16px;
+  padding-right: 180px; // 为右侧悬浮选择器留出空间
   -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+  // 确保滚动条可见
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #c1c1c1;
+    border-radius: 4px;
+    
+    &:hover {
+      background-color: #a8a8a8;
+    }
+  }
+
+  // 移动端适配
+  @media (max-width: 768px) {
+    padding-right: 16px; // 移动端减少右侧padding
+  }
 
   .loadingWrapper {
     display: flex;
@@ -86,6 +122,7 @@
   .content {
     max-width: 800px;
     margin: 0 auto;
+    padding-bottom: 300px; // 底部增加边距，便于滚动触发自动加载
     font-size: 16px;
     color: #333;
     text-align: left; // 左对齐
@@ -106,6 +143,7 @@
     @media (max-width: 768px) {
       font-size: 15px;
       padding: 0 12px;
+      padding-bottom: 250px; // 移动端底部边距
 
       .contentLine {
         line-height: 1.7;
@@ -115,24 +153,111 @@
   }
 }
 
-.footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-top: 1px solid #e8e8e8;
-  flex-shrink: 0;
+.sidebar {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 240px;
+  height: 100vh;
   background: #fff;
+  border-left: 1px solid #e8e8e8;
+  padding: 20px 16px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 100;
+
+  .chapterSelector {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .novelName {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      text-align: center;
+      margin-bottom: 8px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .chapterInfo {
+      font-size: 16px;
+      font-weight: 500;
+      color: #666;
+      text-align: center;
+    }
+  }
+
+  // 移动端隐藏sidebar
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+// 移动端菜单按钮
+.mobileMenuBtn {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 200;
+  display: none;
+
+  @media (max-width: 768px) {
+    display: block;
+  }
+}
+
+// 移动端抽屉样式
+.mobileDrawer {
+  :global {
+    .ant-drawer-body {
+      .novelName {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+        text-align: center;
+        margin-bottom: 16px;
+      }
+    }
+  }
+}
+
+// 悬浮在右侧的章节选择器
+.floatingChapterSelector {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 140px;
 
   .chapterInfo {
     font-size: 14px;
     color: #666;
+    text-align: center;
+    font-weight: 500;
   }
 
   // 移动端适配
   @media (max-width: 768px) {
-    padding: 10px 12px;
-    font-size: 14px;
+    right: 12px;
+    padding: 12px;
+    min-width: 120px;
+    
+    .chapterInfo {
+      font-size: 12px;
+    }
   }
 }
 

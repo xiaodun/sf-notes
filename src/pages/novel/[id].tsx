@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, ConnectRC } from "umi";
-import { message, Spin, Button, Select } from "antd";
-import { LeftOutlined } from "@ant-design/icons";
+import { message, Spin, Select } from "antd";
 import SelfStyle from "./LNovel.less";
 import NNovel from "./NNovel";
 import SNovel from "./SNovel";
-import NRouter from "@/../config/router/NRouter";
 import request from "@/utils/request";
 import NRsp from "@/common/namespace/NRsp";
 
@@ -631,47 +629,6 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
 
   return (
     <div className={SelfStyle.detailContainer}>
-      <div className={SelfStyle.header}>
-        <Button
-          type="text"
-          icon={<LeftOutlined />}
-          onClick={() => {
-            window.location.href = NRouter.novelPath;
-          }}
-        >
-          返回
-        </Button>
-        <div className={SelfStyle.title}>{novel.name}</div>
-        <div className={SelfStyle.chapterSelector}>
-          <Select
-            value={currentChapter}
-            onChange={handleChapterChange}
-            style={{ width: 120 }}
-            showSearch
-            filterOption={(input, option) => {
-              const searchText = input.toLowerCase();
-              const optionText = option?.children?.toString() || '';
-              const optionValue = option?.value;
-              
-              // 如果输入的是纯数字，直接匹配章节号
-              if (/^\d+$/.test(searchText)) {
-                const chapterNum = parseInt(searchText, 10);
-                return optionValue === chapterNum;
-              }
-              
-              // 否则匹配显示的文本（"第X章"）
-              return optionText.toLowerCase().includes(searchText);
-            }}
-          >
-            {Array.from({ length: maxChapter }, (_, i) => i + 1).map((ch) => (
-              <Select.Option key={ch} value={ch}>
-                第{ch}章
-              </Select.Option>
-            ))}
-          </Select>
-        </div>
-      </div>
-
       <div className={SelfStyle.contentWrapper}>
         {contentLoading ? (
           <div className={SelfStyle.loadingWrapper}>
@@ -694,22 +651,37 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
         )}
       </div>
 
-      <div className={SelfStyle.footer}>
-        <Button
-          disabled={currentChapter <= 1}
-          onClick={handlePrevChapter}
-        >
-          上一章
-        </Button>
-        <span className={SelfStyle.chapterInfo}>
+      {/* 悬浮在右侧的章节选择器 */}
+      <div className={SelfStyle.floatingChapterSelector}>
+        <div className={SelfStyle.chapterInfo}>
           {currentChapter} / {maxChapter}
-        </span>
-        <Button
-          disabled={currentChapter >= maxChapter}
-          onClick={handleNextChapter}
+        </div>
+        <Select
+          value={currentChapter}
+          onChange={handleChapterChange}
+          style={{ width: 120 }}
+          showSearch
+          filterOption={(input, option) => {
+            const searchText = input.toLowerCase();
+            const optionText = option?.children?.toString() || '';
+            const optionValue = option?.value;
+            
+            // 如果输入的是纯数字，直接匹配章节号
+            if (/^\d+$/.test(searchText)) {
+              const chapterNum = parseInt(searchText, 10);
+              return optionValue === chapterNum;
+            }
+            
+            // 否则匹配显示的文本（"第X章"）
+            return optionText.toLowerCase().includes(searchText);
+          }}
         >
-          下一章
-        </Button>
+          {Array.from({ length: maxChapter }, (_, i) => i + 1).map((ch) => (
+            <Select.Option key={ch} value={ch}>
+              第{ch}章
+            </Select.Option>
+          ))}
+        </Select>
       </div>
     </div>
   );
