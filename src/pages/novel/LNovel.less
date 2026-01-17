@@ -82,7 +82,7 @@
   height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 20px 16px;
+  padding: 0px 16px;
   padding-right: 180px; // 为右侧悬浮选择器留出空间
   -webkit-overflow-scrolling: touch;
   box-sizing: border-box;
@@ -122,8 +122,9 @@
   .content {
     max-width: 800px;
     margin: 0 auto;
-    padding-bottom: 300px; // 底部增加边距，便于滚动触发自动加载
-    font-size: 16px;
+    padding-top: 30px;
+    padding-bottom: 120px; // 底部增加边距，便于滚动触发自动加载
+    font-size: 18px;
     color: #333;
     text-align: left; // 左对齐
 
@@ -141,9 +142,9 @@
 
     // 移动端适配
     @media (max-width: 768px) {
-      font-size: 15px;
-      padding: 0 12px;
-      padding-bottom: 250px; // 移动端底部边距
+      font-size: 18px;
+      padding: 40px 12px;
+      padding-bottom: 150px; // 移动端底部边距
 
       .contentLine {
         line-height: 1.7;
@@ -197,67 +198,65 @@
   }
 }
 
-// 移动端菜单按钮
-.mobileMenuBtn {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  z-index: 200;
-  display: none;
 
-  @media (max-width: 768px) {
-    display: block;
-  }
-}
 
-// 移动端抽屉样式
-.mobileDrawer {
-  :global {
-    .ant-drawer-body {
-      .novelName {
-        font-size: 18px;
-        font-weight: 600;
-        color: #333;
-        text-align: center;
-        margin-bottom: 16px;
-      }
-    }
-  }
-}
 
 // 悬浮在右侧的章节选择器
 .floatingChapterSelector {
   position: fixed;
   right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid #e8e8e8;
-  border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  top: 0px;
   z-index: 200;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  min-width: 140px;
+  pointer-events: auto; // 确保可以交互
+  transition: opacity 0.3s ease, transform 0.3s ease;
 
-  .chapterInfo {
-    font-size: 14px;
-    color: #666;
-    text-align: center;
-    font-weight: 500;
+  :global {
+    .ant-select {
+      .ant-select-selector {
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid #e8e8e8;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+      
+      .ant-select-selection-item {
+        font-size: 14px;
+        color: #333;
+      }
+    }
   }
 
   // 移动端适配
   @media (max-width: 768px) {
     right: 12px;
-    padding: 12px;
-    min-width: 120px;
+    top: 12px;
+    z-index: 1000; // 提高 z-index 确保在最上层
     
-    .chapterInfo {
-      font-size: 12px;
+    :global {
+      .ant-select {
+        .ant-select-selector {
+          background: rgba(255, 255, 255, 0.98);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .ant-select-selection-item {
+          font-size: 12px;
+        }
+      }
     }
+  }
+
+  // 显示状态
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  // 隐藏状态
+  &.hidden {
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
   }
 }
 
