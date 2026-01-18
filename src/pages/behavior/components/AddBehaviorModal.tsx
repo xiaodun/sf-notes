@@ -1,6 +1,8 @@
 import NBehavior from "../NBehavior";
 import {
   useState,
+  useRef,
+  useEffect,
   useImperativeHandle,
   forwardRef,
   ForwardRefRenderFunction,
@@ -13,6 +15,8 @@ import { produce } from "immer";
 import NRsp from "@/common/namespace/NRsp";
 import { encryptText } from "../utils/encrypt";
 import UCopy from "@/common/utils/UCopy";
+import passwordManager from "../utils/passwordManager";
+import PasswordInputModal, { IPasswordInputModal } from "./PasswordInputModal";
 
 export interface IAddBehaviorModalProps {
   rsp: NRsp<NBehavior>;
@@ -23,7 +27,7 @@ export interface IAddBehaviorModalState {
   open: boolean;
   name: string;
   encrypted: boolean;
-  encryptCode: string; // 加密密码（只存在内存中）
+  encryptCode: string;
 }
 
 export interface IAddBehaviorModal {
@@ -37,9 +41,13 @@ const defaultState: IAddBehaviorModalState = {
   encryptCode: "",
 };
 
-// 生成6位随机数字
 const generateEncryptCode = (): string => {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let password = '';
+  for (let i = 0; i < 11; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
 };
 
 export const AddBehaviorModal: ForwardRefRenderFunction<
@@ -47,6 +55,7 @@ export const AddBehaviorModal: ForwardRefRenderFunction<
   IAddBehaviorModalProps
 > = (props, ref) => {
   const [state, setState] = useState<IAddBehaviorModalState>(defaultState);
+  const passwordModalRef = useRef<IPasswordInputModal>();
 
   useImperativeHandle(ref, () => ({
     showModal: () => {
@@ -59,10 +68,30 @@ export const AddBehaviorModal: ForwardRefRenderFunction<
     },
   }));
 
+  // 检查是否已有加密行为
+  const hasExistingEncrypted = () => {
+    return props.rsp.list.some(item => item.encryptedData);
+  };
+
   async function onOk() {
     if (!state.name || !state.name.trim()) {
       message.warning("请输入活动名称");
       return;
+    }
+
+    // 如果选择加密，且已有加密行为，需要验证密码
+    if (state.encrypted && hasExistingEncrypted()) {
+      if (!state.encryptCode) {
+        message.warning("请先输入并验证密码");
+        return;
+      }
+    }
+
+    // 如果选择加密但没有密码，生成新密码
+    if (state.encrypted && !state.encryptCode && !hasExistingEncrypted()) {
+      const newCode = generateEncryptCode();
+      setState(prev => ({ ...prev, encryptCode: newCode }));
+      // 这里不return，继续执行后面的逻辑
     }
 
     const behaviorData: NBehavior = {
@@ -71,17 +100,25 @@ export const AddBehaviorModal: ForwardRefRenderFunction<
       updateTime: new Date().toISOString(),
     };
 
-    // 如果选择了加密，则对"加密"字符串进行加密后存储
+    // 如果选择了加密，则对"加密"字符串和名称进行加密后存储
     if (state.encrypted && state.encryptCode) {
       try {
         behaviorData.encryptedData = encryptText("加密", state.encryptCode);
+        // 对行为名称也加密
+        behaviorData.encryptedName = encryptText(state.name.trim(), state.encryptCode);
+        // 将名称设置为占位符
+        behaviorData.name = "***";
+        // 加密 createTime 和 updateTime
+        behaviorData.encryptedCreateTime = encryptText(String(behaviorData.createTime), state.encryptCode);
+        behaviorData.encryptedUpdateTime = encryptText(behaviorData.updateTime, state.encryptCode);
+        behaviorData.createTime = 0; // 使用占位符
+        behaviorData.updateTime = ""; // 使用占位符
       } catch (error) {
         message.error("加密失败");
         return;
       }
     }
 
-    // 注意：encryptCode 只存在内存中，不存储到后台
     const addRsp = await SBehavior.addItem(behaviorData, 0);
     if (addRsp.success) {
       // 尝试多种方式获取新创建的行为ID
@@ -98,8 +135,8 @@ export const AddBehaviorModal: ForwardRefRenderFunction<
 
   const handleCopyPassword = () => {
     if (!state.encryptCode) return;
-    const copyText = state.name ? `${state.name}\n${state.encryptCode}` : state.encryptCode;
-    UCopy.copyStr(copyText, { useSuccess: true, useFail: true });
+    // 只复制密码，不包含活动名称
+    UCopy.copyStr(state.encryptCode, { useSuccess: true, useFail: true });
   }
 
   function onClose() {
@@ -110,13 +147,55 @@ export const AddBehaviorModal: ForwardRefRenderFunction<
     const value = e?.target?.value;
     if (value === undefined) return;
     const encrypted = value === "yes";
-    const newCode = encrypted ? generateEncryptCode() : "";
-    setState((prev) => ({
-      ...prev,
-      encrypted,
-      encryptCode: newCode,
-    }));
+    
+    if (encrypted) {
+      const hasExisting = hasExistingEncrypted();
+      if (hasExisting) {
+        // 如果已有加密行为，检查全局密码管理器
+        if (passwordManager.isVerified()) {
+          // 直接使用全局密码，不验证
+          const globalPassword = passwordManager.getPassword();
+          setState((prev) => ({
+            ...prev,
+            encrypted,
+            encryptCode: globalPassword,
+          }));
+        } else {
+          // 需要输入密码
+          setState((prev) => ({
+            ...prev,
+            encrypted,
+            encryptCode: "",
+          }));
+          passwordModalRef.current?.show();
+        }
+      } else {
+        // 如果还没有加密行为，生成新密码
+        const newCode = generateEncryptCode();
+        setState((prev) => ({
+          ...prev,
+          encrypted,
+          encryptCode: newCode,
+        }));
+      }
+    } else {
+      setState((prev) => ({
+        ...prev,
+        encrypted,
+        encryptCode: "",
+      }));
+    }
   }
+
+  // 处理密码输入确认
+  const handlePasswordSubmit = (inputPassword: string) => {
+    // 直接使用用户输入的密码，不验证
+    passwordManager.setPassword(inputPassword);
+    setState(prev => ({ 
+      ...prev, 
+      encryptCode: inputPassword,
+    }));
+  };
 
   return (
     <Modal
@@ -142,6 +221,7 @@ export const AddBehaviorModal: ForwardRefRenderFunction<
           <Input
             value={state.name}
             placeholder="请输入活动名称"
+            autoFocus
             onChange={(e) => {
               const value = e?.target?.value || "";
               setState((prev) => ({
@@ -167,7 +247,7 @@ export const AddBehaviorModal: ForwardRefRenderFunction<
             <Radio value="no">不加密</Radio>
             <Radio value="yes">加密</Radio>
           </Radio.Group>
-          {state.encrypted && state.encryptCode && (
+          {state.encrypted && state.encryptCode && !hasExistingEncrypted() && (
             <div
               style={{
                 marginTop: 12,
@@ -192,12 +272,25 @@ export const AddBehaviorModal: ForwardRefRenderFunction<
                 {state.encryptCode}
               </div>
               <div style={{ marginTop: 8, fontSize: 12, color: "#999" }}>
-                提示：此密码只存在内存中，关闭后将无法查看，请妥善保存。复制时将包含活动名称和密码。
+                提示：此密码关闭后将无法查看，请妥善保存。
               </div>
             </div>
           )}
         </div>
       </Space>
+
+      <PasswordInputModal
+        ref={passwordModalRef}
+        title="输入密码"
+        onOk={handlePasswordSubmit}
+        onCancel={() => {
+          setState(prev => ({ 
+            ...prev, 
+            encrypted: false,
+            encryptCode: ""
+          }));
+        }}
+      />
     </Modal>
   );
 };

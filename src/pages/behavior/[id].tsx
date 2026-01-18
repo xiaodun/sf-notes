@@ -7,20 +7,22 @@ import NBehavior from "./NBehavior";
 import NBehaviorRecord from "./NBehaviorRecord";
 import NBehaviorTag from "./NBehaviorTag";
 import NBehaviorRecordTag from "./NBehaviorRecordTag";
-import { verifyPassword, decryptText } from "./utils/encrypt";
+import { decryptText } from "./utils/encrypt";
 import SelfStyle from "./LBehavior.less";
 import NRouter from "@/../config/router/NRouter";
 import AddRecordModal, { IAddRecordModal } from "./components/AddRecordModal";
 import TagManageModal, { ITagManageModal } from "./components/TagManageModal";
+import PasswordInputModal, { IPasswordInputModal } from "./components/PasswordInputModal";
 import { PageFooter } from "@/common/components/page";
 import moment from "moment";
 import NRsp from "@/common/namespace/NRsp";
+import passwordManager from "./utils/passwordManager";
 
 const BehaviorDetail: React.FC = () => {
   const params = useParams<{ id: string }>();
   const addRecordModalRef = useRef<IAddRecordModal>();
   const behaviorTagModalRef = useRef<ITagManageModal>();
-  const passwordInputRef = useRef<any>(null);
+  const passwordModalRef = useRef<IPasswordInputModal>();
   const [behavior, setBehavior] = useState<NBehavior | null>(null);
   const [records, setRecords] = useState<NRsp<NBehaviorRecord>>({
     list: [],
@@ -31,7 +33,6 @@ const BehaviorDetail: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [passwordVerified, setPasswordVerified] = useState(false);
   const [password, setPassword] = useState("");
-  const [passwordModalVisible, setPasswordModalVisible] = useState(false);
 
   useEffect(() => {
     loadBehavior();
@@ -39,21 +40,23 @@ const BehaviorDetail: React.FC = () => {
 
   useEffect(() => {
     if (behavior && behavior.encryptedData && !passwordVerified) {
-      setPasswordModalVisible(true);
+      // 检查全局密码管理器是否有已验证的密码
+      if (passwordManager.isVerified()) {
+        // 直接使用全局密码，不验证
+        setPassword(passwordManager.getPassword());
+        setPasswordVerified(true);
+      } else {
+        // 延迟显示密码输入框，确保 PasswordInputModal 已经渲染完成
+        setTimeout(() => {
+          passwordModalRef.current?.show();
+        }, 100);
+      }
     } else if (behavior && passwordVerified) {
       loadRecords();
       loadTags();
     }
   }, [behavior, passwordVerified]);
 
-  useEffect(() => {
-    if (passwordModalVisible && passwordInputRef.current) {
-      // 延迟一点确保Modal已经完全渲染
-      setTimeout(() => {
-        passwordInputRef.current?.focus();
-      }, 100);
-    }
-  }, [passwordModalVisible]);
 
   const loadBehavior = async () => {
     if (!params.id) return;
@@ -62,11 +65,108 @@ const BehaviorDetail: React.FC = () => {
       const result = await SBehavior.getItem(params.id);
       if (result.success) {
         // 兼容不同的返回格式
-        const behaviorData = (result as any).data || result;
+        const behaviorData = (result as any).data?.data || (result as any).data || result;
         setBehavior(behaviorData);
         // 如果没有加密数据，直接设置已验证
         if (!behaviorData.encryptedData) {
           setPasswordVerified(true);
+          
+          // 如果行为是不加密的，但记录或标签还是加密状态，需要解密并更新
+          const hasEncryptedRecords = behaviorData.records?.some((r: any) => r.encryptedDescription);
+          const hasEncryptedTags = behaviorData.tags?.some((t: any) => t.encryptedName);
+          
+          if ((hasEncryptedRecords || hasEncryptedTags) && passwordManager.isVerified()) {
+            const password = passwordManager.getPassword();
+            let needUpdate = false;
+            const updatedBehavior: any = { ...behaviorData };
+            
+            // 解密记录
+            if (hasEncryptedRecords && updatedBehavior.records) {
+              updatedBehavior.records = updatedBehavior.records.map((record: any) => {
+                const updatedRecord = { ...record };
+                if (record.encryptedDescription) {
+                  try {
+                    updatedRecord.description = decryptText(record.encryptedDescription, password);
+                    delete updatedRecord.encryptedDescription;
+                    needUpdate = true;
+                  } catch (error) {
+                    // 解密失败，跳过
+                  }
+                }
+                // 解密记录中的标签值
+                if (record.tags && record.tags.length > 0) {
+                  updatedRecord.tags = record.tags.map((tag: any) => {
+                    if (tag.encryptedValue) {
+                      try {
+                        const decryptedValueStr = decryptText(tag.encryptedValue, password);
+                        // 尝试解析为 number 或 boolean，如果失败则保持字符串
+                        let decryptedValue: string | number | boolean = decryptedValueStr;
+                        if (decryptedValueStr === "true") {
+                          decryptedValue = true;
+                        } else if (decryptedValueStr === "false") {
+                          decryptedValue = false;
+                        } else {
+                          const numValue = Number(decryptedValueStr);
+                          if (!isNaN(numValue)) {
+                            decryptedValue = numValue;
+                          }
+                        }
+                        return {
+                          ...tag,
+                          value: decryptedValue,
+                          encryptedValue: undefined,
+                        };
+                      } catch (error) {
+                        return tag;
+                      }
+                    }
+                    return tag;
+                  });
+                }
+                return updatedRecord;
+              });
+            }
+            
+            // 解密标签
+            if (hasEncryptedTags && updatedBehavior.tags) {
+              updatedBehavior.tags = updatedBehavior.tags.map((tag: any) => {
+                const updatedTag = { ...tag };
+                if (tag.encryptedName) {
+                  try {
+                    updatedTag.name = decryptText(tag.encryptedName, password);
+                    delete updatedTag.encryptedName;
+                    needUpdate = true;
+                  } catch (error) {
+                    // 解密失败，跳过
+                  }
+                }
+                return updatedTag;
+              });
+            }
+            
+            // 如果需要更新，保存解密后的数据
+            if (needUpdate) {
+              const updateData: any = {
+                id: updatedBehavior.id,
+                name: updatedBehavior.name,
+                createTime: updatedBehavior.createTime,
+                updateTime: new Date().toISOString(),
+              };
+              if (updatedBehavior.records) {
+                updateData.records = updatedBehavior.records;
+              }
+              if (updatedBehavior.tags) {
+                updateData.tags = updatedBehavior.tags;
+              }
+              await SBehavior.editItem(updateData);
+              // 重新加载行为数据
+              const reloadResult = await SBehavior.getItem(params.id);
+              if (reloadResult.success) {
+                const reloadedData = (reloadResult as any).data?.data || (reloadResult as any).data || reloadResult;
+                setBehavior(reloadedData);
+              }
+            }
+          }
         }
       } else {
         message.error("获取行为详情失败");
@@ -78,24 +178,14 @@ const BehaviorDetail: React.FC = () => {
     }
   };
 
-  const handlePasswordSubmit = () => {
-    if (!behavior?.encryptedData || !password) {
-      message.warning("请输入密码");
-      return;
-    }
-
-    try {
-      const isValid = verifyPassword(behavior.encryptedData, password);
-      if (isValid) {
-        setPasswordVerified(true);
-        setPasswordModalVisible(false);
-        message.success("密码验证成功");
-      } else {
-        message.error("密码错误");
-      }
-    } catch (error) {
-      message.error("密码验证失败");
-    }
+  const handlePasswordSubmit = (inputPassword: string) => {
+    // 直接使用用户输入的密码，不验证
+    passwordManager.setPassword(inputPassword);
+    setPassword(inputPassword);
+    setPasswordVerified(true);
+    // 立即加载记录和标签（loadRecords 和 loadTags 内部会检查 params.id）
+    loadRecords();
+    loadTags();
   };
 
   const loadRecords = async () => {
@@ -265,7 +355,11 @@ const BehaviorDetail: React.FC = () => {
   };
 
   const handleBack = () => {
-    window.location.href = NRouter.behaviorPath;
+    if (window.umiHistory) {
+      window.umiHistory.push(NRouter.behaviorPath);
+    } else {
+      window.location.href = NRouter.behaviorPath;
+    }
   };
 
   if (loading) {
@@ -284,42 +378,14 @@ const BehaviorDetail: React.FC = () => {
     );
   }
 
-  // 如果有加密数据但未验证，显示密码输入框
-  if (behavior.encryptedData && !passwordVerified) {
-    return (
-      <div className={SelfStyle.detailContainer}>
-        <Modal
-          title="请输入密码"
-          open={passwordModalVisible}
-          onOk={handlePasswordSubmit}
-          onCancel={handleBack}
-          maskClosable={false}
-          closable={false}
-          centered
-        >
-          <Space direction="vertical" style={{ width: "100%" }} size="middle">
-            <div>
-              <div style={{ marginBottom: 8, fontWeight: 500 }}>密码：</div>
-              <Input.Password
-                ref={passwordInputRef}
-                value={password}
-                placeholder="请输入密码"
-                onChange={(e) => setPassword(e.target.value)}
-                onPressEnter={handlePasswordSubmit}
-                autoFocus={true}
-              />
-            </div>
-          </Space>
-        </Modal>
-      </div>
-    );
-  }
-
   return (
     <div className={SelfStyle.detailContainer}>
-      <div className={SelfStyle.recordsContainer}>
-        {records.list && records.list.length > 0 ? (
-          <div className={SelfStyle.timelineWrapper}>
+      {/* 如果有加密数据但未验证，不显示内容 */}
+      {(!behavior.encryptedData || passwordVerified) && (
+        <>
+          <div className={SelfStyle.recordsContainer}>
+            {records.list && records.list.length > 0 ? (
+              <div className={SelfStyle.timelineWrapper}>
             {records.list.map((record, index) => {
               const previousRecord = index > 0 ? records.list[index - 1] : null;
               const timeDiff = previousRecord
@@ -374,15 +440,15 @@ const BehaviorDetail: React.FC = () => {
                 </div>
               );
             })}
+              </div>
+            ) : (
+              <div className={SelfStyle.emptyState}>
+                <p>暂无打卡记录，点击下方按钮添加第一条吧！</p>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className={SelfStyle.emptyState}>
-            <p>暂无打卡记录，点击下方按钮添加第一条吧！</p>
-          </div>
-        )}
-      </div>
 
-      <PageFooter>
+          <PageFooter>
         <Button
           onClick={handleBack}
           icon={<ArrowLeftOutlined />}
@@ -402,21 +468,28 @@ const BehaviorDetail: React.FC = () => {
         >
           打卡
         </Button>
-      </PageFooter>
+          </PageFooter>
+        </>
+      )}
 
       <AddRecordModal
         behaviorId={params.id || ""}
         isEncrypted={!!behavior?.encryptedData}
-        password={password}
+        password={password || passwordManager.getPassword()}
         onOk={handleRecordSaveSuccess}
         ref={addRecordModalRef}
       />
       <TagManageModal
         behaviorId={params.id}
         isEncrypted={!!behavior?.encryptedData}
-        password={password}
+        password={password || passwordManager.getPassword()}
         onOk={handleRecordSaveSuccess}
         ref={behaviorTagModalRef}
+      />
+      <PasswordInputModal
+        ref={passwordModalRef}
+        title="请输入密码"
+        onOk={handlePasswordSubmit}
       />
     </div>
   );
