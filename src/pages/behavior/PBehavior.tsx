@@ -1,16 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import SelfStyle from "./LBehavior.less";
-import { Button, message, Modal } from "antd";
+import { Button, message, Modal, Input } from "antd";
 import { ConnectRC } from "umi";
 import NBehavior from "./NBehavior";
 import { PageFooter } from "@/common/components/page";
-import { PlusOutlined, EditOutlined, DeleteOutlined, TagsOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined, TagsOutlined, LockOutlined } from "@ant-design/icons";
 import AddBehaviorModal, { IAddBehaviorModal } from "./components/AddBehaviorModal";
 import EditBehaviorModal, { IEditBehaviorModal } from "./components/EditBehaviorModal";
 import TagManageModal, { ITagManageModal } from "./components/TagManageModal";
+import PasswordInputModal, { IPasswordInputModal } from "./components/PasswordInputModal";
 import SBehavior from "./SBehavior";
 import NRsp from "@/common/namespace/NRsp";
 import NRouter from "@/../config/router/NRouter";
+import { decryptText } from "./utils/encrypt";
+import passwordManager from "./utils/passwordManager";
 
 export interface PBehaviorProps {}
 
@@ -18,11 +21,14 @@ const PBehavior: ConnectRC<PBehaviorProps> = (props) => {
   const addModalRef = useRef<IAddBehaviorModal>();
   const editModalRef = useRef<IEditBehaviorModal>();
   const globalTagModalRef = useRef<ITagManageModal>();
+  const passwordModalRef = useRef<IPasswordInputModal>();
   const [rsp, setRsp] = useState<NRsp<NBehavior>>({
     list: [],
     success: true,
   });
   const [loading, setLoading] = useState(false);
+  const [showEncrypted, setShowEncrypted] = useState(false);
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
     setTimeout(() => {
@@ -30,6 +36,7 @@ const PBehavior: ConnectRC<PBehaviorProps> = (props) => {
     });
     reqGetList();
   }, []);
+
 
   const reqGetList = async (reset: boolean = false) => {
     if (loading) return;
@@ -53,9 +60,13 @@ const PBehavior: ConnectRC<PBehaviorProps> = (props) => {
   const handleSaveSuccess = async (behaviorId?: string) => {
     // 刷新列表数据
     await reqGetList(true);
-    // 如果提供了ID，跳转到详情页
+      // 如果提供了ID，跳转到详情页
     if (behaviorId) {
-      window.location.href = `${NRouter.behaviorPath}/${behaviorId}`;
+      if (window.umiHistory) {
+        window.umiHistory.push(`${NRouter.behaviorPath}/${behaviorId}`);
+      } else {
+        window.location.href = `${NRouter.behaviorPath}/${behaviorId}`;
+      }
     }
   };
 
@@ -85,18 +96,100 @@ const PBehavior: ConnectRC<PBehaviorProps> = (props) => {
   };
 
   const handleItemClick = (item: NBehavior) => {
-    window.location.href = `${NRouter.behaviorPath}/${item.id}`;
+    if (window.umiHistory) {
+      window.umiHistory.push(`${NRouter.behaviorPath}/${item.id}`);
+    } else {
+      window.location.href = `${NRouter.behaviorPath}/${item.id}`;
+    }
   };
 
   const handleGlobalTags = () => {
     globalTagModalRef.current?.showModal();
   };
 
+  // 处理展示加密笔记按钮点击
+  const handleShowEncrypted = () => {
+    if (showEncrypted) {
+      // 如果已经显示，则隐藏（不清空全局密码）
+      setShowEncrypted(false);
+    } else {
+      // 检查全局密码管理器
+      if (passwordManager.isVerified()) {
+        // 直接使用全局密码，不验证
+        setPassword(passwordManager.getPassword());
+        setShowEncrypted(true);
+      } else {
+        // 需要输入密码
+        passwordModalRef.current?.show();
+      }
+    }
+  };
+
+  // 验证密码并显示加密笔记
+  const handlePasswordSubmit = (inputPassword: string) => {
+    // 检查是否有加密行为
+    const hasEncrypted = rsp.list.some(item => item.encryptedData);
+    if (!hasEncrypted) {
+      message.warning("当前没有加密的行为");
+      return;
+    }
+
+    // 直接使用用户输入的密码，不验证
+    passwordManager.setPassword(inputPassword);
+    setPassword(inputPassword);
+    setShowEncrypted(true);
+  };
+
+  // 检查全局密码管理器是否有已验证的密码
+  useEffect(() => {
+    if (passwordManager.isVerified()) {
+      // 直接使用全局密码，不验证
+      setPassword(passwordManager.getPassword());
+      setShowEncrypted(true);
+    }
+  }, [rsp.list]);
+
+  // 获取显示的行为列表（根据showEncrypted过滤）
+  const getDisplayList = (): NBehavior[] => {
+    if (showEncrypted) {
+      // 显示所有行为，并对加密的行为名称和创建时间进行解密
+      return rsp.list.map(item => {
+        if (item.encryptedData && item.encryptedName && password) {
+          try {
+            const decryptedName = decryptText(item.encryptedName, password);
+            let decryptedItem: any = { ...item, name: decryptedName };
+            // 解密 createTime
+            if (item.encryptedCreateTime) {
+              try {
+                const decryptedCreateTime = decryptText(item.encryptedCreateTime, password);
+                decryptedItem.createTime = Number(decryptedCreateTime) || item.createTime;
+              } catch (error) {
+                // 解密失败，保留原值
+              }
+            }
+            return decryptedItem;
+          } catch (error) {
+            return { ...item, name: "***" }; // 解密失败显示占位符
+          }
+        }
+        return item;
+      });
+    } else {
+      // 只显示非加密的行为
+      return rsp.list.filter(item => !item.encryptedData);
+    }
+  };
+
+  // 判断是否至少有一个加密行为
+  const hasEncryptedBehaviors = rsp.list.some(item => item.encryptedData);
+
+  const displayList = getDisplayList();
+
   return (
     <div className={SelfStyle.behaviorContainer}>
       <div className={SelfStyle.listContainer}>
-        {rsp.list && rsp.list.length > 0 ? (
-          rsp.list.map((item, index) => (
+        {displayList && displayList.length > 0 ? (
+          displayList.map((item, index) => (
             <div 
               key={item.id || index} 
               className={SelfStyle.behaviorItem}
@@ -140,6 +233,15 @@ const PBehavior: ConnectRC<PBehaviorProps> = (props) => {
       </div>
 
       <PageFooter>
+        {hasEncryptedBehaviors && (
+          <Button
+            onClick={handleShowEncrypted}
+            icon={<LockOutlined />}
+            type={showEncrypted ? "default" : "dashed"}
+          >
+            {showEncrypted ? "隐藏加密笔记" : "展示加密笔记"}
+          </Button>
+        )}
         <Button
           onClick={handleGlobalTags}
           icon={<TagsOutlined />}
@@ -154,6 +256,12 @@ const PBehavior: ConnectRC<PBehaviorProps> = (props) => {
           添加
         </Button>
       </PageFooter>
+
+      <PasswordInputModal
+        ref={passwordModalRef}
+        title="验证密码"
+        onOk={handlePasswordSubmit}
+      />
 
       <AddBehaviorModal
         onOk={handleSaveSuccess}
