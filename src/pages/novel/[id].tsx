@@ -724,6 +724,11 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
   }, [currentChapter, chapterList, nextChapterContent]);
 
   const handleChapterChange = (chapter: number) => {
+    // 通过选择器切换章节时，清空预加载的内容（因为预加载的是旧章节的下一章）
+    setNextChapterContent("");
+    // 重置切换标志
+    isSwitchingRef.current = false;
+    skipLoadRef.current = false;
     setCurrentChapter(chapter);
     if (contentWrapperRef.current) {
       contentWrapperRef.current.scrollTop = 0;
