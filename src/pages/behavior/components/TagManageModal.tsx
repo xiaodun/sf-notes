@@ -1,6 +1,8 @@
 import NBehaviorTag from "../NBehaviorTag";
 import {
   useState,
+  useRef,
+  useEffect,
   useImperativeHandle,
   forwardRef,
   ForwardRefRenderFunction,
@@ -25,7 +27,7 @@ export interface ITagManageModalState {
   editingTag: NBehaviorTag | null;
   editModalVisible: boolean;
   editTagName: string;
-  editTagType: "number" | "boolean";
+  editTagType: "number" | "boolean" | "self";
   editTagValue: number | null; // 数值类型的默认值
 }
 
@@ -48,6 +50,17 @@ export const TagManageModal: ForwardRefRenderFunction<
   ITagManageModalProps
 > = (props, ref) => {
   const [state, setState] = useState<ITagManageModalState>(defaultState);
+  const tagNameInputRef = useRef<any>(null);
+
+  // 当编辑模态框打开时，自动聚焦到标签名称输入框
+  useEffect(() => {
+    if (state.editModalVisible && tagNameInputRef.current) {
+      // 延迟一点时间，确保 Modal 已经完全渲染
+      setTimeout(() => {
+        tagNameInputRef.current?.focus();
+      }, 100);
+    }
+  }, [state.editModalVisible]);
 
   const loadTags = async () => {
     try {
@@ -223,7 +236,7 @@ export const TagManageModal: ForwardRefRenderFunction<
                 <div>
                   <div style={{ fontWeight: 500 }}>{getTagDisplayName(tag)}</div>
                   <div style={{ fontSize: 12, color: "#999" }}>
-                    类型：{tag.type === "number" ? "数值" : "是否"}
+                    类型：{tag.type === "number" ? "数值" : tag.type === "boolean" ? "是否" : "自身"}
                   </div>
                 </div>
                 <Space>
@@ -266,6 +279,7 @@ export const TagManageModal: ForwardRefRenderFunction<
           <div>
             <div style={{ marginBottom: 8, fontWeight: 500 }}>标签名称：</div>
             <Input
+              ref={tagNameInputRef}
               value={state.editTagName}
               placeholder="请输入标签名称"
               onChange={(e) => {
@@ -292,6 +306,7 @@ export const TagManageModal: ForwardRefRenderFunction<
             >
               <Select.Option value="boolean">是否</Select.Option>
               <Select.Option value="number">数值</Select.Option>
+              <Select.Option value="self">自身</Select.Option>
             </Select>
           </div>
         </Space>
