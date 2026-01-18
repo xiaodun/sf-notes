@@ -20,7 +20,7 @@ import PasswordInputModal, { IPasswordInputModal } from "./PasswordInputModal";
 
 export interface IAddBehaviorModalProps {
   rsp: NRsp<NBehavior>;
-  onOk: (behaviorId?: string) => void; // 返回新建的行为ID，用于跳转
+  onOk: () => void;
 }
 
 export interface IAddBehaviorModalState {
@@ -56,6 +56,7 @@ export const AddBehaviorModal: ForwardRefRenderFunction<
 > = (props, ref) => {
   const [state, setState] = useState<IAddBehaviorModalState>(defaultState);
   const passwordModalRef = useRef<IPasswordInputModal>();
+  const nameInputRef = useRef<any>(null);
 
   useImperativeHandle(ref, () => ({
     showModal: () => {
@@ -67,6 +68,16 @@ export const AddBehaviorModal: ForwardRefRenderFunction<
       });
     },
   }));
+
+  // 当模态框打开时，自动聚焦到名称输入框
+  useEffect(() => {
+    if (state.open && nameInputRef.current) {
+      // 延迟一点时间，确保 Modal 已经完全渲染
+      setTimeout(() => {
+        nameInputRef.current?.focus();
+      }, 100);
+    }
+  }, [state.open]);
 
   // 检查是否已有加密行为
   const hasExistingEncrypted = () => {
@@ -121,13 +132,8 @@ export const AddBehaviorModal: ForwardRefRenderFunction<
 
     const addRsp = await SBehavior.addItem(behaviorData, 0);
     if (addRsp.success) {
-      // 尝试多种方式获取新创建的行为ID
-      const newBehaviorId = 
-        (addRsp as any).data?.data?.id || 
-        (addRsp as any).data?.id || 
-        behaviorData.id;
       onClose();
-      props.onOk(newBehaviorId);
+      props.onOk();
     } else {
       message.error((addRsp as any).msg || "添加失败");
     }
@@ -219,9 +225,9 @@ export const AddBehaviorModal: ForwardRefRenderFunction<
             活动名称：
           </div>
           <Input
+            ref={nameInputRef}
             value={state.name}
             placeholder="请输入活动名称"
-            autoFocus
             onChange={(e) => {
               const value = e?.target?.value || "";
               setState((prev) => ({

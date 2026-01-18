@@ -36,6 +36,23 @@ const BehaviorDetail: React.FC = () => {
 
   useEffect(() => {
     loadBehavior();
+
+    // 监听路由变化，离开行为路由时清空密码
+    let unlisten: (() => void) | undefined;
+    if (window.umiHistory && typeof window.umiHistory.listen === 'function') {
+      unlisten = window.umiHistory.listen((location: any, action: any) => {
+        const pathname = location?.pathname || location?.path || "";
+        // 如果路由不是行为相关路由，清空密码
+        if (pathname && !pathname.startsWith(NRouter.behaviorPath)) {
+          passwordManager.clearPassword();
+        }
+      });
+    }
+    return () => {
+      if (unlisten) {
+        unlisten();
+      }
+    };
   }, [params.id]);
 
   useEffect(() => {
