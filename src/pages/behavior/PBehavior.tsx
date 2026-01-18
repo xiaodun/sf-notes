@@ -35,6 +35,23 @@ const PBehavior: ConnectRC<PBehaviorProps> = (props) => {
       document.title = "行为";
     });
     reqGetList();
+
+    // 监听路由变化，离开行为路由时清空密码
+    let unlisten: (() => void) | undefined;
+    if (window.umiHistory && typeof window.umiHistory.listen === 'function') {
+      unlisten = window.umiHistory.listen((location: any, action: any) => {
+        const pathname = location?.pathname || location?.path || "";
+        // 如果路由不是行为相关路由，清空密码
+        if (pathname && !pathname.startsWith(NRouter.behaviorPath)) {
+          passwordManager.clearPassword();
+        }
+      });
+    }
+    return () => {
+      if (unlisten) {
+        unlisten();
+      }
+    };
   }, []);
 
 
@@ -57,17 +74,9 @@ const PBehavior: ConnectRC<PBehaviorProps> = (props) => {
     addModalRef.current?.showModal();
   };
 
-  const handleSaveSuccess = async (behaviorId?: string) => {
+  const handleSaveSuccess = async () => {
     // 刷新列表数据
     await reqGetList(true);
-      // 如果提供了ID，跳转到详情页
-    if (behaviorId) {
-      if (window.umiHistory) {
-        window.umiHistory.push(`${NRouter.behaviorPath}/${behaviorId}`);
-      } else {
-        window.location.href = `${NRouter.behaviorPath}/${behaviorId}`;
-      }
-    }
   };
 
   const handleEdit = (e: React.MouseEvent, item: NBehavior) => {
