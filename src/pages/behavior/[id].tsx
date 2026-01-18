@@ -360,6 +360,15 @@ const BehaviorDetail: React.FC = () => {
           const tag = allTags.find((t) => t.id === recordTag.tagId);
           if (!tag) return null;
 
+          // "自身"类型的标签只显示标签名称，不显示值
+          if (tag.type === "self") {
+            return (
+              <Tag key={idx} color="blue">
+                {getTagDisplayName(tag)}
+              </Tag>
+            );
+          }
+
           const displayValue = getDecryptedTagValue(recordTag);
           return (
             <Tag key={idx} color="blue">

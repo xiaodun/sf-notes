@@ -38,10 +38,16 @@ export interface IAddRecordModal {
   showModal: (record?: NBehaviorRecord) => void;
 }
 
+// 获取当前时间，去掉分钟和秒（分钟设为0，秒和毫秒设为0）
+const getCurrentDateTime = (): Moment => {
+  const now = moment();
+  return now.minute(0).second(0).millisecond(0);
+};
+
 const defaultState: IAddRecordModalState = {
   open: false,
   editingRecord: null,
-  datetime: moment(),
+  datetime: getCurrentDateTime(),
   description: "",
   selectedTags: [],
   tagValues: {},
@@ -106,11 +112,12 @@ export const AddRecordModal: ForwardRefRenderFunction<
           tagValues: decryptedTagValues,
         }));
       } else {
-        // 新建模式
+        // 新建模式 - 使用当前时间（去掉分钟）
         setState((prev) => ({
           ...prev,
           open: true,
           editingRecord: null,
+          datetime: getCurrentDateTime(),
         }));
       }
     },
@@ -161,6 +168,28 @@ export const AddRecordModal: ForwardRefRenderFunction<
     for (const tagId of state.selectedTags) {
       const tag = allTags.find((t) => t.id === tagId);
       if (!tag) continue;
+
+      // "自身"类型的标签不需要关联值
+      if (tag.type === "self") {
+        const recordTag: NBehaviorRecordTag = {
+          tagId,
+          value: true, // 自身类型标签的值固定为 true，表示存在
+        };
+        
+        // 如果行为是加密的，则对标签值进行加密
+        if (props.isEncrypted && props.password) {
+          try {
+            recordTag.encryptedValue = encryptText("true", props.password);
+            recordTag.value = undefined;
+          } catch (error) {
+            message.error("加密标签值失败");
+            return;
+          }
+        }
+        
+        tags.push(recordTag);
+        continue;
+      }
 
       let value: string | number | boolean;
       if (tag.type === "number") {
@@ -223,7 +252,10 @@ export const AddRecordModal: ForwardRefRenderFunction<
   }
 
   function onClose() {
-    setState({ ...defaultState });
+    setState({ 
+      ...defaultState,
+      datetime: getCurrentDateTime(), // 关闭时重置为当前时间（去掉分钟）
+    });
   }
 
   return (
@@ -252,9 +284,11 @@ export const AddRecordModal: ForwardRefRenderFunction<
             format="YYYY-MM-DD HH:mm"
             value={state.datetime}
             onChange={(date) => {
+              // 如果选择了时间，去掉分钟和秒
+              const selectedDate = date ? date.minute(0).second(0).millisecond(0) : getCurrentDateTime();
               setState((prev) => ({
                 ...prev,
-                datetime: date || moment(),
+                datetime: selectedDate,
               }));
             }}
             style={{ width: "100%" }}
@@ -286,11 +320,11 @@ export const AddRecordModal: ForwardRefRenderFunction<
                 }
               });
 
-              // 为新选中的标签设置默认值
+              // 为新选中的标签设置默认值（自身类型不需要设置值）
               values.forEach((tagId) => {
                 if (!newTagValues.hasOwnProperty(tagId)) {
                   const tag = allTags.find((t) => t.id === tagId);
-                  if (tag) {
+                  if (tag && tag.type !== "self") {
                     if (tag.type === "number") {
                       newTagValues[tagId] = 1;
                     } else {
@@ -325,6 +359,11 @@ export const AddRecordModal: ForwardRefRenderFunction<
             {state.selectedTags.map((tagId) => {
               const tag = getAllTags().find((t) => t.id === tagId);
               if (!tag) return null;
+
+              // "自身"类型的标签不显示输入控件，也不显示任何内容（在标签选择器中已选择即可）
+              if (tag.type === "self") {
+                return null;
+              }
 
               return (
                 <div key={tagId} style={{ marginBottom: 12 }}>
