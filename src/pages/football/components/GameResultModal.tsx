@@ -210,8 +210,8 @@ const GameResultModal: ForwardRefRenderFunction<
     // 组合：预测信息
     let qrContent = qrContentLines.join("\n");
 
-    // 如果有总金额，在最后追加
-    if (totalAmount > 0) {
+    // 如果有总金额且有多组预测（多个场次），在最后追加总计
+    if (totalAmount > 0 && firstRowItems.length > 1) {
       qrContent += "\n";
       qrContent += "------------------------------------";
       qrContent += "\n";
@@ -849,6 +849,9 @@ const GameResultModal: ForwardRefRenderFunction<
     item: NFootball.ITeamResultOdds,
     oddInfos: NFootball.IFootballMatch
   ): boolean {
+    if (!item.codeDesc || !oddInfos.singleDesc) {
+      return false;
+    }
     return item.codeDesc.indexOf(oddInfos.singleDesc) !== -1;
   }
 
@@ -857,6 +860,9 @@ const GameResultModal: ForwardRefRenderFunction<
     item: NFootball.ITeamResultOdds,
     oddInfos: NFootball.IFootballMatch
   ): boolean {
+    if (!item.handicapCountDesc || !oddInfos.handicapDesc) {
+      return false;
+    }
     return item.handicapCountDesc.indexOf(oddInfos.handicapDesc) !== -1;
   }
 
@@ -865,6 +871,9 @@ const GameResultModal: ForwardRefRenderFunction<
     item: NFootball.ITeamResultOdds,
     oddInfos: NFootball.IFootballMatch
   ): boolean {
+    if (!item.codeDesc || !oddInfos.scoreDesc) {
+      return false;
+    }
     return item.codeDesc.indexOf(oddInfos.scoreDesc) !== -1;
   }
 
@@ -873,6 +882,9 @@ const GameResultModal: ForwardRefRenderFunction<
     item: NFootball.ITeamResultOdds,
     oddInfos: NFootball.IFootballMatch
   ): boolean {
+    if (!oddInfos.halfDesc || !item.codeDesc) {
+      return false;
+    }
     return item.codeDesc.indexOf(oddInfos.halfDesc.split("").join("/")) !== -1;
   }
 
@@ -881,6 +893,9 @@ const GameResultModal: ForwardRefRenderFunction<
     item: NFootball.ITeamResultOdds,
     oddInfos: NFootball.IFootballMatch
   ): boolean {
+    if (!oddInfos.goalDesc || item.goalCount === undefined || item.goalCount === null) {
+      return false;
+    }
     return oddInfos.goalDesc.indexOf(item.goalCount) !== -1;
   }
 
