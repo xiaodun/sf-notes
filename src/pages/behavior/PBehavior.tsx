@@ -47,12 +47,41 @@ const PBehavior: ConnectRC<PBehaviorProps> = (props) => {
         }
       });
     }
+
+    // 监听页面可见性变化，页面变为可见时检查密码是否过期
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // 检查密码是否过期，如果过期会自动清空
+        const wasVerified = passwordManager.isVerified();
+        if (!wasVerified && showEncrypted) {
+          // 如果密码已过期且当前显示加密行为，则隐藏加密行为
+          setShowEncrypted(false);
+          setPassword("");
+        }
+      }
+    };
+
+    // 监听窗口焦点变化，窗口获得焦点时检查密码是否过期
+    const handleFocus = () => {
+      const wasVerified = passwordManager.isVerified();
+      if (!wasVerified && showEncrypted) {
+        // 如果密码已过期且当前显示加密行为，则隐藏加密行为
+        setShowEncrypted(false);
+        setPassword("");
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
     return () => {
       if (unlisten) {
         unlisten();
       }
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
     };
-  }, []);
+  }, [showEncrypted]);
 
 
   const reqGetList = async (reset: boolean = false) => {
