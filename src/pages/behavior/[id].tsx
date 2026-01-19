@@ -48,12 +48,49 @@ const BehaviorDetail: React.FC = () => {
         }
       });
     }
+
+    // 监听页面可见性变化，页面变为可见时检查密码是否过期
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // 检查密码是否过期，如果过期会自动清空
+        const wasVerified = passwordManager.isVerified();
+        if (!wasVerified && passwordVerified) {
+          // 如果密码已过期且当前已验证，则需要重新验证
+          setPasswordVerified(false);
+          setPassword("");
+          // 延迟显示密码输入框，确保组件已渲染
+          setTimeout(() => {
+            passwordModalRef.current?.show();
+          }, 100);
+        }
+      }
+    };
+
+    // 监听窗口焦点变化，窗口获得焦点时检查密码是否过期
+    const handleFocus = () => {
+      const wasVerified = passwordManager.isVerified();
+      if (!wasVerified && passwordVerified) {
+        // 如果密码已过期且当前已验证，则需要重新验证
+        setPasswordVerified(false);
+        setPassword("");
+        // 延迟显示密码输入框，确保组件已渲染
+        setTimeout(() => {
+          passwordModalRef.current?.show();
+        }, 100);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
     return () => {
       if (unlisten) {
         unlisten();
       }
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
     };
-  }, [params.id]);
+  }, [params.id, passwordVerified]);
 
   useEffect(() => {
     if (behavior && behavior.encryptedData && !passwordVerified) {
