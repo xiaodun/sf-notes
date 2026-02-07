@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, ConnectRC } from "umi";
-import { message, Spin, Select } from "antd";
+import { message, Spin, Select, Tooltip } from "antd";
 import SelfStyle from "./LNovel.less";
 import NNovel from "./NNovel";
 import SNovel from "./SNovel";
@@ -81,6 +81,25 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
       setLoading(false);
     }
   };
+
+  // 计算从开头到指定段落索引的累计字数
+  const calculateWordCount = useCallback((content: string, lineIndex: number): number => {
+    if (!content) return 0;
+    const lines = content.split('\n');
+    let wordCount = 0;
+    
+    // 计算从开头到当前段落（包含当前段落）的所有字数
+    // 直接使用 length 属性累加每段的内容
+    for (let i = 0; i <= lineIndex && i < lines.length; i++) {
+      const line = lines[i];
+      if (line) {
+        // 直接使用 length 属性计算字数
+        wordCount += line.length;
+      }
+    }
+    
+    return wordCount;
+  }, []);
 
   // 预加载下一章内容
   const preloadNextChapter = useCallback(async (chapter: number) => {
@@ -866,13 +885,23 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
         ) : (
           <div className={SelfStyle.content}>
             {content ? (
-              content.split('\n').map((line, index) => (
-                line.trim() ? (
-                  <p key={index} className={SelfStyle.contentLine}>{line}</p>
-                ) : (
-                  <br key={index} />
-                )
-              ))
+              content.split('\n').map((line, index) => {
+                if (line.trim()) {
+                  const wordCount = calculateWordCount(content, index);
+                  return (
+                    <Tooltip
+                      key={index}
+                      title={`共 ${wordCount.toLocaleString()} 字`}
+                      placement="top"
+                      mouseEnterDelay={0.3}
+                    >
+                      <p className={SelfStyle.contentLine}>{line}</p>
+                    </Tooltip>
+                  );
+                } else {
+                  return <br key={index} />;
+                }
+              })
             ) : (
               <p>加载中...</p>
             )}
