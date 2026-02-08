@@ -590,6 +590,17 @@ const PLotteryPredict: React.FC<IPLotteryPredictProps> = () => {
           >
             开奖
           </Button>
+          <Button
+            type="link"
+            onClick={() => {
+              window.open(
+                "https://www.lottery.gov.cn/dlt/index.html",
+                "_blank"
+              );
+            }}
+          >
+            跳转官网
+          </Button>
         </Space>
       </Card>
 
