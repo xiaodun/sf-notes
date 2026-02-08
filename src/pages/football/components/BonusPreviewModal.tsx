@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Modal, Button, Table, Space, message, Radio } from "antd";
+import { Modal, Button, Table, Space, message, Radio, InputNumber } from "antd";
 import NFootball from "../NFootball";
 import UCopy from "@/common/utils/UCopy";
 import { produce } from "immer";
@@ -52,6 +52,7 @@ const BonusPreviewModal: ForwardRefRenderFunction<
   IBonusPreviewModalProps
 > = (props, ref) => {
   const [state, setState] = useState<IBonusPreviewModalState>(defaultState);
+  const [randomCount, setRandomCount] = useState<number | null>(1);
   const [addedItems, setAddedItems] = useState<
     Map<string, NFootball.IOddResult>
   >(new Map());
@@ -131,13 +132,30 @@ const BonusPreviewModal: ForwardRefRenderFunction<
       bodyStyle={{ padding: "5px 24px" }}
       footer={
         <Space>
-          <Button size="small" onClick={() => onResultRandom(true)}>
+          <InputNumber
+            size="small"
+            min={1}
+            max={100}
+            value={randomCount}
+            onChange={setRandomCount}
+            placeholder="次数"
+            style={{ width: 70 }}
+          />
+          <Button
+            size="small"
+            onClick={() =>
+              handleMultipleExecution(() => onResultRandom(true))
+            }
+          >
             随机
           </Button>
           <Button size="small" onClick={() => onResultRandom(false)}>
             预览
           </Button>
-          <Button size="small" onClick={onRandomPage}>
+          <Button
+            size="small"
+            onClick={() => handleMultipleExecution(onRandomPage)}
+          >
             随机页数
           </Button>
           <Button type="primary" onClick={onCancel}>
@@ -324,6 +342,26 @@ const BonusPreviewModal: ForwardRefRenderFunction<
         oddResultList: filteredData.slice(0, pageSize),
       };
     });
+  }
+
+  function handleMultipleExecution(fn: () => void) {
+    const count = randomCount+1 || 1;
+
+    const run = (currentCount: number) => {
+      if (currentCount <= 0) return;
+
+      fn();
+      const nextCount = currentCount - 1;
+      setRandomCount(nextCount);
+
+      setTimeout(() => {
+        if (nextCount > 1) {
+          run(nextCount);
+        }
+      }, 500);
+    };
+
+    run(count);
   }
 
   // 随机页数
