@@ -39,6 +39,7 @@ const PLotteryPredict: React.FC<IPLotteryPredictProps> = () => {
   const [includeFixedNumbers, setIncludeFixedNumbers] = useState(true);
   const [matchResults, setMatchResults] = useState<IMatchResult[]>([]);
   const [loadingWinningNumbers, setLoadingWinningNumbers] = useState(false);
+  const [randomCount, setRandomCount] = useState<number | null>(1);
 
   const urlQuery = qs.parse(window.location.search, {
     ignoreQueryPrefix: true,
@@ -193,15 +194,37 @@ const PLotteryPredict: React.FC<IPLotteryPredictProps> = () => {
     setPreviewModalVisible(true);
   }
 
+  function handleMultipleExecution(fn: () => void) {
+    const count = (randomCount || 0) + 1 || 1;
+
+    const run = (currentCount: number) => {
+      if (currentCount <= 0) return;
+
+      fn();
+      const nextCount = currentCount - 1;
+      setRandomCount(nextCount);
+
+      setTimeout(() => {
+        if (nextCount > 1) {
+          run(nextCount);
+        }
+      }, 500);
+    };
+
+    run(count);
+  }
+
   /**
    * 刷新预览的号码
    */
   function handleRefreshPreview() {
-    const newNumbersList: ILotteryNumbers[] = [];
-    for (let i = 0; i < count; i++) {
-      newNumbersList.push(generateRandomNumbers());
-    }
-    setPreviewNumbersList(newNumbersList);
+    handleMultipleExecution(() => {
+      const newNumbersList: ILotteryNumbers[] = [];
+      for (let i = 0; i < count; i++) {
+        newNumbersList.push(generateRandomNumbers());
+      }
+      setPreviewNumbersList(newNumbersList);
+    });
   }
 
   /**
@@ -1074,6 +1097,16 @@ const PLotteryPredict: React.FC<IPLotteryPredictProps> = () => {
         cancelText="取消"
         width={600}
         footer={[
+          <InputNumber
+            key="count"
+            size="small"
+            min={1}
+            max={100}
+            value={randomCount}
+            onChange={setRandomCount}
+            placeholder="次数"
+            style={{ width: 70, marginRight: 8 }}
+          />,
           <Button key="refresh" onClick={handleRefreshPreview}>
             刷新
           </Button>,
