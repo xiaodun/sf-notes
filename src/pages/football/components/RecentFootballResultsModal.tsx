@@ -6,7 +6,7 @@ import React, {
   useState,
   useEffect,
 } from "react";
-import { Modal, Button, Form, Input, message, Table, Spin, Alert } from "antd";
+import { Modal, Button, Form, Input, message, Table, Spin, Alert, Space } from "antd";
 import { produce } from "immer";
 import SFootball from "../SFootball";
 import NFootball from "../NFootball";
