@@ -19,27 +19,44 @@ const path = require("path");
     }
 
     try {
-      const files = fs.readdirSync(novelPath);
-      const chapterList = [];
-      
-      // 读取所有 .txt 文件，提取章节号
-      files.forEach((file) => {
-        if (file.endsWith(".txt")) {
-          // 匹配文件名格式：数字.txt
-          const match = file.match(/^(\d+)\.txt$/);
-          if (match) {
-            const chapter = parseInt(match[1]);
-            const filePath = path.join(novelPath, file);
-            chapterList.push({
-              chapter: chapter,
-              exists: fs.existsSync(filePath),
-            });
+      // 递归获取所有符合条件的章节文件（保持顺序）
+      function getAllFiles(dir) {
+        let results = [];
+        if (!fs.existsSync(dir)) return results;
+        
+        let entries;
+        try {
+           entries = fs.readdirSync(dir, { withFileTypes: true });
+        } catch (e) {
+           return [];
+        }
+
+        // 按名称排序（数字优先）
+        entries.sort((a, b) => {
+          return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+        });
+
+        for (const entry of entries) {
+          const fullPath = path.join(dir, entry.name);
+          if (entry.isDirectory()) {
+            results = results.concat(getAllFiles(fullPath));
+          } else if (entry.isFile() && entry.name.endsWith(".txt")) {
+             // 仅匹配数字命名的txt文件
+             if (/^(\d+)\.txt$/.test(entry.name)) {
+                results.push(fullPath);
+             }
           }
         }
-      });
+        return results;
+      }
 
-      // 按章节号排序
-      chapterList.sort((a, b) => a.chapter - b.chapter);
+      const files = getAllFiles(novelPath);
+      
+      // 按顺序生成章节列表，章节号累加
+      const chapterList = files.map((file, index) => ({
+        chapter: index + 1,
+        exists: true
+      }));
 
       return {
         isWrite: false,
