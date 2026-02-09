@@ -351,6 +351,7 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
                 body = JSON.parse(body);
               } catch (error) {
                 isMock = true;
+                console.log("error",error,body);
                 body = JSON.parse(
                   fs
                     .readFileSync(
@@ -362,7 +363,9 @@ https://apic.jindianle.com/api/match/selectmore?platform=koudai_mobile&_prt=http
               }
 
               if (body.errorCode === '99999') {
+
                 isMock = true;
+                console.log('error',body);
                 //该接口容易被墙
                 body = JSON.parse(
                   fs
