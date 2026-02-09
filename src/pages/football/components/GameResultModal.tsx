@@ -22,8 +22,6 @@ import {
   CloseOutlined,
   DeleteOutlined,
   CopyOutlined,
-  PlusOutlined,
-  SaveOutlined,
 } from "@ant-design/icons";
 import { produce } from "immer";
 import { NMDFootball } from "umi";
@@ -422,7 +420,10 @@ const GameResultModal: ForwardRefRenderFunction<
       endDate,
     })
       .then((recentRsp) => {
-        if (!recentRsp.success) {
+          if(recentRsp.data.isMock){
+          message.warning('接口返回信息出现问题');
+        }
+        if (!recentRsp.success  || recentRsp.data.isMock) {
           setState(
             produce(newState, (drafState) => {
               drafState.loading = false;
@@ -430,6 +431,7 @@ const GameResultModal: ForwardRefRenderFunction<
           );
           return;
         }
+      
 
         // 创建 code 到 matchId 的映射（通过匹配找到）
         const codeToMatchIdMap: { [code: string]: string } = {};
