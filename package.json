@@ -87,7 +87,7 @@
     "react-transition-group": "^4.4.1",
     "redux": "^4.0.5",
     "sync-request": "^6.1.0",
-    "umi": "^3.0.14",
+    "umi": "^3.5.43",
     "url-parse": "^1.5.10",
     "use-merge-value": "^1.0.1",
     "vconsole": "^3.9.0"
