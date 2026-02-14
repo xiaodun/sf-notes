@@ -65,7 +65,7 @@
     "dva": "^2.4.0",
     "gg-editor": "^2.0.2",
     "immer": "^7.0.9",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "lodash-decorators": "^6.0.0",
     "memoize-one": "^5.1.1",
     "mockjs": "^1.0.1-beta3",
@@ -87,7 +87,7 @@
     "react-transition-group": "^4.4.1",
     "redux": "^4.0.5",
     "sync-request": "^6.1.0",
-    "umi": "^3.0.14",
+    "umi": "^3.5.43",
     "url-parse": "^1.5.10",
     "use-merge-value": "^1.0.1",
     "vconsole": "^3.9.0"
