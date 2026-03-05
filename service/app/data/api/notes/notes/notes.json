@@ -9,7 +9,7 @@
         "id": 1772690138770
     },
     {
-        "content": "MT4_TEST\n\"server\": \"107.21.232.228:443\",\n\"login\": 998,\n\"password\": \"ivz6igt\",\n\nMT4_TPTEST\n\"Server\": \"54.193.131.63:443\",\n\"Login\": 1996,\n \"Password\": \"kahkin123\",\n\nMT5_TEST\n\"Server\": \"107.21.13.225:443\",\n\"Login\": 1239,\n\"Password\": \"J5riftuj#123\",\n\nMT5_TPTEST\n\"Server\": \"54.225.113.7:443\",\n\"Login\": 1239,\n\"Password\": \"J5riftuj#123\",",
+        "content": "MT4_TEST\n107.21.232.228:443\n998\nivz6igt\n\nMT4_TPTEST\n54.193.131.63:443\n1996\nkahkin123\n\nMT5_TEST\n107.21.13.225:443\n1239\nJ5riftuj#123\n\nMT5_TPTEST\n54.225.113.7:443\n1239\nJ5riftuj#123",
         "base64": {},
         "createTime": 1772680908185,
         "updateTime": "",
