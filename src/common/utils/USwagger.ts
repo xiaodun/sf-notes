@@ -19,14 +19,17 @@ export namespace USwagger {
     Object.keys(infos.paths).map((path) => {
       const method = getSuportMethod(infos.paths[path]);
       const methodInfos: NSwagger.IMethodInfos = infos.paths[path][method];
-      methodInfos.definitions = infos.definitions || infos.components.schemas;
-      methodInfos.method = method;
-      methodInfos.tags.forEach((tag) => {
-        if (!tagWithPaths[tag]) {
-          tagWithPaths[tag] = {};
-        }
-        tagWithPaths[tag][path] = methodInfos;
-      });
+      if(methodInfos) {
+        methodInfos.definitions = infos.definitions || infos.components.schemas;
+      
+        methodInfos.method = method;
+        methodInfos.tags.forEach((tag) => {
+          if (!tagWithPaths[tag]) {
+            tagWithPaths[tag] = {};
+          }
+          tagWithPaths[tag][path] = methodInfos;
+        });
+      }
     });
     return tagWithPaths;
   }
@@ -83,7 +86,7 @@ export namespace USwagger {
     let schema;
 
     if (version == "3") {
-      let ref = (methodInfos.responses["200"].content["*/*"].schema.$ref || "")
+      let ref = (methodInfos.responses["200"]?.content?.["*/*"]?.schema.$ref || "")
         .split("/")
         .pop();
       if (!ref) {
