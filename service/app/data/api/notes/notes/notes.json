@@ -1,3 +1,58 @@
 [
-    
+    {
+        "content": "API Documentation:\nhttps://support.metaquotes.net/en/docs\n\ndanny.su@vantagemarkets.com\npqQtsYZT",
+        "base64": {},
+        "createTime": 1772690138770,
+        "updateTime": "",
+        "title": "2026-03-05 01:55:38",
+        "titleColor": "",
+        "id": 1772690138770
+    },
+    {
+        "content": "MT4_TEST\n\"server\": \"107.21.232.228:443\",\n\"login\": 998,\n\"password\": \"ivz6igt\",\n\nMT4_TPTEST\n\"Server\": \"54.193.131.63:443\",\n\"Login\": 1996,\n \"Password\": \"kahkin123\",\n\nMT5_TEST\n\"Server\": \"107.21.13.225:443\",\n\"Login\": 1239,\n\"Password\": \"J5riftuj#123\",\n\nMT5_TPTEST\n\"Server\": \"54.225.113.7:443\",\n\"Login\": 1239,\n\"Password\": \"J5riftuj#123\",",
+        "base64": {},
+        "createTime": 1772680908185,
+        "updateTime": "",
+        "title": "2026-03-05 11:21:47",
+        "titleColor": "",
+        "id": 1772680908185
+    },
+    {
+        "content": "xu.wang@hytechc.com\n\n补充：\n后端API的swagger\nhttps://api.dev.ccp.risk-vantagefx.com/swagger/index.html#/v1/Company/CreateMtCompany%20-%20Company\n\nrole and permission的swagger\nhttps://rpl.dev.ccp.risk-vantagefx.com/swagger/index.html",
+        "base64": {},
+        "createTime": 1772506914213,
+        "updateTime": "",
+        "title": "2026-03-03 11:01:54",
+        "titleColor": "",
+        "id": 1772506914213
+    },
+    {
+        "content": "https://www.global-hrms.com/HYT/",
+        "base64": {},
+        "createTime": 1772441300819,
+        "updateTime": "",
+        "title": "2026-03-02 04:48:20",
+        "titleColor": "",
+        "id": 1772441300819
+    },
+    {
+        "content": "1",
+        "base64": {},
+        "createTime": 1772441057805,
+        "updateTime": "",
+        "title": "2026-03-02 04:44:17",
+        "titleColor": "",
+        "id": 1772441057805,
+        "deleted": true
+    },
+    {
+        "content": "lang=en，region=mt5，server=20001，feature=groups\n\n- 权限守卫： FeaturePermissionGuard.tsx （校验 Group:Read）\n- 根据服务类型切换组件： DisplayContentByServerType.tsx\n- MT5 表格实现： MT5GroupTable.tsx\n- 读取 serverId： useCurrentServerId.ts\n- 获取数据/导入/导出等 Hook： useMT5Group.ts\n\n\nBuilder\n\nc:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app\\src\\app\\[lang]\\[region]\\(main)\\[server]\\groups\\page.tsx\n\nc:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app\\src\\components\\DisplayContentByServerType.tsx\n\n工作区搜索失败\n\nThought\n\nc:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app\\src\\components\\MT5Group\n\nc:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app\\src\\components\\MT5Group\\MT5GroupTable.tsx\n\nc:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app\\src\\components\\MT5Group\\MT5GroupTable.tsx\n\nc:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app\\src\\hooks\\useMT5Group.ts\n\nc:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app\\src\\hooks\\useApi.ts\n\nc:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app\\src\\services\\api\\apiClient.ts\n\nThought\n\nc:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app\\src\\hooks\\useAppNavigation.ts\n\nc:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app\\src\\hooks\\useCurrentServerId.ts\n\nThought\n\nc:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app\\src\\app\\api\\proxy-gateway\\[...path]\\route.ts\n\nc:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app\\src\\config\\apiConfig.ts\n\nc:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app\\src\\components\\common\n\nc:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app\\src\\components\\common\\FeaturePermissionGuard.tsx\n\nc:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app\\src\\app\\[lang]\\[region]\\(main)\\[server]\\layout.tsx\n\nc:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app\\src\\components\\ServerHandler\n\nc:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app\\src\\components\\ServerHandler\\NoServerPermissions.tsx\n\nThought\n\n在工作区搜索 'ServerHandler'\n\nc:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app\\src\\components\\ServerHandler.tsx\n\nThought\n\n页面入口\n\n- 路由解析：/en/mt5/20001/groups\n  - lang=en，region=mt5，server=20001，feature=groups\n- 页面文件： page.tsx\n  - 包裹权限守卫 FeaturePermissionGuard\n  - 根据 region 显示 MT4 或 MT5 表格\n布局链路\n\n- 顶层布局： app/layout.tsx\n- 语言布局： app/[lang]/layout.tsx\n- 语言+区域布局： app/[lang]/[region]/layout.tsx\n- 主区域布局： app/[lang]/[region]/(main)/layout.tsx\n- 服务器布局（关键）： app/[lang]/[region]/(main)/[server]/layout.tsx\n  - 注入当前 server 到 ServerHandler ，校验并必要时重定向到可用服务器\n页面内部依赖\n\n- 权限守卫： FeaturePermissionGuard.tsx （校验 Group:Read）\n- 根据服务类型切换组件： DisplayContentByServerType.tsx\n- MT5 表格实现： MT5GroupTable.tsx\n  - 读取 serverId： useCurrentServerId.ts\n  - 获取数据/导入/导出等 Hook： useMT5Group.ts\n  - 其他：Modal、Duplicate/Delete/Transfer 对话框、Jotai 原子、AG Grid 等\n数据请求链路\n\n- 业务 Hook → API 客户端：\n  - 创建客户端的 Hook： useApi.ts\n  - Axios 客户端： services/api/apiClient.ts （baseURL=/api/proxy-gateway，自动加 X-App-Region/X-App-Locale）\n- Next API 代理：\n  - 路由： api/proxy-gateway/[...path]/route.ts\n  - 令牌解密与刷新、根据 Region 选择网关地址： apiConfig.ts\n  - 该页面用到的 MT5 群组接口基址：API_ROUTES.CCP.GROUP.BASE = /api/mt5/group/all\n- 外部网关：\n  - 不同环境的域名映射见 apiConfig.ts （dev/staging/prod）\n中间件与重写\n\n- 鉴权与语言前缀重定向： middleware.ts\n- Next 配置（重写 /api/auth、全局头/CORS）： next.config.js\n定位入口的小贴士\n\n- 先看页面文件： groups/page.tsx → 跟进组件（MT5GroupTable/MT4GroupTable） → 查看 hooks（useMT5Group/useApi） → 查 API_ROUTES → 看代理与网关。这样能迅速从路由到数据流完整串起来。",
+        "base64": {},
+        "createTime": 1772445169681,
+        "updateTime": "",
+        "title": "2026-03-02 05:52:49",
+        "titleColor": "",
+        "id": 1772445169681,
+        "deleted": true
+    }
 ]

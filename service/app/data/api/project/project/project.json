@@ -14,7 +14,26 @@
             "id": 1634522259207,
             "isSfMock": false,
             "closeAjaxCode": true,
-            "sfMock": {},
+            "sfMock": {
+                "serverList": [
+                    {
+                        "port": 9000,
+                        "isMock": true,
+                        "openUrl": "http://172.17.48.50:9000",
+                        "openDomainUrl": "http://wx.mock.sf-notes:9000"
+                    },
+                    {
+                        "port": 9001,
+                        "url": "http://192.168.10.197:8880",
+                        "openUrl": "http://172.17.48.50:9001",
+                        "openDomainUrl": "http://wx.prd.sf-notes:9001"
+                    },
+                    {
+                        "name": "本地链接",
+                        "openUrl": "http://localhost:8000"
+                    }
+                ]
+            },
             "snippetList": [
                 {
                     "name": "一个模块",
@@ -42,6 +61,16 @@
                 }
             ],
             "isDefaultCopySwagger": false
+        },
+        {
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\sf-mock",
+            "sfMock": {
+                "programUrl": "http://localhost:9192",
+                "startBatPath": "C:\\Users\\SZLD03287\\Documents\\sf-mock\\bat\\sf-mock.bat"
+            },
+            "name": "sf-mock",
+            "id": 1772430144104,
+            "isSfMock": true
         }
     ],
     "inExcludeGroups": {},
