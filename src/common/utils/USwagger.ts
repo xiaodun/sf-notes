@@ -83,61 +83,150 @@ export namespace USwagger {
       children: [],
     } as NProject.IRenderFormatInfo;
 
-    let schema;
+    // Helper: pick schema from OpenAPI 3 content by preferred media types
+    const pickV3Schema = (content: any) => {
+      const prefer = ["application/json", "application/*+json", "*/*", "text/plain"];
+      for (const k of prefer) {
+        if (content?.[k]?.schema) return content[k].schema;
+      }
+      const firstKey = content && Object.keys(content)[0];
+      return firstKey ? content[firstKey]?.schema : undefined;
+    };
+    // Helper: build children for inline schemas (v3) when not using $ref
+    const buildChildrenFromInline = (properties: any): NProject.IRenderFormatInfo[] => {
+      if (!properties) return [];
+      const list: NProject.IRenderFormatInfo[] = [];
+      Object.keys(properties).forEach((key) => {
+        const values: any = properties[key] || {};
+        let type = values.type as NSwagger.TType;
+        // $ref property
+        if (values.$ref) {
+          const ref = (values.$ref as string).split("/").pop();
+          const refType = definitions?.[ref!]?.type || "object";
+          const item: NProject.IRenderFormatInfo = {
+            key: Math.random() + "",
+            name: key,
+            format: values.format,
+            description: values.description,
+            type: refType as any,
+            children: [],
+          };
+          item.children = fillResponseDefinitions(ref!, definitions, version);
+          list.push(item);
+          return;
+        }
+        // array property
+        if (values.type === "array") {
+          const item: NProject.IRenderFormatInfo = {
+            key: Math.random() + "",
+            name: key,
+            format: values.format,
+            type: "array",
+            description: values.description,
+            children: [],
+          };
+          const itemsRef = (values.items?.$ref as string) || "";
+          if (itemsRef) {
+            const ref = itemsRef.split("/").pop()!;
+            item.children = fillResponseDefinitions(ref, definitions, version);
+          } else if (values.items) {
+            item.itemsType = values.items.type;
+          }
+          list.push(item);
+          return;
+        }
+        // inline object
+        if (values.type === "object" && values.properties) {
+          const item: NProject.IRenderFormatInfo = {
+            key: Math.random() + "",
+            name: key,
+            format: values.format,
+            type: "object",
+            description: values.description,
+            children: buildChildrenFromInline(values.properties),
+          };
+          list.push(item);
+          return;
+        }
+        // primitive
+        const item: NProject.IRenderFormatInfo = {
+          key: Math.random() + "",
+          name: key,
+          format: values.format,
+          description: values.description,
+          type: type,
+          enum: values.enum,
+          children: [],
+        };
+        list.push(item);
+      });
+      return list;
+    };
+
+    let schema: any;
 
     if (version == "3") {
-      let ref = (methodInfos.responses["200"]?.content?.["*/*"]?.schema.$ref || "")
-        .split("/")
-        .pop();
-      if (!ref) {
-        return {};
+      const resp =
+        (methodInfos as any)?.responses?.["200"] ||
+        (methodInfos as any)?.responses?.["201"] ||
+        (methodInfos as any)?.responses?.default;
+      const picked = pickV3Schema(resp?.content);
+      if (!picked) {
+        // 没有找到 schema，返回空对象占位，页面会显示“没有返回”
+        return [{} as any];
       }
-
-      schema = {
-        originalRef: ref,
-      };
+      schema = picked;
     } else if (version == "2") {
       schema = (
         methodInfos.responses["200"] as unknown as NSwagger.IResponseInfo
       ).schema;
     }
-    if (schema.originalRef) {
-      obj.type = "object";
-      obj.children = fillResponseDefinitions(
-        schema.originalRef,
-        definitions,
-        version
-      );
-    } else {
-      if (schema.type === "array") {
-        if (schema.items.originalRef) {
-          obj.type = "array";
-          obj.children = fillResponseDefinitions(
-            schema.items.originalRef,
-            definitions,
-            version
-          );
-        } else {
-          //普通数组
-          obj = {
-            ...obj,
 
-            type: schema.type,
-            itemsType: schema.items.type,
-          };
-        }
-      }
-      if (schema.type === "array") {
-      } else {
-        //基本类型
-        obj = {
-          ...obj,
-          type: schema.type,
-        };
-      }
+    // Handle $ref case
+    const ref = (schema?.$ref as string) ? (schema.$ref as string).split("/").pop() : schema?.originalRef;
+    if (ref) {
+      obj.type = "object";
+      obj.children = fillResponseDefinitions(ref, definitions, version);
+      return [obj];
     }
 
-    return [obj];
+    // Array schema
+    if (schema?.type === "array") {
+      const itemsRef =
+        (schema.items?.$ref as string)
+          ? (schema.items.$ref as string).split("/").pop()
+          : schema.items?.originalRef;
+      if (itemsRef) {
+        obj.type = "array";
+        obj.children = fillResponseDefinitions(itemsRef, definitions, version);
+      } else {
+        obj = {
+          ...obj,
+          type: "array",
+          itemsType: schema.items?.type,
+        };
+      }
+      return [obj];
+    }
+
+    // Inline object
+    if (schema?.type === "object" && schema?.properties) {
+      obj.type = "object";
+      obj.children = buildChildrenFromInline(schema.properties);
+      return [obj];
+    }
+
+    // Primitive or unknown
+    if (schema?.type) {
+      obj = {
+        ...obj,
+        type: schema.type,
+      };
+      return [obj];
+    }
+
+    // Fallback for unexpected shapes
+    return [{} as any];
   }
   export function fillResponseDefinitions(
     originalRef: string,
