@@ -694,7 +694,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     return contentNode;
   }
   function getResponseUI() {
-    return rendMethodInfos.responses[0].type ? (
+    return rendMethodInfos.responses?.[0]?.type ? (
       <>
         <div className={SelfStyle.title}>
           <div className="desc">
