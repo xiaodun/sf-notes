@@ -5,7 +5,8 @@
         "gitlabBasePath": "",
         "nginxVisitWay": "ip",
         "swaggerPathShowWay": "path",
-        "lastOptionSwaggerDomain": "https://api.dev.ccp.risk-vantagefx.com/swagger"
+        "lastOptionSwaggerDomain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
+        "lastOptionSwaggerVersion": "3"
     },
     "projectList": [
         {
@@ -109,8 +110,8 @@
     "swaggerList": [
         {
             "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
-            "id": 1772760370867,
-            "crateTime": 1772760370867
+            "id": 1772794433238,
+            "crateTime": 1772794433238
         }
     ],
     "apiPrefixs": {},
