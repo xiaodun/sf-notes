@@ -86,10 +86,14 @@
                         "name": "本地链接",
                         "openUrl": "http://localhost:3000"
                     }
-                ]
+                ],
+                "addressPath": "",
+                "programUrl": "http://localhost:3000",
+                "startBatPath": "C:\\Users\\SZLD03287\\Documents\\sf-mock\\bat\\ccs-ui.bat"
             },
             "name": "ccs-ui",
-            "id": 1772761193983
+            "id": 1772761193983,
+            "isSfMock": false
         }
     ],
     "inExcludeGroups": {
