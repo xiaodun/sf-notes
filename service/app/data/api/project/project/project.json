@@ -71,18 +71,31 @@
             "name": "sf-mock",
             "id": 1772430144104,
             "isSfMock": true
+        },
+        {
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\ccs-ui",
+            "sfMock": {
+                "serverList": []
+            },
+            "name": "ccs-ui",
+            "id": 1772761193983
         }
     ],
     "inExcludeGroups": {
         "https://api.dev.ccp.risk-vantagefx.com/swagger": [
+            "v3",
+            "v2",
+            "v1"
+        ],
+        "https://api.dev.ccp.risk-vantagefx.com": [
             "v3"
         ]
     },
     "swaggerList": [
         {
             "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
-            "id": 1772707716727,
-            "crateTime": 1772707716727
+            "id": 1772760370867,
+            "crateTime": 1772760370867
         }
     ],
     "apiPrefixs": {},
