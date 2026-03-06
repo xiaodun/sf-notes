@@ -75,59 +75,48 @@
             };
           } else {
             const mockConfig = programConfigObj[item.name];
-            if (!mockConfig) {
-              return {
-                response: {
-                  code: 200,
-                  data: {
-                    success: false,
-                    message: `sf-mock的programConfig.js文件缺少${item.name}的基础配置`,
-                  },
-                },
-              };
-            }
-
-            //写入启动命令的地址
-            item.sfMock.serverList = (mockConfig.serverList || []).map(
-              (serverConfig) => {
-                const getVisitUrl = (url) =>
-                  `http://${url}:${serverConfig.port}${
-                    mockConfig.addressPath || ""
-                  }`;
-                return {
-                  ...serverConfig,
-                  openUrl: getVisitUrl(ip),
-                  openDomainUrl: getVisitUrl(
-                    commonUtils.getProxyDomain(serverConfig, item.name)
-                  ),
-                };
+            if (mockConfig) {
+              item.sfMock.serverList = (mockConfig.serverList || []).map(
+                (serverConfig) => {
+                  const getVisitUrl = (url) =>
+                    `http://${url}:${serverConfig.port}${
+                      mockConfig.addressPath || ""
+                    }`;
+                  return {
+                    ...serverConfig,
+                    openUrl: getVisitUrl(ip),
+                    openDomainUrl: getVisitUrl(
+                      commonUtils.getProxyDomain(serverConfig, item.name)
+                    ),
+                  };
+                }
+              );
+              item.sfMock.serverList.push({
+                name: "本地链接",
+                openUrl: mockConfig.programUrl + (mockConfig.addressPath || ""),
+              });
+              if (
+                mockConfig.WindowsTerminal &&
+                mockConfig.WindowsTerminal.tabList
+              ) {
+                const tabList = mockConfig.WindowsTerminal.tabList;
+                const selfStartConfig = tabList.find((item) => item.isSelf);
+                if (selfStartConfig) {
+                  item.isSfMock = false;
+                  item.sfMock = {
+                    ...item.sfMock,
+                    addressPath: mockConfig.addressPath || "",
+                    programUrl: mockConfig.programUrl,
+                    startBatPath: path_os.join(
+                      sfMockPrject.rootPath,
+                      "bat",
+                      `${item.name}.bat`
+                    ),
+                  };
+                }
               }
-            );
-
-            item.sfMock.serverList.push({
-              name: "本地链接",
-              openUrl: mockConfig.programUrl + (mockConfig.addressPath || ""),
-            });
-            if (
-              mockConfig.WindowsTerminal &&
-              mockConfig.WindowsTerminal.tabList
-            ) {
-              const tabList = mockConfig.WindowsTerminal.tabList;
-              const selfStartConfig = tabList.find((item) => item.isSelf);
-
-              if (selfStartConfig) {
-                item.isSfMock = false;
-                item.sfMock = {
-                  ...item.sfMock,
-                  addressPath: mockConfig.addressPath || "",
-                  programUrl: mockConfig.programUrl,
-                  startBatPath: path_os.join(
-                    sfMockPrject.rootPath,
-                    "bat",
-                    `${item.name}.bat`
-                  ),
-                };
-              }
+            } else {
+              item.sfMock.serverList = [];
             }
           }
         }
