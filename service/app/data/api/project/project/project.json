@@ -75,7 +75,18 @@
         {
             "rootPath": "C:\\Users\\SZLD03287\\Documents\\ccs-ui",
             "sfMock": {
-                "serverList": []
+                "serverList": [
+                    {
+                        "port": 9100,
+                        "isMock": true,
+                        "openUrl": "http://172.17.48.50:9100",
+                        "openDomainUrl": "http://wx.mock.ccs-ui:9100"
+                    },
+                    {
+                        "name": "本地链接",
+                        "openUrl": "http://localhost:3000"
+                    }
+                ]
             },
             "name": "ccs-ui",
             "id": 1772761193983

@@ -1,6 +1,24 @@
 [
     {
-        "content": "锁屏后，在扩展屏幕的程序会回到主屏幕",
+        "content": "Frontend Architect",
+        "base64": {},
+        "createTime": 1772776553860,
+        "updateTime": "",
+        "title": "智能体",
+        "titleColor": "",
+        "id": 1772776553860
+    },
+    {
+        "content": "Sequential Thinking\n\nPuppeteer\n\nContext7\n\nFile System\n\n可以通过AI工具操作gitlab，进行代码合并吗\nAI操作github进行代码提交",
+        "base64": {},
+        "createTime": 1772775931016,
+        "updateTime": "",
+        "title": "MCP Server",
+        "titleColor": "",
+        "id": 1772775931016
+    },
+    {
+        "content": "锁屏后，在扩展屏幕的程序会回到主屏幕\n前端的skill mpserver",
         "base64": {},
         "createTime": 1772763844814,
         "updateTime": "",
@@ -9,7 +27,7 @@
         "id": 1772763844814
     },
     {
-        "content": "终于又又遇见了swagger\n\n进入应用后都有返回按钮\n\n拉取swagger的时候自动判断版本\n\n配置要有端口号 并检测是否重复\n\n项目管理的配置可以自动写入到sf-mock的配置文件，并且重启nginx、自动生成bat等，涉及到babel解析\n",
+        "content": "接入有道云笔记\n\n进入应用后都有返回按钮\n\n拉取swagger的时候自动判断版本\n\n配置要有端口号 并检测是否重复\n\n域名配置\n\n项目管理的配置可以自动写入到sf-mock的配置文件，并且重启nginx、自动生成bat等，涉及到babel解析\n\n小说去掉默认格式化，可选择\ngetRecentMatches接口被拦截了\n",
         "base64": {},
         "createTime": 1772694620502,
         "updateTime": "",
