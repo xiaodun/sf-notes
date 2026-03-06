@@ -36,7 +36,7 @@
         "id": 1772763844814
     },
     {
-        "content": "sf-notes 支持最新的node版本 避免切换\n\n进入应用后都有返回按钮\n\n拉取swagger的时候自动判断版本\n\n配置要有端口号 并检测是否重复\n\n域名配置\n\n项目管理的配置可以自动写入到sf-mock的配置文件，并且重启nginx、自动生成bat等，涉及到babel解析\n\n配置启动相关\n\n能够通过标题区分是不是mock服务器\n\n生成ts结构\n\n小说去掉默认格式化，可选择\ngetRecentMatches接口被拦截了\n",
+        "content": "切换到master分支时，会出现notes.json文件，还要护额略改变很麻烦\nsf-notes 支持最新的node版本 避免切换\n\n进入应用后都有返回按钮\n\n拉取swagger的时候自动判断版本\n\n配置要有端口号 并检测是否重复\n\n域名配置\n\n项目管理的配置可以自动写入到sf-mock的配置文件，并且重启nginx、自动生成bat等，涉及到babel解析\n\n配置启动相关\n\n能够通过标题区分是不是mock服务器\n\n生成ts结构\n\n小说去掉默认格式化，可选择\ngetRecentMatches接口被拦截了\n",
         "base64": {},
         "createTime": 1772694620502,
         "updateTime": "",
