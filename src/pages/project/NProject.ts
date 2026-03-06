@@ -38,7 +38,6 @@ export namespace NProject {
     programPrefix: string;
   }
   export interface IConfig {
-    lastOptionSwaggerVersion: string;
     addBasePath: string;
     nginxVisitWay: "ip" | "domain";
     showEnumList: false;
