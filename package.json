@@ -83,7 +83,7 @@
     "react-fittext": "^1.0.0",
     "react-helmet-async": "^1.0.4",
     "react-router": "^4.3.1",
-    "react-syntax-highlighter": "^13.3.1",
+    "react-syntax-highlighter": "^16.1.0",
     "react-transition-group": "^4.4.1",
     "redux": "^4.0.5",
     "sync-request": "^6.1.0",
