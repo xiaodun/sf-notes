@@ -219,6 +219,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
           reqGetSwagger();
           reqGetAttentionList(false);
           SProject.getInExcludeGroups();
+          SProject.getConfig();
         }}
       ></EnterSwaggerModal>
       <GenerateAjaxCodeModal

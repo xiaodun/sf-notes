@@ -129,6 +129,9 @@ namespace SProject {
     return request({
       url: "/project/getConfig",
       method: "get",
+    }).then((rsp: NRsp<NProject.IConfig>) => {
+      NModel.dispatch(new NMDProject.ARSetState({ config: rsp.data }));
+      return rsp;
     });
   }
   export async function updateConfig(config: Partial<NProject.IConfig>) {
@@ -291,7 +294,8 @@ namespace SProject {
     data: NProject.IDomainSwagger,
     way: TEnterSwaggerModalWay,
     oldDomainName: string,
-    checkGroupNameList: string[]
+    checkGroupNameList: string[],
+    version?: string
   ): Promise<NRsp<boolean>> {
     return request({
       url: "/project/saveSwagger",
@@ -301,6 +305,7 @@ namespace SProject {
         way,
         oldDomainName,
         checkGroupNameList,
+        version,
       },
     });
   }
