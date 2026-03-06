@@ -137,12 +137,6 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
         >
           <Input ref={urlInputRef} onPressEnter={onOk} />
         </Form.Item>
-        <Form.Item label="版本:" name="version">
-          <Radio.Group>
-            <Radio value={"2"}>2.0</Radio>
-            <Radio value={"3"}>3.0</Radio>
-          </Radio.Group>
-        </Form.Item>
         <Form.Item label="方式:" name="way">
           <Radio.Group onChange={(e) => onWayChange(e.target.value)}>
             <Radio value={"add"}>新增</Radio>
@@ -336,13 +330,26 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
   function onOk() {
     form.validateFields().then(async (values) => {
       const urlParseInfo = new urlParse(values.url);
-      let url;
-      if (values.version == 2) {
-        url = urlParseInfo.origin;
-      } else if (values.version == 3) {
-        url = urlParseInfo.origin + "/" + urlParseInfo.pathname.split("/")[1];
+      const origin = urlParseInfo.origin;
+      const firstSeg = (urlParseInfo.pathname || "")
+        .split("/")
+        .filter(Boolean)[0];
+      // 先试 V3（origin + 首段），失败再试 V2（origin）
+      if (firstSeg) {
+        const v3Base = origin + "/" + firstSeg;
+        const v3ProbeUrl = USwagger.getUrlByGroup(v3Base);
+        const v3Rsp = await SBase.fetchOtherDomainUrl<any>(v3ProbeUrl);
+        if (v3Rsp?.success && Array.isArray(v3Rsp.data)) {
+          fetchSwaggerDoc(v3Base, { ...values, version: "3" });
+          return;
+        }
       }
-      fetchSwaggerDoc(url, values);
+      const v2ProbeUrl = USwagger.getUrlByGroup(origin);
+      const v2Rsp = await SBase.fetchOtherDomainUrl<any>(v2ProbeUrl);
+      if (v2Rsp?.success && Array.isArray(v2Rsp.data)) {
+        fetchSwaggerDoc(origin, { ...values, version: "2" });
+        return;
+      }
     });
   }
   function setVersion(version: string) {
