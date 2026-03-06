@@ -294,8 +294,7 @@ namespace SProject {
     data: NProject.IDomainSwagger,
     way: TEnterSwaggerModalWay,
     oldDomainName: string,
-    checkGroupNameList: string[],
-    version?: string
+    checkGroupNameList: string[]
   ): Promise<NRsp<boolean>> {
     return request({
       url: "/project/saveSwagger",
@@ -305,7 +304,6 @@ namespace SProject {
         way,
         oldDomainName,
         checkGroupNameList,
-        version,
       },
     });
   }

@@ -50,14 +50,12 @@ interface ITempData {
   formDomainName: string;
   inExcludeGroups: NProject.IInExcludeGroups;
   renderSwaggerInfos: NProject.IRenderSwaggerInfo;
-  version: string;
 }
 const defaultTempData: ITempData = {
   inExcludeGroups: {},
   formDomainName: "",
   domain: "",
   renderSwaggerInfos: null,
-  version: "",
 };
 const defaultState: IEnterSwaggerModalState = {
   checkGroupNameList: [],
@@ -89,7 +87,6 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
           tempDataRef.current.inExcludeGroups = MDProject.inExcludeGroups;
           form.setFieldsValue({
             url: MDProject.config.lastOptionSwaggerDomain,
-            version: MDProject.config.lastOptionSwaggerVersion,
           });
           setTimeout(() => {
             if (urlInputRef.current) {
@@ -300,7 +297,6 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
     tempDataRef.current.domain = url;
     tempDataRef.current.renderSwaggerInfos = renderSwaggerInfos;
     tempDataRef.current.formDomainName = formValues.domainName;
-    tempDataRef.current.version = formValues.version;
     setState(
       produce(newData, (drafState) => {
         drafState.isEnterLoading = false;
@@ -320,8 +316,7 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
       },
       state.way,
       tempDataRef.current.formDomainName,
-      state.checkGroupNameList,
-      tempDataRef.current.version
+      state.checkGroupNameList
     );
 
     props.onOk();
@@ -351,9 +346,6 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
         return;
       }
     });
-  }
-  function setVersion(version: string) {
-    tempDataRef.current.version = version;
   }
 };
 export default forwardRef(EnterSwaggerModal);

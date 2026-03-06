@@ -4,7 +4,6 @@
     const path = require("path");
 
     argData.config.lastOptionSwaggerDomain = argParams.domain;
-    argData.config.lastOptionSwaggerVersion = argParams.version;
     argData.inExcludeGroups[argParams.domain] = argParams.checkGroupNameList;
     let oldData = argParams.data;
     argParams.data = {};
