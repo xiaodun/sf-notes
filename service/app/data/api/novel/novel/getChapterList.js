@@ -20,7 +20,7 @@ const path = require("path");
 
     try {
       // 递归获取所有符合条件的章节文件（保持顺序）
-      function getAllFiles(dir) {
+      function getAllFiles(dir, parentName = "") {
         let results = [];
         if (!fs.existsSync(dir)) return results;
         
@@ -39,11 +39,19 @@ const path = require("path");
         for (const entry of entries) {
           const fullPath = path.join(dir, entry.name);
           if (entry.isDirectory()) {
-            results = results.concat(getAllFiles(fullPath));
+            const dirName = entry.name.replace(/\D/g, ""); // 只保留数字部分
+            // 如果提取后为空，且原名不为空，为了避免空字符串导致的连字符问题，可能需要处理？
+            // 用户要求只保留数字，假设目录名中一定包含数字或者就是为了过滤掉非数字目录
+            const newParentName = parentName ? `${parentName}-${dirName}` : dirName;
+            results = results.concat(getAllFiles(fullPath, newParentName));
           } else if (entry.isFile() && entry.name.endsWith(".txt")) {
-             // 仅匹配数字命名的txt文件
-             if (/^(\d+)\.txt$/.test(entry.name)) {
-                results.push(fullPath);
+             // 匹配 DDN-Index.txt 或纯数字.txt
+             // 之前的逻辑只匹配纯数字: /^(\d+)\.txt$/
+             // 现在的逻辑需要兼容两种格式
+             if (/^(\d+)(?:-(\d+))?\.txt$/.test(entry.name)) {
+                const fileName = entry.name.replace(".txt", "");
+                const displayName = parentName ? `${parentName}-${fileName}` : fileName;
+                results.push({ path: fullPath, name: displayName });
              }
           }
         }
@@ -53,8 +61,9 @@ const path = require("path");
       const files = getAllFiles(novelPath);
       
       // 按顺序生成章节列表，章节号累加
-      const chapterList = files.map((file, index) => ({
+      const chapterList = files.map((item, index) => ({
         chapter: index + 1,
+        name: item.name,
         exists: true
       }));
 
