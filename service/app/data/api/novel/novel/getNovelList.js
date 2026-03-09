@@ -1,6 +1,11 @@
 (function () {
   return function (argData, argParams) {
-    const data = argData || [];
+    let data = argData;
+    let isWrite = false;
+    if (!data) {
+      data = [];
+      isWrite = true;
+    }
     const page = parseInt(argParams?.page) || 1;
     const pageSize = parseInt(argParams?.pageSize) || 10;
     
@@ -10,7 +15,8 @@
     const paginatedList = data.slice(start, end);
     
     return {
-      isWrite: false,
+      isWrite,
+      data,
       response: {
         code: 200,
         data: {
