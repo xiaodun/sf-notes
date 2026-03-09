@@ -3,13 +3,14 @@ import Note from "./components/note/note";
 import SelfStyle from "./LNotes.less";
 import SNotes from "./SNotes";
 import { Button, message, Radio, Select } from "antd";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 import { RefSelectProps } from "antd/lib/select";
 import EditModal, { IEditModal } from "./components/edit/EditModal";
 import ZoomImgModal, { IZoomImgModal } from "./components/zoom/ZoomImgModal";
 import { PageFooter } from "@/common/components/page";
 import { connect } from "dva";
 import NModel from "@/common/namespace/NModel";
-import { ConnectRC, NMDNotes } from "umi";
+import { ConnectRC, NMDNotes, history } from "umi";
 import { uniq, isEqual } from "lodash";
 import Browser from "@/utils/browser";
 
@@ -78,6 +79,14 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
         rsp={MDNotes.rsp}
       ></EditModal>
       <PageFooter>
+        {!Browser.isMobile() && (
+          <Button
+            icon={<ArrowLeftOutlined />}
+            onClick={() => history.push("/")}
+          >
+            返回
+          </Button>
+        )}
         <Button onClick={() => onAddNote()}>新建笔记</Button>
 
         {!Browser.isMobile() && (

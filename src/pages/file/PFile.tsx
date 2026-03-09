@@ -5,8 +5,12 @@ import {
   DeleteOutlined,
   DownloadOutlined,
   InboxOutlined,
+  ArrowLeftOutlined,
 } from "@ant-design/icons";
 import { Button, Space, Typography, Upload } from "antd";
+import { PageFooter } from "@/common/components/page";
+import { history } from "umi";
+import Browser from "@/utils/browser";
 import { RcCustomRequestOptions } from "antd/lib/upload/interface";
 
 import { produce } from "immer";
@@ -65,6 +69,16 @@ const PFile: FC<IPFileProps> = (props) => {
           })
         )}
       </div>
+      <PageFooter>
+        {!Browser.isMobile() && (
+          <Button
+            icon={<ArrowLeftOutlined />}
+            onClick={() => history.push("/")}
+          >
+            返回
+          </Button>
+        )}
+      </PageFooter>
     </div>
   );
   function onAllDownload() {

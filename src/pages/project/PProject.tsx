@@ -23,7 +23,7 @@ import {
   Tag,
 } from 'antd';
 import React, { useEffect, useRef } from 'react';
-import { connect, ConnectRC, Link, NMDProject } from 'umi';
+import { connect, ConnectRC, Link, NMDProject, history } from 'umi';
 import SelfStyle from './LProject.less';
 import NProject from './NProject';
 import SProject from './SProject';
@@ -38,7 +38,8 @@ import NRsp from '@/common/namespace/NRsp';
 import { cloneDeep } from 'lodash';
 import UCopy from '@/common/utils/UCopy';
 import UGitlab from '@/common/utils/UGitlab';
-import { DeleteOutlined, MenuOutlined } from '@ant-design/icons';
+import { DeleteOutlined, MenuOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import Browser from "@/utils/browser";
 export interface IProjectProps {
   MDProject: NMDProject.IState;
 }
@@ -137,6 +138,14 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         ref={directoryModalRef}
       ></DirectoryModal>
       <PageFooter>
+        {!Browser.isMobile() && (
+          <Button
+            icon={<ArrowLeftOutlined />}
+            onClick={() => history.push("/")}
+          >
+            返回
+          </Button>
+        )}
         <Button onClick={onShowAddModal}>添加项目</Button>
         <Button>
           <Link to={NRouter.projectSwaggerPath} target="_blank">
