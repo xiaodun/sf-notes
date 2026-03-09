@@ -1,5 +1,32 @@
 [
     {
+        "content": "\n",
+        "base64": {},
+        "createTime": 1773054428450,
+        "updateTime": "",
+        "title": "2026-03-09 07:07:08",
+        "titleColor": "",
+        "id": 1773054428450
+    },
+    {
+        "content": "MT4_TEST\n107.21.232.228:443\n998\nivz6igt\n\nMT4_TPTEST\n54.193.131.63:443\n1996\nkahkin123\n\nMT5_TEST\n107.21.13.225:443\n1239\nJ5riftuj#123\n\nMT5_TPTEST\n54.225.113.7:443\n1239\nJ5riftuj#123",
+        "base64": {},
+        "createTime": 1772680908185,
+        "updateTime": "",
+        "title": "MT4/5 客户端账户",
+        "titleColor": "",
+        "id": 1772680908185
+    },
+    {
+        "content": "swagger的键值读取支持更复杂的\n启动慢\n\n```\n配置要有端口号 并检测是否重复\n域名配置\n项目管理的配置可以自动写入到sf-mock的配置文件，并且重启nginx、自动生成bat等，涉及到babel解析\n配置启动相关\n能够通过标题区分是不是mock服务器\n```swagger 生成ts结构\n\n小说去掉默认格式化，可选择\ngetRecentMatches接口被拦截了\n",
+        "base64": {},
+        "createTime": 1772694620502,
+        "updateTime": "",
+        "title": "sf-notes",
+        "titleColor": "",
+        "id": 1772694620502
+    },
+    {
         "content": "API Documentation:\nhttps://support.metaquotes.net/en/docs\n\ndanny.su@vantagemarkets.com\npqQtsYZT",
         "base64": {},
         "createTime": 1772690138770,
@@ -16,24 +43,6 @@
         "title": "我的信息",
         "titleColor": "",
         "id": 1773041895531
-    },
-    {
-        "content": "MT4_TEST\n107.21.232.228:443\n998\nivz6igt\n\nMT4_TPTEST\n54.193.131.63:443\n1996\nkahkin123\n\nMT5_TEST\n107.21.13.225:443\n1239\nJ5riftuj#123\n\nMT5_TPTEST\n54.225.113.7:443\n1239\nJ5riftuj#123",
-        "base64": {},
-        "createTime": 1772680908185,
-        "updateTime": "",
-        "title": "MT4/5 客户端账户",
-        "titleColor": "",
-        "id": 1772680908185
-    },
-    {
-        "content": "sf-notes 每次更改玩功能自动完善文档的skill\nswagger的键值读取支持更复杂的\n启动慢\n\n```\n配置要有端口号 并检测是否重复\n域名配置\n项目管理的配置可以自动写入到sf-mock的配置文件，并且重启nginx、自动生成bat等，涉及到babel解析\n配置启动相关\n能够通过标题区分是不是mock服务器\n```swagger 生成ts结构\n\n小说去掉默认格式化，可选择\ngetRecentMatches接口被拦截了\n",
-        "base64": {},
-        "createTime": 1772694620502,
-        "updateTime": "",
-        "title": "sf-notes",
-        "titleColor": "",
-        "id": 1772694620502
     },
     {
         "content": "锁屏后，在扩展屏幕的程序会回到主屏幕",
@@ -120,6 +129,16 @@
         "title": "智能体",
         "titleColor": "",
         "id": 1772776553860,
+        "deleted": true
+    },
+    {
+        "content": "1",
+        "base64": {},
+        "createTime": 1773053982809,
+        "updateTime": "",
+        "title": "2026-03-09 06:59:42",
+        "titleColor": "",
+        "id": 1773053982809,
         "deleted": true
     }
 ]
