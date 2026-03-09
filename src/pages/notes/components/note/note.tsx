@@ -49,7 +49,7 @@ const Note: FC<INoteProps> = (props) => {
 
   const { isExpand } = MDNotes.noteSettingObjs[data.id];
   return (
-    <div>
+    <div style={{ marginBottom: 20 }}>
       {MDNotes.isTitleModel && !isExpand ? (
         <Card
           size="small"
@@ -509,16 +509,23 @@ const Note: FC<INoteProps> = (props) => {
       newList.push(
         <div key={prefix + key++} className={SelfStyle.lineWrapper}>
           <div className="actions">
-            <Space size="large">
-              <a type="link" onClick={() => copyNoteContent(item)}>
-                复制
-              </a>
-              <a
+            <Space size="small">
+              <Button
                 type="link"
+                size="small"
+                onClick={() => copyNoteContent(item)}
+                style={{ padding: 0 }}
+              >
+                复制
+              </Button>
+              <Button
+                type="link"
+                size="small"
                 onClick={() => reqDelPart(item.start, item.count)}
+                style={{ padding: 0 }}
               >
                 删除
-              </a>
+              </Button>
             </Space>
           </div>
           <div className="contents">
