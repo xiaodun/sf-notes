@@ -55,5 +55,18 @@ export namespace SNotes {
       data: notes,
     });
   }
+  export async function sortNoteList(
+    oldIndex: number,
+    newIndex: number
+  ): Promise<NRsp<NNotes>> {
+    return request({
+      url: "/notes/sortNoteList",
+      method: "post",
+      data: {
+        oldIndex,
+        newIndex,
+      },
+    });
+  }
 }
 export default SNotes;

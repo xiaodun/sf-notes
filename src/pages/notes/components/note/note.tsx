@@ -6,6 +6,7 @@ import {
   EditOutlined,
   CloseOutlined,
   EllipsisOutlined,
+  MenuOutlined,
 } from '@ant-design/icons';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import NNotes from '../../NNotes';
@@ -29,6 +30,8 @@ export interface INoteProps {
   MDNotes: NMDNotes.IState;
   editModalRef: React.MutableRefObject<IEditModal>;
   zoomModalRef: React.MutableRefObject<IZoomImgModal>;
+  dragHandle?: ReactNode;
+  isSortModel?: boolean;
 }
 export interface INoteAction {
   content: ReactNode;
@@ -52,48 +55,99 @@ const Note: FC<INoteProps> = (props) => {
           size="small"
           title={getTitle(data.title)}
           style={{ backgroundColor: data.titleColor }}
-          className={classNames(
-            SelfStyle.noteWrapper,
-            SelfStyle.titleModel,
-          )}
+          className={classNames(SelfStyle.titleModel)}
+          bodyStyle={{ display: "none", padding: 0 }}
           extra={
-            <Button
-              onClick={() => {
-                NModel.dispatch(
-                  new NMDNotes.ArChangeNoteExpand({
-                    id: data.id,
-                    isExpand: true,
-                  }),
-                );
-              }}
-            >
-              展开
-            </Button>
+            <Space>
+              <Button
+                onClick={() => {
+                  NModel.dispatch(
+                    new NMDNotes.ArChangeNoteExpand({
+                      id: data.id,
+                      isExpand: true,
+                    })
+                  );
+                }}
+              >
+                展开
+              </Button>
+            </Space>
           }
         ></Card>
       ) : (
         <>
           {renderActionWrap(SelfStyle.top, data.titleColor)}
-          <Card
-            size="small"
-            title={getTitle(data.title)}
-            className={SelfStyle.noteWrapper}
-            extra={
-              <Button
-                onClick={() => reqDelItem(data.id)}
-                icon={<CloseOutlined></CloseOutlined>}
-              ></Button>
-            }
-          >
-            {parseContent(data.content, data.base64)}
-          </Card>
+          <div className={SelfStyle.noteWrapper}>
+            <Card
+              size="small"
+              title={getTitle(data.title)}
+              extra={
+                <Space>
+                  {MDNotes.isTitleModel && (
+                    <>
+                      {isExpand ? (
+                        <Button
+                          onClick={() => {
+                            NModel.dispatch(
+                              new NMDNotes.ArChangeNoteExpand({
+                                id: data.id,
+                                isExpand: false,
+                              })
+                            );
+                          }}
+                        >
+                          收起
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={() => {
+                            NModel.dispatch(
+                              new NMDNotes.ArChangeNoteExpand({
+                                id: data.id,
+                                isExpand: true,
+                              })
+                            );
+                          }}
+                        >
+                          展开
+                        </Button>
+                      )}
+                    </>
+                  )}
+                  <Button
+                    onClick={() => reqDelItem(data.id)}
+                    icon={<CloseOutlined></CloseOutlined>}
+                  ></Button>
+                </Space>
+              }
+            >
+              {parseContent(data.content, data.base64)}
+            </Card>
+          </div>
           {renderActionWrap(SelfStyle.bottom)}
         </>
       )}
     </div>
   );
   function getTitle(title: string) {
-    return <div onClick={() => UCopy.copyStr(title)}>{title}</div>;
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          userSelect: "none",
+        }}
+      >
+        {props.isSortModel && (
+          <span style={{ marginRight: 8, cursor: "grab" }}>
+            <MenuOutlined />
+          </span>
+        )}
+        <div onClick={() => UCopy.copyStr(title)} style={{ flex: 1 }}>
+          {title}
+        </div>
+      </div>
+    );
   }
   function onUpdateNote(data: NNotes) {
     props.editModalRef.current.showModal(data);
