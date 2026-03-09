@@ -1,7 +1,3 @@
-import MockConfigModal, {
-  IMockConfigModal,
-} from './components/MockConfigModal';
-
 import { PageFooter } from '@/common/components/page';
 import NModel from '@/common/namespace/NModel';
 import NRouter from '@/../config/router/NRouter';
@@ -58,7 +54,6 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     });
   }, []);
 
-  const mockConfigModalRef = useRef<IMockConfigModal>();
   const hasSfMock = MDProject.rsp.list.some((item) => item.isSfMock);
   const DragHandle = SortableHandle(() => (
     <MenuOutlined style={{ cursor: 'grab', color: '#999' }} />
@@ -100,8 +95,6 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   };
   return (
     <div>
-      <MockConfigModal ref={mockConfigModalRef}></MockConfigModal>
-
       <Table
         rowKey="id"
         columns={[
@@ -162,10 +155,6 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       </PageFooter>
     </div>
   );
-
-  function onShowMockConfigModal() {
-    mockConfigModalRef.current.showModal();
-  }
 
   function onChangeConfig(config: Partial<NProject.IConfig>) {
     SProject.updateConfig(config);
@@ -274,11 +263,6 @@ const Project: ConnectRC<IProjectProps> = (props) => {
               代码平台
             </Link>
           </Button>
-          {hasSfMock && (
-            <Button type="link" onClick={onShowMockConfigModal}>
-              配置
-            </Button>
-          )}
 
           {startBlock}
           {project.isSfMock && (
