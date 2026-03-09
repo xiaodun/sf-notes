@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import SelfStyle from "./LNovel.less";
 import { Button, message, Table } from "antd";
-import { ConnectRC } from "umi";
+import { ConnectRC, history } from "umi";
 import NNovel from "./NNovel";
 import { PageFooter } from "@/common/components/page";
-import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined, DeleteOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import SNovel from "./SNovel";
 import NRsp from "@/common/namespace/NRsp";
 import AddNovelModal, { IAddNovelModal } from "./components/AddNovelModal";
 import NRouter from "@/../config/router/NRouter";
+import Browser from "@/utils/browser";
 
 export interface PNovelProps {}
 
@@ -114,6 +115,14 @@ const PNovel: ConnectRC<PNovelProps> = (props) => {
         })}
       />
       <PageFooter>
+        {!Browser.isMobile() && (
+          <Button
+            icon={<ArrowLeftOutlined />}
+            onClick={() => history.push("/")}
+          >
+            返回
+          </Button>
+        )}
         <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
           添加小说
         </Button>
