@@ -1,10 +1,14 @@
 (function () {
   return function (argData = [], argParams, external) {
     const project = argData.projectList.find((item) => item.id == argParams.id);
-    project.snippetList = project.snippetList || [];
+    let isWrite = false;
+    if (!project.snippetList) {
+      project.snippetList = [];
+      isWrite = true;
+    }
     external.createSnippetFolder(project.name);
     return {
-      isWrite: true,
+      isWrite,
       data: argData,
       response: {
         code: 200,
