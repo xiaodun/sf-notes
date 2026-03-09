@@ -6,9 +6,9 @@ import EditModal, { IEditModal } from "./components/EditModal";
 import { PageFooter } from "@/common/components/page";
 import { connect } from "dva";
 import NModel from "@/common/namespace/NModel";
-import { ConnectRC } from "umi";
+import { ConnectRC, history } from "umi";
 import { NMDMaxim } from "./models/MDMaxim";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import Browser from "@/utils/browser";
 import NMaxim from "./NMaxim";
 
@@ -347,6 +347,14 @@ const PMaxim: ConnectRC<PMaximProps> = (props) => {
       </div>
 
       <PageFooter>
+        {!Browser.isMobile() && (
+          <Button
+            icon={<ArrowLeftOutlined />}
+            onClick={() => history.push("/")}
+          >
+            返回
+          </Button>
+        )}
         <Radio.Group
           value={MDMaxim.mode}
           onChange={handleModeChange}

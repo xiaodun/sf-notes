@@ -8,7 +8,7 @@ import { PageFooter } from "@/common/components/page";
 import UCopy from "@/common/utils/UCopy";
 import { connect } from "dva";
 import NModel from "@/common/namespace/NModel";
-import { ConnectRC } from "umi";
+import { ConnectRC, history } from "umi";
 import { NMDJokes } from "./models/MDJokes";
 import {
   LeftOutlined,
@@ -18,6 +18,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   MoreOutlined,
+  ArrowLeftOutlined,
 } from "@ant-design/icons";
 import Browser from "@/utils/browser";
 import NJokes from "./NJokes";
@@ -683,6 +684,14 @@ const PJokes: ConnectRC<PJokesProps> = (props) => {
       </div>
 
       <PageFooter>
+        {!Browser.isMobile() && (
+          <Button
+            icon={<ArrowLeftOutlined />}
+            onClick={() => history.push("/")}
+          >
+            返回
+          </Button>
+        )}
         <Button
           onClick={onAddJoke}
           size={isMobile ? "small" : "middle"}

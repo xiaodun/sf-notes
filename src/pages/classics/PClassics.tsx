@@ -5,7 +5,7 @@ import SAuthor from "./SAuthor";
 import SDynasty from "./SDynasty";
 import { Button, message, Select, Space, Dropdown } from "antd";
 import type { MenuProps } from "antd";
-import { MoreOutlined } from "@ant-design/icons";
+import { MoreOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import EditModal, { IEditModal } from "./components/EditModal";
 import AuthorManageModal, {
   IAuthorManageModal,
@@ -16,7 +16,7 @@ import DynastyManageModal, {
 import { PageFooter } from "@/common/components/page";
 import { connect } from "dva";
 import NModel from "@/common/namespace/NModel";
-import { ConnectRC } from "umi";
+import { ConnectRC, history } from "umi";
 import { NMDClassics, getPageSize } from "./models/MDClassics";
 import Browser from "@/utils/browser";
 import NClassics from "./NClassics";
@@ -639,6 +639,14 @@ const PClassics: ConnectRC<PClassicsProps> = (props) => {
       </div>
 
       <PageFooter>
+        {!Browser.isMobile() && (
+          <Button
+            icon={<ArrowLeftOutlined />}
+            onClick={() => history.push("/")}
+          >
+            返回
+          </Button>
+        )}
         <Button onClick={onAddClassic} size={isMobile ? "small" : "middle"}>
           添加
         </Button>
