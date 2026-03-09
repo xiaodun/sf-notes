@@ -3,7 +3,7 @@ import Note from "./components/note/note";
 import SelfStyle from "./LNotes.less";
 import SNotes from "./SNotes";
 import { Button, message, Radio, Select } from "antd";
-import { ArrowLeftOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, MenuOutlined } from "@ant-design/icons";
 import { RefSelectProps } from "antd/lib/select";
 import EditModal, { IEditModal } from "./components/edit/EditModal";
 import ZoomImgModal, { IZoomImgModal } from "./components/zoom/ZoomImgModal";
@@ -13,6 +13,73 @@ import NModel from "@/common/namespace/NModel";
 import { ConnectRC, NMDNotes, history } from "umi";
 import { uniq, isEqual } from "lodash";
 import Browser from "@/utils/browser";
+import {
+  SortableContainer,
+  SortableElement,
+  SortableHandle,
+  SortEnd,
+} from "react-sortable-hoc";
+import NNotes from "./NNotes";
+
+const DragHandle = SortableHandle(() => (
+  <MenuOutlined style={{ cursor: "grab", color: "#999" }} />
+));
+
+const SortableItem = SortableElement(
+    ({
+      value,
+      sortIndex,
+      editModalRef,
+      zoomModalRef,
+      isSortModel,
+    }: {
+      value: NNotes;
+      sortIndex: number;
+      editModalRef: React.MutableRefObject<IEditModal>;
+      zoomModalRef: React.MutableRefObject<IZoomImgModal>;
+      isSortModel: boolean;
+    }) => (
+      <div className={SelfStyle.noteWrapper}>
+        <Note
+          data={value}
+          index={sortIndex}
+          editModalRef={editModalRef}
+          zoomModalRef={zoomModalRef}
+          dragHandle={isSortModel ? <DragHandle /> : undefined}
+          isSortModel={isSortModel}
+        ></Note>
+      </div>
+    )
+  );
+const SortableList = SortableContainer(
+  ({
+    items,
+    editModalRef,
+    zoomModalRef,
+    isSortModel,
+  }: {
+    items: NNotes[];
+    editModalRef: React.MutableRefObject<IEditModal>;
+    zoomModalRef: React.MutableRefObject<IZoomImgModal>;
+    isSortModel: boolean;
+  }) => {
+    return (
+      <div>
+        {items.map((value, index) => (
+          <SortableItem
+            key={value.id}
+            index={index}
+            value={value}
+            sortIndex={index}
+            editModalRef={editModalRef}
+            zoomModalRef={zoomModalRef}
+            isSortModel={isSortModel}
+          />
+        ))}
+      </div>
+    );
+  }
+);
 
 export interface PNotesProps {
   MDNotes: NMDNotes.IState;
@@ -26,6 +93,11 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
   const [searchKeyList, setSearchKeyList] = useState([]);
   const lastSerachKeyList = useRef([]);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [isSortModel, setIsSortModel] = useState(false);
+  useEffect(() => {
+    setIsSortModel(MDNotes.isTitleModel);
+  }, [MDNotes.isTitleModel]);
+
   useEffect(() => {
     reqGetList();
     setTimeout(() => {
@@ -55,24 +127,51 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
     }))
     .filter((item) => item.value);
   const matchIdList = getMatchIdList();
+
+  const onSortEnd = ({ oldIndex, newIndex }: SortEnd) => {
+    if (oldIndex !== newIndex) {
+      const newList = [...MDNotes.rsp.list];
+      const [movedItem] = newList.splice(oldIndex, 1);
+      newList.splice(newIndex, 0, movedItem);
+
+      const newRsp = { ...MDNotes.rsp, list: newList };
+      NModel.dispatch(new NMDNotes.ARSetRsp(newRsp));
+
+      SNotes.sortNoteList(oldIndex, newIndex).then((rsp) => {
+        if (!rsp.success) {
+          reqGetList();
+        }
+      });
+    }
+  };
   return (
     <div>
-      {MDNotes.rsp.list
-        .filter((notes) =>
-          matchIdList.length > 0
-            ? matchIdList.some((id) => notes.id === id)
-            : true
-        )
-        .map((note, index) => (
-          <div key={note.id} className={SelfStyle.noteWrapper}>
-            <Note
-              data={note}
-              index={index}
-              editModalRef={editModalRef}
-              zoomModalRef={zoomModalRef}
-            ></Note>
-          </div>
-        ))}
+      {matchIdList.length > 0 ? (
+        MDNotes.rsp.list
+          .filter((notes) =>
+            matchIdList.length > 0
+              ? matchIdList.some((id) => notes.id === id)
+              : true
+          )
+          .map((note, index) => (
+            <div key={note.id} className={SelfStyle.noteWrapper}>
+              <Note
+                data={note}
+                index={index}
+                editModalRef={editModalRef}
+                zoomModalRef={zoomModalRef}
+              ></Note>
+            </div>
+          ))
+      ) : (
+          <SortableList
+          items={MDNotes.rsp.list}
+          onSortEnd={onSortEnd}
+          editModalRef={editModalRef}
+          zoomModalRef={zoomModalRef}
+          isSortModel={isSortModel}
+        />
+      )}
       <EditModal
         onOk={reqGetList}
         ref={editModalRef}
