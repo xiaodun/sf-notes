@@ -9,7 +9,7 @@
         "id": 1772775931016
     },
     {
-        "content": "增加拖动排序\n启动慢\n\n```\n配置要有端口号 并检测是否重复\n域名配置\n项目管理的配置可以自动写入到sf-mock的配置文件，并且重启nginx、自动生成bat等，涉及到babel解析\n配置启动相关\n能够通过标题区分是不是mock服务器\n```swagger 生成ts结构\n\n小说去掉默认格式化，可选择\ngetRecentMatches接口被拦截了\n",
+        "content": "增加拖动排序\nsf-notes 每次更改玩功能自动完善文档的skill\nswagger的键值读取支持更复杂的\n启动慢\n\n```\n配置要有端口号 并检测是否重复\n域名配置\n项目管理的配置可以自动写入到sf-mock的配置文件，并且重启nginx、自动生成bat等，涉及到babel解析\n配置启动相关\n能够通过标题区分是不是mock服务器\n```swagger 生成ts结构\n\n小说去掉默认格式化，可选择\ngetRecentMatches接口被拦截了\n",
         "base64": {},
         "createTime": 1772694620502,
         "updateTime": "",
