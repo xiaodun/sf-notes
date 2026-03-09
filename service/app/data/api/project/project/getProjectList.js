@@ -1,5 +1,6 @@
 ;(function () {
   return function (argData, argParams, external) {
+    let isWrite = false
     const sfNote = argData.projectList.find(
       (item) => item.name === 'sf-notes',
     )
@@ -8,9 +9,10 @@
       sfNote.rootPath = __dirname
         .substring(0, pos)
         .replace(/\\/g, '\\')
+      isWrite = true
     }
     return {
-      isWrite: true,
+      isWrite: isWrite,
       data: argData,
       response: {
         code: 200,
