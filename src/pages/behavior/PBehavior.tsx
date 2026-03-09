@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import SelfStyle from "./LBehavior.less";
 import { Button, message, Modal, Input } from "antd";
-import { ConnectRC } from "umi";
+import { ConnectRC, history } from "umi";
 import NBehavior from "./NBehavior";
 import { PageFooter } from "@/common/components/page";
-import { PlusOutlined, EditOutlined, DeleteOutlined, TagsOutlined, LockOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined, TagsOutlined, LockOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import AddBehaviorModal, { IAddBehaviorModal } from "./components/AddBehaviorModal";
 import EditBehaviorModal, { IEditBehaviorModal } from "./components/EditBehaviorModal";
 import TagManageModal, { ITagManageModal } from "./components/TagManageModal";
@@ -14,6 +14,7 @@ import NRsp from "@/common/namespace/NRsp";
 import NRouter from "@/../config/router/NRouter";
 import { decryptText } from "./utils/encrypt";
 import passwordManager from "./utils/passwordManager";
+import Browser from "@/utils/browser";
 
 export interface PBehaviorProps {}
 
@@ -271,6 +272,14 @@ const PBehavior: ConnectRC<PBehaviorProps> = (props) => {
       </div>
 
       <PageFooter>
+        {!Browser.isMobile() && (
+          <Button
+            icon={<ArrowLeftOutlined />}
+            onClick={() => history.push("/")}
+          >
+            返回
+          </Button>
+        )}
         {hasEncryptedBehaviors && (
           <Button
             onClick={handleShowEncrypted}
