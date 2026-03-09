@@ -8,7 +8,7 @@
     }
     external.createSnippetFolder(project.name);
     return {
-      isWrite: isWrite,
+      isWrite,
       data: argData,
       response: {
         code: 200,
