@@ -1,11 +1,22 @@
 .titleModel {
   :global {
-    .ant-card-body {
-      display: none;
+    .ant-card-head-title {
+      padding-left: 20px;
     }
   }
 }
+
 .noteWrapper {
+  margin-bottom: 20px;
+  position: relative;
+  .dragHandle {
+    display: inline-flex;
+    width: 20px;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    cursor: move;
+  }
   &:hover {
     :global {
       .ant-card-actions {
