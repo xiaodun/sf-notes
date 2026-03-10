@@ -170,6 +170,7 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
           editModalRef={editModalRef}
           zoomModalRef={zoomModalRef}
           isSortModel={isSortModel}
+          pressDelay={Browser.isMobile() ? 200 : 0}
         />
       ) : (
         MDNotes.rsp.list.map((note, index) => (
@@ -200,7 +201,11 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
         )}
         <Button onClick={() => onAddNote()}>新建笔记</Button>
 
-        <Radio.Group value={MDNotes.isTitleModel} buttonStyle="solid">
+        <Radio.Group
+          value={MDNotes.isTitleModel}
+          buttonStyle="solid"
+          style={{ marginLeft: 8 }}
+        >
           <Radio.Button value={true} onClick={onToggleShowModel}>
             标题模式
           </Radio.Button>
