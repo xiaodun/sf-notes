@@ -163,14 +163,26 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
               ></Note>
             </div>
           ))
-      ) : (
-          <SortableList
+      ) : isSortModel ? (
+        <SortableList
           items={MDNotes.rsp.list}
           onSortEnd={onSortEnd}
           editModalRef={editModalRef}
           zoomModalRef={zoomModalRef}
           isSortModel={isSortModel}
         />
+      ) : (
+        MDNotes.rsp.list.map((note, index) => (
+          <div key={note.id} className={SelfStyle.noteWrapper}>
+            <Note
+              data={note}
+              index={index}
+              editModalRef={editModalRef}
+              zoomModalRef={zoomModalRef}
+              isSortModel={isSortModel}
+            ></Note>
+          </div>
+        ))
       )}
       <EditModal
         onOk={reqGetList}
@@ -188,13 +200,14 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
         )}
         <Button onClick={() => onAddNote()}>新建笔记</Button>
 
+        <Radio.Group value={MDNotes.isTitleModel} buttonStyle="solid">
+          <Radio.Button value={true} onClick={onToggleShowModel}>
+            标题模式
+          </Radio.Button>
+        </Radio.Group>
+
         {!Browser.isMobile() && (
           <>
-            <Radio.Group value={MDNotes.isTitleModel} buttonStyle="solid">
-              <Radio.Button value={true} onClick={onToggleShowModel}>
-                标题模式
-              </Radio.Button>
-            </Radio.Group>
             <div id={searchContentId}>
               <Select
                 ref={searchSelectRef}
