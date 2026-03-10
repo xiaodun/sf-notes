@@ -21,10 +21,12 @@ export interface IKeyValueExtractionModalState
   extends NProjectSnippet.IExtractionResult {
   open: boolean;
   strategy: string;
+  valueType: 'number' | 'string';
 }
 const defaultState: IKeyValueExtractionModalState = {
   open: false,
-  strategy: '',
+  strategy: 'auto',
+  valueType: 'number',
   enumList: null,
   values: null,
   valueStr: '',
@@ -85,23 +87,40 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
         >
           <Input.TextArea rows={5} ref={contentTextAreaRef} />
         </Form.Item>
+        <Form.Item name="valueType" initialValue="number">
+          <Radio.Group
+            onChange={(e) => {
+              setState(
+                produce(state, (drafState) => {
+                  drafState.valueType = e.target.value;
+                }),
+              );
+              reqKeyValueExtraction();
+            }}
+            buttonStyle="solid"
+          >
+            <Radio.Button value="number">数字</Radio.Button>
+            <Radio.Button value="string">字符串</Radio.Button>
+          </Radio.Group>
+        </Form.Item>
         <Form.Item>
           <Space size={30}>
-            <Button
-              onClick={() => reqKeyValueExtraction('onlyValue')}
-            >
-              提取英文
-            </Button>
-            <Button
-              onClick={() => reqKeyValueExtraction('valueDescribe')}
-            >
-              值前描述后
-            </Button>
-            <Button
-              onClick={() => reqKeyValueExtraction('describeValue')}
-            >
-              描述前值后
-            </Button>
+          <Radio.Group
+            value={state.strategy}
+            onChange={(e) => {
+              const strategy = e.target.value;
+              setState(
+                produce(state, (drafState) => {
+                  drafState.strategy = strategy;
+                }),
+              );
+              reqKeyValueExtraction(strategy);
+            }}
+            buttonStyle="solid"
+          >
+            <Radio.Button value="auto">提取键值</Radio.Button>
+            <Radio.Button value="onlyValue">提取英文</Radio.Button>
+          </Radio.Group>
           </Space>
         </Form.Item>
         {state.strategy && (
@@ -152,15 +171,17 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
       return noResult;
     }
   }
-  async function reqKeyValueExtraction(strategy: string) {
+  async function reqKeyValueExtraction(strategyArg?: string) {
     form.validateFields().then(async (values) => {
+      const strategy = strategyArg || state.strategy || 'auto';
       const rsp = await SProject.getKeyValueExtraction(
         strategy,
         values.content,
+        values.valueType,
       );
       if (rsp.success) {
         setState(
-          produce(state, (drafState) => {
+          produce((drafState) => {
             drafState.strategy = strategy;
             drafState.enumList = rsp.data.enumList;
             drafState.values = rsp.data.values;
@@ -174,6 +195,9 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
   function onCancel() {
     setState(defaultState);
     form.resetFields();
+    form.setFieldsValue({
+      valueType: defaultState.valueType,
+    });
   }
 };
 export default forwardRef(KeyValueExtractionModal);

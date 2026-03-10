@@ -219,7 +219,8 @@ namespace SProject {
   }
   export async function getKeyValueExtraction(
     strategy: string,
-    content: string
+    content: string,
+    valueType: "number" | "string"
   ): Promise<NRsp<NProjectSnippet.IExtractionResult>> {
     return request({
       url: "/project/keyValueExtraction",
@@ -227,6 +228,7 @@ namespace SProject {
       data: {
         strategy,
         content,
+        valueType,
       },
     });
   }
