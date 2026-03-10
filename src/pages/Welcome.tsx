@@ -12,6 +12,7 @@ import NModel from "@/common/namespace/NModel";
 import classNames from "classnames";
 import Browser from "@/utils/browser";
 import SBase from "@/common/service/SBase";
+import UCopy from "@/common/utils/UCopy";
 enableMapSet();
 if (Browser.isMobile()) {
   const VConsole = require("vconsole");
@@ -120,20 +121,47 @@ const QRCodeBtn = () => {
   return <Button icon={<QrcodeOutlined />} onClick={showQRcode}></Button>;
   async function showQRcode() {
     const rsp = await SBase.getIpv4();
-    Modal.info({
+    const url = window.location.href.replace(
+      window.location.hostname,
+      rsp.data
+    );
+    let modal = Modal.info({
       icon: null,
       content: (
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <QRCode
-            size={256}
-            value={window.location.href.replace(
-              window.location.hostname,
-              rsp.data
-            )}
-          />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <div style={{ marginBottom: 24 }}>
+            <QRCode size={256} value={url} />
+          </div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              width: "100%",
+            }}
+          >
+            <Button onClick={() => modal.destroy()}>关闭</Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                UCopy.copyStr(url);
+                modal.destroy();
+              }}
+              style={{ marginLeft: 8 }}
+            >
+              复制链接
+            </Button>
+          </div>
         </div>
       ),
-      okText: "关闭",
+      okButtonProps: { style: { display: "none" } },
+      maskClosable: true,
     });
   }
 };
