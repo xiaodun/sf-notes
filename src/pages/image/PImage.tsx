@@ -341,15 +341,20 @@ const PImage: FC<IPImageProps> = (props) => {
   async function withImageContent(rsp: NRsp<NImage>) {
     const list = await Promise.all(
       (rsp.list || []).map(async (item) => {
-        const contentRsp = await SImage.getImageContent(item.id);
-        if (!contentRsp.success || !contentRsp.data?.content) {
+        try {
+          const contentRsp = await SImage.getImageContent(item.id);
+          if (!contentRsp.success || !contentRsp.data?.content) {
+            return item;
+          }
+          const mimeType = contentRsp.data.mimeType || "application/octet-stream";
+          return {
+            ...item,
+            url: `data:${mimeType};base64,${contentRsp.data.content}`,
+          };
+        } catch (error) {
+          console.error('Error getting image content:', error);
           return item;
         }
-        const mimeType = contentRsp.data.mimeType || "application/octet-stream";
-        return {
-          ...item,
-          url: `data:${mimeType};base64,${contentRsp.data.content}`,
-        };
       })
     );
     return {

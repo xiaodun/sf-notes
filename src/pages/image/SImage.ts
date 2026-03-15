@@ -14,7 +14,7 @@ const SImage = {
       onUploadProgress,
     });
 
-    return rsp.data;
+    return rsp;
   },
 
   async getList(): Promise<NRsp<NImage>> {
@@ -23,7 +23,7 @@ const SImage = {
       method: "GET",
     });
 
-    return rsp.data;
+    return rsp;
   },
 
   async getImageContent(id: string): Promise<NRsp<{ content: string; mimeType: string }>> {
@@ -33,7 +33,7 @@ const SImage = {
       params: { id },
     });
 
-    return rsp.data;
+    return rsp;
   },
 
   async delItem(id: string): Promise<{ success: boolean }> {
@@ -43,7 +43,7 @@ const SImage = {
       data: { id },
     });
 
-    return rsp.data;
+    return rsp;
   },
 
   async downloadItem(id: string): Promise<Blob> {
@@ -54,7 +54,7 @@ const SImage = {
       responseType: "blob",
     });
 
-    return rsp.data;
+    return rsp;
   },
 
   async saveAs(originalImage: NImage, newName: string, compressionLevel: number): Promise<NRsp<NImage>> {
@@ -64,7 +64,7 @@ const SImage = {
       data: { originalImage, newName, compressionLevel },
     });
 
-    return rsp.data;
+    return rsp;
   },
 
   async overwrite(originalImage: NImage, newName: string, compressionLevel: number): Promise<NRsp<NImage>> {
@@ -74,7 +74,7 @@ const SImage = {
       data: { originalImage, newName, compressionLevel },
     });
 
-    return rsp.data;
+    return rsp;
   },
 };
 
