@@ -26,11 +26,11 @@ const SImage = {
     return rsp;
   },
 
-  async getImageContent(id: string): Promise<NRsp<{ content: string; mimeType: string }>> {
+  async getImageContent(id: string, path?: string): Promise<NRsp<{ content: string; mimeType: string }>> {
     const rsp = await request<NRsp<{ content: string; mimeType: string }>>({
       url: "/image/image/getImageContent",
       method: "GET",
-      params: { id },
+      params: { id, path },
     });
 
     return rsp;
