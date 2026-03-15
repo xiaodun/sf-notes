@@ -1,10 +1,13 @@
 (function () {
   return function (argData, argParams) {
+    const fs = require("fs");
+    const path = require("path");
     const id = String(argParams.id || "").trim();
     const list = Array.isArray(argData) ? argData : [];
     const item = list.find((it) => String(it.id) === id);
-
-    if (!item || !item.storage || !item.storage.path) {
+    
+    // 检查项目是否存在
+    if (!item) {
       return {
         isWrite: false,
         response: {
@@ -17,10 +20,12 @@
       };
     }
 
-    // 由于是模拟环境，直接返回一个默认的 base64 编码的图片
-    // 实际生产环境中，这里应该从文件系统读取图片文件并转换为 base64
-    const defaultBase64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
-    const mimeType = "image/png";
+    // 使用 item.flag 作为文件名
+    const fileName = item.flag;
+
+    // 直接在当前目录下查找图片文件
+    const absPath = path.join("./data/api/image/image/", fileName);
+    const content = fs.readFileSync(absPath).toString("base64");
 
     return {
       isWrite: false,
@@ -29,8 +34,8 @@
         data: {
           success: true,
           data: {
-            content: defaultBase64,
-            mimeType
+            content,
+            mimeType:item.mimeType
           },
         },
       },
