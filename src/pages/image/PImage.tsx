@@ -48,18 +48,16 @@ const PImage: FC<IPImageProps> = (props) => {
         className={SelfStyle.uploadWrapper}
         customRequest={customRequest}
         showUploadList={false}
+        accept="image/*"
       >
         <p className="ant-upload-drag-icon">
           <InboxOutlined />
         </p>
         <p className="ant-upload-text">点击或拖拽上传图片</p>
+        <p className="ant-upload-hint">
+          支持 JPG、PNG、GIF 等图片格式
+        </p>
       </Upload.Dragger>
-      <div className={SelfStyle.btnWrap}>
-        <Space direction="horizontal" size={35}>
-          <Button type="primary" onClick={onAllDownload}>全部下载</Button>
-          <Button danger onClick={onAllDel}>全部删除</Button>
-        </Space>
-      </div>
       <div className={SelfStyle.imageListWrap}>
         {renderUploadImageList()}
         {imageRsp.list.map((item) =>
@@ -128,19 +126,6 @@ const PImage: FC<IPImageProps> = (props) => {
     </div>
   );
 
-  function onAllDownload() {
-    imageRsp.list.forEach((item) => {
-      onDownloadImage(item);
-    });
-  }
-
-  function onAllDel() {
-    let argRsp = { list: imageRsp.list };
-    imageRsp.list.forEach((item) => {
-      onDelImage(item, argRsp);
-    });
-  }
-
   function renderUploadImageList() {
     const list: ReactNode[] = [];
     uploadConfigMapRef.current.forEach((imageConfig, file) => {
@@ -172,9 +157,16 @@ const PImage: FC<IPImageProps> = (props) => {
         })}
       >
         <div className={SelfStyle.imageWrapper}>
-          {params.item && (
-            <img src={params.item.url} alt={params.item.name} />
-          )}
+          {params.uploadLoading ? (
+            <div className={SelfStyle.placeholder}>
+              <div className={SelfStyle.loading}>
+                <InboxOutlined style={{ fontSize: '24px', color: '#1890ff' }} />
+                <div className={SelfStyle.loadingText}>上传中...</div>
+              </div>
+            </div>
+          ) : params.item ? (
+            <img src={params.item.url} alt={params.item.originalName} />
+          ) : null}
         </div>
         <Typography.Text className={SelfStyle.name} ellipsis>
           {params.name}
@@ -193,12 +185,6 @@ const PImage: FC<IPImageProps> = (props) => {
           <Space size={26}>
             <Button
               type="primary"
-              loading={optionConfig?.downloadLoading}
-              onClick={() => onDownloadImage(params.item)}
-              icon={<DownloadOutlined />}
-              shape="circle"
-            ></Button>
-            <Button
               onClick={() => onEditImage(params.item)}
               icon={<EditOutlined />}
               shape="circle"
@@ -216,22 +202,9 @@ const PImage: FC<IPImageProps> = (props) => {
     );
   }
 
-  function onDownloadImage(image: NImage) {
-    optionConfigMapRef.current.set(image.id, {
-      downloadLoading: true,
-    });
-    refreshView();
-    SImage.downloadItem(image.id).then((rsp) => {
-      const optionConfig = optionConfigMapRef.current.get(image.id);
-      optionConfig.downloadLoading = false;
-      refreshView();
-      UDownload.download({ name: image.name, blob: rsp });
-    });
-  }
-
   function onEditImage(image: NImage) {
     setCurrentImage(image);
-    setNewName(image.name);
+    setNewName(image.originalName || '');
     setCompressionLevel(80);
     setEditModalVisible(true);
   }
