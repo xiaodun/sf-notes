@@ -95,8 +95,8 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [isSortModel, setIsSortModel] = useState(false);
   useEffect(() => {
-    setIsSortModel(MDNotes.isTitleModel);
-  }, [MDNotes.isTitleModel]);
+    setIsSortModel(MDNotes.isTitleModel && !Browser.isMobile());
+  }, [MDNotes.isTitleModel, Browser.isMobile()]);
 
   useEffect(() => {
     reqGetList();
@@ -163,27 +163,30 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
               ></Note>
             </div>
           ))
-      ) : isSortModel ? (
-        <SortableList
-          items={MDNotes.rsp.list}
-          onSortEnd={onSortEnd}
-          editModalRef={editModalRef}
-          zoomModalRef={zoomModalRef}
-          isSortModel={isSortModel}
-          pressDelay={Browser.isMobile() ? 200 : 0}
-        />
       ) : (
-        MDNotes.rsp.list.map((note, index) => (
-          <div key={note.id} className={SelfStyle.noteWrapper}>
-            <Note
-              data={note}
-              index={index}
-              editModalRef={editModalRef}
-              zoomModalRef={zoomModalRef}
-              isSortModel={isSortModel}
-            ></Note>
+        Browser.isMobile() || !isSortModel ? (
+          <div>
+            {MDNotes.rsp.list.map((value, index) => (
+              <div key={value.id} className={SelfStyle.noteWrapper}>
+                <Note
+                  data={value}
+                  index={index}
+                  editModalRef={editModalRef}
+                  zoomModalRef={zoomModalRef}
+                  isSortModel={isSortModel}
+                ></Note>
+              </div>
+            ))}
           </div>
-        ))
+        ) : (
+          <SortableList
+            items={MDNotes.rsp.list}
+            onSortEnd={onSortEnd}
+            editModalRef={editModalRef}
+            zoomModalRef={zoomModalRef}
+            isSortModel={isSortModel}
+          />
+        )
       )}
       <EditModal
         onOk={reqGetList}
@@ -201,18 +204,13 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
         )}
         <Button onClick={() => onAddNote()}>新建笔记</Button>
 
-        <Radio.Group
-          value={MDNotes.isTitleModel}
-          buttonStyle="solid"
-          style={{ marginLeft: 8 }}
-        >
-          <Radio.Button value={true} onClick={onToggleShowModel}>
-            标题模式
-          </Radio.Button>
-        </Radio.Group>
-
         {!Browser.isMobile() && (
           <>
+            <Radio.Group value={MDNotes.isTitleModel} buttonStyle="solid">
+              <Radio.Button value={true} onClick={onToggleShowModel}>
+                标题模式
+              </Radio.Button>
+            </Radio.Group>
             <div id={searchContentId}>
               <Select
                 ref={searchSelectRef}
