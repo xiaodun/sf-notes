@@ -46,6 +46,17 @@ const SImage = {
     return rsp;
   },
 
+  async downloadItem(id: string): Promise<Blob> {
+    const rsp = await request<Blob>({
+      url: "/image/image/downloadImage",
+      method: "GET",
+      params: { id },
+      responseType: "blob",
+    });
+
+    return rsp;
+  },
+
   async saveAs(originalImage: NImage, newName: string, compressionLevel: number): Promise<NRsp<NImage>> {
     const rsp = await request<NRsp<NImage>>({
       url: "/image/image/saveAs",

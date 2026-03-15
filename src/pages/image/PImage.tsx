@@ -30,11 +30,7 @@ const PImage: FC<IPImageProps> = (props) => {
   const optionConfigMapRef = useRef<Map<string, NImage.IOptioncConfig>>(
     new Map()
   );
-  const [editModalVisible, setEditModalVisible] = useState(false);
-  const [currentImage, setCurrentImage] = useState<NImage>();
-  const [newName, setNewName] = useState("");
-  const [compressionLevel, setCompressionLevel] = useState(80);
-  const [cropData, setCropData] = useState<any>();
+
   const refreshView = useRefreshView();
 
   useEffect(() => {
@@ -80,49 +76,7 @@ const PImage: FC<IPImageProps> = (props) => {
         )}
       </PageFooter>
 
-      {/* 编辑图片模态框 */}
-      <Modal
-        title="编辑图片"
-        open={editModalVisible}
-        onCancel={() => setEditModalVisible(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setEditModalVisible(false)}>取消</Button>,
-          <Button key="save" type="primary" onClick={onSaveAs}>另存为</Button>,
-          <Button key="overwrite" type="danger" onClick={onOverwrite}>覆盖</Button>,
-        ]}
-      >
-        {currentImage && (
-          <div>
-            <div className={SelfStyle.editForm}>
-              <div className={SelfStyle.formItem}>
-                <Typography.Text strong>图片名称:</Typography.Text>
-                <Input
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  placeholder="请输入新的图片名称"
-                />
-              </div>
-              <div className={SelfStyle.formItem}>
-                <Typography.Text strong>压缩质量:</Typography.Text>
-                <Slider
-                  value={compressionLevel}
-                  onChange={setCompressionLevel}
-                  min={10}
-                  max={100}
-                  marks={{
-                    10: '10%',
-                    50: '50%',
-                    100: '100%',
-                  }}
-                />
-              </div>
-              <div className={SelfStyle.imagePreview}>
-                <img src={currentImage.url} alt={currentImage.name} />
-              </div>
-            </div>
-          </div>
-        )}
-      </Modal>
+
     </div>
   );
 
@@ -203,39 +157,10 @@ const PImage: FC<IPImageProps> = (props) => {
   }
 
   function onEditImage(image: NImage) {
-    setCurrentImage(image);
-    setNewName(image.originalName || '');
-    setCompressionLevel(80);
-    setEditModalVisible(true);
+    history.push(`/image/detail/${image.id}`);
   }
 
-  function onSaveAs() {
-    if (!currentImage || !newName) {
-      message.error("请输入图片名称");
-      return;
-    }
-    SImage.saveAs(currentImage, newName, compressionLevel).then((rsp) => {
-      if (rsp.success) {
-        withImageContent(rsp).then((nextRsp) => setImageRsp(nextRsp));
-        setEditModalVisible(false);
-        message.success("图片保存成功");
-      }
-    });
-  }
 
-  function onOverwrite() {
-    if (!currentImage || !newName) {
-      message.error("请输入图片名称");
-      return;
-    }
-    SImage.overwrite(currentImage, newName, compressionLevel).then((rsp) => {
-      if (rsp.success) {
-        withImageContent(rsp).then((nextRsp) => setImageRsp(nextRsp));
-        setEditModalVisible(false);
-        message.success("图片覆盖成功");
-      }
-    });
-  }
 
   function onDelImage(image: NImage, argRsp = imageRsp) {
     optionConfigMapRef.current.set(image.id, { delLoading: true });
