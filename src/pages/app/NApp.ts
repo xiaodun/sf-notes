@@ -27,6 +27,11 @@ namespace NApp {
       linkType: "internal",
     },
     {
+      name: "图片",
+      path: NRouter.imagePath,
+      linkType: "internal",
+    },
+    {
       name: "行为",
       path: NRouter.behaviorPath,
       linkType: "internal",
