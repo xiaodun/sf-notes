@@ -4,19 +4,9 @@
     const file = argParams.files?.[0] || argParams.file;
     const timestamp = +new Date();
     const originalName = file.name;
-    const nameWithoutExt = originalName.substring(0, originalName.lastIndexOf('.'));
-    const ext = originalName.substring(originalName.lastIndexOf('.'));
-    const newName = `${nameWithoutExt}_${timestamp}${ext}`;
     
     file.id = timestamp + '';
-    file.name = newName;
     file.originalName = originalName;
-    file.url = `/api/image/image/getImageContent?id=${file.id}`;
-    file.isProcessed = false;
-    file.storage = {
-      path: `uploads/original/${newName}`,
-      timestamp: timestamp
-    };
     
     argData.unshift(file);
     return {
