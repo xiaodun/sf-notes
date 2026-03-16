@@ -18,6 +18,19 @@ import SImage from "./SImage";
 import { classNames } from "@/common";
 
 export interface IPImageProps {}
+type ResizeHandle =
+  | ""
+  | "topLeft"
+  | "top"
+  | "topRight"
+  | "right"
+  | "bottomRight"
+  | "bottom"
+  | "bottomLeft"
+  | "left";
+
+const MIN_CROP_SIZE = 40;
+const EDGE_HIT_SIZE = 14;
 const PImage: FC<IPImageProps> = (props) => {
   const [imageRsp, setImageRsp] = useState<NRsp<NImage>>({
     list: [],
@@ -29,7 +42,8 @@ const PImage: FC<IPImageProps> = (props) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [resizing, setResizing] = useState(false);
-  const [resizeHandle, setResizeHandle] = useState('');
+  const [resizeHandle, setResizeHandle] = useState<ResizeHandle>("");
+  const [cropCursor, setCropCursor] = useState<React.CSSProperties["cursor"]>("default");
   const [imageDisplaySize, setImageDisplaySize] = useState({ width: 0, height: 0 });
   const [cropMaxWidth, setCropMaxWidth] = useState(900);
   const [initialImageSize, setInitialImageSize] = useState({ width: 0, height: 0, size: 0 });
@@ -158,7 +172,11 @@ const PImage: FC<IPImageProps> = (props) => {
                 <div className={SelfStyle.cropSection}>
                   <div
                     className={SelfStyle.cropContainer}
-                    style={{ width: `${imageDisplaySize.width}px`, height: `${imageDisplaySize.height}px` }}
+                    style={{
+                      width: `${imageDisplaySize.width}px`,
+                      height: `${imageDisplaySize.height}px`,
+                      cursor: cropCursor,
+                    }}
                     onMouseDown={handleCropStart}
                     onMouseMove={handleCropMove}
                     onMouseUp={(e) => handleCropEnd(e)}
@@ -188,9 +206,13 @@ const PImage: FC<IPImageProps> = (props) => {
                       }}
                     >
                       <div className={`${SelfStyle.cropHandle} ${SelfStyle.topLeft}`}></div>
+                      <div className={`${SelfStyle.cropHandle} ${SelfStyle.top}`}></div>
                       <div className={`${SelfStyle.cropHandle} ${SelfStyle.topRight}`}></div>
-                      <div className={`${SelfStyle.cropHandle} ${SelfStyle.bottomLeft}`}></div>
+                      <div className={`${SelfStyle.cropHandle} ${SelfStyle.right}`}></div>
                       <div className={`${SelfStyle.cropHandle} ${SelfStyle.bottomRight}`}></div>
+                      <div className={`${SelfStyle.cropHandle} ${SelfStyle.bottom}`}></div>
+                      <div className={`${SelfStyle.cropHandle} ${SelfStyle.bottomLeft}`}></div>
+                      <div className={`${SelfStyle.cropHandle} ${SelfStyle.left}`}></div>
                     </div>
                   </div>
                   <div style={{ marginTop: '10px' }}>
@@ -469,43 +491,32 @@ const PImage: FC<IPImageProps> = (props) => {
   }
 
   function handleCropStart(e: React.MouseEvent) {
-    e.preventDefault(); // 防止默认行为
+    e.preventDefault();
     const canvas = canvasRef.current;
     if (canvas) {
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      
-      // 检查是否点击在裁剪框的手柄上
-      const handleSize = 15; // 增大手柄大小，更容易点击
-      const handles = [
-        { name: 'topLeft', x: cropArea.x, y: cropArea.y },
-        { name: 'topRight', x: cropArea.x + cropArea.width, y: cropArea.y },
-        { name: 'bottomLeft', x: cropArea.x, y: cropArea.y + cropArea.height },
-        { name: 'bottomRight', x: cropArea.x + cropArea.width, y: cropArea.y + cropArea.height }
-      ];
-      
-      const clickedHandle = handles.find(handle => 
-        x >= handle.x - handleSize && x <= handle.x + handleSize &&
-        y >= handle.y - handleSize && y <= handle.y + handleSize
-      );
-      
-      if (clickedHandle) {
-        // 进入调整大小模式
+
+      const activeHandle = getResizeHandleByPoint(x, y);
+      if (activeHandle) {
         setResizing(true);
-        setResizeHandle(clickedHandle.name);
+        setResizeHandle(activeHandle);
         setDragStart({ x, y });
+        setCropCursor(getCursorByHandle(activeHandle));
       } else if (x >= cropArea.x && x <= cropArea.x + cropArea.width &&
                  y >= cropArea.y && y <= cropArea.y + cropArea.height) {
-        // 进入拖动模式
         setIsDragging(true);
         setDragStart({ x, y });
+        setCropCursor("move");
+      } else {
+        setCropCursor("default");
       }
     }
   }
 
   function handleCropMove(e: React.MouseEvent) {
-    e.preventDefault(); // 防止默认行为
+    e.preventDefault();
     const canvas = canvasRef.current;
     if (!canvas) return;
     
@@ -516,87 +527,87 @@ const PImage: FC<IPImageProps> = (props) => {
     const dy = y - dragStart.y;
     
     if (resizing) {
-      // 调整裁剪框大小
-      setCropArea(prev => {
-        let newCropArea = { ...prev };
-        
-        switch (resizeHandle) {
-          case 'topLeft':
-            newCropArea.x = Math.max(0, prev.x + dx);
-            newCropArea.y = Math.max(0, prev.y + dy);
-            newCropArea.width = Math.max(50, prev.width - dx);
-            newCropArea.height = Math.max(50, prev.height - dy);
-            break;
-          case 'topRight':
-            newCropArea.y = Math.max(0, prev.y + dy);
-            newCropArea.width = Math.max(50, prev.width + dx);
-            newCropArea.height = Math.max(50, prev.height - dy);
-            break;
-          case 'bottomLeft':
-            newCropArea.x = Math.max(0, prev.x + dx);
-            newCropArea.width = Math.max(50, prev.width - dx);
-            newCropArea.height = Math.max(50, prev.height + dy);
-            break;
-          case 'bottomRight':
-            newCropArea.width = Math.max(50, prev.width + dx);
-            newCropArea.height = Math.max(50, prev.height + dy);
-            break;
-        }
-        
-        return newCropArea;
-      });
+      setCropArea((prev) =>
+        getResizedCropArea(prev, dx, dy, resizeHandle, canvas.width, canvas.height)
+      );
       setDragStart({ x, y });
+      setCropCursor(getCursorByHandle(resizeHandle));
     } else if (isDragging) {
-      // 拖动裁剪框
       setCropArea(prev => ({
         ...prev,
         x: Math.max(0, Math.min(prev.x + dx, canvas.width - prev.width)),
         y: Math.max(0, Math.min(prev.y + dy, canvas.height - prev.height))
       }));
       setDragStart({ x, y });
+      setCropCursor("move");
+    } else {
+      const hoverHandle = getResizeHandleByPoint(x, y);
+      if (hoverHandle) {
+        setCropCursor(getCursorByHandle(hoverHandle));
+      } else if (
+        x >= cropArea.x &&
+        x <= cropArea.x + cropArea.width &&
+        y >= cropArea.y &&
+        y <= cropArea.y + cropArea.height
+      ) {
+        setCropCursor("move");
+      } else {
+        setCropCursor("default");
+      }
     }
   }
 
   function handleCropEnd(e: React.MouseEvent) {
     if (e) {
-      e.preventDefault(); // 防止默认行为
+      e.preventDefault();
     }
     setIsDragging(false);
     setResizing(false);
-    setResizeHandle('');
+    setResizeHandle("");
+    setCropCursor("default");
   }
 
   function handleCropConfirm() {
-    const canvas = canvasRef.current;
-    if (canvas && selectedImage) {
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        // 创建一个新的画布用于裁剪
-        const cropCanvas = document.createElement('canvas');
-        cropCanvas.width = cropArea.width;
-        cropCanvas.height = cropArea.height;
-        const cropCtx = cropCanvas.getContext('2d');
-        if (cropCtx) {
-          // 裁剪图片
-          cropCtx.drawImage(
-            canvas,
-            cropArea.x,
-            cropArea.y,
-            cropArea.width,
-            cropArea.height,
-            0,
-            0,
-            cropArea.width,
-            cropArea.height
-          );
-          // 将裁剪后的图片转换为 base64
-          const croppedImageUrl = cropCanvas.toDataURL('image/png');
-          // 更新图片状态
-          setSelectedImage(prev => prev ? {
-            ...prev,
-            url: croppedImageUrl
-          } : prev);
-        }
+    const img = imageRef.current;
+    if (img && selectedImage) {
+      const scaleX = img.naturalWidth / imageDisplaySize.width;
+      const scaleY = img.naturalHeight / imageDisplaySize.height;
+      const sourceX = clamp(Math.round(cropArea.x * scaleX), 0, Math.max(0, img.naturalWidth - 1));
+      const sourceY = clamp(Math.round(cropArea.y * scaleY), 0, Math.max(0, img.naturalHeight - 1));
+      const sourceWidth = clamp(
+        Math.round(cropArea.width * scaleX),
+        1,
+        Math.max(1, img.naturalWidth - sourceX)
+      );
+      const sourceHeight = clamp(
+        Math.round(cropArea.height * scaleY),
+        1,
+        Math.max(1, img.naturalHeight - sourceY)
+      );
+      const cropCanvas = document.createElement('canvas');
+      cropCanvas.width = sourceWidth;
+      cropCanvas.height = sourceHeight;
+      const cropCtx = cropCanvas.getContext('2d');
+      if (cropCtx) {
+        cropCtx.imageSmoothingEnabled = true;
+        cropCtx.drawImage(
+          img,
+          sourceX,
+          sourceY,
+          sourceWidth,
+          sourceHeight,
+          0,
+          0,
+          sourceWidth,
+          sourceHeight
+        );
+        const mimeTypeMatch = selectedImage.url?.match(/^data:(image\/[^;]+);/);
+        const outputMimeType = mimeTypeMatch?.[1] || "image/png";
+        const croppedImageUrl = cropCanvas.toDataURL(outputMimeType);
+        setSelectedImage(prev => prev ? {
+          ...prev,
+          url: croppedImageUrl
+        } : prev);
       }
     }
   }
@@ -688,6 +699,102 @@ const PImage: FC<IPImageProps> = (props) => {
       return `${(size / 1024).toFixed(2)} KB`;
     }
     return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+  }
+
+  function clamp(value: number, min: number, max: number) {
+    return Math.min(Math.max(value, min), max);
+  }
+
+  function getCursorByHandle(handle: ResizeHandle) {
+    switch (handle) {
+      case "topLeft":
+      case "bottomRight":
+        return "nwse-resize";
+      case "topRight":
+      case "bottomLeft":
+        return "nesw-resize";
+      case "top":
+      case "bottom":
+        return "ns-resize";
+      case "left":
+      case "right":
+        return "ew-resize";
+      default:
+        return "default";
+    }
+  }
+
+  function getResizeHandleByPoint(x: number, y: number): ResizeHandle {
+    const left = cropArea.x;
+    const top = cropArea.y;
+    const right = cropArea.x + cropArea.width;
+    const bottom = cropArea.y + cropArea.height;
+    const nearLeft = Math.abs(x - left) <= EDGE_HIT_SIZE && y >= top - EDGE_HIT_SIZE && y <= bottom + EDGE_HIT_SIZE;
+    const nearRight = Math.abs(x - right) <= EDGE_HIT_SIZE && y >= top - EDGE_HIT_SIZE && y <= bottom + EDGE_HIT_SIZE;
+    const nearTop = Math.abs(y - top) <= EDGE_HIT_SIZE && x >= left - EDGE_HIT_SIZE && x <= right + EDGE_HIT_SIZE;
+    const nearBottom = Math.abs(y - bottom) <= EDGE_HIT_SIZE && x >= left - EDGE_HIT_SIZE && x <= right + EDGE_HIT_SIZE;
+    if (nearTop && nearLeft) return "topLeft";
+    if (nearTop && nearRight) return "topRight";
+    if (nearBottom && nearRight) return "bottomRight";
+    if (nearBottom && nearLeft) return "bottomLeft";
+    if (nearTop) return "top";
+    if (nearRight) return "right";
+    if (nearBottom) return "bottom";
+    if (nearLeft) return "left";
+    return "";
+  }
+
+  function getResizedCropArea(
+    prev: { x: number; y: number; width: number; height: number },
+    dx: number,
+    dy: number,
+    handle: ResizeHandle,
+    canvasWidth: number,
+    canvasHeight: number
+  ) {
+    let left = prev.x;
+    let top = prev.y;
+    let right = prev.x + prev.width;
+    let bottom = prev.y + prev.height;
+
+    const normalizedHandle = handle.toLowerCase();
+    if (normalizedHandle.includes("left")) left += dx;
+    if (normalizedHandle.includes("right")) right += dx;
+    if (normalizedHandle.includes("top")) top += dy;
+    if (normalizedHandle.includes("bottom")) bottom += dy;
+
+    left = clamp(left, 0, canvasWidth - MIN_CROP_SIZE);
+    top = clamp(top, 0, canvasHeight - MIN_CROP_SIZE);
+    right = clamp(right, MIN_CROP_SIZE, canvasWidth);
+    bottom = clamp(bottom, MIN_CROP_SIZE, canvasHeight);
+
+    if (right - left < MIN_CROP_SIZE) {
+      if (normalizedHandle.includes("left")) {
+        left = right - MIN_CROP_SIZE;
+      } else {
+        right = left + MIN_CROP_SIZE;
+      }
+    }
+
+    if (bottom - top < MIN_CROP_SIZE) {
+      if (normalizedHandle.includes("top")) {
+        top = bottom - MIN_CROP_SIZE;
+      } else {
+        bottom = top + MIN_CROP_SIZE;
+      }
+    }
+
+    left = clamp(left, 0, canvasWidth - MIN_CROP_SIZE);
+    top = clamp(top, 0, canvasHeight - MIN_CROP_SIZE);
+    right = clamp(right, left + MIN_CROP_SIZE, canvasWidth);
+    bottom = clamp(bottom, top + MIN_CROP_SIZE, canvasHeight);
+
+    return {
+      x: left,
+      y: top,
+      width: right - left,
+      height: bottom - top,
+    };
   }
 };
 
