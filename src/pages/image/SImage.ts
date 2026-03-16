@@ -76,6 +76,16 @@ const SImage = {
 
     return rsp;
   },
+
+  async compress(originalImage: NImage, compressionLevel: number): Promise<NRsp<NImage>> {
+    const rsp = await request<NRsp<NImage>>({
+      url: "/image/image/compressImage",
+      method: "POST",
+      data: { originalImage, compressionLevel },
+    });
+
+    return rsp;
+  },
 };
 
 export default SImage;

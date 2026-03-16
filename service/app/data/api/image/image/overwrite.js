@@ -45,6 +45,7 @@
       ...targetImage,
       type: mimeType,
       mimeType,
+      size: fileBuffer.length,
       url: `/api/image/image/getImageContent?id=${targetImage.id}`,
       isProcessed: false,
       storage: {
