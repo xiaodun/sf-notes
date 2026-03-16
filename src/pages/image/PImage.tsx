@@ -715,34 +715,37 @@ const PImage: FC<IPImageProps> = (props) => {
     }
     setCompressLoading(true);
     try {
-      const compressionSourceUrl = originalImageUrl || selectedImage.url;
-      const targetBytes = Math.max(1, Math.round(compressionSize * 1024 * 1024));
-      const currentStats = await getImageStats(compressionSourceUrl);
+      const compressionLevel = Math.max(1, Math.round(compressionSize * 1024));
+      const rsp = await SImage.compress(selectedImage, compressionLevel);
       if (activeImageIdRef.current !== operatingImageId) {
         return;
       }
-      if (currentStats.size > 0 && targetBytes >= currentStats.size) {
-        message.info("目标大小大于当前大小，无需压缩");
-        return;
+      if (rsp.success) {
+        const content = (rsp as any).data?.content || (rsp as any).data?.data?.content;
+        const mimeType = (rsp as any).data?.mimeType || (rsp as any).data?.data?.mimeType;
+        const size = (rsp as any).data?.size || (rsp as any).data?.data?.size;
+        const width = (rsp as any).data?.width || (rsp as any).data?.data?.width;
+        const height = (rsp as any).data?.height || (rsp as any).data?.data?.height;
+        if (!content || !mimeType) {
+          message.error("压缩结果无效");
+          return;
+        }
+        const nextUrl = `data:${mimeType};base64,${content}`;
+        setSelectedImage((prev) =>
+          prev && prev.id === operatingImageId
+            ? {
+                ...prev,
+                url: nextUrl,
+              }
+            : prev
+        );
+        setCroppedImageSize({
+          width: Number(width) || croppedImageSize.width,
+          height: Number(height) || croppedImageSize.height,
+          size: Number(size) || 0,
+        });
+        setShowCropStats(true);
       }
-      const compressed = await compressImageToTarget(compressionSourceUrl, targetBytes);
-      if (activeImageIdRef.current !== operatingImageId) {
-        return;
-      }
-      setSelectedImage((prev) =>
-        prev && prev.id === operatingImageId
-          ? {
-              ...prev,
-              url: compressed.dataUrl,
-            }
-          : prev
-      );
-      setCroppedImageSize({
-        width: compressed.width,
-        height: compressed.height,
-        size: compressed.size,
-      });
-      setShowCropStats(true);
     } catch (error) {
       message.error("压缩失败");
     } finally {
@@ -807,98 +810,6 @@ const PImage: FC<IPImageProps> = (props) => {
 
   function getNameWithoutExt(name: string) {
     return name.replace(/\.[^/.]+$/, "");
-  }
-
-  async function compressImageToTarget(url: string, targetBytes: number) {
-    const img = await loadImage(url);
-    const sourceMime = url.match(/^data:(image\/[^;]+);/)?.[1] || "image/jpeg";
-    const mimeCandidates = sourceMime === "image/png"
-      ? ["image/png", "image/jpeg"]
-      : sourceMime === "image/webp" || sourceMime === "image/jpeg"
-        ? [sourceMime]
-        : ["image/jpeg"];
-    const scaleFactors = [1, 0.96, 0.92, 0.88, 0.84, 0.8, 0.76, 0.72, 0.68, 0.64, 0.6, 0.56, 0.52, 0.48, 0.44, 0.4];
-    let best = renderCompressedImage(
-      img,
-      Math.max(1, Math.floor(img.naturalWidth * scaleFactors[0])),
-      Math.max(1, Math.floor(img.naturalHeight * scaleFactors[0])),
-      mimeCandidates[0],
-      0.95
-    );
-    let bestDistance = Math.abs(best.size - targetBytes);
-    for (const mimeType of mimeCandidates) {
-      for (const scaleFactor of scaleFactors) {
-        const width = Math.max(1, Math.floor(img.naturalWidth * scaleFactor));
-        const height = Math.max(1, Math.floor(img.naturalHeight * scaleFactor));
-        if (mimeType === "image/png") {
-          const pngCandidate = renderCompressedImage(img, width, height, mimeType, 1);
-          const pngDistance = Math.abs(pngCandidate.size - targetBytes);
-          if (
-            pngDistance < bestDistance ||
-            (pngDistance === bestDistance && pngCandidate.size <= targetBytes && best.size > targetBytes)
-          ) {
-            best = pngCandidate;
-            bestDistance = pngDistance;
-          }
-          continue;
-        }
-        let low = 0.05;
-        let high = 0.99;
-        for (let j = 0; j < 14; j++) {
-          const mid = Number(((low + high) / 2).toFixed(3));
-          const candidate = renderCompressedImage(img, width, height, mimeType, mid);
-          const distance = Math.abs(candidate.size - targetBytes);
-          if (
-            distance < bestDistance ||
-            (distance === bestDistance && candidate.size <= targetBytes && best.size > targetBytes)
-          ) {
-            best = candidate;
-            bestDistance = distance;
-          }
-          if (candidate.size > targetBytes) {
-            high = mid;
-          } else {
-            low = mid;
-          }
-        }
-      }
-    }
-    return best;
-  }
-
-  function renderCompressedImage(
-    img: HTMLImageElement,
-    width: number,
-    height: number,
-    mimeType: string,
-    quality: number
-  ) {
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d");
-    if (ctx) {
-      ctx.clearRect(0, 0, width, height);
-      ctx.drawImage(img, 0, 0, width, height);
-    }
-    const dataUrl = canvas.toDataURL(mimeType, quality);
-    const base64Content = dataUrl.split(",")[1] || "";
-    const size = Math.ceil((base64Content.length * 3) / 4);
-    return {
-      dataUrl,
-      size,
-      width,
-      height,
-    };
-  }
-
-  async function loadImage(url: string) {
-    return new Promise<HTMLImageElement>((resolve, reject) => {
-      const image = new Image();
-      image.onload = () => resolve(image);
-      image.onerror = () => reject(new Error("load image failed"));
-      image.src = url;
-    });
   }
 
   async function getImageStats(url: string) {
