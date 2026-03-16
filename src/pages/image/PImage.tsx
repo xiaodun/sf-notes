@@ -33,6 +33,7 @@ const PImage: FC<IPImageProps> = (props) => {
   const [imageDisplaySize, setImageDisplaySize] = useState({ width: 0, height: 0 });
   const [initialImageSize, setInitialImageSize] = useState({ width: 0, height: 0, size: 0 });
   const [croppedImageSize, setCroppedImageSize] = useState({ width: 0, height: 0, size: 0 });
+  const [currentImageName, setCurrentImageName] = useState("");
   const uploadConfigMapRef = useRef<Map<File, NImage.IUploadConfig>>(new Map());
   const optionConfigMapRef = useRef<Map<string, NImage.IOptioncConfig>>(
     new Map()
@@ -49,6 +50,7 @@ const PImage: FC<IPImageProps> = (props) => {
 
   useEffect(() => {
     if (selectedImage && selectedImage.url) {
+      setCurrentImageName(getNameWithoutExt(selectedImage.name || selectedImage.originalName || ""));
       let ignore = false;
       const currentImageId = selectedImage.id;
       getImageStats(selectedImage.url).then((imageStats) => {
@@ -194,8 +196,12 @@ const PImage: FC<IPImageProps> = (props) => {
             <div className={SelfStyle.imageInfo}>
               <Typography.Text strong>初始大小:</Typography.Text>
               <Typography.Text>{formatSize(initialImageSize.size)}</Typography.Text>
-              <Typography.Text style={{ marginLeft: "12px" }} strong>裁剪后大小:</Typography.Text>
-              <Typography.Text>{formatSize(croppedImageSize.size)}</Typography.Text>
+              {initialImageSize.size !== croppedImageSize.size && (
+                <>
+                  <Typography.Text style={{ marginLeft: "12px" }} strong>裁剪后大小:</Typography.Text>
+                  <Typography.Text>{formatSize(croppedImageSize.size)}</Typography.Text>
+                </>
+              )}
             </div>
 
             <div className={SelfStyle.formItem}>
@@ -208,6 +214,14 @@ const PImage: FC<IPImageProps> = (props) => {
                 min={1}
               />
               <Typography.Text style={{ marginLeft: '10px' }}>KB</Typography.Text>
+            </div>
+            <div className={SelfStyle.formItem}>
+              <Typography.Text strong>图片名称:</Typography.Text>
+              <Input
+                value={currentImageName}
+                onChange={(e) => onChangeSelectedImageName(e.target.value)}
+                placeholder="请输入图片名称"
+              />
             </div>
           </div>
 
@@ -260,6 +274,20 @@ const PImage: FC<IPImageProps> = (props) => {
         })}
         onClick={() => params.item && setSelectedImage(params.item)}
       >
+        {!params.uploadLoading && params.item && (
+          <div className={SelfStyle.previewItemHeader}>
+            <Button
+              danger
+              shape="circle"
+              size="small"
+              icon={<DeleteOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelImage(params.item!);
+              }}
+            />
+          </div>
+        )}
         <div className={SelfStyle.imageWrapper}>
           {params.uploadLoading ? (
             <div className={SelfStyle.placeholder}>
@@ -269,20 +297,7 @@ const PImage: FC<IPImageProps> = (props) => {
               </div>
             </div>
           ) : params.item ? (
-            <>
-              <img src={params.item.url} alt={params.item.originalName} />
-              <Button
-                danger
-                shape="circle"
-                size="small"
-                icon={<DeleteOutlined />}
-                className={SelfStyle.previewDeleteBtn}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelImage(params.item!);
-                }}
-              />
-            </>
+            <img src={params.item.url} alt={params.item.originalName} />
           ) : null}
         </div>
         <Typography.Text className={SelfStyle.name} ellipsis>
@@ -326,6 +341,13 @@ const PImage: FC<IPImageProps> = (props) => {
         refreshView();
       }
     });
+  }
+
+  function onChangeSelectedImageName(name: string) {
+    if (!selectedImage) {
+      return;
+    }
+    setCurrentImageName(name);
   }
 
   function customRequest({ file }: RcCustomRequestOptions) {
@@ -548,7 +570,6 @@ const PImage: FC<IPImageProps> = (props) => {
             ...prev,
             url: croppedImageUrl
           } : prev);
-          message.success('图片裁剪成功');
         }
       }
     }
@@ -576,10 +597,11 @@ const PImage: FC<IPImageProps> = (props) => {
       message.error("请选择图片");
       return;
     }
-    const overwriteName = selectedImage.originalName || selectedImage.name || "image.png";
+    const overwriteName = currentImageName || selectedImage.name || "image";
     const rsp = await SImage.overwrite(selectedImage, overwriteName, compressionSize);
     if (rsp.success) {
-      message.success("图片覆盖成功");
+      selectedImageIdRef.current = "";
+      setInitialImageSize(croppedImageSize);
       getList();
     }
   }
@@ -597,7 +619,11 @@ const PImage: FC<IPImageProps> = (props) => {
   }
 
   function getDownloadName(image: NImage) {
-    return image.originalName || image.name || "image.png";
+    return currentImageName || image.name || "image";
+  }
+
+  function getNameWithoutExt(name: string) {
+    return name.replace(/\.[^/.]+$/, "");
   }
 
   async function getImageStats(url: string) {
