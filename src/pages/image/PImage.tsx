@@ -237,22 +237,25 @@ const PImage: FC<IPImageProps> = (props) => {
                       placeholder="请输入压缩后的大小（M）"
                       min={1}
                       addonAfter={
-                        <Space size={8}>
+                        <Space
+                          size={8}
+                          onClick={() => {
+                            if (!compressLoading) {
+                              handleCompress();
+                            }
+                          }}
+                          style={{
+                            cursor: compressLoading ? "not-allowed" : "pointer",
+                            userSelect: "none",
+                          }}
+                        >
                           <Typography.Text type="secondary">
                             {(Math.max(0, Number(compressionSize) || 0) * 1024).toFixed(0)} KB
                           </Typography.Text>
-                          <Button
-                            type="link"
-                            size="small"
-                            loading={compressLoading}
-                            onClick={handleCompress}
-                          >
-                            压缩
-                          </Button>
+                          <Typography.Text>{compressLoading ? "压缩中..." : "压缩"}</Typography.Text>
                         </Space>
                       }
-                    >
-                    </Input>
+                    />
                   </div>
                 </div>
               </div>
@@ -694,8 +697,14 @@ const PImage: FC<IPImageProps> = (props) => {
     }
     setCompressLoading(true);
     try {
+      const compressionSourceUrl = originalImageUrl || selectedImage.url;
       const targetBytes = Math.max(1, Math.round(compressionSize * 1024 * 1024));
-      const compressed = await compressImageToTarget(selectedImage.url, targetBytes);
+      const currentStats = await getImageStats(compressionSourceUrl);
+      if (currentStats.size > 0 && targetBytes >= currentStats.size) {
+        message.info("目标大小大于当前大小，无需压缩");
+        return;
+      }
+      const compressed = await compressImageToTarget(compressionSourceUrl, targetBytes);
       setSelectedImage((prev) =>
         prev
           ? {
@@ -744,6 +753,7 @@ const PImage: FC<IPImageProps> = (props) => {
     const rsp = await SImage.overwrite(selectedImage, overwriteName, compressionLevel);
     if (rsp.success) {
       selectedImageIdRef.current = "";
+      originalImageIdRef.current = "";
       setInitialImageSize(croppedImageSize);
       setShowCropStats(false);
       getList();
@@ -774,43 +784,49 @@ const PImage: FC<IPImageProps> = (props) => {
   async function compressImageToTarget(url: string, targetBytes: number) {
     const img = await loadImage(url);
     const sourceMime = url.match(/^data:(image\/[^;]+);/)?.[1] || "image/jpeg";
-    const mimeType =
-      sourceMime === "image/jpeg" || sourceMime === "image/webp"
-        ? sourceMime
-        : "image/jpeg";
-    let width = img.naturalWidth;
-    let height = img.naturalHeight;
-    let quality = 0.92;
-    let best = renderCompressedImage(img, width, height, mimeType, quality);
-    if (best.size <= targetBytes) {
-      return best;
-    }
-    for (let i = 0; i < 8; i++) {
-      let low = 0.3;
-      let high = quality;
-      let candidate = best;
-      for (let j = 0; j < 7; j++) {
-        const mid = Number(((low + high) / 2).toFixed(2));
-        const current = renderCompressedImage(img, width, height, mimeType, mid);
-        if (current.size <= targetBytes) {
-          candidate = current;
-          low = mid;
-        } else {
-          high = mid;
+    const mimeCandidates = sourceMime === "image/png"
+      ? ["image/png", "image/jpeg"]
+      : sourceMime === "image/webp" || sourceMime === "image/jpeg"
+        ? [sourceMime]
+        : ["image/jpeg"];
+    const scaleFactors = [1, 0.92, 0.85, 0.78, 0.72, 0.66, 0.6, 0.54, 0.48, 0.42];
+    let best = renderCompressedImage(
+      img,
+      Math.max(1, Math.floor(img.naturalWidth * scaleFactors[0])),
+      Math.max(1, Math.floor(img.naturalHeight * scaleFactors[0])),
+      mimeCandidates[0],
+      0.95
+    );
+    let bestScore = scoreCompressedCandidate(best.size, targetBytes);
+    for (const mimeType of mimeCandidates) {
+      for (const scaleFactor of scaleFactors) {
+        const width = Math.max(1, Math.floor(img.naturalWidth * scaleFactor));
+        const height = Math.max(1, Math.floor(img.naturalHeight * scaleFactor));
+        if (mimeType === "image/png") {
+          const pngCandidate = renderCompressedImage(img, width, height, mimeType, 1);
+          const pngScore = scoreCompressedCandidate(pngCandidate.size, targetBytes);
+          if (pngScore < bestScore) {
+            best = pngCandidate;
+            bestScore = pngScore;
+          }
+          continue;
         }
-      }
-      best = candidate;
-      if (best.size <= targetBytes) {
-        return best;
-      }
-      const ratio = Math.sqrt(targetBytes / best.size) * 0.95;
-      const nextRatio = Math.min(0.95, Math.max(0.6, ratio));
-      width = Math.max(1, Math.floor(width * nextRatio));
-      height = Math.max(1, Math.floor(height * nextRatio));
-      quality = Math.max(0.3, quality * 0.9);
-      best = renderCompressedImage(img, width, height, mimeType, quality);
-      if (best.size <= targetBytes) {
-        return best;
+        let low = 0.05;
+        let high = 0.99;
+        for (let j = 0; j < 12; j++) {
+          const mid = Number(((low + high) / 2).toFixed(3));
+          const candidate = renderCompressedImage(img, width, height, mimeType, mid);
+          const score = scoreCompressedCandidate(candidate.size, targetBytes);
+          if (score < bestScore) {
+            best = candidate;
+            bestScore = score;
+          }
+          if (candidate.size > targetBytes) {
+            high = mid;
+          } else {
+            low = mid;
+          }
+        }
       }
     }
     return best;
@@ -888,6 +904,12 @@ const PImage: FC<IPImageProps> = (props) => {
       return `${(size / 1024).toFixed(2)} KB`;
     }
     return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+  }
+
+  function scoreCompressedCandidate(size: number, targetBytes: number) {
+    const diffRatio = Math.abs(size - targetBytes) / Math.max(targetBytes, 1);
+    const exceedPenalty = size > targetBytes ? 0.08 : 0;
+    return diffRatio + exceedPenalty;
   }
 
   function clamp(value: number, min: number, max: number) {
