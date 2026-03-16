@@ -30,6 +30,7 @@ type ResizeHandle =
 
 const MIN_CROP_SIZE = 40;
 const EDGE_HIT_SIZE = 14;
+const PIMAGE_SELECTED_ID_KEY = "pimage.selected.id";
 const PImage: FC<IPImageProps> = (props) => {
   const [imageRsp, setImageRsp] = useState<NRsp<NImage>>({
     list: [],
@@ -60,6 +61,7 @@ const PImage: FC<IPImageProps> = (props) => {
   const rightSectionRef = useRef<HTMLDivElement>(null);
   const selectedImageIdRef = useRef<string>();
   const originalImageIdRef = useRef<string>();
+  const activeImageIdRef = useRef<string>();
 
   const refreshView = useRefreshView();
 
@@ -115,6 +117,10 @@ const PImage: FC<IPImageProps> = (props) => {
 
   useEffect(() => {
     setShowCropStats(false);
+  }, [selectedImage?.id]);
+
+  useEffect(() => {
+    activeImageIdRef.current = selectedImage?.id;
   }, [selectedImage?.id]);
   
   const drawCropCanvas = () => {
@@ -364,7 +370,7 @@ const PImage: FC<IPImageProps> = (props) => {
         className={classNames(SelfStyle.itemWrap, {
           [SelfStyle.selected]: isSelected
         })}
-        onClick={() => params.item && setSelectedImage(params.item)}
+        onClick={() => params.item && setSelectedImageWithRemember(params.item)}
       >
         {!params.uploadLoading && params.item && (
           <div className={SelfStyle.previewItemHeader}>
@@ -403,7 +409,7 @@ const PImage: FC<IPImageProps> = (props) => {
         >
           {params.uploadLoading && (
             <div className={SelfStyle.loadingWrap}>
-              {floor((params.loaded * 100) / params.total, 2)}%
+              {Math.floor((((params.loaded || 0) * 100) / Math.max(params.total || 1, 1)) * 100) / 100}%
             </div>
           )}
         </div>
@@ -427,7 +433,7 @@ const PImage: FC<IPImageProps> = (props) => {
         
         if (selectedImage?.id === image.id) {
           const nextSelected = newArgRsp.list[0];
-          setSelectedImage(nextSelected);
+          setSelectedImageWithRemember(nextSelected);
         }
 
         refreshView();
@@ -463,11 +469,14 @@ const PImage: FC<IPImageProps> = (props) => {
     if (rsp.success) {
       const nextRsp = await withImageContent(rsp);
       setImageRsp(nextRsp);
-      setSelectedImage((prev) => {
-        if (!nextRsp.list?.length) return undefined;
-        if (!prev) return nextRsp.list[0];
-        return nextRsp.list.find((item) => item.id === prev.id) || nextRsp.list[0];
-      });
+      if (!nextRsp.list?.length) {
+        setSelectedImageWithRemember(undefined);
+        return;
+      }
+      const preferredId = activeImageIdRef.current || getRememberedSelectedImageId();
+      const nextSelected =
+        nextRsp.list.find((item) => item.id === preferredId) || nextRsp.list[0];
+      setSelectedImageWithRemember(nextSelected);
     }
   }
 
@@ -501,11 +510,14 @@ const PImage: FC<IPImageProps> = (props) => {
     if (rsp.success) {
       const finalRsp = await withImageContent(rsp);
       setImageRsp(finalRsp);
-      setSelectedImage((prev) => {
-        if (!finalRsp.list?.length) return undefined;
-        if (!prev) return finalRsp.list[0];
-        return finalRsp.list.find((item) => item.id === prev.id) || finalRsp.list[0];
-      });
+      if (!finalRsp.list?.length) {
+        setSelectedImageWithRemember(undefined);
+        return;
+      }
+      const preferredId = activeImageIdRef.current || getRememberedSelectedImageId();
+      const nextSelected =
+        finalRsp.list.find((item) => item.id === preferredId) || finalRsp.list[0];
+      setSelectedImageWithRemember(nextSelected);
     }
   }
 
@@ -614,6 +626,7 @@ const PImage: FC<IPImageProps> = (props) => {
   function handleCropConfirm() {
     const img = imageRef.current;
     if (img && selectedImage) {
+      const operatingImageId = selectedImage.id;
       const scaleX = img.naturalWidth / imageDisplaySize.width;
       const scaleY = img.naturalHeight / imageDisplaySize.height;
       const sourceX = clamp(Math.floor(cropArea.x * scaleX), 0, Math.max(0, img.naturalWidth - 1));
@@ -666,10 +679,14 @@ const PImage: FC<IPImageProps> = (props) => {
           size: nextSize,
         });
         setShowCropStats(true);
-        setSelectedImage(prev => prev ? {
-          ...prev,
-          url: croppedImageUrl
-        } : prev);
+        setSelectedImage((prev) =>
+          prev && prev.id === operatingImageId
+            ? {
+                ...prev,
+                url: croppedImageUrl,
+              }
+            : prev
+        );
       }
     }
   }
@@ -691,6 +708,7 @@ const PImage: FC<IPImageProps> = (props) => {
       message.error("请选择图片");
       return;
     }
+    const operatingImageId = selectedImage.id;
     if (!compressionSize || compressionSize <= 0) {
       message.error("请输入有效的压缩大小");
       return;
@@ -700,13 +718,19 @@ const PImage: FC<IPImageProps> = (props) => {
       const compressionSourceUrl = originalImageUrl || selectedImage.url;
       const targetBytes = Math.max(1, Math.round(compressionSize * 1024 * 1024));
       const currentStats = await getImageStats(compressionSourceUrl);
+      if (activeImageIdRef.current !== operatingImageId) {
+        return;
+      }
       if (currentStats.size > 0 && targetBytes >= currentStats.size) {
         message.info("目标大小大于当前大小，无需压缩");
         return;
       }
       const compressed = await compressImageToTarget(compressionSourceUrl, targetBytes);
+      if (activeImageIdRef.current !== operatingImageId) {
+        return;
+      }
       setSelectedImage((prev) =>
-        prev
+        prev && prev.id === operatingImageId
           ? {
               ...prev,
               url: compressed.dataUrl,
@@ -748,9 +772,13 @@ const PImage: FC<IPImageProps> = (props) => {
       message.error("请选择图片");
       return;
     }
+    const operatingImageId = selectedImage.id;
     const overwriteName = currentImageName || selectedImage.name || "image";
     const compressionLevel = Math.max(1, Math.round(compressionSize * 1024));
     const rsp = await SImage.overwrite(selectedImage, overwriteName, compressionLevel);
+    if (activeImageIdRef.current !== operatingImageId) {
+      return;
+    }
     if (rsp.success) {
       selectedImageIdRef.current = "";
       originalImageIdRef.current = "";
@@ -789,7 +817,7 @@ const PImage: FC<IPImageProps> = (props) => {
       : sourceMime === "image/webp" || sourceMime === "image/jpeg"
         ? [sourceMime]
         : ["image/jpeg"];
-    const scaleFactors = [1, 0.92, 0.85, 0.78, 0.72, 0.66, 0.6, 0.54, 0.48, 0.42];
+    const scaleFactors = [1, 0.96, 0.92, 0.88, 0.84, 0.8, 0.76, 0.72, 0.68, 0.64, 0.6, 0.56, 0.52, 0.48, 0.44, 0.4];
     let best = renderCompressedImage(
       img,
       Math.max(1, Math.floor(img.naturalWidth * scaleFactors[0])),
@@ -797,29 +825,35 @@ const PImage: FC<IPImageProps> = (props) => {
       mimeCandidates[0],
       0.95
     );
-    let bestScore = scoreCompressedCandidate(best.size, targetBytes);
+    let bestDistance = Math.abs(best.size - targetBytes);
     for (const mimeType of mimeCandidates) {
       for (const scaleFactor of scaleFactors) {
         const width = Math.max(1, Math.floor(img.naturalWidth * scaleFactor));
         const height = Math.max(1, Math.floor(img.naturalHeight * scaleFactor));
         if (mimeType === "image/png") {
           const pngCandidate = renderCompressedImage(img, width, height, mimeType, 1);
-          const pngScore = scoreCompressedCandidate(pngCandidate.size, targetBytes);
-          if (pngScore < bestScore) {
+          const pngDistance = Math.abs(pngCandidate.size - targetBytes);
+          if (
+            pngDistance < bestDistance ||
+            (pngDistance === bestDistance && pngCandidate.size <= targetBytes && best.size > targetBytes)
+          ) {
             best = pngCandidate;
-            bestScore = pngScore;
+            bestDistance = pngDistance;
           }
           continue;
         }
         let low = 0.05;
         let high = 0.99;
-        for (let j = 0; j < 12; j++) {
+        for (let j = 0; j < 14; j++) {
           const mid = Number(((low + high) / 2).toFixed(3));
           const candidate = renderCompressedImage(img, width, height, mimeType, mid);
-          const score = scoreCompressedCandidate(candidate.size, targetBytes);
-          if (score < bestScore) {
+          const distance = Math.abs(candidate.size - targetBytes);
+          if (
+            distance < bestDistance ||
+            (distance === bestDistance && candidate.size <= targetBytes && best.size > targetBytes)
+          ) {
             best = candidate;
-            bestScore = score;
+            bestDistance = distance;
           }
           if (candidate.size > targetBytes) {
             high = mid;
@@ -906,14 +940,27 @@ const PImage: FC<IPImageProps> = (props) => {
     return `${(size / (1024 * 1024)).toFixed(2)} MB`;
   }
 
-  function scoreCompressedCandidate(size: number, targetBytes: number) {
-    const diffRatio = Math.abs(size - targetBytes) / Math.max(targetBytes, 1);
-    const exceedPenalty = size > targetBytes ? 0.08 : 0;
-    return diffRatio + exceedPenalty;
-  }
-
   function clamp(value: number, min: number, max: number) {
     return Math.min(Math.max(value, min), max);
+  }
+
+  function setSelectedImageWithRemember(image?: NImage) {
+    setSelectedImage(image);
+    if (typeof window === "undefined") {
+      return;
+    }
+    if (image?.id) {
+      window.localStorage.setItem(PIMAGE_SELECTED_ID_KEY, image.id);
+    } else {
+      window.localStorage.removeItem(PIMAGE_SELECTED_ID_KEY);
+    }
+  }
+
+  function getRememberedSelectedImageId() {
+    if (typeof window === "undefined") {
+      return "";
+    }
+    return window.localStorage.getItem(PIMAGE_SELECTED_ID_KEY) || "";
   }
 
   function getCursorByHandle(handle: ResizeHandle) {
