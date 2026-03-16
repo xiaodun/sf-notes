@@ -35,7 +35,7 @@ const PImage: FC<IPImageProps> = (props) => {
     list: [],
   });
   const [selectedImage, setSelectedImage] = useState<NImage>();
-  const [compressionSize, setCompressionSize] = useState(100); // 默认压缩到100KB
+  const [compressionSize, setCompressionSize] = useState(1);
   const [isCropping, setIsCropping] = useState(true);
   const [cropArea, setCropArea] = useState({ x: 0, y: 0, width: 400, height: 300 });
   const [isDragging, setIsDragging] = useState(false);
@@ -49,6 +49,7 @@ const PImage: FC<IPImageProps> = (props) => {
   const [croppedImageSize, setCroppedImageSize] = useState({ width: 0, height: 0, size: 0 });
   const [showCropStats, setShowCropStats] = useState(false);
   const [currentImageName, setCurrentImageName] = useState("");
+  const [compressLoading, setCompressLoading] = useState(false);
   const [originalImageUrl, setOriginalImageUrl] = useState("");
   const uploadConfigMapRef = useRef<Map<File, NImage.IUploadConfig>>(new Map());
   const optionConfigMapRef = useRef<Map<string, NImage.IOptioncConfig>>(
@@ -228,6 +229,31 @@ const PImage: FC<IPImageProps> = (props) => {
                   <div style={{ marginTop: '10px' }}>
                     <Button type="primary" onClick={handleCropConfirm}>确认裁剪</Button>
                   </div>
+                  <div className={SelfStyle.compressActionWrap}>
+                    <Input
+                      type="number"
+                      value={compressionSize}
+                      onChange={(e) => setCompressionSize(Number(e.target.value))}
+                      placeholder="请输入压缩后的大小（M）"
+                      min={1}
+                      addonAfter={
+                        <Space size={8}>
+                          <Typography.Text type="secondary">
+                            {(Math.max(0, Number(compressionSize) || 0) * 1024).toFixed(0)} KB
+                          </Typography.Text>
+                          <Button
+                            type="link"
+                            size="small"
+                            loading={compressLoading}
+                            onClick={handleCompress}
+                          >
+                            压缩
+                          </Button>
+                        </Space>
+                      }
+                    >
+                    </Input>
+                  </div>
                 </div>
               </div>
 
@@ -261,17 +287,6 @@ const PImage: FC<IPImageProps> = (props) => {
               )}
 
               <div className={SelfStyle.formItem}>
-                <Typography.Text strong>压缩大小:</Typography.Text>
-                <Input
-                  type="number"
-                  value={compressionSize}
-                  onChange={(e) => setCompressionSize(Number(e.target.value))}
-                  placeholder="请输入压缩后的大小（KB）"
-                  min={1}
-                />
-                <Typography.Text style={{ marginLeft: '10px' }}>KB</Typography.Text>
-              </div>
-              <div className={SelfStyle.formItem}>
                 <Typography.Text strong>图片名称:</Typography.Text>
                 <Input
                   value={currentImageName}
@@ -296,9 +311,7 @@ const PImage: FC<IPImageProps> = (props) => {
               </Space>
             </div>
           </div>
-        ) : (
-          <div className={SelfStyle.emptyState}>请选择左侧图片进行编辑</div>
-        )}
+        ) : null}
       </div>
     </div>
   );
@@ -670,6 +683,40 @@ const PImage: FC<IPImageProps> = (props) => {
     setShowCropStats(false);
   }
 
+  async function handleCompress() {
+    if (!selectedImage?.url) {
+      message.error("请选择图片");
+      return;
+    }
+    if (!compressionSize || compressionSize <= 0) {
+      message.error("请输入有效的压缩大小");
+      return;
+    }
+    setCompressLoading(true);
+    try {
+      const targetBytes = Math.max(1, Math.round(compressionSize * 1024 * 1024));
+      const compressed = await compressImageToTarget(selectedImage.url, targetBytes);
+      setSelectedImage((prev) =>
+        prev
+          ? {
+              ...prev,
+              url: compressed.dataUrl,
+            }
+          : prev
+      );
+      setCroppedImageSize({
+        width: compressed.width,
+        height: compressed.height,
+        size: compressed.size,
+      });
+      setShowCropStats(true);
+    } catch (error) {
+      message.error("压缩失败");
+    } finally {
+      setCompressLoading(false);
+    }
+  }
+
   async function handleDownload() {
     if (!selectedImage?.url) {
       message.error("请选择图片");
@@ -693,10 +740,12 @@ const PImage: FC<IPImageProps> = (props) => {
       return;
     }
     const overwriteName = currentImageName || selectedImage.name || "image";
-    const rsp = await SImage.overwrite(selectedImage, overwriteName, compressionSize);
+    const compressionLevel = Math.max(1, Math.round(compressionSize * 1024));
+    const rsp = await SImage.overwrite(selectedImage, overwriteName, compressionLevel);
     if (rsp.success) {
       selectedImageIdRef.current = "";
       setInitialImageSize(croppedImageSize);
+      setShowCropStats(false);
       getList();
     }
   }
@@ -720,6 +769,86 @@ const PImage: FC<IPImageProps> = (props) => {
 
   function getNameWithoutExt(name: string) {
     return name.replace(/\.[^/.]+$/, "");
+  }
+
+  async function compressImageToTarget(url: string, targetBytes: number) {
+    const img = await loadImage(url);
+    const sourceMime = url.match(/^data:(image\/[^;]+);/)?.[1] || "image/jpeg";
+    const mimeType =
+      sourceMime === "image/jpeg" || sourceMime === "image/webp"
+        ? sourceMime
+        : "image/jpeg";
+    let width = img.naturalWidth;
+    let height = img.naturalHeight;
+    let quality = 0.92;
+    let best = renderCompressedImage(img, width, height, mimeType, quality);
+    if (best.size <= targetBytes) {
+      return best;
+    }
+    for (let i = 0; i < 8; i++) {
+      let low = 0.3;
+      let high = quality;
+      let candidate = best;
+      for (let j = 0; j < 7; j++) {
+        const mid = Number(((low + high) / 2).toFixed(2));
+        const current = renderCompressedImage(img, width, height, mimeType, mid);
+        if (current.size <= targetBytes) {
+          candidate = current;
+          low = mid;
+        } else {
+          high = mid;
+        }
+      }
+      best = candidate;
+      if (best.size <= targetBytes) {
+        return best;
+      }
+      const ratio = Math.sqrt(targetBytes / best.size) * 0.95;
+      const nextRatio = Math.min(0.95, Math.max(0.6, ratio));
+      width = Math.max(1, Math.floor(width * nextRatio));
+      height = Math.max(1, Math.floor(height * nextRatio));
+      quality = Math.max(0.3, quality * 0.9);
+      best = renderCompressedImage(img, width, height, mimeType, quality);
+      if (best.size <= targetBytes) {
+        return best;
+      }
+    }
+    return best;
+  }
+
+  function renderCompressedImage(
+    img: HTMLImageElement,
+    width: number,
+    height: number,
+    mimeType: string,
+    quality: number
+  ) {
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      ctx.clearRect(0, 0, width, height);
+      ctx.drawImage(img, 0, 0, width, height);
+    }
+    const dataUrl = canvas.toDataURL(mimeType, quality);
+    const base64Content = dataUrl.split(",")[1] || "";
+    const size = Math.ceil((base64Content.length * 3) / 4);
+    return {
+      dataUrl,
+      size,
+      width,
+      height,
+    };
+  }
+
+  async function loadImage(url: string) {
+    return new Promise<HTMLImageElement>((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error("load image failed"));
+      image.src = url;
+    });
   }
 
   async function getImageStats(url: string) {
