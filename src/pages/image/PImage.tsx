@@ -4,13 +4,12 @@ import { UDownload } from "@/common/utils/UDownload";
 import {
   DeleteOutlined,
   DownloadOutlined,
-  PlusOutlined,
   InboxOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
 import { Button, Space, Typography, Upload, Input, message } from "antd";
 import { RcCustomRequestOptions } from "antd/lib/upload/interface";
 import { produce } from "immer";
-import { floor } from "lodash";
 import React, { FC, ReactNode, useEffect, useRef, useState } from "react";
 import SelfStyle from "./LImage.less";
 import NImage from "./NImage";
@@ -48,7 +47,9 @@ const PImage: FC<IPImageProps> = (props) => {
   const [cropMaxWidth, setCropMaxWidth] = useState(900);
   const [initialImageSize, setInitialImageSize] = useState({ width: 0, height: 0, size: 0 });
   const [croppedImageSize, setCroppedImageSize] = useState({ width: 0, height: 0, size: 0 });
+  const [showCropStats, setShowCropStats] = useState(false);
   const [currentImageName, setCurrentImageName] = useState("");
+  const [originalImageUrl, setOriginalImageUrl] = useState("");
   const uploadConfigMapRef = useRef<Map<File, NImage.IUploadConfig>>(new Map());
   const optionConfigMapRef = useRef<Map<string, NImage.IOptioncConfig>>(
     new Map()
@@ -57,6 +58,7 @@ const PImage: FC<IPImageProps> = (props) => {
   const imageRef = useRef<HTMLImageElement>(null);
   const rightSectionRef = useRef<HTMLDivElement>(null);
   const selectedImageIdRef = useRef<string>();
+  const originalImageIdRef = useRef<string>();
 
   const refreshView = useRefreshView();
 
@@ -82,6 +84,10 @@ const PImage: FC<IPImageProps> = (props) => {
       setCurrentImageName(getNameWithoutExt(selectedImage.name || selectedImage.originalName || ""));
       let ignore = false;
       const currentImageId = selectedImage.id;
+      if (originalImageIdRef.current !== currentImageId) {
+        originalImageIdRef.current = currentImageId;
+        setOriginalImageUrl(selectedImage.url);
+      }
       getImageStats(selectedImage.url).then((imageStats) => {
         if (ignore) {
           return;
@@ -105,6 +111,10 @@ const PImage: FC<IPImageProps> = (props) => {
       };
     }
   }, [selectedImage, cropMaxWidth]);
+
+  useEffect(() => {
+    setShowCropStats(false);
+  }, [selectedImage?.id]);
   
   const drawCropCanvas = () => {
     const canvas = canvasRef.current;
@@ -221,16 +231,34 @@ const PImage: FC<IPImageProps> = (props) => {
                 </div>
               </div>
 
-              <div className={SelfStyle.imageInfo}>
-                <Typography.Text strong>初始大小:</Typography.Text>
-                <Typography.Text>{formatSize(initialImageSize.size)}</Typography.Text>
-                {initialImageSize.size !== croppedImageSize.size && (
-                  <>
-                    <Typography.Text style={{ marginLeft: "12px" }} strong>裁剪后大小:</Typography.Text>
-                    <Typography.Text>{formatSize(croppedImageSize.size)}</Typography.Text>
-                  </>
-                )}
-              </div>
+              {initialImageSize.width > 0 && (
+                <div className={SelfStyle.cropStatsBar}>
+                  <div className={SelfStyle.cropStatsLayout}>
+                    <div className={SelfStyle.cropStatsBlock}>
+                      <span className={SelfStyle.cropStatsValue}>
+                        {initialImageSize.width} × {initialImageSize.height}
+                      </span>
+                      <span className={SelfStyle.cropStatsValue}>
+                        {formatSize(initialImageSize.size)}
+                      </span>
+                    </div>
+                    {showCropStats && <span className={SelfStyle.cropStatsDivider}>→</span>}
+                    {showCropStats && (
+                      <div className={SelfStyle.cropStatsBlock}>
+                        <span className={SelfStyle.cropStatsValue}>
+                          {croppedImageSize.width} × {croppedImageSize.height}
+                        </span>
+                        <span className={SelfStyle.cropStatsValue}>
+                          {formatSize(croppedImageSize.size)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  {showCropStats && (
+                    <Button size="small" onClick={handleResetCrop}>重置</Button>
+                  )}
+                </div>
+              )}
 
               <div className={SelfStyle.formItem}>
                 <Typography.Text strong>压缩大小:</Typography.Text>
@@ -572,15 +600,25 @@ const PImage: FC<IPImageProps> = (props) => {
     if (img && selectedImage) {
       const scaleX = img.naturalWidth / imageDisplaySize.width;
       const scaleY = img.naturalHeight / imageDisplaySize.height;
-      const sourceX = clamp(Math.round(cropArea.x * scaleX), 0, Math.max(0, img.naturalWidth - 1));
-      const sourceY = clamp(Math.round(cropArea.y * scaleY), 0, Math.max(0, img.naturalHeight - 1));
+      const sourceX = clamp(Math.floor(cropArea.x * scaleX), 0, Math.max(0, img.naturalWidth - 1));
+      const sourceY = clamp(Math.floor(cropArea.y * scaleY), 0, Math.max(0, img.naturalHeight - 1));
+      const sourceRight = clamp(
+        Math.ceil((cropArea.x + cropArea.width) * scaleX),
+        sourceX + 1,
+        img.naturalWidth
+      );
+      const sourceBottom = clamp(
+        Math.ceil((cropArea.y + cropArea.height) * scaleY),
+        sourceY + 1,
+        img.naturalHeight
+      );
       const sourceWidth = clamp(
-        Math.round(cropArea.width * scaleX),
+        sourceRight - sourceX,
         1,
         Math.max(1, img.naturalWidth - sourceX)
       );
       const sourceHeight = clamp(
-        Math.round(cropArea.height * scaleY),
+        sourceBottom - sourceY,
         1,
         Math.max(1, img.naturalHeight - sourceY)
       );
@@ -604,12 +642,32 @@ const PImage: FC<IPImageProps> = (props) => {
         const mimeTypeMatch = selectedImage.url?.match(/^data:(image\/[^;]+);/);
         const outputMimeType = mimeTypeMatch?.[1] || "image/png";
         const croppedImageUrl = cropCanvas.toDataURL(outputMimeType);
+        const base64Content = croppedImageUrl.split(",")[1] || "";
+        const nextSize = Math.ceil((base64Content.length * 3) / 4);
+        setCroppedImageSize({
+          width: sourceWidth,
+          height: sourceHeight,
+          size: nextSize,
+        });
+        setShowCropStats(true);
         setSelectedImage(prev => prev ? {
           ...prev,
           url: croppedImageUrl
         } : prev);
       }
     }
+  }
+
+  function handleResetCrop() {
+    if (!selectedImage || !originalImageUrl) {
+      return;
+    }
+    setSelectedImage({
+      ...selectedImage,
+      url: originalImageUrl,
+    });
+    setCroppedImageSize(initialImageSize);
+    setShowCropStats(false);
   }
 
   async function handleDownload() {
@@ -644,13 +702,15 @@ const PImage: FC<IPImageProps> = (props) => {
   }
 
   function getDisplaySize(width: number, height: number, maxWidth = 600) {
+    const sourceWidth = Math.max(1, Math.round(width));
+    const sourceHeight = Math.max(1, Math.round(height));
     if (width <= maxWidth) {
-      return { width, height };
+      return { width: sourceWidth, height: sourceHeight };
     }
     const ratio = maxWidth / width;
     return {
-      width: maxWidth,
-      height: height * ratio,
+      width: Math.max(1, Math.round(maxWidth)),
+      height: Math.max(1, Math.round(sourceHeight * ratio)),
     };
   }
 
