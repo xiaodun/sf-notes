@@ -1,19 +1,25 @@
 .container {
   padding: 16px;
   width: 100%;
+  height: calc(100vh - 32px);
   display: flex;
   align-items: stretch;
   gap: 16px;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .leftSection {
   display: flex;
   flex-direction: column;
-  width: 300px;
-  min-width: 300px;
-  max-width: 300px;
-  max-height: calc(100vh - 120px);
+  width: 248px;
+  min-width: 248px;
+  max-width: 248px;
+  max-height: calc(100vh - 76px);
+  position: sticky;
+  top: 16px;
+  align-self: flex-start;
+  min-height: 0;
 }
 
 .uploadWrapper {
@@ -29,7 +35,7 @@
 
 .uploadPlus {
   width: 100%;
-  height: 156px;
+  height: 128px;
   border: 2px dashed #1890ff;
   border-radius: 8px;
   display: flex;
@@ -64,6 +70,7 @@
 
 .imageListScroll {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding-right: 4px;
 }
@@ -87,7 +94,7 @@
 }
 
 .previewItemHeader {
-  height: 36px;
+  height: 32px;
   margin: 0 -10px 10px;
   padding: 0 10px;
   display: flex;
@@ -101,7 +108,7 @@
 
 .imageWrapper {
   width: 100%;
-  height: 180px;
+  height: 132px;
   margin-bottom: 10px;
   overflow: hidden;
   border-radius: 4px;
@@ -156,6 +163,7 @@
 .rightSection {
   flex: 1;
   min-width: 0;
+  min-height: 0;
   display: flex;
 }
 
@@ -238,41 +246,75 @@
     position: absolute;
     border: 2px solid #1890ff;
     background-color: rgba(24, 144, 255, 0.1);
-    cursor: move;
+    cursor: inherit;
+    user-select: none;
   }
   
   .cropHandle {
     position: absolute;
-    width: 15px;
-    height: 15px;
+    width: 14px;
+    height: 14px;
     background-color: #1890ff;
     border: 2px solid #fff;
     border-radius: 50%;
     cursor: pointer;
+    box-shadow: 0 0 0 1px rgba(24, 144, 255, 0.25);
   }
   
   .topLeft {
-    top: -8px;
-    left: -8px;
+    top: 0;
+    left: 0;
+    transform: translate(-50%, -50%);
     cursor: nw-resize;
+  }
+
+  .top {
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    cursor: n-resize;
   }
   
   .topRight {
-    top: -8px;
-    right: -8px;
+    top: 0;
+    right: 0;
+    transform: translate(50%, -50%);
     cursor: ne-resize;
+  }
+
+  .right {
+    top: 50%;
+    right: 0;
+    transform: translate(50%, -50%);
+    cursor: e-resize;
   }
   
   .bottomLeft {
-    bottom: -8px;
-    left: -8px;
+    bottom: 0;
+    left: 0;
+    transform: translate(-50%, 50%);
     cursor: sw-resize;
+  }
+
+  .bottom {
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 50%);
+    cursor: s-resize;
   }
   
   .bottomRight {
-    bottom: -8px;
-    right: -8px;
+    bottom: 0;
+    right: 0;
+    transform: translate(50%, 50%);
     cursor: se-resize;
+  }
+
+  .left {
+    top: 50%;
+    left: 0;
+    transform: translate(-50%, -50%);
+    cursor: w-resize;
   }
 }
 
