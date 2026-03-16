@@ -31,6 +31,7 @@ const PImage: FC<IPImageProps> = (props) => {
   const [resizing, setResizing] = useState(false);
   const [resizeHandle, setResizeHandle] = useState('');
   const [imageDisplaySize, setImageDisplaySize] = useState({ width: 0, height: 0 });
+  const [cropMaxWidth, setCropMaxWidth] = useState(900);
   const [initialImageSize, setInitialImageSize] = useState({ width: 0, height: 0, size: 0 });
   const [croppedImageSize, setCroppedImageSize] = useState({ width: 0, height: 0, size: 0 });
   const [currentImageName, setCurrentImageName] = useState("");
@@ -40,12 +41,26 @@ const PImage: FC<IPImageProps> = (props) => {
   );
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+  const rightSectionRef = useRef<HTMLDivElement>(null);
   const selectedImageIdRef = useRef<string>();
 
   const refreshView = useRefreshView();
 
   useEffect(() => {
     getList();
+  }, []);
+
+  useEffect(() => {
+    const updateCropMaxWidth = () => {
+      const rightWidth = rightSectionRef.current?.clientWidth || window.innerWidth;
+      const computedMaxWidth = Math.max(480, Math.floor(rightWidth - 140));
+      setCropMaxWidth(computedMaxWidth);
+    };
+    updateCropMaxWidth();
+    window.addEventListener("resize", updateCropMaxWidth);
+    return () => {
+      window.removeEventListener("resize", updateCropMaxWidth);
+    };
   }, []);
 
   useEffect(() => {
@@ -62,7 +77,7 @@ const PImage: FC<IPImageProps> = (props) => {
           selectedImageIdRef.current = currentImageId;
           setInitialImageSize(imageStats);
         }
-        const displaySize = getDisplaySize(imageStats.width, imageStats.height);
+        const displaySize = getDisplaySize(imageStats.width, imageStats.height, cropMaxWidth);
         setImageDisplaySize(displaySize);
         setCropArea({
           x: 0,
@@ -75,7 +90,7 @@ const PImage: FC<IPImageProps> = (props) => {
         ignore = true;
       };
     }
-  }, [selectedImage]);
+  }, [selectedImage, cropMaxWidth]);
   
   const drawCropCanvas = () => {
     const canvas = canvasRef.current;
@@ -118,131 +133,142 @@ const PImage: FC<IPImageProps> = (props) => {
 
   return (
     <div className={SelfStyle.container}>
-      <div className={SelfStyle.uploadSection}>
-        <Upload
-          multiple
-          className={SelfStyle.uploadWrapper}
-          customRequest={customRequest}
-          showUploadList={false}
-          accept="image/*"
-        >
-          <div className={SelfStyle.uploadPlus}>
-            <PlusOutlined style={{ fontSize: '32px', color: '#1890ff' }} />
-            <div className={SelfStyle.uploadText}>点击上传图片</div>
+      <div className={SelfStyle.leftSection}>
+        {renderUploadTrigger()}
+        <div className={SelfStyle.imageListScroll}>
+          <div className={SelfStyle.imageListWrap}>
+            {renderUploadImageList()}
+            {imageRsp.list.map((item) =>
+              renderImageList({
+                key: item.id,
+                name: item.name,
+                item,
+                uploadLoading: false,
+              })
+            )}
           </div>
-        </Upload>
-        
-        <div className={SelfStyle.imageListWrap}>
-          {renderUploadImageList()}
-          {imageRsp.list.map((item) =>
-            renderImageList({
-              key: item.id,
-              name: item.name,
-              item,
-              uploadLoading: false,
-            })
-          )}
         </div>
       </div>
-      
-      {selectedImage && (
-        <div className={SelfStyle.editSection}>
-          <div className={SelfStyle.formSection}>
-            <div className={SelfStyle.formItem}>
-              <div className={SelfStyle.cropSection}>
-                <div
-                  className={SelfStyle.cropContainer}
-                  style={{ width: `${imageDisplaySize.width}px`, height: `${imageDisplaySize.height}px` }}
-                  onMouseDown={handleCropStart}
-                  onMouseMove={handleCropMove}
-                  onMouseUp={(e) => handleCropEnd(e)}
-                  onMouseLeave={(e) => handleCropEnd(e)}
-                >
-                  <canvas
-                    ref={canvasRef}
-                    className={SelfStyle.canvas}
-                    width={imageDisplaySize.width}
-                    height={imageDisplaySize.height}
-                  />
-                  {selectedImage.url && (
-                    <img
-                      ref={imageRef}
-                      src={selectedImage.url}
-                      alt={selectedImage.originalName}
-                      className={SelfStyle.hiddenImage}
-                    />
-                  )}
+
+      <div className={SelfStyle.rightSection} ref={rightSectionRef}>
+        {selectedImage ? (
+          <div className={SelfStyle.editSection}>
+            <div className={SelfStyle.formSection}>
+              <div className={SelfStyle.formItem}>
+                <div className={SelfStyle.cropSection}>
                   <div
-                    className={SelfStyle.cropOverlay}
-                    style={{
-                      left: `${cropArea.x}px`,
-                      top: `${cropArea.y}px`,
-                      width: `${cropArea.width}px`,
-                      height: `${cropArea.height}px`
-                    }}
+                    className={SelfStyle.cropContainer}
+                    style={{ width: `${imageDisplaySize.width}px`, height: `${imageDisplaySize.height}px` }}
+                    onMouseDown={handleCropStart}
+                    onMouseMove={handleCropMove}
+                    onMouseUp={(e) => handleCropEnd(e)}
+                    onMouseLeave={(e) => handleCropEnd(e)}
                   >
-                    <div className={`${SelfStyle.cropHandle} ${SelfStyle.topLeft}`}></div>
-                    <div className={`${SelfStyle.cropHandle} ${SelfStyle.topRight}`}></div>
-                    <div className={`${SelfStyle.cropHandle} ${SelfStyle.bottomLeft}`}></div>
-                    <div className={`${SelfStyle.cropHandle} ${SelfStyle.bottomRight}`}></div>
+                    <canvas
+                      ref={canvasRef}
+                      className={SelfStyle.canvas}
+                      width={imageDisplaySize.width}
+                      height={imageDisplaySize.height}
+                    />
+                    {selectedImage.url && (
+                      <img
+                        ref={imageRef}
+                        src={selectedImage.url}
+                        alt={selectedImage.originalName}
+                        className={SelfStyle.hiddenImage}
+                      />
+                    )}
+                    <div
+                      className={SelfStyle.cropOverlay}
+                      style={{
+                        left: `${cropArea.x}px`,
+                        top: `${cropArea.y}px`,
+                        width: `${cropArea.width}px`,
+                        height: `${cropArea.height}px`
+                      }}
+                    >
+                      <div className={`${SelfStyle.cropHandle} ${SelfStyle.topLeft}`}></div>
+                      <div className={`${SelfStyle.cropHandle} ${SelfStyle.topRight}`}></div>
+                      <div className={`${SelfStyle.cropHandle} ${SelfStyle.bottomLeft}`}></div>
+                      <div className={`${SelfStyle.cropHandle} ${SelfStyle.bottomRight}`}></div>
+                    </div>
+                  </div>
+                  <div style={{ marginTop: '10px' }}>
+                    <Button type="primary" onClick={handleCropConfirm}>确认裁剪</Button>
                   </div>
                 </div>
-                <div style={{ marginTop: '10px' }}>
-                  <Button type="primary" onClick={handleCropConfirm}>确认裁剪</Button>
-                </div>
+              </div>
+
+              <div className={SelfStyle.imageInfo}>
+                <Typography.Text strong>初始大小:</Typography.Text>
+                <Typography.Text>{formatSize(initialImageSize.size)}</Typography.Text>
+                {initialImageSize.size !== croppedImageSize.size && (
+                  <>
+                    <Typography.Text style={{ marginLeft: "12px" }} strong>裁剪后大小:</Typography.Text>
+                    <Typography.Text>{formatSize(croppedImageSize.size)}</Typography.Text>
+                  </>
+                )}
+              </div>
+
+              <div className={SelfStyle.formItem}>
+                <Typography.Text strong>压缩大小:</Typography.Text>
+                <Input
+                  type="number"
+                  value={compressionSize}
+                  onChange={(e) => setCompressionSize(Number(e.target.value))}
+                  placeholder="请输入压缩后的大小（KB）"
+                  min={1}
+                />
+                <Typography.Text style={{ marginLeft: '10px' }}>KB</Typography.Text>
+              </div>
+              <div className={SelfStyle.formItem}>
+                <Typography.Text strong>图片名称:</Typography.Text>
+                <Input
+                  value={currentImageName}
+                  onChange={(e) => onChangeSelectedImageName(e.target.value)}
+                  placeholder="请输入图片名称"
+                />
               </div>
             </div>
-            
-            <div className={SelfStyle.imageInfo}>
-              <Typography.Text strong>初始大小:</Typography.Text>
-              <Typography.Text>{formatSize(initialImageSize.size)}</Typography.Text>
-              {initialImageSize.size !== croppedImageSize.size && (
-                <>
-                  <Typography.Text style={{ marginLeft: "12px" }} strong>裁剪后大小:</Typography.Text>
-                  <Typography.Text>{formatSize(croppedImageSize.size)}</Typography.Text>
-                </>
-              )}
-            </div>
 
-            <div className={SelfStyle.formItem}>
-              <Typography.Text strong>压缩大小:</Typography.Text>
-              <Input
-                type="number"
-                value={compressionSize}
-                onChange={(e) => setCompressionSize(Number(e.target.value))}
-                placeholder="请输入压缩后的大小（KB）"
-                min={1}
-              />
-              <Typography.Text style={{ marginLeft: '10px' }}>KB</Typography.Text>
-            </div>
-            <div className={SelfStyle.formItem}>
-              <Typography.Text strong>图片名称:</Typography.Text>
-              <Input
-                value={currentImageName}
-                onChange={(e) => onChangeSelectedImageName(e.target.value)}
-                placeholder="请输入图片名称"
-              />
+            <div className={SelfStyle.actions}>
+              <Space size={20}>
+                <Button
+                  type="primary"
+                  icon={<DownloadOutlined />}
+                  onClick={handleDownload}
+                >
+                  下载
+                </Button>
+                <Button type="default" onClick={handleOverwrite}>
+                  覆盖
+                </Button>
+              </Space>
             </div>
           </div>
-
-          <div className={SelfStyle.actions}>
-            <Space size={20}>
-              <Button
-                type="primary"
-                icon={<DownloadOutlined />}
-                onClick={handleDownload}
-              >
-                下载
-              </Button>
-              <Button type="default" onClick={handleOverwrite}>
-                覆盖
-              </Button>
-            </Space>
-          </div>
-        </div>
-      )}
+        ) : (
+          <div className={SelfStyle.emptyState}>请选择左侧图片进行编辑</div>
+        )}
+      </div>
     </div>
   );
+
+  function renderUploadTrigger() {
+    return (
+      <Upload
+        multiple
+        className={SelfStyle.uploadWrapper}
+        customRequest={customRequest}
+        showUploadList={false}
+        accept="image/*"
+      >
+        <div className={SelfStyle.uploadPlus}>
+          <PlusOutlined style={{ fontSize: "32px", color: "#1890ff" }} />
+          <div className={SelfStyle.uploadText}>点击上传图片</div>
+        </div>
+      </Upload>
+    );
+  }
 
   function renderUploadImageList() {
     const list: ReactNode[] = [];
@@ -304,7 +330,7 @@ const PImage: FC<IPImageProps> = (props) => {
           {params.name}
         </Typography.Text>
         <div
-          className={SelfStyle.actions}
+          className={SelfStyle.itemActions}
           style={{
             visibility: params.uploadLoading ? "hidden" : "visible",
           }}
@@ -407,12 +433,12 @@ const PImage: FC<IPImageProps> = (props) => {
       }
     });
     if (rsp.success) {
-      const nextRsp = await withImageContent(rsp);
-      setImageRsp(nextRsp);
+      const finalRsp = await withImageContent(rsp);
+      setImageRsp(finalRsp);
       setSelectedImage((prev) => {
-        if (!nextRsp.list?.length) return undefined;
-        if (!prev) return nextRsp.list[0];
-        return nextRsp.list.find((item) => item.id === prev.id) || nextRsp.list[0];
+        if (!finalRsp.list?.length) return undefined;
+        if (!prev) return finalRsp.list[0];
+        return finalRsp.list.find((item) => item.id === prev.id) || finalRsp.list[0];
       });
     }
   }
@@ -606,8 +632,7 @@ const PImage: FC<IPImageProps> = (props) => {
     }
   }
 
-  function getDisplaySize(width: number, height: number) {
-    const maxWidth = 600;
+  function getDisplaySize(width: number, height: number, maxWidth = 600) {
     if (width <= maxWidth) {
       return { width, height };
     }
