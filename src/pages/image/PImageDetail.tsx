@@ -1,11 +1,12 @@
 import { Button, Input, Typography, Space, message } from "antd";
-import { ArrowLeftOutlined, SaveOutlined, DeleteOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, DownloadOutlined, DeleteOutlined } from "@ant-design/icons";
 import { history } from "umi";
 import React, { FC, useEffect, useState, useRef } from "react";
 import SelfStyle from "./LImageDetail.less";
 import NImage from "./NImage";
 import SImage from "./SImage";
 import { useParams } from "react-router-dom";
+import { UDownload } from "@/common/utils/UDownload";
 
 const { Title, Text } = Typography;
 
@@ -14,7 +15,6 @@ interface IPImageDetailProps {}
 const PImageDetail: FC<IPImageDetailProps> = () => {
   const { id } = useParams<{ id: string }>();
   const [image, setImage] = useState<NImage>();
-  const [newName, setNewName] = useState("");
   const [compressionSize, setCompressionSize] = useState(100); // 默认压缩到100KB
   const [isCropping, setIsCropping] = useState(false);
   const [cropArea, setCropArea] = useState({ x: 0, y: 0, width: 400, height: 300 });
@@ -23,7 +23,8 @@ const PImageDetail: FC<IPImageDetailProps> = () => {
   const [resizing, setResizing] = useState(false);
   const [resizeHandle, setResizeHandle] = useState('');
   const [imageDisplaySize, setImageDisplaySize] = useState({ width: 0, height: 0 });
-  const [imageSize, setImageSize] = useState({ width: 0, height: 0, size: 0 });
+  const [initialImageSize, setInitialImageSize] = useState({ width: 0, height: 0, size: 0 });
+  const [croppedImageSize, setCroppedImageSize] = useState({ width: 0, height: 0, size: 0 });
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
 
@@ -49,40 +50,18 @@ const PImageDetail: FC<IPImageDetailProps> = () => {
         }
         
         setImage(foundImage);
-        setNewName(foundImage.originalName || "");
-        // 获取图片尺寸和大小
         if (foundImage.url) {
-          const img = new Image();
-          img.onload = () => {
-            // 估算图片大小（base64 编码的大小）
-            const base64Length = foundImage.url.split(',')[1].length;
-            const sizeInBytes = Math.ceil(base64Length * 3 / 4);
-            setImageSize({
-              width: img.width,
-              height: img.height,
-              size: sizeInBytes
-            });
-            
-            // 计算图片显示尺寸（保持比例，最大宽度 600px）
-            const maxWidth = 600;
-            let displayWidth = img.width;
-            let displayHeight = img.height;
-            if (img.width > maxWidth) {
-              const ratio = maxWidth / img.width;
-              displayWidth = maxWidth;
-              displayHeight = img.height * ratio;
-            }
-            setImageDisplaySize({ width: displayWidth, height: displayHeight });
-            
-            // 设置默认裁剪区域为整个图片
-            setCropArea({
-              x: 0,
-              y: 0,
-              width: img.width,
-              height: img.height
-            });
-          };
-          img.src = foundImage.url;
+          const imageStats = await getImageStats(foundImage.url);
+          setInitialImageSize(imageStats);
+          setCroppedImageSize(imageStats);
+          const displaySize = getDisplaySize(imageStats.width, imageStats.height);
+          setImageDisplaySize(displaySize);
+          setCropArea({
+            x: 0,
+            y: 0,
+            width: displaySize.width,
+            height: displaySize.height,
+          });
         }
       }
     }
@@ -247,6 +226,11 @@ const PImageDetail: FC<IPImageDetailProps> = () => {
             ...prev,
             url: croppedImageUrl
           } : prev);
+          getImageStats(croppedImageUrl).then((imageStats) => {
+            setCroppedImageSize(imageStats);
+            const displaySize = getDisplaySize(imageStats.width, imageStats.height);
+            setImageDisplaySize(displaySize);
+          });
           message.success('图片裁剪成功');
           setIsCropping(false);
         }
@@ -254,24 +238,30 @@ const PImageDetail: FC<IPImageDetailProps> = () => {
     }
   };
 
-  const handleSave = async () => {
-    if (!image || !newName) {
-      message.error("请输入图片名称");
+  const handleDownload = async () => {
+    if (!image?.url) {
+      message.error("请选择图片");
       return;
     }
-    const rsp = await SImage.saveAs(image, newName, compressionSize);
-    if (rsp.success) {
-      message.success("图片保存成功");
-      history.push("/image");
+    try {
+      const blob = await fetch(image.url).then((response) => response.blob());
+      await UDownload.download(
+        { name: getDownloadName(image), blob },
+        { useSuccess: false }
+      );
+      message.success("图片下载成功");
+    } catch (error) {
+      message.error("图片下载失败");
     }
   };
 
   const handleOverwrite = async () => {
-    if (!image || !newName) {
-      message.error("请输入图片名称");
+    if (!image) {
+      message.error("请选择图片");
       return;
     }
-    const rsp = await SImage.overwrite(image, newName, compressionSize);
+    const overwriteName = image.originalName || image.name || "image.png";
+    const rsp = await SImage.overwrite(image, overwriteName, compressionSize);
     if (rsp.success) {
       message.success("图片覆盖成功");
       history.push("/image");
@@ -302,20 +292,13 @@ const PImageDetail: FC<IPImageDetailProps> = () => {
       {image && (
         <div className={SelfStyle.content}>
           <div className={SelfStyle.imageInfo}>
-            <Text strong>图片大小:</Text>
-            <Text>{imageSize.size < 1024 ? `${imageSize.size} B` : imageSize.size < 1024 * 1024 ? `${(imageSize.size / 1024).toFixed(2)} KB` : `${(imageSize.size / (1024 * 1024)).toFixed(2)} MB`}</Text>
+            <Text strong>初始大小:</Text>
+            <Text>{formatSize(initialImageSize.size)}</Text>
+            <Text strong style={{ marginLeft: "12px" }}>裁剪后大小:</Text>
+            <Text>{formatSize(croppedImageSize.size)}</Text>
           </div>
 
           <div className={SelfStyle.formSection}>
-            <div className={SelfStyle.formItem}>
-              <Text strong>图片名称:</Text>
-              <Input
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                placeholder="请输入新的图片名称"
-              />
-            </div>
-
             <div className={SelfStyle.formItem}>
               <Text strong>压缩大小:</Text>
               <Input
@@ -380,8 +363,11 @@ const PImageDetail: FC<IPImageDetailProps> = () => {
                   </div>
                 </div>
               ) : (
-                <div className={SelfStyle.imagePreview} style={{ maxWidth: '600px' }}>
-                  <img src={image.url} alt={image.originalName} style={{ width: '100%', height: 'auto' }} />
+                <div
+                  className={SelfStyle.imagePreview}
+                  style={{ width: `${imageDisplaySize.width}px`, maxWidth: "100%" }}
+                >
+                  <img src={image.url} alt={image.originalName} style={{ width: "100%", height: "auto" }} />
                 </div>
               )}
             </div>
@@ -391,15 +377,12 @@ const PImageDetail: FC<IPImageDetailProps> = () => {
             <Space size={20}>
               <Button
                 type="primary"
-                icon={<SaveOutlined />}
-                onClick={handleSave}
+                icon={<DownloadOutlined />}
+                onClick={handleDownload}
               >
-                另存为
+                下载
               </Button>
-              <Button
-                type="default"
-                onClick={handleOverwrite}
-              >
+              <Button type="default" onClick={handleOverwrite}>
                 覆盖
               </Button>
               <Button
@@ -415,6 +398,61 @@ const PImageDetail: FC<IPImageDetailProps> = () => {
       )}
     </div>
   );
+
+  function getDisplaySize(width: number, height: number) {
+    const maxWidth = 600;
+    if (width <= maxWidth) {
+      return { width, height };
+    }
+    const ratio = maxWidth / width;
+    return {
+      width: maxWidth,
+      height: height * ratio,
+    };
+  }
+
+  function getDownloadName(targetImage: NImage) {
+    return targetImage.originalName || targetImage.name || "image.png";
+  }
+
+  async function getImageStats(url: string) {
+    return new Promise<{ width: number; height: number; size: number }>((resolve) => {
+      const img = new Image();
+      img.onload = async () => {
+        let imageSize = 0;
+        if (url.startsWith("data:") && url.includes(",")) {
+          const base64Content = url.split(",")[1] || "";
+          imageSize = Math.ceil((base64Content.length * 3) / 4);
+        } else {
+          try {
+            const blob = await fetch(url).then((response) => response.blob());
+            imageSize = blob.size;
+          } catch (error) {
+            imageSize = 0;
+          }
+        }
+        resolve({
+          width: img.width,
+          height: img.height,
+          size: imageSize,
+        });
+      };
+      img.onerror = () => {
+        resolve({ width: 0, height: 0, size: 0 });
+      };
+      img.src = url;
+    });
+  }
+
+  function formatSize(size: number) {
+    if (size < 1024) {
+      return `${size} B`;
+    }
+    if (size < 1024 * 1024) {
+      return `${(size / 1024).toFixed(2)} KB`;
+    }
+    return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+  }
 };
 
 export default PImageDetail;
