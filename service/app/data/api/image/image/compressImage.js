@@ -35,7 +35,7 @@
       };
     }
     
-    const sourceMimeType = dataUrlMatch[1];
+    const sourceMimeType = originalImage.type;
     const base64Content = dataUrlMatch[2];
     const sourceBuffer = Buffer.from(base64Content, "base64");
     const jimpOptions = normalizeJimpOptions(argParams && argParams.jimpOptions);
@@ -59,12 +59,11 @@
         const scaleRatio = Math.max(0.1, Math.min(1, jimpOptions.scalePercent / 100));
         const width = Math.max(1, Math.floor(sourceWidth * scaleRatio));
         const height = Math.max(1, Math.floor(sourceHeight * scaleRatio));
-        const mimeType = resolveOutputMime(sourceMimeType, jimpOptions.format, Jimp);
+        const mimeType = resolveOutputMime(jimpOptions.format, Jimp,sourceMimeType);
         const quality = Math.max(1, Math.min(100, jimpOptions.quality));
         const targetImage = image.clone().resize(width, height);
-        if (mimeType === Jimp.MIME_JPEG) {
-          targetImage.quality(quality);
-        }
+        // 对所有支持的格式使用质量参数
+        targetImage.quality(quality);
 
         // 获取buffer
         targetImage.getBuffer(mimeType, (err, buffer) => {
@@ -111,16 +110,17 @@
     };
   };
 
-  function resolveOutputMime(sourceMimeType, format, Jimp) {
+  function resolveOutputMime( format, Jimp,orginMinType) {
     if (format === "jpeg") {
       return Jimp.MIME_JPEG;
     }
     if (format === "png") {
       return Jimp.MIME_PNG;
     }
-    if (sourceMimeType === "image/png") {
-      return Jimp.MIME_PNG;
+    if (format === "same") {
+      return orginMinType
     }
+ 
     return Jimp.MIME_JPEG;
   }
 
