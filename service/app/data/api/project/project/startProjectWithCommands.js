@@ -2,11 +2,11 @@
   return function (argData, argParams, external) {
     const fs = require('fs');
     const path = require('path');
+    const os = require('os');
     const { execSync } = require('child_process');
-    
-    const { projectId, projectName, commands } = argParams;
-    
-    if (!projectId || !projectName || !commands || !Array.isArray(commands)) {
+    const { projectId, projectName } = argParams;
+
+    if (!projectId || !projectName) {
       return {
         isWrite: false,
         response: {
@@ -18,51 +18,55 @@
         }
       };
     }
-    
+
+    const projectIndex = argData.projectList.findIndex((item) => item.id === projectId);
+    if (projectIndex === -1) {
+      return {
+        isWrite: false,
+        response: {
+          code: 200,
+          data: {
+            success: false,
+            message: '项目不存在'
+          }
+        }
+      };
+    }
+
     try {
-      // 生成 bat 文件内容
-      const batContent = commands.map(cmd => cmd.trim()).filter(cmd => cmd).join('\n');
-      
-      if (!batContent) {
+      const project = argData.projectList[projectIndex];
+      const projectRootPath = String(project.rootPath || '').trim();
+      const runtimeCommands = (((project.startConfig || {}).commands || []).map((cmd) => String(cmd || '').trim()).filter(Boolean);
+      if (!projectRootPath || !runtimeCommands.length) {
         return {
           isWrite: false,
           response: {
             code: 200,
             data: {
               success: false,
-              message: '请至少填写一个启动命令'
+              message: '项目未配置启动命令'
             }
           }
         };
       }
-      
-      // 生成持久的启动脚本路径
-      const batDir = path.join(__dirname, 'start_scripts');
-      if (!fs.existsSync(batDir)) {
-        fs.mkdirSync(batDir);
-      }
-      const batPath = path.join(batDir, `start_${projectId}.bat`);
-      
-      // 写入 bat 文件
-      fs.writeFileSync(batPath, batContent);
-      
-      // 执行 bat 文件
-      execSync(`start "${projectName}" "${batPath}"`, { windowsHide: true });
-      
-      // 保存配置到项目
-      const projectIndex = argData.projectList.findIndex(item => item.id === projectId);
-      if (projectIndex !== -1) {
-        argData.projectList[projectIndex].sfMock = {
-          ...argData.projectList[projectIndex].sfMock,
-          startCommands: commands,
-          startBatPath: batPath,
-          programUrl: 'http://localhost:3000' // 临时值，实际应该根据项目配置
-        };
-      }
-      
+
+      const tempBatPath = path.join(
+        os.tmpdir(),
+        `sf-notes-start-${projectId}-${Date.now()}.bat`
+      );
+      const batContent = ['@echo off', `cd /d "${projectRootPath}"`, ...runtimeCommands].join('\r\n');
+      fs.writeFileSync(tempBatPath, batContent, 'utf-8');
+      execSync(`start "${projectName}" "${tempBatPath}"`, { windowsHide: true });
+      setTimeout(() => {
+        try {
+          if (fs.existsSync(tempBatPath)) {
+            fs.unlinkSync(tempBatPath);
+          }
+        } catch (error) {}
+      }, 1000);
+
       return {
-        isWrite: true,
-        data: argData,
+        isWrite: false,
         response: {
           code: 200,
           data: {
@@ -72,7 +76,6 @@
         }
       };
     } catch (error) {
-      console.error('启动项目失败:', error);
       return {
         isWrite: false,
         response: {
