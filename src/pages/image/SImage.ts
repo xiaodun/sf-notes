@@ -77,11 +77,14 @@ const SImage = {
     return rsp;
   },
 
-  async compress(originalImage: NImage, compressionLevel: number): Promise<NRsp<NImage>> {
-    const rsp = await request<NRsp<NImage>>({
+  async compress(
+    originalImage: NImage,
+    jimpOptions: { quality: number; scalePercent: number; format: "same" | "jpeg" | "png" }
+  ): Promise<NRsp<{ content: string; mimeType: string; size: number; width: number; height: number }>> {
+    const rsp = await request<NRsp<{ content: string; mimeType: string; size: number; width: number; height: number }>>({
       url: "/image/image/compressImage",
       method: "POST",
-      data: { originalImage, compressionLevel },
+      data: { originalImage, jimpOptions },
     });
 
     return rsp;
