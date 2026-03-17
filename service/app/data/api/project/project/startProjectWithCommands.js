@@ -3,7 +3,7 @@
     const fs = require('fs');
     const path = require('path');
     const os = require('os');
-    const { execSync } = require('child_process');
+    const { exec } = require('child_process');
     const { projectId, projectName } = argParams;
 
     if (!projectId || !projectName) {
@@ -36,7 +36,7 @@
     try {
       const project = argData.projectList[projectIndex];
       const projectRootPath = String(project.rootPath || '').trim();
-      const runtimeCommands = (((project.startConfig || {}).commands || []).map((cmd) => String(cmd || '').trim()).filter(Boolean);
+      const runtimeCommands = ((project.startConfig || {}).commands || []).map((cmd) => String(cmd || '').trim()).filter(Boolean);
       if (!projectRootPath || !runtimeCommands.length) {
         return {
           isWrite: false,
@@ -50,20 +50,32 @@
         };
       }
 
-      const tempBatPath = path.join(
-        os.tmpdir(),
-        `sf-notes-start-${projectId}-${Date.now()}.bat`
-      );
-      const batContent = ['@echo off', `cd /d "${projectRootPath}"`, ...runtimeCommands].join('\r\n');
-      fs.writeFileSync(tempBatPath, batContent, 'utf-8');
-      execSync(`start "${projectName}" "${tempBatPath}"`, { windowsHide: true });
-      setTimeout(() => {
-        try {
-          if (fs.existsSync(tempBatPath)) {
-            fs.unlinkSync(tempBatPath);
+      const baseTs = Date.now();
+      runtimeCommands.forEach((cmd, index) => {
+        const tempBatPath = path.join(
+          "./data/api/project/project",
+          `sf-notes-start-${projectId}-${baseTs}-${index}-${Math.random()
+            .toString(16)
+            .slice(2, 8)}.bat`
+        );
+        const batContent = [`cd ${projectRootPath}`, cmd].join('\r\n');
+        fs.writeFileSync(tempBatPath, batContent, 'utf-8');
+        exec(`wt -w 0 new-tab --title "${projectName}-${index + 1}" cmd /k "${ path.resolve(tempBatPath)}"`, { windowsHide: true });
+        delBat(tempBatPath);
+      });
+
+      function delBat(filePath){
+        console.log('wx',filePath)
+        setTimeout(() => {
+          try {
+            if (fs.existsSync(filePath)) {
+              fs.unlinkSync(filePath);
+            }
+          } catch (error) {
+            console.error('删除临时 BAT 文件失败:', error);
           }
-        } catch (error) {}
-      }, 1000);
+        }, 3000);
+      }
 
       return {
         isWrite: false,
