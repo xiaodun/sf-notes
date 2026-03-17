@@ -23,6 +23,10 @@ export interface NProject {
     addressPath: string;
     openUrl: string;
   };
+  startConfig?: {
+    commands: string[];
+    runUrl: string;
+  };
   snippetList: NProjectSnippet[];
   web: {
     isStart: boolean;

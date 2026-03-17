@@ -42,6 +42,10 @@
       if (!argParams.isUpdate) {
         argParams.name = argParams.rootPath.split("\\").pop();
         argParams.id = Date.now();
+        argParams.startConfig = {
+          commands: [],
+          runUrl: "",
+        };
         argData.projectList.push(argParams);
         if (basePath) {
           argData.config = argData.config || {};
@@ -82,8 +86,8 @@
             //如果添加的项目是sf-mock
             item.isSfMock = true;
             item.sfMock = {
-              programUrl: `http://localhost:${serviceConfigObj.startPort}`,
-              startBatPath: path_os.join(item.rootPath, "bat", "sf-mock.bat"),
+              ...item.sfMock,
+              serverList: [],
             };
           } else {
             const mockConfig = programConfigObj[item.name];
@@ -118,12 +122,6 @@
                   item.sfMock = {
                     ...item.sfMock,
                     addressPath: mockConfig.addressPath || "",
-                    programUrl: mockConfig.programUrl,
-                    startBatPath: path_os.join(
-                      sfMockPrject.rootPath,
-                      "bat",
-                      `${item.name}.bat`
-                    ),
                   };
                 }
               }
