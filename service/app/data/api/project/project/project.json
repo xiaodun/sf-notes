@@ -1,11 +1,11 @@
 {
     "config": {
-        "addBasePath": "C:/Users/SZLD03287/Documents/GitHub/affluence-lottery-client",
+        "addBasePath": "C:/Users/SZLD03287/Documents/ccs-ui",
         "showEnumList": false,
         "gitlabBasePath": "",
-        "nginxVisitWay": "ip",
+        "nginxVisitWay": "domain",
         "swaggerPathShowWay": "path",
-        "lastOptionSwaggerDomain": ""
+        "lastOptionSwaggerDomain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger"
     },
     "projectList": [
         {
@@ -41,17 +41,35 @@
                     ]
                 }
             ],
-            "isDefaultCopySwagger": false
+            "isDefaultCopySwagger": false,
+            "startConfig": {
+                "commands": [],
+                "runUrl": ""
+            }
         },
         {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\GitHub\\affluence-lottery-client",
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\ccs-ui",
             "sfMock": {},
-            "name": "affluence-lottery-client",
-            "id": 1773737355284
+            "name": "ccs-ui",
+            "id": 1773741159613,
+            "startConfig": {
+                "commands": [],
+                "runUrl": ""
+            }
         }
     ],
-    "inExcludeGroups": {},
-    "swaggerList": [],
+    "inExcludeGroups": {
+        "https://api-v2.dev.ccp.risk-vantagefx.com/swagger": [
+            "v5"
+        ]
+    },
+    "swaggerList": [
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "id": 1773740965326,
+            "crateTime": 1773740965326
+        }
+    ],
     "apiPrefixs": {},
     "attentionPathList": []
 }
