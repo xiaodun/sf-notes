@@ -7,7 +7,7 @@ import {
   InboxOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
-import { Button, Space, Typography, Upload, Input, message } from "antd";
+import { Button, Space, Typography, Upload, Input, Slider, message } from "antd";
 import { RcCustomRequestOptions } from "antd/lib/upload/interface";
 import { produce } from "immer";
 import React, { FC, ReactNode, useEffect, useRef, useState } from "react";
@@ -36,7 +36,8 @@ const PImage: FC<IPImageProps> = (props) => {
     list: [],
   });
   const [selectedImage, setSelectedImage] = useState<NImage>();
-  const [compressionSize, setCompressionSize] = useState(1);
+  const [compressQuality, setCompressQuality] = useState(80);
+  const [compressScalePercent, setCompressScalePercent] = useState(100);
   const [isCropping, setIsCropping] = useState(true);
   const [cropArea, setCropArea] = useState({ x: 0, y: 0, width: 400, height: 300 });
   const [isDragging, setIsDragging] = useState(false);
@@ -236,32 +237,27 @@ const PImage: FC<IPImageProps> = (props) => {
                     <Button type="primary" onClick={handleCropConfirm}>确认裁剪</Button>
                   </div>
                   <div className={SelfStyle.compressActionWrap}>
-                    <Input
-                      type="number"
-                      value={compressionSize}
-                      onChange={(e) => setCompressionSize(Number(e.target.value))}
-                      placeholder="请输入压缩后的大小（M）"
-                      min={1}
-                      addonAfter={
-                        <Space
-                          size={8}
-                          onClick={() => {
-                            if (!compressLoading) {
-                              handleCompress();
-                            }
-                          }}
-                          style={{
-                            cursor: compressLoading ? "not-allowed" : "pointer",
-                            userSelect: "none",
-                          }}
-                        >
-                          <Typography.Text type="secondary">
-                            {(Math.max(0, Number(compressionSize) || 0) * 1024).toFixed(0)} KB
-                          </Typography.Text>
-                          <Typography.Text>{compressLoading ? "压缩中..." : "压缩"}</Typography.Text>
-                        </Space>
-                      }
-                    />
+                    <div className={SelfStyle.compressRow}>
+                      <Typography.Text>质量: {compressQuality}</Typography.Text>
+                      <Slider
+                        min={1}
+                        max={100}
+                        value={compressQuality}
+                        onChange={(value) => setCompressQuality(Number(value))}
+                      />
+                    </div>
+                    <div className={SelfStyle.compressRow}>
+                      <Typography.Text>缩放: {compressScalePercent}%</Typography.Text>
+                      <Slider
+                        min={10}
+                        max={100}
+                        value={compressScalePercent}
+                        onChange={(value) => setCompressScalePercent(Number(value))}
+                      />
+                    </div>
+                    <Button type="primary" loading={compressLoading} onClick={handleCompress}>
+                      确认压缩
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -709,14 +705,13 @@ const PImage: FC<IPImageProps> = (props) => {
       return;
     }
     const operatingImageId = selectedImage.id;
-    if (!compressionSize || compressionSize <= 0) {
-      message.error("请输入有效的压缩大小");
-      return;
-    }
     setCompressLoading(true);
     try {
-      const compressionLevel = Math.max(1, Math.round(compressionSize * 1024));
-      const rsp = await SImage.compress(selectedImage, compressionLevel);
+      const rsp = await SImage.compress(selectedImage, {
+        quality: compressQuality,
+        scalePercent: compressScalePercent,
+        format: "same",
+      });
       if (activeImageIdRef.current !== operatingImageId) {
         return;
       }
@@ -777,7 +772,7 @@ const PImage: FC<IPImageProps> = (props) => {
     }
     const operatingImageId = selectedImage.id;
     const overwriteName = currentImageName || selectedImage.name || "image";
-    const compressionLevel = Math.max(1, Math.round(compressionSize * 1024));
+    const compressionLevel = 1;
     const rsp = await SImage.overwrite(selectedImage, overwriteName, compressionLevel);
     if (activeImageIdRef.current !== operatingImageId) {
       return;
