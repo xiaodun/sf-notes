@@ -1,12 +1,10 @@
-import React, { useEffect, useRef, PropsWithChildren, useState } from "react";
+import React, { useEffect, PropsWithChildren, useState } from "react";
 import SelfStyle from "./PageDirectory.less";
-import { Tree } from "antd";
+import { Spin, Tree } from "antd";
 import SSystem from "@/common/service/SSystem";
 import { DataNode, EventDataNode } from "antd/lib/tree";
 import { produce } from "immer";
 import { NSystem } from "@/common/namespace/NSystem";
-import NModel from "@/common/namespace/NModel";
-import { NMDProject } from "umi";
 import SProject from "../../../pages/project/SProject";
 import NProject from "../../../pages/project/NProject";
 
@@ -23,14 +21,58 @@ export interface IPageDirectoryDataNode extends DataNode {
   metaInfo: NSystem.IDirectory;
 }
 export default (props: PropsWithChildren<IPageDirectoryProps>) => {
-  const { children } = props;
   const treeHeight = props.height ? props.height : 780;
   const [treeData, setTreeData] = useState([] as IPageDirectoryDataNode[]);
+  const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
+  const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
+  const [initializing, setInitializing] = useState(false);
   useEffect(() => {
-    getDirectory(props.startPath);
-  }, []);
+    let ignore = false;
+    initTree();
+    return () => {
+      ignore = true;
+    };
+    async function initTree() {
+      const projectConfigRsp = await SProject.getConfig();
+      const projectListRsp = await SProject.getProjectList();
+      if (!projectConfigRsp.success || !projectListRsp.success) {
+        return;
+      }
+      const projectConfig = projectConfigRsp.data;
+      const projectList = projectListRsp.list || [];
+      let nextTreeData = await loadDirectory(undefined, projectConfig, projectList);
+      const nextExpandedKeys: React.Key[] = [];
+      let nextSelectedKeys: React.Key[] = [];
+      if (props.startPath) {
+        setInitializing(true);
+        const pathChain = buildPathChain(props.startPath);
+        for (let i = 0; i < pathChain.length - 1; i++) {
+          const currentPath = pathChain[i];
+          const children = await loadDirectory(currentPath, projectConfig, projectList);
+          nextTreeData = setChildren(nextTreeData, currentPath, children);
+          nextExpandedKeys.push(currentPath);
+        }
+        const selectedPath = pathChain[pathChain.length - 1];
+        if (selectedPath) {
+          nextSelectedKeys = [selectedPath];
+          const selectedNode = findNode(nextTreeData, selectedPath);
+          if (selectedNode && props.onSelect) {
+            props.onSelect(selectedNode.metaInfo);
+          }
+        }
+      }
+      if (ignore) {
+        return;
+      }
+      setTreeData(nextTreeData);
+      setExpandedKeys(nextExpandedKeys);
+      setSelectedKeys(nextSelectedKeys);
+      setInitializing(false);
+    }
+  }, [props.startPath, props.filter, props.disableFile]);
 
   const onSelect = (keys: React.Key[], info: any) => {
+    setSelectedKeys(keys);
     const metaInfo = info.node.metaInfo as NSystem.IDirectory;
     props.onSelect && props.onSelect(metaInfo);
   };
@@ -43,81 +85,133 @@ export default (props: PropsWithChildren<IPageDirectoryProps>) => {
       nativeEvent: MouseEvent;
     }
   ) => {
+    setExpandedKeys(expandedKeys);
     if (info.expanded && !info.node.children) {
-      getDirectory(info.node.key as string, info.expanded);
+      onLoadData({ key: info.node.key });
     }
   };
-  async function getDirectory(path?: string, expanded: boolean = false) {
-    const projectConfig = (await SProject.getConfig()).data;
-    const projectList = (await SProject.getProjectList()).list;
+  async function loadDirectory(
+    path: string | undefined,
+    projectConfig: NProject.IConfig,
+    projectList: NProject[]
+  ) {
     const directoryRsp = await SSystem.getFileDirectory(path);
-
-    if (directoryRsp.success) {
-      let list = directoryRsp.list
-        .filter((item) => {
-          if (
-            path &&
-            path == projectConfig.addBasePath &&
-            props.filter == "addedProject"
-          ) {
-            return !projectList.some(
-              (project) => project.rootPath.indexOf(item.name) != -1
-            );
-          }
-          return true;
-        })
-        .map((item) => {
-          return {
-            isLeaf: item.isLeaf,
-
-            title: item.name,
-            key: item.path,
-            metaInfo: item,
-            selectable: item.isLeaf ? !props.disableFile : true,
-          } as IPageDirectoryDataNode;
-        });
-      if (expanded) {
-        const newTreeData = produce(
-          treeData,
-          (drafState: IPageDirectoryDataNode[]) => {
-            let tempTreeData = drafState;
-
-            while (true) {
-              let node = tempTreeData.find((item) => {
-                return path.includes(item.key as string);
-              });
-              if (node) {
-                if (node.children && node.children.length > 0) {
-                  tempTreeData = node.children as IPageDirectoryDataNode[];
-                } else {
-                  node.children = list;
-                  break;
-                }
-              } else {
-                break;
-              }
-            }
-          }
-        );
-        setTreeData(newTreeData);
-      } else {
-        setTreeData(list);
-      }
+    if (!directoryRsp.success) {
+      return [];
     }
+    return (directoryRsp.list || [])
+      .filter((item) => {
+        if (
+          path &&
+          path == projectConfig.addBasePath &&
+          props.filter == "addedProject"
+        ) {
+          return !projectList.some((project) => project.rootPath.indexOf(item.name) != -1);
+        }
+        return true;
+      })
+      .map((item) => {
+        const normalizedPath = normalizePath(item.path);
+        return {
+          isLeaf: item.isLeaf,
+          title: item.name,
+          key: normalizedPath,
+          metaInfo: {
+            ...item,
+            path: normalizedPath,
+          },
+          selectable: item.isLeaf ? !props.disableFile : true,
+        } as IPageDirectoryDataNode;
+      });
   }
   function onLoadData({ key }: any) {
-    return getDirectory(key, true);
+    return (async () => {
+      const projectConfigRsp = await SProject.getConfig();
+      const projectListRsp = await SProject.getProjectList();
+      if (!projectConfigRsp.success || !projectListRsp.success) {
+        return;
+      }
+      const children = await loadDirectory(
+        key as string,
+        projectConfigRsp.data,
+        projectListRsp.list || []
+      );
+      setTreeData((prev) => setChildren(prev, key as string, children));
+    })();
+  }
+  function setChildren(
+    sourceTreeData: IPageDirectoryDataNode[],
+    key: string,
+    children: IPageDirectoryDataNode[]
+  ) {
+    return produce(sourceTreeData, (draftState) => {
+      const targetNode = findNode(draftState as IPageDirectoryDataNode[], key);
+      if (targetNode) {
+        targetNode.children = children;
+      }
+    });
+  }
+  function findNode(
+    sourceTreeData: IPageDirectoryDataNode[],
+    key: string
+  ): IPageDirectoryDataNode | null {
+    for (let i = 0; i < sourceTreeData.length; i++) {
+      const node = sourceTreeData[i];
+      if ((node.key as string) === key) {
+        return node;
+      }
+      if (node.children && node.children.length) {
+        const childNode = findNode(node.children as IPageDirectoryDataNode[], key);
+        if (childNode) {
+          return childNode;
+        }
+      }
+    }
+    return null;
+  }
+  function buildPathChain(startPath: string) {
+    const normalized = normalizePath(startPath);
+    const match = normalized.match(/^([A-Za-z]:)\\?(.*)$/);
+    if (!match) {
+      return [normalized];
+    }
+    const drive = match[1];
+    const rest = match[2];
+    const parts = rest.split("\\").filter(Boolean);
+    const pathChain: string[] = [`${drive}\\`];
+    let current = `${drive}\\`;
+    parts.forEach((part) => {
+      current = normalizePath(`${current}${part}\\`);
+      pathChain.push(current);
+    });
+    return pathChain;
+  }
+  function normalizePath(path: string) {
+    const normalized = String(path || "").replace(/\//g, "\\");
+    if (/^[A-Za-z]:\\?$/.test(normalized)) {
+      return normalized.replace(/\\?$/, "\\");
+    }
+    return normalized.replace(/\\+$/, "");
   }
   return (
-    <Tree.DirectoryTree
-      className={props.className}
-      multiple
-      height={treeHeight}
-      defaultExpandAll
-      loadData={onLoadData}
-      onSelect={onSelect}
-      onExpand={onExpand}
-      treeData={treeData}
-    />
+    <div className={SelfStyle.container}>
+      <Tree.DirectoryTree
+        className={props.className}
+        multiple
+        height={treeHeight}
+        expandedKeys={expandedKeys}
+        selectedKeys={selectedKeys}
+        loadData={onLoadData}
+        onSelect={onSelect}
+        onExpand={onExpand}
+        treeData={treeData}
+      />
+      {initializing && (
+        <div className={SelfStyle.loadingWrap}>
+          <Spin size="small" />
+          <span>正在展开初始路径...</span>
+        </div>
+      )}
+    </div>
   );
 };

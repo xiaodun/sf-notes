@@ -175,6 +175,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       rootPath: pathInfos.path,
     });
     if (addRsp.success) {
+      reqGetProject();
       reqGetList();
     } else if (!addRsp.isHaveReadMsg) {
       message.error(addRsp.message);
