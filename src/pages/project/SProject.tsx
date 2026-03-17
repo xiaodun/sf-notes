@@ -396,5 +396,17 @@ namespace SProject {
       data: { id },
     });
   }
+
+  export async function startProjectWithCommands(data: {
+    projectId: number;
+    projectName: string;
+    commands: string[];
+  }): Promise<NRsp<boolean>> {
+    return request({
+      url: "/project/startProjectWithCommands",
+      method: "post",
+      data,
+    });
+  }
 }
 export default SProject;

@@ -42,7 +42,7 @@ export const Welcome: ConnectRC<IWelcomeProps> = (props) => {
     
     if (
       [
-        NRouter.projectSfMockPath,
+        NRouter.imagePath,
         NRouter.projectSnippetPath,
         NRouter.projectSwaggerPath,
         NRouter.iterativePath,

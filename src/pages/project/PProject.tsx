@@ -18,7 +18,7 @@ import {
   Table,
   Tag,
 } from 'antd';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect, ConnectRC, Link, NMDProject, history } from 'umi';
 import SelfStyle from './LProject.less';
 import NProject from './NProject';
@@ -27,6 +27,7 @@ import qs from 'qs';
 import DirectoryModal, {
   IDirectoryModal,
 } from '@/common/components/directory/combination/modal/DirectoryModal';
+import StartConfigModal from './components/StartConfigModal';
 import { NSystem } from '@/common/namespace/NSystem';
 import SSystem from '@/common/service/SSystem';
 import { produce } from 'immer';
@@ -34,7 +35,7 @@ import NRsp from '@/common/namespace/NRsp';
 import { cloneDeep } from 'lodash';
 import UCopy from '@/common/utils/UCopy';
 import UGitlab from '@/common/utils/UGitlab';
-import { DeleteOutlined, MenuOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { DeleteOutlined, MenuOutlined, ArrowLeftOutlined, SettingOutlined } from '@ant-design/icons';
 import Browser from "@/utils/browser";
 export interface IProjectProps {
   MDProject: NMDProject.IState;
@@ -43,6 +44,8 @@ export interface IProjectProps {
 const Project: ConnectRC<IProjectProps> = (props) => {
   const { MDProject } = props;
   const directoryModalRef = useRef<IDirectoryModal>();
+  const startConfigModalRef = useRef<any>();
+  const [selectedProject, setSelectedProject] = useState<NProject | null>(null);
 
   useEffect(() => {
     reqGetProject();
@@ -153,6 +156,14 @@ const Project: ConnectRC<IProjectProps> = (props) => {
           <Radio.Button value="domain">域名</Radio.Button>
         </Radio.Group>
       </PageFooter>
+      <StartConfigModal
+        visible={!!selectedProject}
+        onClose={() => setSelectedProject(null)}
+        projectId={selectedProject?.id || 0}
+        projectName={selectedProject?.name || ''}
+        project={selectedProject}
+        onConfigSuccess={reqGetList}
+      />
     </div>
   );
 
@@ -192,12 +203,12 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     }
   }
   function renderOptionColumn(project: NProject) {
-    let startBlock, openBlock;
+    let openBlock;
     if (project.sfMock) {
       if (project.web.isStart === null) {
-        startBlock = <Button loading={true} type="link"></Button>;
+        // 显示加载状态
       } else if (project.web.isStart) {
-        startBlock = <Tag color="#87d068">已启动</Tag>;
+        // 显示已启动状态
         if (!project.isSfMock && project.sfMock.serverList?.length) {
           const serverList = project.sfMock.serverList.map((item) => ({
             ...item,
@@ -241,12 +252,6 @@ const Project: ConnectRC<IProjectProps> = (props) => {
               </Button>
             );
         }
-      } else if (project.sfMock.programUrl) {
-        startBlock = (
-          <Button type="dashed" onClick={() => onStartProject(project)}>
-            启动
-          </Button>
-        );
       }
     }
     return (
@@ -264,7 +269,21 @@ const Project: ConnectRC<IProjectProps> = (props) => {
             </Link>
           </Button>
 
-          {startBlock}
+          {project.web.isStart === null && <Button loading={true} type="link"></Button>}
+          {project.web.isStart === true && <Tag color="#87d068">已启动</Tag>}
+          {project.name !== 'sf-notes' && (
+            <Button 
+              icon={<SettingOutlined />} 
+              onClick={() => {
+                setSelectedProject(project);
+              }}
+            />
+          )}
+          {project.sfMock?.startBatPath && project.web.isStart === false && (
+            <Button type="dashed" onClick={() => onStartProject(project)}>
+              启动
+            </Button>
+          )}
           {project.isSfMock && (
             <>
               <Dropdown.Button
@@ -358,6 +377,11 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     }
   }
   async function onStartProject(project: NProject) {
+    if (!project.sfMock.startBatPath) {
+      message.error('项目未配置启动命令');
+      return;
+    }
+    
     const startRsp = await SSystem.startBat(project.sfMock.startBatPath);
     const newRsp = produce(MDProject.rsp, (drafState) => {
       const item = drafState.list.find((item) => item.name === project.name);
