@@ -53,6 +53,10 @@ export default {
         addressPath: "",
         openUrl: "",
       },
+      startConfig: {
+        commands: [],
+        runUrl: "",
+      },
       web: {
         isStart: null,
       },

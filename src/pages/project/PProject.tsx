@@ -29,7 +29,6 @@ import DirectoryModal, {
 } from '@/common/components/directory/combination/modal/DirectoryModal';
 import StartConfigModal from './components/StartConfigModal';
 import { NSystem } from '@/common/namespace/NSystem';
-import SSystem from '@/common/service/SSystem';
 import { produce } from 'immer';
 import NRsp from '@/common/namespace/NRsp';
 import { cloneDeep } from 'lodash';
@@ -269,6 +268,11 @@ const Project: ConnectRC<IProjectProps> = (props) => {
 
           {project.web.isStart === null && <Button loading={true} type="link"></Button>}
           {project.web.isStart === true && <Tag color="#87d068">已启动</Tag>}
+          {Boolean(project.startConfig?.commands?.length) && project.web.isStart === false && (
+            <Button type="dashed" onClick={() => onStartProject(project)}>
+              启动
+            </Button>
+          )}
           {project.name !== 'sf-notes' && (
             <Button 
               icon={<SettingOutlined />} 
@@ -276,11 +280,6 @@ const Project: ConnectRC<IProjectProps> = (props) => {
                 setSelectedProject(project);
               }}
             />
-          )}
-          {project.sfMock?.startBatPath && project.web.isStart === false && (
-            <Button type="dashed" onClick={() => onStartProject(project)}>
-              启动
-            </Button>
           )}
           {project.isSfMock && (
             <>
@@ -375,12 +374,15 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     }
   }
   async function onStartProject(project: NProject) {
-    if (!project.sfMock.startBatPath) {
+    const startCommands = project.startConfig?.commands || [];
+    if (!startCommands.length) {
       message.error('项目未配置启动命令');
       return;
     }
-    
-    const startRsp = await SSystem.startBat(project.sfMock.startBatPath);
+    const startRsp = await SProject.startProjectWithCommands({
+      projectId: project.id,
+      projectName: project.name,
+    });
     const newRsp = produce(MDProject.rsp, (drafState) => {
       const item = drafState.list.find((item) => item.name === project.name);
       item.web.isStart = null;
@@ -405,9 +407,9 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     projectRsp: NRsp<NProject>,
     retryCount = 0
   ) {
-    let checkUrl = project.sfMock.programUrl;
-    if (project.isSfMock) {
-      checkUrl = project.sfMock.programUrl + '/example/sfNotesTestStart';
+    let checkUrl = project.startConfig?.runUrl;
+    if (!checkUrl) {
+      return;
     }
     const startRsp = await SProject.isProjectStart(checkUrl);
     const index = projectRsp.list.findIndex(
@@ -451,7 +453,8 @@ const Project: ConnectRC<IProjectProps> = (props) => {
 
       rsp.list.forEach((item, index) => {
         if (item.web.isStart == null) {
-          if (item.sfMock.programUrl) {
+          const checkUrl = item.startConfig?.runUrl;
+          if (checkUrl) {
             reqProjectStart(item, newRsp);
           } else {
             newRsp.list[index].web.isStart = false;

@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Modal, Input, Space, Typography, message } from 'antd';
-import { PlusOutlined, MinusOutlined } from '@ant-design/icons';
+import { Button, Modal, Input, Typography, message } from 'antd';
+import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import SProject from '../SProject';
-
-const { Text } = Typography;
-const { TextArea } = Input;
 
 interface StartConfigModalProps {
   visible: boolean;
@@ -23,50 +20,62 @@ const StartConfigModal: React.FC<StartConfigModalProps> = ({
   project,
   onConfigSuccess,
 }) => {
-  const [commands, setCommands] = useState<string[]>(['']);
+  const [commands, setCommands] = useState<string[]>(['npm run dev']);
+  const [runUrl, setRunUrl] = useState('http://localhost:');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (visible && project && project.sfMock && project.sfMock.startCommands) {
-      setCommands(project.sfMock.startCommands);
+    if (visible && project && project.startConfig) {
+      const currentCommands = (project.startConfig.commands || []).filter(Boolean);
+      setCommands(currentCommands.length ? currentCommands : ['npm run dev']);
+      setRunUrl(project.startConfig.runUrl || 'http://localhost:');
     } else if (visible) {
-      setCommands(['']);
+      setCommands(['npm run dev']);
+      setRunUrl('http://localhost:');
     }
   }, [visible, project]);
 
-  const handleAddCommand = () => {
-    setCommands([...commands, '']);
+  const addCommand = () => {
+    setCommands((prev) => [...prev, '']);
   };
 
-  const handleRemoveCommand = (index: number) => {
-    if (commands.length > 1) {
-      const newCommands = [...commands];
-      newCommands.splice(index, 1);
-      setCommands(newCommands);
-    }
+  const removeCommand = (index: number) => {
+    setCommands((prev) => {
+      if (prev.length <= 1) {
+        return prev;
+      }
+      const next = [...prev];
+      next.splice(index, 1);
+      return next.length ? next : [''];
+    });
   };
 
-  const handleCommandChange = (index: number, value: string) => {
-    const newCommands = [...commands];
-    newCommands[index] = value;
-    setCommands(newCommands);
+  const updateCommand = (index: number, value: string) => {
+    setCommands((prev) => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
+    });
   };
 
   const handleSubmit = async () => {
-    if (commands.some(cmd => !cmd.trim())) {
-      message.error('请填写所有命令');
+    const validCommands = commands
+      .map((item) => item.trim())
+      .filter(Boolean);
+    if (!validCommands.length) {
+      message.error('请至少配置一条启动命令');
       return;
     }
 
     setLoading(true);
     try {
-      const rsp = await SProject.startProjectWithCommands({
+      const rsp = await SProject.saveProjectStartConfig({
         projectId,
-        projectName,
-        commands,
+        commands: validCommands,
+        runUrl: String(runUrl || '').trim(),
       });
       if (rsp.success) {
-        message.success('配置成功');
+        message.success('配置已保存');
         onClose();
         if (onConfigSuccess) {
           onConfigSuccess();
@@ -83,7 +92,7 @@ const StartConfigModal: React.FC<StartConfigModalProps> = ({
 
   return (
     <Modal
-      title="配置启动命令"
+      title="配置"
       open={visible}
       onCancel={onClose}
       footer={[
@@ -95,36 +104,34 @@ const StartConfigModal: React.FC<StartConfigModalProps> = ({
         </Button>,
       ]}
     >
-      <div style={{ marginBottom: 20 }}>
-        <Text>为项目 {projectName} 配置启动命令：</Text>
-      </div>
-      {commands.map((command, index) => (
-        <div key={index} style={{ display: 'flex', marginBottom: 10, width: '100%' }}>
-          <TextArea
-            value={command}
-            onChange={(e) => handleCommandChange(index, e.target.value)}
+      <Typography.Text style={{ marginBottom: 8, display: 'block' }}>启动命令</Typography.Text>
+      {commands.map((item, index) => (
+        <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+          <Input
+            value={item}
+            onChange={(e) => updateCommand(index, e.target.value)}
             placeholder="请输入启动命令"
-            rows={2}
-            style={{ flex: 1, width: '100%' }}
+            allowClear
           />
           {commands.length > 1 && (
             <Button
               danger
               icon={<MinusOutlined />}
-              onClick={() => handleRemoveCommand(index)}
-              style={{ alignSelf: 'flex-start', marginTop: 8, marginLeft: 10 }}
+              onClick={() => removeCommand(index)}
             />
           )}
         </div>
       ))}
-      <Button
-        type="dashed"
-        icon={<PlusOutlined />}
-        onClick={handleAddCommand}
-        style={{ width: '100%', marginTop: 10 }}
-      >
+      <Button type="dashed" icon={<PlusOutlined />} onClick={addCommand} style={{ width: '100%' }}>
         添加命令
       </Button>
+      <Typography.Text style={{ marginTop: 12, marginBottom: 8, display: 'block' }}>项目运行地址</Typography.Text>
+      <Input
+        value={runUrl}
+        onChange={(e) => setRunUrl(e.target.value)}
+        placeholder="例如 http://localhost:"
+        allowClear
+      />
     </Modal>
   );
 };
