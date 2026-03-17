@@ -54,7 +54,6 @@
             "id": 1773741159613,
             "startConfig": {
                 "commands": [
-                    "npm run dev",
                     "npm run dev"
                 ],
                 "runUrl": "http://localhost:3000"
@@ -66,8 +65,10 @@
             "name": "affluence-lottery-client",
             "id": 1773741893923,
             "startConfig": {
-                "commands": [],
-                "runUrl": ""
+                "commands": [
+                    "npm run dev:h5"
+                ],
+                "runUrl": "http://localhost:3001"
             }
         }
     ],
