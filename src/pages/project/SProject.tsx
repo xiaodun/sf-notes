@@ -400,10 +400,20 @@ namespace SProject {
   export async function startProjectWithCommands(data: {
     projectId: number;
     projectName: string;
-    commands: string[];
   }): Promise<NRsp<boolean>> {
     return request({
       url: "/project/startProjectWithCommands",
+      method: "post",
+      data,
+    });
+  }
+  export async function saveProjectStartConfig(data: {
+    projectId: number;
+    commands: string[];
+    runUrl: string;
+  }): Promise<NRsp<boolean>> {
+    return request({
+      url: "/project/saveProjectStartConfig",
       method: "post",
       data,
     });
