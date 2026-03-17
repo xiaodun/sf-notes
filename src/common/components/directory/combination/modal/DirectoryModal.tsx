@@ -4,7 +4,7 @@ import React, {
   ForwardRefRenderFunction,
   forwardRef,
 } from 'react';
-import { message, Modal } from 'antd';
+import { Breadcrumb, message, Modal } from 'antd';
 import { produce } from 'immer';
 import PageDirectory from '../../PageDirectory';
 import { NSystem } from '@/common/namespace/NSystem';
@@ -46,10 +46,12 @@ export const EditModal: ForwardRefRenderFunction<
         drafState.open = true;
         drafState.directoryKey = Math.random();
         drafState.showParasm = data || ({} as any);
+        drafState.pathInfos = createPathInfo(data?.startPath);
       });
       setState(newState);
     },
   }));
+  const breadcrumbItems = getBreadcrumbItems(state.pathInfos?.path);
   return (
     <Modal
       title="选择目录"
@@ -60,6 +62,13 @@ export const EditModal: ForwardRefRenderFunction<
       onCancel={onClose}
       width={1000}
     >
+      {breadcrumbItems.length > 0 && (
+        <Breadcrumb>
+          {breadcrumbItems.map((item, index) => (
+            <Breadcrumb.Item key={index}>{item.title}</Breadcrumb.Item>
+          ))}
+        </Breadcrumb>
+      )}
       {state.open && (
         <PageDirectory
           key={state.directoryKey}
@@ -87,6 +96,39 @@ export const EditModal: ForwardRefRenderFunction<
   }
   function onClose() {
     setState({ ...defaultState });
+  }
+  function createPathInfo(startPath?: string) {
+    if (!startPath) {
+      return null;
+    }
+    const normalizePath = startPath.replace(/\//g, "\\");
+    const pathParts = normalizePath.split("\\").filter(Boolean);
+    const name = pathParts[pathParts.length - 1] || normalizePath;
+    return {
+      name,
+      path: normalizePath,
+      stuffix: "",
+      isLeaf: false,
+      isDisk: /^[A-Za-z]:\\?$/.test(normalizePath),
+    } as NSystem.IDirectory;
+  }
+  function getBreadcrumbItems(path?: string) {
+    if (!path) {
+      return [];
+    }
+    const normalizePath = path.replace(/\//g, "\\");
+    const isDiskRoot = /^[A-Za-z]:\\?$/.test(normalizePath);
+    if (isDiskRoot) {
+      return [{ title: normalizePath.replace(/\\$/, "") }];
+    }
+    const match = normalizePath.match(/^([A-Za-z]:)\\?(.*)$/);
+    if (!match) {
+      return [{ title: normalizePath }];
+    }
+    const drive = match[1];
+    const rest = match[2];
+    const parts = rest.split("\\").filter(Boolean);
+    return [{ title: drive }, ...parts.map((item) => ({ title: item }))];
   }
 };
 
