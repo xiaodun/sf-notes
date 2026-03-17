@@ -86,7 +86,6 @@
 
 .lineWrapper {
   display: flex;
-
   margin: 2px 0;
   line-height: 32px;
 
@@ -112,6 +111,7 @@
       */
 
       transition: background-color 0.25s linear;
+      
     }
   }
 
@@ -123,6 +123,38 @@
 
       .contents {
         background-color: #fff6f6;
+      }
+    }
+  }
+}
+
+/* 移动端样式 */
+@media screen and (max-width: 768px) {
+  .lineWrapper {
+    :global {
+      .actions {
+        opacity: 1;
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
+}
+
+/* PC端样式 */
+@media screen and (min-width: 769px) {
+  .lineWrapper {
+    :global {
+      .actions {
+        opacity: 0;
+      }
+    }
+    
+    &:hover {
+      :global {
+        .actions {
+          opacity: 1;
+        }
       }
     }
   }

@@ -1,0 +1,15 @@
+[
+    {
+        "name": "1_1773573450140.png",
+        "type": "image/png",
+        "flag": "upload_11363e9c16b04de09d3833e015af7625",
+        "id": "1773573450140",
+        "originalName": "1.png",
+        "url": "/api/image/image/getImageContent?id=1773573450140",
+        "isProcessed": false,
+        "storage": {
+            "path": "uploads/original/1_1773573450140.png",
+            "timestamp": 1773573450140
+        }
+    }
+]
