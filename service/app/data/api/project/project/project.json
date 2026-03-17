@@ -1,6 +1,6 @@
 {
     "config": {
-        "addBasePath": "",
+        "addBasePath": "C:/Users/SZLD03287/Documents/GitHub/affluence-lottery-client",
         "showEnumList": false,
         "gitlabBasePath": "",
         "nginxVisitWay": "ip",
@@ -42,6 +42,12 @@
                 }
             ],
             "isDefaultCopySwagger": false
+        },
+        {
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\GitHub\\affluence-lottery-client",
+            "sfMock": {},
+            "name": "affluence-lottery-client",
+            "id": 1773737355284
         }
     ],
     "inExcludeGroups": {},
