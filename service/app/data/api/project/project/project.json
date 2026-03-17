@@ -1,6 +1,6 @@
 {
     "config": {
-        "addBasePath": "C:/Users/SZLD03287/Documents/ccs-ui",
+        "addBasePath": "C:/Users/SZLD03287/Documents/GitHub/affluence-lottery-client",
         "showEnumList": false,
         "gitlabBasePath": "",
         "nginxVisitWay": "domain",
@@ -52,6 +52,19 @@
             "sfMock": {},
             "name": "ccs-ui",
             "id": 1773741159613,
+            "startConfig": {
+                "commands": [
+                    "npm run dev",
+                    "npm run dev"
+                ],
+                "runUrl": "http://localhost:3000"
+            }
+        },
+        {
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\GitHub\\affluence-lottery-client",
+            "sfMock": {},
+            "name": "affluence-lottery-client",
+            "id": 1773741893923,
             "startConfig": {
                 "commands": [],
                 "runUrl": ""
