@@ -35,6 +35,11 @@
         argParams.name = argParams.rootPath.split("\\").pop();
         argParams.id = Date.now();
         argData.projectList.push(argParams);
+        if (argParams.rootPath) {
+          argData.config = argData.config || {};
+          const parentPath = path_os.dirname(argParams.rootPath);
+          argData.config.addBasePath = parentPath || argParams.rootPath;
+        }
       }
 
       // 更新配置
