@@ -36,8 +36,6 @@ const PImage: FC<IPImageProps> = (props) => {
     list: [],
   });
   const [selectedImage, setSelectedImage] = useState<NImage>();
-  const [compressQuality, setCompressQuality] = useState(80);
-  const [compressScalePercent, setCompressScalePercent] = useState(100);
   const [isCropping, setIsCropping] = useState(true);
   const [cropArea, setCropArea] = useState({ x: 0, y: 0, width: 400, height: 300 });
   const [isDragging, setIsDragging] = useState(false);
@@ -233,30 +231,10 @@ const PImage: FC<IPImageProps> = (props) => {
                       <div className={`${SelfStyle.cropHandle} ${SelfStyle.left}`}></div>
                     </div>
                   </div>
-                  <div style={{ marginTop: '10px' }}>
-                    <Button type="primary" onClick={handleCropConfirm}>确认裁剪</Button>
-                  </div>
-                  <div className={SelfStyle.compressActionWrap}>
-                    <div className={SelfStyle.compressRow}>
-                      <Typography.Text>质量: {compressQuality}</Typography.Text>
-                      <Slider
-                        min={1}
-                        max={100}
-                        value={compressQuality}
-                        onChange={(value) => setCompressQuality(Number(value))}
-                      />
-                    </div>
-                    <div className={SelfStyle.compressRow}>
-                      <Typography.Text>缩放: {compressScalePercent}%</Typography.Text>
-                      <Slider
-                        min={10}
-                        max={100}
-                        value={compressScalePercent}
-                        onChange={(value) => setCompressScalePercent(Number(value))}
-                      />
-                    </div>
-                    <Button type="primary" loading={compressLoading} onClick={handleCompress}>
-                      确认压缩
+                  <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
+                    <Button type="primary" onClick={handleCropConfirm} style={{ width: '100px' }}>确认裁剪</Button>
+                    <Button type="primary" loading={compressLoading} onClick={handleCompress} style={{ width: '100px' }}>
+                      压缩图片
                     </Button>
                   </div>
                 </div>
@@ -708,9 +686,9 @@ const PImage: FC<IPImageProps> = (props) => {
     setCompressLoading(true);
     try {
       const rsp = await SImage.compress(selectedImage, {
-        quality: compressQuality,
-        scalePercent: compressScalePercent,
-        format: "same",
+        quality: 80, // 默认质量
+        scalePercent: 100, // 默认不缩放
+        format: "jpeg",
       });
       if (activeImageIdRef.current !== operatingImageId) {
         return;
