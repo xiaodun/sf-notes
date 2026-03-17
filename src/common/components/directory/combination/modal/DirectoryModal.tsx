@@ -42,11 +42,15 @@ export const EditModal: ForwardRefRenderFunction<
     useState<Partial<IDirectoryModalState>>(defaultState);
   useImperativeHandle(ref, () => ({
     showModal: (data) => {
+      const startPath = normalizeStartPath(data?.startPath);
       const newState = produce(state, (drafState) => {
         drafState.open = true;
         drafState.directoryKey = Math.random();
-        drafState.showParasm = data || ({} as any);
-        drafState.pathInfos = createPathInfo(data?.startPath);
+        drafState.showParasm = {
+          ...(data || ({} as any)),
+          startPath,
+        };
+        drafState.pathInfos = createPathInfo(startPath);
       });
       setState(newState);
     },
@@ -111,6 +115,21 @@ export const EditModal: ForwardRefRenderFunction<
       isLeaf: false,
       isDisk: /^[A-Za-z]:\\?$/.test(normalizePath),
     } as NSystem.IDirectory;
+  }
+  function normalizeStartPath(startPath?: string) {
+    const value = String(startPath || "").trim();
+    if (!value) {
+      return "";
+    }
+    const normalized = value.replace(/\//g, "\\");
+    const driveOnly = normalized.match(/^([A-Za-z]:)\\?$/);
+    if (driveOnly) {
+      return `${driveOnly[1]}\\`;
+    }
+    if (/^[A-Za-z]:[^\\]/.test(normalized)) {
+      return `${normalized.slice(0, 2)}\\`;
+    }
+    return normalized;
   }
   function getBreadcrumbItems(path?: string) {
     if (!path) {

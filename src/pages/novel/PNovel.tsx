@@ -58,7 +58,6 @@ const PNovel: ConnectRC<PNovelProps> = (props) => {
     try {
       const result = await SNovel.delItem(item.id);
       if (result.success) {
-        message.success("删除成功");
         reqGetList();
       } else {
         message.error(result.message || "删除失败");

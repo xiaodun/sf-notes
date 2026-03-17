@@ -256,7 +256,6 @@ const PMaxim: ConnectRC<PMaximProps> = (props) => {
     try {
       const rsp = await SMaxim.delItem(maxim.id);
       if (rsp.success) {
-        message.success("删除成功");
         reqGetList(true);
       } else {
         message.error(rsp.msg || "删除失败");
