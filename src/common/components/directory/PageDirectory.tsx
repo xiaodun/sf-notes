@@ -181,7 +181,7 @@ export default (props: PropsWithChildren<IPageDirectoryProps>) => {
     const pathChain: string[] = [`${drive}\\`];
     let current = `${drive}\\`;
     parts.forEach((part) => {
-      current = normalizePath(`${current}${part}\\`);
+      current = normalizePath(`${current.replace(/\\+$/, "")}\\${part}`);
       pathChain.push(current);
     });
     return pathChain;

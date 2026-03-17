@@ -177,9 +177,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     if (addRsp.success) {
       reqGetProject();
       reqGetList();
-    } else if (!addRsp.isHaveReadMsg) {
-      message.error(addRsp.message);
-    }
+    } 
   }
 
   function renderNameColumn(project: NProject) {
@@ -199,7 +197,6 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   async function delProject(project: NProject) {
     const rsp = await SProject.delProject(project);
     if (rsp.success) {
-      message.success('删除成功');
       reqGetList();
     }
   }
@@ -469,10 +466,28 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     }
   }
   function onShowAddModal() {
+    const startPath = normalizeStartPath(MDProject.config.addBasePath);
     directoryModalRef.current.showModal({
-      startPath: MDProject.config.addBasePath,
+      startPath,
       filter: 'addedProject',
     });
+  }
+  function normalizeStartPath(path?: string) {
+    const value = String(path || "").trim();
+    if (!value) {
+      return "";
+    }
+    const normalized = value.replace(/\\/g, "/");
+    if (/^[A-Za-z]:$/.test(normalized)) {
+      return `${normalized}/`;
+    }
+    if (/^[A-Za-z]:\/[^/]/.test(normalized)) {
+      return normalized;
+    }
+    if (/^[A-Za-z]:[^/\\]/.test(value)) {
+      return `${value.slice(0, 2)}/`;
+    }
+    return normalized;
   }
   async function onReStartNginx() {
     const rsp = await SProject.reStartNginx();

@@ -2,6 +2,9 @@
   return function (argData, argParams, external) {
     const path_os = require("path");
     const fs_os = require("fs");
+    const normalizedRootPath = normalizeRootPath(argParams.rootPath);
+    const basePath = getBasePath(normalizedRootPath);
+    argParams.rootPath = normalizedRootPath;
     const isExist = argData.projectList.some(
       (item) => item.rootPath === argParams.rootPath
     );
@@ -19,9 +22,14 @@
     argParams.sfMock = {};
 
     if (isExist) {
+      if (basePath) {
+        argData.config = argData.config || {};
+        argData.config.addBasePath = basePath;
+      }
       //不能重复添加
       return {
-        isWrite: false,
+        isWrite: !!basePath,
+        data: argData,
         response: {
           code: 200,
           data: {
@@ -35,10 +43,9 @@
         argParams.name = argParams.rootPath.split("\\").pop();
         argParams.id = Date.now();
         argData.projectList.push(argParams);
-        if (argParams.rootPath) {
+        if (basePath) {
           argData.config = argData.config || {};
-          const parentPath = path_os.dirname(argParams.rootPath);
-          argData.config.addBasePath = parentPath || argParams.rootPath;
+          argData.config.addBasePath = basePath;
         }
       }
 
@@ -138,4 +145,14 @@
       };
     }
   };
+  function normalizeRootPath(rootPath) {
+    const value = String(rootPath || "").trim().replace(/\//g, "\\");
+    return value.replace(/\\+$/, "");
+  }
+  function getBasePath(rootPath) {
+    if (!rootPath) {
+      return "";
+    }
+    return String(rootPath).replace(/\\/g, "/");
+  }
 })();
