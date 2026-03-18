@@ -85,5 +85,69 @@
         }
     ],
     "apiPrefixs": {},
-    "attentionPathList": []
+    "attentionPathList": [
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "tagName": "MT4 Groups (V5 Pipeline)",
+            "groupName": "v5",
+            "pathUrl": "/api/v5/mt4/groups",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "tagName": "MT4 Groups (V5 Pipeline)",
+            "groupName": "v5",
+            "pathUrl": "/api/v5/mt4/groups/{groupName}",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "tagName": "MT4 Groups (V5 Pipeline)",
+            "groupName": "v5",
+            "pathUrl": "/api/v5/mt4/groups/companies",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "tagName": "MT4 Groups (V5 Pipeline)",
+            "groupName": "v5",
+            "pathUrl": "/api/v5/mt4/groups/batch",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "tagName": "MT4 Groups (V5 Pipeline)",
+            "groupName": "v5",
+            "pathUrl": "/api/v5/mt4/groups/duplicate",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "tagName": "MT4 Groups (V5 Pipeline)",
+            "groupName": "v5",
+            "pathUrl": "/api/v5/mt4/groups/transfer",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "tagName": "MT4 Groups (V5 Pipeline)",
+            "groupName": "v5",
+            "pathUrl": "/api/v5/mt4/groups/import",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "tagName": "MT4 Groups (V5 Pipeline)",
+            "groupName": "v5",
+            "pathUrl": "/api/v5/mt4/groups/export",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "tagName": "MT4 Groups (V5 Pipeline)",
+            "groupName": "v5",
+            "pathUrl": "/api/v5/mt4/groups/compare",
+            "isPath": true
+        }
+    ]
 }
