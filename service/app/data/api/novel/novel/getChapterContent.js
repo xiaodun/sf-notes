@@ -55,8 +55,8 @@ const path = require("path");
           if (entry.isDirectory()) {
             results = results.concat(getAllFiles(fullPath));
           } else if (entry.isFile() && entry.name.endsWith(".txt")) {
-             // 匹配 DDN-Index.txt 或纯数字.txt
-             if (/^(\d+)(?:-(\d+))?\.txt$/.test(entry.name)) {
+             // 直接匹配所有txt文件
+             if (entry.name.endsWith(".txt")) {
                 results.push(fullPath);
              }
           }
