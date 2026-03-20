@@ -1,0 +1,35 @@
+导出啥也没返回{
+    "serverId": 10001,
+    "groupNames": [
+        "0800076666",
+        "0Test20260203"
+    ],
+    "fileName": "MT4_TPTEST_groups_2026-03-19"
+}
+
+
+$env:AWS_ACCESS_KEY_ID="AKIAT2YVX7DDFPBZ2CBI"
+$env:AWS_SECRET_ACCESS_KEY="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"
+$env:AWS_REGION="ap-southeast-1"
+
+
+aws bedrock list-foundation-models --region ap-southeast-1 --provider anthropic
+
+
+$env:ANTHROPIC_DEFAULT_SONNET_MODEL="global.anthropic.claude-sonnet-4-6"
+$env:ANTHROPIC_DEFAULT_HAIKU_MODEL="global.anthropic.claude-haiku-4-5-20251001-v1:0"
+$env:ANTHROPIC_DEFAULT_OPUS_MODEL="global.anthropic.claude-opus-4-6-v1"
+
+
+
+# AWS Credentials
+[Environment]::SetEnvironmentVariable("AWS_ACCESS_KEY_ID", "AKIAT2YVX7DDFPBZ2CBI", "User")
+[Environment]::SetEnvironmentVariable("AWS_SECRET_ACCESS_KEY", "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", "User")
+# AWS Config
+[Environment]::SetEnvironmentVariable("AWS_REGION", "us-east-1", "User")
+# Claude Code Bedrock Flag
+[Environment]::SetEnvironmentVariable("CLAUDE_CODE_USE_BEDROCK", "1", "User")
+# Claude Models (Global endpoints)
+[Environment]::SetEnvironmentVariable("ANTHROPIC_DEFAULT_OPUS_MODEL", "global.anthropic.claude-opus-4-6-v1", "User")
+[Environment]::SetEnvironmentVariable("ANTHROPIC_DEFAULT_SONNET_MODEL", "global.anthropic.claude-sonnet-4-6", "User")
+[Environment]::SetEnvironmentVariable("ANTHROPIC_DEFAULT_HAIKU_MODEL", "global.anthropic.claude-haiku-4-5-20251001-v1:0", "User")
