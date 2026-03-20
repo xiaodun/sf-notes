@@ -2,13 +2,11 @@ node 版本：v25.7.0 (不再支持 v16)
 
 # 启动项目
 
+需安装Terminal
+
 ## 方式一
 
-```
-npm start
-```
-
-或者直接点击 startByCmd.bat
+直接点击 startByTerminal.bat
 
 ## 方式二
 
