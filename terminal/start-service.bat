@@ -1,2 +1,2 @@
 @echo off
-wt --window 0 new-tab --title "notes-service" cmd /k "cd /d "%~dp0..\service\app" && node service.js"
+wt --window 0 new-tab --title "notes-service" --startingDirectory "%~dp0..\service\app" cmd /k node service.js
