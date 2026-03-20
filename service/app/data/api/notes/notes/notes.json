@@ -1,5 +1,14 @@
 [
     {
+        "content": "@所有人 \nESLint + Prettier + Husky 已在 development 和 deploy-dev2 分支上线\n\n为什么要做这个：\n之前 ccs-ui 的 ESLint 配置是坏的（ESLint 9 装了但配置文件还是旧格式），也没有 Prettier 和 pre-commit 钩子。代码质量完全靠人工自觉和 code review。pe-ui 和 cls-ui 早就有了这套工具链，ccs-ui 一直是缺失的。现在补上了，以后每次提交都会自动检查代码规范和格式，防止新的技术债进入代码库。\n\ndeploy-dev2 额外包含了全量代码格式化（Prettier + ESLint auto-fix）。\n\n你需要做的：\n拉取 deploy-dev2（或 development），在 ccs-src/ccs-app/ 目录下执行 pnpm install\nWindows 用户：在仓库根目录（ccs-ui/）执行一次：\nnpx --prefix ccs-src/ccs-app husky\n搞定。之后每次 git commit 都会自动运行 pre-commit 钩子。\n\n重要提醒：deploy-dev2 上有大量格式化变更（218 个文件）。如果你本地有未提交的改动，先 stash 或 commit，再 pull，避免冲突。\n\n工作原理：\n提交时，Husky 只对暂存的文件运行 ESLint + Prettier\n--max-warnings=0 表示暂存文件中有任何警告都会阻止提交\nESLint 会自动修复能修的问题（比如 let -> const），Prettier 处理格式\n如果你改的文件有历史遗留的警告（比如 any 类型或未使用变量），你也需要一并修复才能提交\n\n如何修复你改动文件中的 lint 问题：\nany 类型：替换为正确类型（string、number、对应的 interface，实在不确定用 unknown）\n未使用变量：删掉，或用 _ 前缀标记为有意忽略（如 _event）\nreact-hooks/exhaustive-deps：补全依赖数组中缺失的依赖，或加 // eslint-disable-next-line 并注释原因\nreact-hooks/rules-of-hooks（MT5Group tabs）：需要结构性重构，暂时用 // eslint-disable-next-line 加 TODO 注释\n\n常用命令：\npnpm lint              -- 检查所有文件\npnpm lint:fix          -- 自动修复 ESLint 能修的问题\npnpm format            -- 对所有文件运行 Prettier\npnpm format:check      -- 检查格式但不修改\n\n紧急通道：如果提交被阻止但你急需推送：\ngit commit --no-verify -m \"your message\"\n尽量少用 -- 这会跳过所有检查。\n\n剩余 lint 债务：全代码库约 1200 个警告（主要是 any 类型）。会随着文件被修改逐步清理，不需要主动修复你没碰过的文件。\n\nthanks @Chiang Juo Han reminding\n\n有什么可以帮忙的我们可以继续讨论",
+        "base64": {},
+        "createTime": 1773971885325,
+        "updateTime": "",
+        "title": "2026-03-20 09:58:04",
+        "titleColor": "",
+        "id": 1773971885325
+    },
+    {
         "content": "userCurrentServer\ntrabsfer new 成功也弹出警告\nexport\nimport\ntransfer settings 422不会展示具体信息\n审批compare 报错\n",
         "base64": {},
         "createTime": 1773915110575,
@@ -7,24 +16,6 @@
         "title": "2026-03-19 06:11:50",
         "titleColor": "",
         "id": 1773915110575
-    },
-    {
-        "content": "浏览器复制怎么把url 入参 返回都复制了\n\n",
-        "base64": {},
-        "createTime": 1773911889399,
-        "updateTime": "",
-        "title": "2026-03-19 05:18:09",
-        "titleColor": "",
-        "id": 1773911889399
-    },
-    {
-        "content": "59\n",
-        "base64": {},
-        "createTime": 1773884555753,
-        "updateTime": "",
-        "title": "Trae 用量",
-        "titleColor": "",
-        "id": 1773884555753
     },
     {
         "content": "https://portal2.dev.ccp.risk-vantagefx.com/en/mt4/MT4_TEST/orders\n\nhttp://172.17.48.50:9100/en/mt5/20001/mt5-orders-analysis\n\n\n代码报错也会被认定为权限错误，并且客户端有两个报错\nbase64img://848233.png\n",
@@ -197,6 +188,26 @@
         "title": "2026-03-19 09:32:07",
         "titleColor": "",
         "id": 1773883928407,
+        "deleted": true
+    },
+    {
+        "content": "浏览器复制怎么把url 入参 返回都复制了\n\n",
+        "base64": {},
+        "createTime": 1773911889399,
+        "updateTime": "",
+        "title": "2026-03-19 05:18:09",
+        "titleColor": "",
+        "id": 1773911889399,
+        "deleted": true
+    },
+    {
+        "content": "59\n",
+        "base64": {},
+        "createTime": 1773884555753,
+        "updateTime": "",
+        "title": "Trae 用量",
+        "titleColor": "",
+        "id": 1773884555753,
         "deleted": true
     }
 ]
