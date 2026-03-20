@@ -4,7 +4,6 @@
   "private": true,
   "description": "",
   "scripts": {
-    "start": "cmd\\start-service.bat && start-web.bat",
     "dev": "npm run start:dev",
     "https": "npm run start:https",
     "start:https": "cross-env NODE_OPTIONS=--openssl-legacy-provider REACT_APP_ENV=dev UMI_UI=none https=open MOCK=none umi dev",
