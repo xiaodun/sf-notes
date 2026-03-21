@@ -66,7 +66,6 @@
       });
 
       function delBat(filePath) {
-        console.log('wx', filePath)
         setTimeout(() => {
           try {
             if (fs.existsSync(filePath)) {
