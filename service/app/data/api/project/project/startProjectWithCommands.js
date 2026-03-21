@@ -60,12 +60,13 @@
         );
         const batContent = [`cd ${projectRootPath}`, cmd].join('\r\n');
         fs.writeFileSync(tempBatPath, batContent, 'utf-8');
-        exec(`wt -w 0 new-tab --title "${projectName}-${index + 1}" cmd /k "${ path.resolve(tempBatPath)}"`, { windowsHide: true });
+        const tabTitle = index === 0 ? projectName : `${projectName}-${index}`;
+        exec(`wt -w 0 new-tab --title "${tabTitle}" cmd /k "\\"${path.resolve(tempBatPath)}\\""`, { windowsHide: true });
         delBat(tempBatPath);
       });
 
-      function delBat(filePath){
-        console.log('wx',filePath)
+      function delBat(filePath) {
+        console.log('wx', filePath)
         setTimeout(() => {
           try {
             if (fs.existsSync(filePath)) {

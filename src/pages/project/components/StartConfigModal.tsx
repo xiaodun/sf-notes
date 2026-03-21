@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Modal, Input, Typography, message } from 'antd';
-import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import SProject from '../SProject';
 
 interface StartConfigModalProps {
@@ -39,6 +38,14 @@ const StartConfigModal: React.FC<StartConfigModalProps> = ({
     setCommands((prev) => [...prev, '']);
   };
 
+  const updateCommand = (index: number, value: string) => {
+    setCommands((prev) => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
+    });
+  };
+
   const removeCommand = (index: number) => {
     setCommands((prev) => {
       if (prev.length <= 1) {
@@ -50,17 +57,9 @@ const StartConfigModal: React.FC<StartConfigModalProps> = ({
     });
   };
 
-  const updateCommand = (index: number, value: string) => {
-    setCommands((prev) => {
-      const next = [...prev];
-      next[index] = value;
-      return next;
-    });
-  };
-
   const handleSubmit = async () => {
     const validCommands = commands
-      .map((item) => item.trim())
+      .map((item) => String(item || '').trim())
       .filter(Boolean);
     if (!validCommands.length) {
       message.error('请至少配置一条启动命令');
@@ -107,22 +106,20 @@ const StartConfigModal: React.FC<StartConfigModalProps> = ({
       <Typography.Text style={{ marginBottom: 8, display: 'block' }}>启动命令</Typography.Text>
       {commands.map((item, index) => (
         <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-          <Input
+          <Input.TextArea
             value={item}
             onChange={(e) => updateCommand(index, e.target.value)}
             placeholder="请输入启动命令"
-            allowClear
+            autoSize={{ minRows: 2, maxRows: 6 }}
           />
           {commands.length > 1 && (
-            <Button
-              danger
-              icon={<MinusOutlined />}
-              onClick={() => removeCommand(index)}
-            />
+            <Button danger onClick={() => removeCommand(index)}>
+              删除
+            </Button>
           )}
         </div>
       ))}
-      <Button type="dashed" icon={<PlusOutlined />} onClick={addCommand} style={{ width: '100%' }}>
+      <Button type="dashed" onClick={addCommand} style={{ width: '100%', marginTop: 8 }}>
         添加命令
       </Button>
       <Typography.Text style={{ marginTop: 12, marginBottom: 8, display: 'block' }}>项目运行地址</Typography.Text>
