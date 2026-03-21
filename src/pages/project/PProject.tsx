@@ -178,7 +178,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     if (addRsp.success) {
       reqGetProject();
       reqGetList();
-    } 
+    }
   }
 
   function renderNameColumn(project: NProject) {
@@ -258,8 +258,8 @@ const Project: ConnectRC<IProjectProps> = (props) => {
             </Button>
           )}
           {project.name !== 'sf-notes' && (
-            <Button 
-              icon={<SettingOutlined />} 
+            <Button
+              icon={<SettingOutlined />}
               onClick={() => {
                 setSelectedProject(project);
               }}
@@ -273,14 +273,6 @@ const Project: ConnectRC<IProjectProps> = (props) => {
                     {
                       key: 'restart-nginx',
                       label: <a onClick={() => onReStartNginx()}>重启nginx</a>,
-                    },
-                    {
-                      key: 'generate-bat',
-                      label: (
-                        <a onClick={() => onGenerateProjectStartBat()}>
-                          批量生成启动项目bat文件
-                        </a>
-                      ),
                     },
                     {
                       key: 'generate-structure',
@@ -528,12 +520,6 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   }
   async function onReStartNginx() {
     const rsp = await SProject.reStartNginx();
-    if (rsp.success) {
-      message.success('已执行');
-    }
-  }
-  async function onGenerateProjectStartBat() {
-    const rsp = await SProject.generateProjectStartBat();
     if (rsp.success) {
       message.success('已执行');
     }
