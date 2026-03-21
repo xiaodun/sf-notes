@@ -37,6 +37,7 @@ import UGitlab from '@/common/utils/UGitlab';
 import { DeleteOutlined, MenuOutlined, ArrowLeftOutlined, SettingOutlined, EllipsisOutlined } from '@ant-design/icons';
 import Browser from "@/utils/browser";
 import SBase from '@/common/service/SBase';
+import { DIRECTORY_MODAL_MEMORY_KEYS } from '@/common/components/directory/constants/directoryMemory';
 export interface IProjectProps {
   MDProject: NMDProject.IState;
 }
@@ -499,6 +500,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     directoryModalRef.current.showModal({
       startPath,
       filter: 'addedProject',
+      memoryKey: DIRECTORY_MODAL_MEMORY_KEYS.SF_NOTES_PROJECT_ADD,
     });
   }
   function normalizeStartPath(path?: string) {
