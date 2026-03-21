@@ -34,8 +34,9 @@ import NRsp from '@/common/namespace/NRsp';
 import { cloneDeep } from 'lodash';
 import UCopy from '@/common/utils/UCopy';
 import UGitlab from '@/common/utils/UGitlab';
-import { DeleteOutlined, MenuOutlined, ArrowLeftOutlined, SettingOutlined } from '@ant-design/icons';
+import { DeleteOutlined, MenuOutlined, ArrowLeftOutlined, SettingOutlined, EllipsisOutlined } from '@ant-design/icons';
 import Browser from "@/utils/browser";
+import SBase from '@/common/service/SBase';
 export interface IProjectProps {
   MDProject: NMDProject.IState;
 }
@@ -45,10 +46,12 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   const directoryModalRef = useRef<IDirectoryModal>();
   const startConfigModalRef = useRef<any>();
   const [selectedProject, setSelectedProject] = useState<NProject | null>(null);
+  const [localIpv4, setLocalIpv4] = useState('');
 
   useEffect(() => {
     reqGetProject();
     reqGetList();
+    reqLocalIpv4();
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
         reqGetList();
@@ -56,7 +59,6 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     });
   }, []);
 
-  const hasSfMock = MDProject.rsp.list.some((item) => item.isSfMock);
   const DragHandle = SortableHandle(() => (
     <MenuOutlined style={{ cursor: 'grab', color: '#999' }} />
   ));
@@ -201,54 +203,36 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   }
   function renderOptionColumn(project: NProject) {
     let openBlock;
-    if (project.sfMock) {
-      if (project.web.isStart === null) {
-        // 显示加载状态
-      } else if (project.web.isStart) {
-        // 显示已启动状态
-        if (!project.isSfMock && project.sfMock.serverList?.length) {
-          const serverList = project.sfMock.serverList.map((item) => ({
-            ...item,
-            webOpenUrl:
-              MDProject.config.nginxVisitWay === 'domain'
-                ? item.openDomainUrl
-                  ? item.openDomainUrl
-                  : item.openUrl
-                : item.openUrl,
-          }));
-          const mockService = serverList.find((item) => item.isMock);
-          let envList = serverList.filter((item) => !item.isMock);
-          openBlock =
-            project.sfMock.serverList.length > 1 ? (
-              <Dropdown.Button
-                menu={{
-                  items: envList.map((item) => ({
-                    key: item.openUrl,
-                    label: (
-                      <a target="_blank" href={item.webOpenUrl}>
-                        {item.name || item.openUrl}
-                      </a>
-                    ),
-                  })),
-                }}
-              >
-                <a target="_blank" href={mockService.webOpenUrl}>
-                  打开
-                </a>
-              </Dropdown.Button>
-            ) : (
-              <Button>
-                <a
-                  target="_blank"
-                  href={
-                    mockService ? mockService.webOpenUrl : envList[0].webOpenUrl
-                  }
-                >
-                  打开
-                </a>
-              </Button>
-            );
-        }
+    if (project.web.isStart && !project.isSfMock) {
+      const openLinkList = getOpenLinkList(project);
+      if (openLinkList.length > 1) {
+        openBlock = (
+          <Dropdown.Button
+            icon={<EllipsisOutlined />}
+            menu={{
+              items: openLinkList.slice(1).map((item) => ({
+                key: item.key,
+                label: (
+                  <a target="_blank" href={item.url}>
+                    {item.name}
+                  </a>
+                ),
+              })),
+            }}
+          >
+            <a target="_blank" href={openLinkList[0].url}>
+              打开
+            </a>
+          </Dropdown.Button>
+        );
+      } else if (openLinkList.length === 1) {
+        openBlock = (
+          <Button>
+            <a target="_blank" href={openLinkList[0].url}>
+              打开
+            </a>
+          </Button>
+        );
       }
     }
     return (
@@ -467,6 +451,56 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         }
       });
     }
+  }
+  async function reqLocalIpv4() {
+    const rsp = await SBase.getIpv4();
+    if (rsp.success && rsp.data) {
+      setLocalIpv4(String(rsp.data).trim());
+    }
+  }
+  function getOpenLinkList(project: NProject) {
+    const runUrl = String(project.startConfig?.runUrl || '').trim();
+    if (!runUrl) {
+      return [];
+    }
+    const list: { key: string; name: string; url: string }[] = [
+      {
+        key: 'local',
+        name: '本地链接',
+        url: runUrl,
+      },
+    ];
+    if (localIpv4) {
+      const ipUrl = replaceLocalHost(runUrl, localIpv4);
+      if (ipUrl && ipUrl !== runUrl) {
+        list.push({
+          key: 'ip',
+          name: 'IP链接',
+          url: ipUrl,
+        });
+      }
+    }
+    const mockItem = (project.sfMock?.serverList || []).find((item) => item.isMock);
+    if (mockItem) {
+      const mockUrl =
+        MDProject.config.nginxVisitWay === 'domain'
+          ? mockItem.openDomainUrl || mockItem.openUrl
+          : mockItem.openUrl;
+      if (mockUrl) {
+        list.push({
+          key: 'mock',
+          name: 'Mock链接',
+          url: mockUrl,
+        });
+      }
+    }
+    return list;
+  }
+  function replaceLocalHost(url: string, host: string) {
+    return String(url || '').replace(
+      /(https?:\/\/)(localhost|127\.0\.0\.1|0\.0\.0\.0)(?=[:/]|$)/i,
+      `$1${host}`
+    );
   }
   function onShowAddModal() {
     const startPath = normalizeStartPath(MDProject.config.addBasePath);
