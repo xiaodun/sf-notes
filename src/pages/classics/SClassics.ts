@@ -10,6 +10,7 @@ export namespace SClassics {
   export async function getList(params?: {
     authorId?: string;
     dynastyId?: string;
+    keyword?: string;
     page?: number;
     pageSize?: number;
   }): Promise<NRsp<NClassics>> {

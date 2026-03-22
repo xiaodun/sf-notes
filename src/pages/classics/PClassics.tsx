@@ -3,7 +3,7 @@ import SelfStyle from "./LClassics.less";
 import SClassics from "./SClassics";
 import SAuthor from "./SAuthor";
 import SDynasty from "./SDynasty";
-import { Button, message, Select, Space, Dropdown } from "antd";
+import { Button, message, Select, Space, Dropdown, Input } from "antd";
 import type { MenuProps } from "antd";
 import { MoreOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import EditModal, { IEditModal } from "./components/EditModal";
@@ -40,6 +40,7 @@ const PClassics: ConnectRC<PClassicsProps> = (props) => {
   });
   const [searchAuthorId, setSearchAuthorId] = useState<string>("");
   const [searchDynastyId, setSearchDynastyId] = useState<string>("");
+  const [searchKeyword, setSearchKeyword] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
   // 从 MDClassics 中获取作者和朝代数据
@@ -170,6 +171,7 @@ const PClassics: ConnectRC<PClassicsProps> = (props) => {
       const rsp = await SClassics.getList({
         authorId: searchAuthorId || undefined,
         dynastyId: searchDynastyId || undefined,
+        keyword: searchKeyword || undefined,
         page: MDClassics.page + 1,
         pageSize: MDClassics.pageSize,
       });
@@ -195,6 +197,7 @@ const PClassics: ConnectRC<PClassicsProps> = (props) => {
   }, [
     searchAuthorId,
     searchDynastyId,
+    searchKeyword,
     MDClassics.loading,
     MDClassics.hasMore,
     MDClassics.page,
@@ -203,12 +206,13 @@ const PClassics: ConnectRC<PClassicsProps> = (props) => {
 
   // 带参数的筛选函数
   const reqGetListWithFilters = useCallback(
-    async (dynastyId: string, authorId: string) => {
+    async (dynastyId: string, authorId: string, keyword: string = searchKeyword) => {
       setLoading(true);
       try {
         const rsp = await SClassics.getList({
           authorId: authorId || undefined,
           dynastyId: dynastyId || undefined,
+          keyword: keyword || undefined,
           page: 1,
           pageSize: MDClassics.pageSize,
         });
@@ -228,7 +232,7 @@ const PClassics: ConnectRC<PClassicsProps> = (props) => {
         setLoading(false);
       }
     },
-    [MDClassics.pageSize]
+    [MDClassics.pageSize, searchKeyword]
   );
 
   const reqGetList = useCallback(
@@ -238,6 +242,7 @@ const PClassics: ConnectRC<PClassicsProps> = (props) => {
         const rsp = await SClassics.getList({
           authorId: searchAuthorId || undefined,
           dynastyId: searchDynastyId || undefined,
+          keyword: searchKeyword || undefined,
           page: 1,
           pageSize: MDClassics.pageSize,
         });
@@ -257,7 +262,7 @@ const PClassics: ConnectRC<PClassicsProps> = (props) => {
         setLoading(false);
       }
     },
-    [searchAuthorId, searchDynastyId, MDClassics.pageSize]
+    [searchAuthorId, searchDynastyId, searchKeyword, MDClassics.pageSize]
   );
 
   const handleEditOk = useCallback(
@@ -474,6 +479,16 @@ const PClassics: ConnectRC<PClassicsProps> = (props) => {
       {/* 搜索栏 */}
       <div className={SelfStyle.searchBar}>
         <Space wrap style={{ width: "100%" }}>
+          <Input.Search
+            placeholder="搜索标题或内容"
+            allowClear
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+            onSearch={(value) =>
+              reqGetListWithFilters(searchDynastyId, searchAuthorId, value)
+            }
+            style={{ width: isMobile ? "100%" : 220 }}
+          />
           <Select
             placeholder="选择朝代"
             value={searchDynastyId || undefined}
@@ -481,8 +496,7 @@ const PClassics: ConnectRC<PClassicsProps> = (props) => {
               const newDynastyId = value || "";
               setSearchDynastyId(newDynastyId);
               setSearchAuthorId(""); // 改变朝代时清空作者选择
-              // 直接使用新值调用，不等待状态更新
-              reqGetListWithFilters(newDynastyId, "");
+              reqGetListWithFilters(newDynastyId, "", searchKeyword);
             }}
             allowClear
             showSearch
@@ -501,8 +515,7 @@ const PClassics: ConnectRC<PClassicsProps> = (props) => {
             onChange={(value) => {
               const newAuthorId = value || "";
               setSearchAuthorId(newAuthorId);
-              // 直接使用新值调用，不等待状态更新
-              reqGetListWithFilters(searchDynastyId, newAuthorId);
+              reqGetListWithFilters(searchDynastyId, newAuthorId, searchKeyword);
             }}
             allowClear
             showSearch
@@ -524,12 +537,13 @@ const PClassics: ConnectRC<PClassicsProps> = (props) => {
                 value: author.id,
               }))}
           />
-          {(searchAuthorId || searchDynastyId) && (
+          {(searchAuthorId || searchDynastyId || searchKeyword) && (
             <Button
               onClick={() => {
                 setSearchAuthorId("");
                 setSearchDynastyId("");
-                reqGetListWithFilters("", "");
+                setSearchKeyword("");
+                reqGetListWithFilters("", "", "");
               }}
             >
               重置
