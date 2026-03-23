@@ -42,10 +42,15 @@
       if (!argParams.isUpdate) {
         argParams.name = argParams.rootPath.split("\\").pop();
         argParams.id = Date.now();
-        argParams.startConfig = {
-          commands: [],
-          runUrl: "",
-        };
+        argParams.startConfig = argParams.name === "sf-mock"
+          ? {
+            commands: ["node mockService.js"],
+            runUrl: "http://localhost:9192",
+          }
+          : {
+            commands: [],
+            runUrl: "",
+          };
         argData.projectList.push(argParams);
         if (basePath) {
           argData.config = argData.config || {};

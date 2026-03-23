@@ -4,6 +4,7 @@ import NNovel from "../NNovel";
 import SNovel from "../SNovel";
 import DirectoryModal, { IDirectoryModal } from "@/common/components/directory/combination/modal/DirectoryModal";
 import { NSystem } from "@/common/namespace/NSystem";
+import { DIRECTORY_MODAL_MEMORY_KEYS } from "@/common/components/directory/constants/directoryMemory";
 
 export interface IAddNovelModal {
   showModal: (novel?: NNovel) => void;
@@ -62,7 +63,12 @@ const AddNovelModal: ForwardRefRenderFunction<IAddNovelModal, IAddNovelModalProp
         message.error(result.message || "操作失败");
       }
     } catch (error) {
-      console.error("保存失败:", error);
+      const firstError = error?.errorFields?.[0]?.errors?.[0];
+      if (firstError) {
+        message.error(firstError);
+        return;
+      }
+      message.error("保存失败");
     }
   };
 
@@ -76,6 +82,7 @@ const AddNovelModal: ForwardRefRenderFunction<IAddNovelModal, IAddNovelModalProp
     directoryModalRef.current?.showModal({
       disableFile: true, // 只能选择文件夹
       selectCallbackFlag: "novelPath",
+      memoryKey: DIRECTORY_MODAL_MEMORY_KEYS.SF_NOTES_NOVEL_ADD_PATH,
     });
   };
 

@@ -38,6 +38,7 @@ import { CopyOutlined, DeleteOutlined } from "@ant-design/icons";
 import { isEmpty, uniqueId } from "lodash";
 import SBase from "@/common/service/SBase";
 import { UModal } from "@/common/utils/modal/UModal";
+import { DIRECTORY_MODAL_MEMORY_KEYS } from "@/common/components/directory/constants/directoryMemory";
 export interface IPProjectSnippetProps {
   MDProject: NMDProject.IState;
   MDGlobal: NMDGlobal.IState;
@@ -231,6 +232,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
     directoryModalRef.current.showModal({
       startPath: MDProject.config.addBasePath,
       selectCallbackFlag: "setWriteOsPath",
+      memoryKey: DIRECTORY_MODAL_MEMORY_KEYS.SF_NOTES_PROJECT_SNIPPET_WRITE_PATH,
     });
   }
   function onWriteOs(snippetConfig: NProjectSnippet.IConfig) {
@@ -244,6 +246,7 @@ const PProjectSnippet: ConnectRC<IPProjectSnippetProps> = (props) => {
             MDProject.project.rootPath + snippetConfig.writeOs.basePath,
           disableFile: true,
           selectCallbackFlag: "writeOs",
+          memoryKey: DIRECTORY_MODAL_MEMORY_KEYS.SF_NOTES_PROJECT_SNIPPET_WRITE_OS,
         });
       } else {
         reqWriteSnippetOs(MDProject.project.rootPath);

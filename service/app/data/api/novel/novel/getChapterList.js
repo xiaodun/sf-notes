@@ -45,10 +45,8 @@ const path = require("path");
             const newParentName = parentName ? `${parentName}-${dirName}` : dirName;
             results = results.concat(getAllFiles(fullPath, newParentName));
           } else if (entry.isFile() && entry.name.endsWith(".txt")) {
-             // 匹配 DDN-Index.txt 或纯数字.txt
-             // 之前的逻辑只匹配纯数字: /^(\d+)\.txt$/
-             // 现在的逻辑需要兼容两种格式
-             if (/^(\d+)(?:-(\d+))?\.txt$/.test(entry.name)) {
+             // 直接匹配所有txt文件
+             if (entry.name.endsWith(".txt")) {
                 const fileName = entry.name.replace(".txt", "");
                 const displayName = parentName ? `${parentName}-${fileName}` : fileName;
                 results.push({ path: fullPath, name: displayName });

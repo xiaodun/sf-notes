@@ -2,7 +2,7 @@
   const fs = require("fs");
   const path = require("path");
   return function (argData, argParams) {
-    const { authorId, dynastyId, page = 1, pageSize = 20 } = argParams || {};
+    const { authorId, dynastyId, keyword, page = 1, pageSize = 20 } = argParams || {};
     const data = argData || { authors: [], dynasties: [] };
     
     // 从文件目录读取所有名篇文件
@@ -61,6 +61,15 @@
         .filter((author) => author.dynastyId === dynastyId)
         .map((author) => author.id);
       allClassics = allClassics.filter((item) => authorIds.includes(item.authorId));
+    }
+
+    if (keyword) {
+      const text = String(keyword).toLowerCase();
+      allClassics = allClassics.filter((item) => {
+        const title = (item.title || "").toLowerCase();
+        const content = (item.content || "").toLowerCase();
+        return title.includes(text) || content.includes(text);
+      });
     }
 
     // 按创建时间倒序排序（最新的在前）
