@@ -1,6 +1,5 @@
 (function () {
   return function (argData, argParams) {
-    //argData 数据的副本
     let file;
     let index = argData.findIndex((el, index, arr) => {
       if (el.id === argParams.id) {
@@ -10,12 +9,20 @@
     });
     argData.splice(index, 1);
     return {
-      isWrite: true, //是否覆盖数据
-      data: argData, //需要存储的新数据
+      isWrite: true,
+      data: argData,
+      broadcast: {
+        type: "others",
+        data: {
+          key: "FILE",
+          type: "FILE_DELETE",
+          file,
+          id: argParams.id,
+        },
+      },
       isDelete: true,
       file,
       response: {
-        //返回的数据
         code: 200,
         data: {
           success: true,
