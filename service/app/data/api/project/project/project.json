@@ -75,7 +75,14 @@
             "id": 1774229887993,
             "startConfig": {
                 "commands": [
-                    "npm run dev:h5"
+                    {
+                        "name": "affluence-lottery-client",
+                        "command": "npm run dev:h5"
+                    },
+                    {
+                        "name": "lottery-clound",
+                        "command": "cd clound-service\nnode app.js"
+                    }
                 ],
                 "runUrl": "http://localhost:5173"
             }
