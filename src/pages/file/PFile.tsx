@@ -17,6 +17,8 @@ import { produce } from "immer";
 
 import { floor } from "lodash";
 import React, { FC, ReactNode, useEffect, useRef, useState } from "react";
+import UWsBridge from "@/common/utils/UWsBridge";
+import wsEvent from "@/../service/app/data/wsEvent.json";
 
 import SelfStyle from "./LFile.less";
 import NFile from "./NFile";
@@ -34,6 +36,10 @@ const PFile: FC<IPFileProps> = (props) => {
   const refreshView = useRefreshView();
   useEffect(() => {
     getList();
+    const off = UWsBridge.on(wsEvent.key.FILE, () => {
+      getList();
+    });
+    return off;
   }, []);
   return (
     <div>
