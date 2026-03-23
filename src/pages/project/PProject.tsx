@@ -34,7 +34,7 @@ import NRsp from '@/common/namespace/NRsp';
 import { cloneDeep } from 'lodash';
 import UCopy from '@/common/utils/UCopy';
 import UGitlab from '@/common/utils/UGitlab';
-import { DeleteOutlined, MenuOutlined, ArrowLeftOutlined, SettingOutlined, EllipsisOutlined } from '@ant-design/icons';
+import { DeleteOutlined, MenuOutlined, ArrowLeftOutlined, SettingOutlined, EllipsisOutlined, FolderOpenOutlined } from '@ant-design/icons';
 import Browser from "@/utils/browser";
 import SBase from '@/common/service/SBase';
 import { DIRECTORY_MODAL_MEMORY_KEYS } from '@/common/components/directory/constants/directoryMemory';
@@ -185,6 +185,12 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   function renderNameColumn(project: NProject) {
     return (
       <div className={SelfStyle.nameColumn}>
+        <Button
+          shape="circle"
+          icon={<FolderOpenOutlined />}
+          style={{ marginRight: 8 }}
+          onClick={() => onOpenProjectRoot(project)}
+        ></Button>
         <div className="name" onClick={() => UCopy.copyStr(project.name)}>
           {project.name}
         </div>
@@ -195,6 +201,9 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         ></Button>
       </div>
     );
+  }
+  async function onOpenProjectRoot(project: NProject) {
+    await SBase.openFile(project.rootPath);
   }
   async function delProject(project: NProject) {
     const rsp = await SProject.delProject(project);
@@ -536,3 +545,5 @@ const Project: ConnectRC<IProjectProps> = (props) => {
 export default connect(({ MDProject }: NModel.IState) => ({
   MDProject,
 }))(Project);
+
+
