@@ -25,7 +25,7 @@
         type: "others",
         data: {
           key: "NOTE",
-          type: "NOTE_DELETE",
+          type: "DELETE",
           id,
         },
       },

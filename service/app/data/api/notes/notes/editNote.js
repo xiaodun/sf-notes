@@ -17,7 +17,7 @@
         type: "others",
         data: {
           key: "NOTE",
-          type: "NOTE_EDIT",
+          type: "EDIT",
           note: notepad,
         },
       },
