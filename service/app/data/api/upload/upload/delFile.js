@@ -15,7 +15,7 @@
         type: "others",
         data: {
           key: "FILE",
-          type: "FILE_DELETE",
+          type: "DELETE",
           file,
           id: argParams.id,
         },
