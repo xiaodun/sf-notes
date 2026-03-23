@@ -20,6 +20,8 @@ import {
   SortEnd,
 } from "react-sortable-hoc";
 import NNotes from "./NNotes";
+import UWsBridge from "@/common/utils/UWsBridge";
+import wsEvent from "@/../service/app/data/wsEvent.json";
 
 const DragHandle = SortableHandle(() => (
   <MenuOutlined style={{ cursor: "grab", color: "#999" }} />
@@ -100,12 +102,16 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
 
   useEffect(() => {
     reqGetList();
+    const off = UWsBridge.on(wsEvent.key.NOTE, () => {
+      reqGetList();
+    });
     setTimeout(() => {
       document.title = "日记本";
     });
 
     document.addEventListener("dragover", onDragOver);
     return () => {
+      off();
       document.removeEventListener("dragover", onDragOver);
     };
   }, []);

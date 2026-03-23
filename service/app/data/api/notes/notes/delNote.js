@@ -19,10 +19,17 @@
     }
 
     return {
-      isWrite: true, //是否覆盖数据
-      data: argData, //需要存储的新数据
+      isWrite: true,
+      data: argData,
+      broadcast: {
+        type: "others",
+        data: {
+          key: "NOTE",
+          type: "NOTE_DELETE",
+          id,
+        },
+      },
       response: {
-        //返回的数据
         code: 200,
         data: {
           success: true,
