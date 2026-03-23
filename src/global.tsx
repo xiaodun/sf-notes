@@ -4,6 +4,7 @@
 import {} from 'lodash';
 import {} from '@ant-design/icons';
 import { History, Dispatch } from 'umi';
+import UWsBridge from '@/common/utils/UWsBridge';
 declare global {
   interface Window {
     umiHistory: History;
@@ -33,3 +34,4 @@ if ('serviceWorker' in navigator) {
     });
   }
 }
+UWsBridge.init();

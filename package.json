@@ -131,7 +131,7 @@
     "pro-download": "1.0.1",
     "puppeteer-core": "^2.1.1",
     "react-sortable-hoc": "^2.0.0",
-    "sf-inner-service": "^1.6.8",
+    "sf-inner-service": "^1.8.0",
     "stylelint": "^13.0.0"
   },
   "engines": {
