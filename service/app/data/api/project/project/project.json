@@ -1,6 +1,6 @@
 {
     "config": {
-        "addBasePath": "C:/Users/SZLD03287/Documents/GitHub/affluence-lottery-client",
+        "addBasePath": "C:/Users/SZLD03287/Documents/sf-mock",
         "showEnumList": false,
         "gitlabBasePath": "",
         "nginxVisitWay": "domain",
@@ -14,7 +14,26 @@
             "id": 1634522259207,
             "isSfMock": false,
             "closeAjaxCode": true,
-            "sfMock": {},
+            "sfMock": {
+                "serverList": [
+                    {
+                        "port": 9000,
+                        "isMock": true,
+                        "openUrl": "http://172.17.48.50:9000",
+                        "openDomainUrl": "http://wx.mock.sf-notes:9000"
+                    },
+                    {
+                        "port": 9001,
+                        "url": "http://192.168.10.197:8880",
+                        "openUrl": "http://172.17.48.50:9001",
+                        "openDomainUrl": "http://wx.prd.sf-notes:9001"
+                    },
+                    {
+                        "name": "本地链接",
+                        "openUrl": "http://localhost:8000"
+                    }
+                ]
+            },
             "snippetList": [
                 {
                     "name": "一个模块",
@@ -48,28 +67,74 @@
             }
         },
         {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\ccs-ui",
-            "sfMock": {},
-            "name": "ccs-ui",
-            "id": 1773741159613,
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-lottery-client",
+            "sfMock": {
+                "serverList": []
+            },
+            "name": "affluence-lottery-client",
+            "id": 1774229887993,
+            "startConfig": {
+                "commands": [
+                    "npm run dev:h5"
+                ],
+                "runUrl": "http://localhost:5173"
+            }
+        },
+        {
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-spend-client",
+            "sfMock": {
+                "serverList": []
+            },
+            "name": "affluence-spend-client",
+            "id": 1774229969419,
+            "startConfig": {
+                "commands": [
+                    "npm run dev:h5"
+                ],
+                "runUrl": "http://localhost:"
+            }
+        },
+        {
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app",
+            "sfMock": {
+                "serverList": [
+                    {
+                        "port": 9100,
+                        "isMock": true,
+                        "openUrl": "http://172.17.48.50:9100",
+                        "openDomainUrl": "http://wx.mock.ccs-app:9100"
+                    },
+                    {
+                        "name": "本地链接",
+                        "openUrl": "http://localhost:3000"
+                    }
+                ],
+                "addressPath": ""
+            },
+            "name": "ccs-app",
+            "id": 1774230197427,
             "startConfig": {
                 "commands": [
                     "npm run dev"
                 ],
                 "runUrl": "http://localhost:3000"
-            }
+            },
+            "isSfMock": false
         },
         {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\GitHub\\affluence-lottery-client",
-            "sfMock": {},
-            "name": "affluence-lottery-client",
-            "id": 1773741893923,
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\sf-mock",
+            "sfMock": {
+                "serverList": []
+            },
+            "name": "sf-mock",
+            "id": 1774230745884,
             "startConfig": {
                 "commands": [
-                    "npm run dev:h5"
+                    "node mockService.js"
                 ],
-                "runUrl": "http://localhost:3001"
-            }
+                "runUrl": "http://localhost:9192"
+            },
+            "isSfMock": true
         }
     ],
     "inExcludeGroups": {
