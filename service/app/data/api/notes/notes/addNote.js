@@ -30,7 +30,7 @@
         type: "others",
         data: {
           key: "NOTE",
-          type: "NOTE_ADD",
+          type: "ADD",
           note: notes,
         },
       },

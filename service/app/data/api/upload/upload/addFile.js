@@ -11,7 +11,7 @@
         type: "others",
         data: {
           key: "FILE",
-          type: "FILE_UPLOAD",
+          type: "ADD",
           file,
         },
       },
