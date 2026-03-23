@@ -21,7 +21,7 @@ import {
 } from "react-sortable-hoc";
 import NNotes from "./NNotes";
 import UWsBridge from "@/common/utils/UWsBridge";
-import wsEvent from "@/../service/app/data/wsEvent.json";
+import wsEvent from "@/common/constants/wsEvent";
 
 const DragHandle = SortableHandle(() => (
   <MenuOutlined style={{ cursor: "grab", color: "#999" }} />
