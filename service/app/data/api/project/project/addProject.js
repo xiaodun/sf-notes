@@ -44,7 +44,12 @@
         argParams.id = Date.now();
         argParams.startConfig = argParams.name === "sf-mock"
           ? {
-            commands: ["node mockService.js"],
+            commands: [
+              {
+                name: "sf-mock",
+                command: "node mockService.js",
+              },
+            ],
             runUrl: "http://localhost:9192",
           }
           : {

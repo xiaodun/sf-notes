@@ -10,6 +10,10 @@ interface StartConfigModalProps {
   project?: any;
   onConfigSuccess?: () => void;
 }
+interface IStartCommand {
+  name: string;
+  command: string;
+}
 
 const StartConfigModal: React.FC<StartConfigModalProps> = ({
   visible,
@@ -19,48 +23,78 @@ const StartConfigModal: React.FC<StartConfigModalProps> = ({
   project,
   onConfigSuccess,
 }) => {
-  const [commands, setCommands] = useState<string[]>(['npm run dev']);
+  const [commands, setCommands] = useState<IStartCommand[]>([
+    { name: projectName || '', command: 'npm run dev' },
+  ]);
   const [runUrl, setRunUrl] = useState('http://localhost:');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (visible && project && project.startConfig) {
-      const currentCommands = (project.startConfig.commands || []).filter(Boolean);
-      setCommands(currentCommands.length ? currentCommands : ['npm run dev']);
+      const currentCommands = Array.isArray(project.startConfig.commands)
+        ? project.startConfig.commands
+        : [];
+      const validCommands = currentCommands
+        .map((item) => ({
+          name: String((item || {}).name || projectName || '').trim() || projectName || '',
+          command: String((item || {}).command || '').trim(),
+        }))
+        .filter((item) => item.command);
+      setCommands(validCommands.length ? validCommands : [{ name: projectName || '', command: 'npm run dev' }]);
       setRunUrl(project.startConfig.runUrl || 'http://localhost:');
     } else if (visible) {
-      setCommands(['npm run dev']);
+      setCommands([{ name: projectName || '', command: 'npm run dev' }]);
       setRunUrl('http://localhost:');
     }
-  }, [visible, project]);
+  }, [visible, project, projectName]);
 
   const addCommand = () => {
-    setCommands((prev) => [...prev, '']);
+    setCommands((prev) => [...prev, { name: projectName || '', command: '' }]);
   };
 
   const updateCommand = (index: number, value: string) => {
     setCommands((prev) => {
       const next = [...prev];
-      next[index] = value;
+      next[index] = {
+        ...next[index],
+        command: value,
+      };
+      return next;
+    });
+  };
+
+  const updateCommandName = (index: number, value: string) => {
+    setCommands((prev) => {
+      const next = [...prev];
+      next[index] = {
+        ...next[index],
+        name: value,
+      };
       return next;
     });
   };
 
   const removeCommand = (index: number) => {
+    if (index === 0) {
+      return;
+    }
     setCommands((prev) => {
       if (prev.length <= 1) {
         return prev;
       }
       const next = [...prev];
       next.splice(index, 1);
-      return next.length ? next : [''];
+      return next.length ? next : [{ name: projectName || '', command: 'npm run dev' }];
     });
   };
 
   const handleSubmit = async () => {
     const validCommands = commands
-      .map((item) => String(item || '').trim())
-      .filter(Boolean);
+      .map((item) => ({
+        name: String(item.name || '').trim(),
+        command: String(item.command || '').trim(),
+      }))
+      .filter((item) => item.command);
     if (!validCommands.length) {
       message.error('请至少配置一条启动命令');
       return;
@@ -105,18 +139,26 @@ const StartConfigModal: React.FC<StartConfigModalProps> = ({
     >
       <Typography.Text style={{ marginBottom: 8, display: 'block' }}>启动命令</Typography.Text>
       {commands.map((item, index) => (
-        <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-          <Input.TextArea
-            value={item}
-            onChange={(e) => updateCommand(index, e.target.value)}
-            placeholder="请输入启动命令"
-            autoSize={{ minRows: 2, maxRows: 6 }}
+        <div key={index} style={{ marginBottom: 8 }}>
+          <Input
+            value={item.name}
+            onChange={(e) => updateCommandName(index, e.target.value)}
+            placeholder="请输入服务名字"
+            style={{ marginBottom: 8 }}
           />
-          {commands.length > 1 && (
-            <Button danger onClick={() => removeCommand(index)}>
-              删除
-            </Button>
-          )}
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Input.TextArea
+              value={item.command}
+              onChange={(e) => updateCommand(index, e.target.value)}
+              placeholder="请输入启动命令"
+              autoSize={{ minRows: 2, maxRows: 6 }}
+            />
+            {index > 0 && (
+              <Button danger onClick={() => removeCommand(index)}>
+                删除
+              </Button>
+            )}
+          </div>
         </div>
       ))}
       <Button type="dashed" onClick={addCommand} style={{ width: '100%', marginTop: 8 }}>

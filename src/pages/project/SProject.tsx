@@ -403,7 +403,10 @@ namespace SProject {
   }
   export async function saveProjectStartConfig(data: {
     projectId: number;
-    commands: string[];
+    commands: {
+      name: string;
+      command: string;
+    }[];
     runUrl: string;
   }): Promise<NRsp<boolean>> {
     return request({

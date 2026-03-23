@@ -36,8 +36,13 @@
     try {
       const project = argData.projectList[projectIndex];
       const projectRootPath = String(project.rootPath || '').trim();
-      const runtimeCommands = ((project.startConfig || {}).commands || []).map((cmd) => String(cmd || '').trim()).filter(Boolean);
-      if (!projectRootPath || !runtimeCommands.length) {
+      const runtimeCommandItems = ((project.startConfig || {}).commands || [])
+        .map((item) => ({
+          name: String((item || {}).name || '').trim(),
+          command: String((item || {}).command || '').trim(),
+        }))
+        .filter((item) => item.command);
+      if (!projectRootPath || !runtimeCommandItems.length) {
         return {
           isWrite: false,
           response: {
@@ -51,16 +56,17 @@
       }
 
       const baseTs = Date.now();
-      runtimeCommands.forEach((cmd, index) => {
+      runtimeCommandItems.forEach((item, index) => {
         const tempBatPath = path.join(
           "./data/api/project/project",
           `sf-notes-start-${projectId}-${baseTs}-${index}-${Math.random()
             .toString(16)
             .slice(2, 8)}.bat`
         );
-        const batContent = [`cd ${projectRootPath}`, cmd].join('\r\n');
+        const batContent = [`cd ${projectRootPath}`, item.command].join('\r\n');
         fs.writeFileSync(tempBatPath, batContent, 'utf-8');
-        const tabTitle = index === 0 ? projectName : `${projectName}-${index}`;
+        const itemName = item.name;
+        const tabTitle = itemName || `${projectName}-${index}`;
         exec(`wt -w 0 new-tab --title "${tabTitle}" cmd /k "\\"${path.resolve(tempBatPath)}\\""`, { windowsHide: true });
         delBat(tempBatPath);
       });
