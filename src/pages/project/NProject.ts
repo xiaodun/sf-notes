@@ -24,7 +24,10 @@ export interface NProject {
     openUrl: string;
   };
   startConfig?: {
-    commands: string[];
+    commands: {
+      name: string;
+      command: string;
+    }[];
     runUrl: string;
   };
   snippetList: NProjectSnippet[];

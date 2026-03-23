@@ -4,8 +4,15 @@
     const commands = Array.isArray(argParams.commands) ? argParams.commands : [];
     const runUrl = String(argParams.runUrl || "").trim();
     const validCommands = commands
-      .map((item) => String(item || "").trim())
-      .filter(Boolean);
+      .map((item) => ({
+        name: String((item || {}).name || "").trim(),
+        command: String((item || {}).command || "").trim(),
+      }))
+      .filter((item) => item.command)
+      .map((item) => ({
+        name: item.name || "default",
+        command: item.command,
+      }));
     if (!projectId) {
       return {
         isWrite: false,
