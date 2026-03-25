@@ -86,10 +86,10 @@
             "sfMock": {
                 "serverList": [
                     {
-                        "port": 9200,
+                        "port": 9300,
                         "isMock": true,
-                        "openUrl": "http://172.17.48.50:9200",
-                        "openDomainUrl": "http://wx.mock.affluence-lottery-client:9200"
+                        "openUrl": "http://172.17.48.50:9300",
+                        "openDomainUrl": "http://wx.mock.affluence-lottery-client:9300"
                     },
                     {
                         "name": "本地链接",
