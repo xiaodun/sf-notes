@@ -1,5 +1,9 @@
 {
   "prefix": "api",
   "port": 8880,
-  "dataFloderName": "data"
+  "dataFloderName": "data",
+  "isOpenWebSocket": true,
+  "webSocket": {
+    "port": 8881
+  }
 }
