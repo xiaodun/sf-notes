@@ -134,10 +134,18 @@ const PFile: FC<IPFileProps> = (props) => {
                 src={previewConfig.src}
                 onLoad={(event) => {
                   const { naturalWidth, naturalHeight } = event.currentTarget;
+                  const initialScale = Math.min(
+                    3,
+                    Math.max(
+                      0.2,
+                      Number((375 / Math.max(1, naturalWidth)).toFixed(2))
+                    )
+                  );
                   setPreviewConfig((prev) => ({
                     ...prev,
                     naturalWidth,
                     naturalHeight,
+                    scale: initialScale,
                   }));
                 }}
                 style={{
@@ -156,13 +164,24 @@ const PFile: FC<IPFileProps> = (props) => {
             </div>
           </div>
           <div style={{ marginTop: 16, padding: "0 6px" }}>
-            <Slider
-              min={0.2}
-              max={3}
-              step={0.1}
-              value={previewConfig.scale}
-              onChange={onPreviewSliderChange}
-            />
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 16,
+              }}
+            >
+              <div style={{ flex: 1 }}>
+                <Slider
+                  min={0.2}
+                  max={3}
+                  step={0.1}
+                  value={previewConfig.scale}
+                  onChange={onPreviewSliderChange}
+                />
+              </div>
+              <Button onClick={onClosePreview}>关闭</Button>
+            </div>
           </div>
         </div>
       </Modal>
