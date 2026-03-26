@@ -8,7 +8,7 @@ import {
   ArrowLeftOutlined,
   EyeOutlined,
 } from "@ant-design/icons";
-import { Button, Modal, Slider, Space, Typography, Upload } from "antd";
+import { Button, Modal, Slider, Space, Typography, Upload, message } from "antd";
 import { PageFooter } from "@/common/components/page";
 import { history } from "umi";
 import Browser from "@/utils/browser";
@@ -25,15 +25,24 @@ import SelfStyle from "./LFile.less";
 import NFile from "./NFile";
 import SFile from "./SFile";
 import serviceConfig from "@/../service/app/config.json";
+
+const MIN_PREVIEW_SCALE = 0.02;
+const MAX_PREVIEW_SCALE = 3;
+
 export interface IPFileProps {}
 const PFile: FC<IPFileProps> = (props) => {
   const [fileRsp, setFileRsp] = useState<NRsp<NFile>>({
     list: [],
   });
+  const previewImgRef = useRef<HTMLImageElement>(null);
   const uploadConfigMapRef = useRef<Map<File, NFile.IUploadConfig>>(new Map());
   const optionConfigMapRef = useRef<Map<string, NFile.IOptioncConfig>>(
     new Map()
   );
+  const [previewRenderedSize, setPreviewRenderedSize] = useState({
+    width: 0,
+    height: 0,
+  });
   const [previewConfig, setPreviewConfig] = useState({
     visible: false,
     src: "",
@@ -50,6 +59,29 @@ const PFile: FC<IPFileProps> = (props) => {
     });
     return off;
   }, []);
+  useEffect(() => {
+    if (!previewConfig.visible) {
+      return;
+    }
+    const rafId = window.requestAnimationFrame(() => {
+      const rect = previewImgRef.current?.getBoundingClientRect();
+      if (!rect) {
+        return;
+      }
+      setPreviewRenderedSize({
+        width: Math.round(rect.width),
+        height: Math.round(rect.height),
+      });
+    });
+    return () => {
+      window.cancelAnimationFrame(rafId);
+    };
+  }, [
+    previewConfig.visible,
+    previewConfig.scale,
+    previewConfig.naturalWidth,
+    previewConfig.naturalHeight,
+  ]);
   return (
     <div>
       <Upload.Dragger
@@ -88,14 +120,27 @@ const PFile: FC<IPFileProps> = (props) => {
         open={previewConfig.visible}
         footer={null}
         onCancel={onClosePreview}
+        wrapClassName={SelfStyle.previewModalWrap}
         width="100vw"
-        style={{ top: 0, maxWidth: "100vw", paddingBottom: 0 }}
+        style={{ top: 0, margin: 0, maxWidth: "100vw", paddingBottom: 0 }}
         bodyStyle={{
           height: "calc(100vh - 55px)",
-          padding: "12px 16px 16px",
+          padding: 0,
           overflow: "hidden",
         }}
         destroyOnClose
+        title={
+          previewRenderedSize.width ? (
+            <span>
+              图片预览{" "}
+              <span style={{ color: "#888", fontSize: 14, marginLeft: 12 }}>
+                ({previewRenderedSize.width} x {previewRenderedSize.height})
+              </span>
+            </span>
+          ) : (
+            "图片预览"
+          )
+        }
       >
         <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
           <div
@@ -103,41 +148,27 @@ const PFile: FC<IPFileProps> = (props) => {
               flex: 1,
               overflow: "auto",
               background: "#1f1f1f",
-              borderRadius: 6,
             }}
             onWheel={onPreviewWheel}
           >
             <div
               style={{
-                width: previewConfig.naturalWidth
-                  ? Math.max(
-                      previewConfig.naturalWidth * previewConfig.scale,
-                      320
-                    )
-                  : "100%",
-                height: previewConfig.naturalHeight
-                  ? Math.max(
-                      previewConfig.naturalHeight * previewConfig.scale,
-                      220
-                    )
-                  : "100%",
                 minWidth: "100%",
                 minHeight: "100%",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                padding: 16,
-                boxSizing: "border-box",
               }}
             >
               <img
+                ref={previewImgRef}
                 src={previewConfig.src}
                 onLoad={(event) => {
                   const { naturalWidth, naturalHeight } = event.currentTarget;
                   const initialScale = Math.min(
-                    3,
+                    MAX_PREVIEW_SCALE,
                     Math.max(
-                      0.2,
+                      MIN_PREVIEW_SCALE,
                       Number((375 / Math.max(1, naturalWidth)).toFixed(2))
                     )
                   );
@@ -149,6 +180,7 @@ const PFile: FC<IPFileProps> = (props) => {
                   }));
                 }}
                 style={{
+                  display: "block",
                   width: previewConfig.naturalWidth
                     ? previewConfig.naturalWidth * previewConfig.scale
                     : "auto",
@@ -163,7 +195,7 @@ const PFile: FC<IPFileProps> = (props) => {
               />
             </div>
           </div>
-          <div style={{ marginTop: 16, padding: "0 6px" }}>
+          <div style={{ padding: "12px 24px", background: "#fff", borderTop: "1px solid #f0f0f0" }}>
             <div
               style={{
                 display: "flex",
@@ -173,13 +205,16 @@ const PFile: FC<IPFileProps> = (props) => {
             >
               <div style={{ flex: 1 }}>
                 <Slider
-                  min={0.2}
-                  max={3}
-                  step={0.1}
+                  min={MIN_PREVIEW_SCALE}
+                  max={MAX_PREVIEW_SCALE}
+                  step={0.01}
                   value={previewConfig.scale}
                   onChange={onPreviewSliderChange}
                 />
               </div>
+              <Button type="primary" onClick={onCopyImage}>
+                截图到剪贴板
+              </Button>
               <Button onClick={onClosePreview}>关闭</Button>
             </div>
           </div>
@@ -329,6 +364,10 @@ const PFile: FC<IPFileProps> = (props) => {
       naturalWidth: 0,
       naturalHeight: 0,
     });
+    setPreviewRenderedSize({
+      width: 0,
+      height: 0,
+    });
   }
   function onClosePreview() {
     setPreviewConfig((prev) => ({
@@ -337,7 +376,10 @@ const PFile: FC<IPFileProps> = (props) => {
     }));
   }
   function onPreviewScaleChange(scale: number) {
-    const nextScale = Math.min(3, Math.max(0.2, Number(scale.toFixed(2))));
+    const nextScale = Math.min(
+      MAX_PREVIEW_SCALE,
+      Math.max(MIN_PREVIEW_SCALE, Number(scale.toFixed(3)))
+    );
     setPreviewConfig((prev) => ({
       ...prev,
       scale: nextScale,
@@ -351,9 +393,63 @@ const PFile: FC<IPFileProps> = (props) => {
   }
   function onPreviewWheel(event: React.WheelEvent<HTMLDivElement>) {
     event.preventDefault();
-    const delta = event.deltaY > 0 ? -0.1 : 0.1;
+    const delta = event.deltaY > 0 ? -0.05 : 0.05;
     onPreviewScaleChange(previewConfig.scale + delta);
   }
+
+  async function onCopyImage() {
+    if (!previewConfig.src || !previewConfig.naturalWidth) {
+      return;
+    }
+    try {
+      if (!navigator.clipboard || !window.ClipboardItem) {
+        throw new Error("当前浏览器不支持剪贴板写入");
+      }
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = previewConfig.src;
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+
+      const canvas = document.createElement("canvas");
+      const targetWidth =
+        previewRenderedSize.width ||
+        Math.round(previewConfig.naturalWidth * previewConfig.scale);
+      const targetHeight =
+        previewRenderedSize.height ||
+        Math.round(previewConfig.naturalHeight * previewConfig.scale);
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.max(1, Math.round(targetWidth * dpr));
+      canvas.height = Math.max(1, Math.round(targetHeight * dpr));
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        throw new Error("无法创建 canvas 上下文");
+      }
+      ctx.scale(dpr, dpr);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((data) => {
+          if (!data) {
+            reject(new Error("图片转换失败"));
+            return;
+          }
+          resolve(data);
+        }, "image/png");
+      });
+      const item = new ClipboardItem({ [blob.type]: blob });
+      await navigator.clipboard.write([item]);
+      message.success("已成功");
+    } catch (error) {
+      console.error(error);
+      message.error("截图复制失败，可能由于跨域限制或浏览器不支持");
+    }
+  }
+
   async function getList() {
     const rsp = await SFile.getList();
     if (rsp.success) {
