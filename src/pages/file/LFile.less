@@ -24,42 +24,47 @@
 }
 
 .fileListWrap {
-  width: 80%;
+  width: 60%;
   margin: 65px auto;
 
   .itemWrap {
     display: flex;
-
-    justify-content: center;
-
-    margin-bottom: 35px;
-
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #dcdcdc;
+    padding-bottom: 10px;
+  
     .name {
-      flex-grow: 1;
-
-      max-width: 560px;
-
+      flex: 1;
       color: #333;
       font-weight: 500;
       font-size: 14px;
-
       text-indent: 6px;
-      border-bottom: 1px solid #dcdcdc;
+      padding-right: 20px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-
+  
     .actions {
-      position: relative;
-
-      padding-left: 45px;
+      display: flex;
+      align-items: center;
       font-size: 18px;
-
+      justify-content: flex-end;
+      padding-left: 20px;
+      position: relative;
+      min-width: 140px;
+      flex-shrink: 0;
+      
       .loadingWrap {
-        position: absolute;
-
         color: #349540;
         font-weight: bold;
-
         visibility: visible;
+        position: absolute;
+        left: -40px;
+        white-space: nowrap;
       }
     }
   }
