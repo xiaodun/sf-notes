@@ -88,6 +88,7 @@ export interface PNotesProps {
 }
 const PNotes: ConnectRC<PNotesProps> = (props) => {
   const { MDNotes } = props;
+  const isMobile = Browser.isMobile();
   const editModalRef = useRef<IEditModal>();
   const zoomModalRef = useRef<IZoomImgModal>();
   const searchSelectRef = useRef<RefSelectProps>();
@@ -97,8 +98,8 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [isSortModel, setIsSortModel] = useState(false);
   useEffect(() => {
-    setIsSortModel(MDNotes.isTitleModel && !Browser.isMobile());
-  }, [MDNotes.isTitleModel, Browser.isMobile()]);
+    setIsSortModel(MDNotes.isTitleModel && !isMobile);
+  }, [MDNotes.isTitleModel, isMobile]);
 
   useEffect(() => {
     reqGetList();
@@ -170,7 +171,7 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
             </div>
           ))
       ) : (
-        Browser.isMobile() || !isSortModel ? (
+        isMobile || !isSortModel ? (
           <div>
             {MDNotes.rsp.list.map((value, index) => (
               <div key={value.id} className={SelfStyle.noteWrapper}>
@@ -200,7 +201,7 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
         rsp={MDNotes.rsp}
       ></EditModal>
       <PageFooter>
-        {!Browser.isMobile() && (
+        {!isMobile && (
           <Button
             icon={<ArrowLeftOutlined />}
             onClick={() => history.push("/")}
@@ -210,13 +211,13 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
         )}
         <Button onClick={() => onAddNote()}>新建笔记</Button>
 
-        {!Browser.isMobile() && (
+        <Radio.Group value={MDNotes.isTitleModel} buttonStyle="solid">
+          <Radio.Button value={true} onClick={onToggleShowModel}>
+            标题模式
+          </Radio.Button>
+        </Radio.Group>
+        {!isMobile && (
           <>
-            <Radio.Group value={MDNotes.isTitleModel} buttonStyle="solid">
-              <Radio.Button value={true} onClick={onToggleShowModel}>
-                标题模式
-              </Radio.Button>
-            </Radio.Group>
             <div id={searchContentId}>
               <Select
                 ref={searchSelectRef}
