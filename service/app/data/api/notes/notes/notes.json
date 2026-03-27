@@ -1,12 +1,21 @@
 [
     {
-        "content": "xu.wang@hytechc.com",
+        "content": "",
         "base64": {},
-        "createTime": 1774592890660,
+        "createTime": 1774608990950,
         "updateTime": "",
-        "title": "2026-03-27 02:28:10",
+        "title": "2026-03-27 06:56:30",
         "titleColor": "",
-        "id": 1774592890660
+        "id": 1774608990950
+    },
+    {
+        "content": "172.17.48.50:8081",
+        "base64": {},
+        "createTime": 1774608609354,
+        "updateTime": "",
+        "title": "2026-03-27 06:50:08",
+        "titleColor": "",
+        "id": 1774608609354
     },
     {
         "content": "cd \"C:/Users/SZLD03287/Documents/affluence-git-story\" && set REACT_NATIVE_PACKAGER_HOSTNAME=172.17.48.50 && npx expo start --lan --clear\n",
@@ -379,6 +388,16 @@
         "title": "2026-03-26 04:54:43",
         "titleColor": "",
         "id": 1774515284683,
+        "deleted": true
+    },
+    {
+        "content": "xu.wang@hytechc.com",
+        "base64": {},
+        "createTime": 1774592890660,
+        "updateTime": "",
+        "title": "2026-03-27 02:28:10",
+        "titleColor": "",
+        "id": 1774592890660,
         "deleted": true
     }
 ]
