@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import SelfStyle from "./Welcome.less";
-import { Layout, Space, Button, Modal, BackTop } from "antd";
+import { Layout, Space, BackTop, Tooltip } from "antd";
 import moment from "moment";
 import UDate from "@/common/utils/UDate";
 import { IRouteComponentProps, ConnectRC, connect, NMDGlobal, Link } from "umi";
 import NRouter from "@/../config/router/NRouter";
-import { HomeFilled, QrcodeOutlined } from "@ant-design/icons";
+import { HomeFilled } from "@ant-design/icons";
 import NApp from "./app/NApp";
 import { enableMapSet } from "immer";
 import NModel from "@/common/namespace/NModel";
@@ -30,16 +30,16 @@ export const Welcome: ConnectRC<IWelcomeProps> = (props) => {
       controlLayout = props.MDGlobal.controlLayout;
 
     // 小说阅读页面不显示头部导航，且不控制布局（全屏显示）
-    const isNovelDetailPage = props.match.path === NRouter.novelDetailPath || 
-                              props.match.path.startsWith('/novel/');
-    
+    const isNovelDetailPage = props.match.path === NRouter.novelDetailPath ||
+      props.match.path.startsWith('/novel/');
+
     if (isNovelDetailPage) {
       showHeader = false;
       controlLayout = false; // 小说阅读页面全屏显示，不限制宽度
     } else {
       showHeader = true;
     }
-    
+
     if (
       [
         NRouter.imagePath,
@@ -118,52 +118,32 @@ const DateTimeArea = () => {
 };
 const QRCodeBtn = () => {
   const QRCode = require("qrcode.react");
-  return <Button icon={<QrcodeOutlined />} onClick={showQRcode}></Button>;
-  async function showQRcode() {
-    const rsp = await SBase.getIpv4();
-    const url = window.location.href.replace(
-      window.location.hostname,
-      rsp.data
-    );
-    let modal = Modal.info({
-      icon: null,
-      content: (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <div style={{ marginBottom: 24 }}>
-            <QRCode size={256} value={url} />
-          </div>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              width: "100%",
-            }}
-          >
-            <Button onClick={() => modal.destroy()}>关闭</Button>
-            <Button
-              type="primary"
-              onClick={() => {
-                UCopy.copyStr(url);
-                modal.destroy();
-              }}
-              style={{ marginLeft: 8 }}
-            >
-              复制链接
-            </Button>
-          </div>
-        </div>
-      ),
-      okButtonProps: { style: { display: "none" } },
-      maskClosable: true,
+  const [url, setUrl] = useState(window.location.href);
+  useEffect(() => {
+    let isUnmount = false;
+    SBase.getIpv4().then((rsp) => {
+      const ip = rsp?.data;
+      if (!ip || isUnmount) {
+        return;
+      }
+      setUrl(window.location.href.replace(window.location.hostname, ip));
     });
-  }
+    return () => {
+      isUnmount = true;
+    };
+  }, []);
+  return (
+    <Tooltip title="点击复制链接" placement="bottom">
+      <div
+        className={SelfStyle.qrCard}
+        onClick={() => {
+          UCopy.copyStr(url);
+        }}
+      >
+        <QRCode size={68} value={url} />
+      </div>
+    </Tooltip>
+  );
 };
 export default connect(({ MDGlobal }: NModel.IState) => ({ MDGlobal }))(
   Welcome
