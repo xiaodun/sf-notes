@@ -123,7 +123,7 @@
     max-width: 800px;
     margin: 0 auto;
     padding-top: 30px;
-    padding-bottom: 180px; // 底部增加边距，便于滚动触发自动加载
+    padding-bottom: 220px; // 底部增加边距，便于滚动触发自动加载
     font-size: 18px;
     color: #333;
     text-align: left; // 左对齐
@@ -144,7 +144,7 @@
     @media (max-width: 768px) {
       font-size: 18px;
       padding: 40px 12px;
-      padding-bottom: 150px; // 移动端底部边距
+      padding-bottom: 190px; // 移动端底部边距
 
       .contentLine {
         line-height: 1.7;
@@ -257,6 +257,34 @@
     opacity: 0;
     transform: translateY(-10px);
     pointer-events: none;
+  }
+}
+
+.bottomInfoBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  min-height: 56px;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.96);
+  border-top: 1px solid #e8e8e8;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+  color: #333;
+  font-size: 14px;
+  z-index: 150;
+  backdrop-filter: blur(8px);
+
+  @media (max-width: 768px) {
+    gap: 12px;
+    min-height: 64px;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0));
+    font-size: 12px;
+    flex-direction: column;
   }
 }
 
