@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, ConnectRC } from "umi";
-import { message, Spin, Select, Tooltip } from "antd";
+import { message, Spin, Select, Tooltip, Modal } from "antd";
 import SelfStyle from "./LNovel.less";
 import NNovel from "./NNovel";
 import SNovel from "./SNovel";
@@ -28,6 +28,10 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
   const lastScrollTopRef = useRef<number>(0); // 上次滚动位置
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null); // 自动隐藏定时器
   const [chapterWordCount, setChapterWordCount] = useState<number | null>(null);
+  const [totalWordCount, setTotalWordCount] = useState<number | null>(null);
+  const [chapterWordStatsOpen, setChapterWordStatsOpen] = useState(false);
+  const [chapterWordStatsLoading, setChapterWordStatsLoading] = useState(false);
+  const [chapterWordStats, setChapterWordStats] = useState<{ chapter: number; name?: string; wordCount: number }[]>([]);
 
   useEffect(() => {
     if (id) {
@@ -40,6 +44,15 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
       loadChapterList();
     }
   }, [novel]);
+
+  useEffect(() => {
+    if (novel?.path) {
+      loadNovelWordCount();
+    } else {
+      setTotalWordCount(null);
+      setChapterWordStats([]);
+    }
+  }, [novel?.path]);
 
   useEffect(() => {
     if (novel && currentChapter > 0) {
@@ -85,7 +98,7 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
 
   const countTextLength = useCallback((text: string): number => {
     if (!text) return 0;
-    return text.replace(/\r?\n/g, "").length;
+    return text.replace(/\s/g, "").length;
   }, []);
 
   // 计算从开头到指定段落索引的累计字数
@@ -139,6 +152,54 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
     } catch (error) {
       console.error("加载章节列表失败:", error);
     }
+  };
+
+  const loadNovelWordCount = async () => {
+    if (!novel?.path) return;
+    try {
+      const result = await request({
+        url: "/novel/getNovelWordCount",
+        method: "post",
+        data: { path: novel.path },
+      });
+      if (result.success && result.data) {
+        setTotalWordCount(result.data.totalWordCount);
+      } else {
+        setTotalWordCount(null);
+      }
+    } catch (error) {
+      console.error("加载小说总字数失败:", error);
+      setTotalWordCount(null);
+    }
+  };
+
+  const loadChapterWordStats = async () => {
+    if (!novel?.path) return;
+    setChapterWordStatsLoading(true);
+    try {
+      const result = await request({
+        url: "/novel/getChapterWordStats",
+        method: "post",
+        data: { path: novel.path },
+      });
+      if (result.success && result.data?.chapterWordStats) {
+        setChapterWordStats(result.data.chapterWordStats);
+      } else {
+        setChapterWordStats([]);
+        message.error("加载章节字数统计失败");
+      }
+    } catch (error) {
+      console.error("加载章节字数统计失败:", error);
+      setChapterWordStats([]);
+      message.error("加载章节字数统计失败");
+    } finally {
+      setChapterWordStatsLoading(false);
+    }
+  };
+
+  const handleOpenChapterWordStats = async () => {
+    setChapterWordStatsOpen(true);
+    await loadChapterWordStats();
   };
 
   // 格式化文本内容：保留原始格式，不做自动分段和排版
@@ -411,7 +472,10 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
   }
 
   const maxChapter = chapterList.length > 0 ? Math.max(...chapterList.map(c => c.chapter)) : 0;
+  const currentChapterItem = chapterList.find((item) => item.chapter === currentChapter);
+  const currentChapterText = currentChapterItem?.name || `第 ${currentChapter} 章`;
   const chapterWordCountText = chapterWordCount === null ? "统计中..." : `${chapterWordCount.toLocaleString()} 字`;
+  const totalWordCountText = totalWordCount === null ? "统计中..." : `${totalWordCount.toLocaleString()}`;
 
   return (
     <div className={SelfStyle.detailContainer}>
@@ -508,8 +572,38 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
       </div>
 
       <div className={SelfStyle.bottomInfoBar}>
-        <span>{`本章字数 ${chapterWordCountText}`}</span>
+        <span>{`${currentChapterText}章`}</span>
+        <span>{`${chapterWordCountText}`}</span>
+        <button type="button" className={SelfStyle.wordStatTrigger} onClick={handleOpenChapterWordStats}>
+          {`总字数 ${totalWordCountText}`}
+        </button>
       </div>
+      <Modal
+        title="章节字数统计"
+        open={chapterWordStatsOpen}
+        onCancel={() => setChapterWordStatsOpen(false)}
+        footer={null}
+        width={720}
+        destroyOnClose={false}
+      >
+        {chapterWordStatsLoading ? (
+          <div className={SelfStyle.chapterWordStatsLoading}>
+            <Spin />
+          </div>
+        ) : (
+          <div className={SelfStyle.chapterWordStatsList}>
+            {chapterWordStats.map((item) => (
+              <div
+                key={item.chapter}
+                className={`${SelfStyle.chapterWordStatsItem} ${item.chapter === currentChapter ? SelfStyle.currentChapterWordStatsItem : ""}`}
+              >
+                <span>{item.name || `第 ${item.chapter} 章`}</span>
+                <span>{item.wordCount.toLocaleString()}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
