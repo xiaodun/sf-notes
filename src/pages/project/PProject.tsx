@@ -530,9 +530,11 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     return normalized;
   }
   async function onReStartNginx() {
+    await SProject.addProject(null, true);
     const rsp = await SProject.reStartNginx();
     if (rsp.success) {
       message.success('已执行');
+      reqGetList();
     }
   }
   async function onGenerateProjectMockStructrue() {
