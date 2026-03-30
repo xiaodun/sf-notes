@@ -35,6 +35,7 @@ const PFile: FC<IPFileProps> = (props) => {
     list: [],
   });
   const previewImgRef = useRef<HTMLImageElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const uploadConfigMapRef = useRef<Map<File, NFile.IUploadConfig>>(new Map());
   const optionConfigMapRef = useRef<Map<string, NFile.IOptioncConfig>>(
     new Map()
@@ -95,6 +96,21 @@ const PFile: FC<IPFileProps> = (props) => {
         </p>
         <p className="ant-upload-text">点击或拖拽上传</p>
       </Upload.Dragger>
+      {Browser.isMobile() && (
+        <div className={SelfStyle.mobileCameraWrap}>
+          <Button type="primary" block onClick={() => cameraInputRef.current?.click()}>
+            拍照上传
+          </Button>
+          <input
+            ref={cameraInputRef}
+            className={SelfStyle.hiddenInput}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={onCameraFileChange}
+          />
+        </div>
+      )}
       <div className={SelfStyle.btnWrap}>
         <Space direction="horizontal" size={35}>
           <Button type="primary" onClick={onAllDownload}>
@@ -342,17 +358,26 @@ const PFile: FC<IPFileProps> = (props) => {
     });
   }
   function customRequest({ file }: RcCustomRequestOptions) {
-    uploadConfigMapRef.current = produce(
-      uploadConfigMapRef.current,
-      (drafData) => {
-        drafData.set(file, {
-          uploadLoading: true,
-          loaded: 0,
-          total: file.size,
-          name: file.name,
-        });
-      }
-    );
+    if (file instanceof File) {
+      enqueueUploadFile(file);
+    }
+  }
+  function onCameraFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (file) {
+      enqueueUploadFile(file);
+    }
+    event.target.value = "";
+  }
+  function enqueueUploadFile(file: File) {
+    uploadConfigMapRef.current = produce(uploadConfigMapRef.current, (drafData) => {
+      drafData.set(file, {
+        uploadLoading: true,
+        loaded: 0,
+        total: file.size,
+        name: file.name,
+      });
+    });
     refreshView();
     addItem(file);
   }
