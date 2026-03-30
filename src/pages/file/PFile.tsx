@@ -7,8 +7,9 @@ import {
   InboxOutlined,
   ArrowLeftOutlined,
   EyeOutlined,
+  SwapRightOutlined,
 } from "@ant-design/icons";
-import { Button, Modal, Slider, Space, Typography, Upload, message } from "antd";
+import { Button, Modal, Slider, Space, Typography, Upload, message, Tooltip } from "antd";
 import { PageFooter } from "@/common/components/page";
 import { history } from "umi";
 import Browser from "@/utils/browser";
@@ -28,9 +29,11 @@ import serviceConfig from "@/../service/app/config.json";
 
 const MIN_PREVIEW_SCALE = 0.02;
 const MAX_PREVIEW_SCALE = 3;
+const IMAGE_TRANSFER_STORAGE_KEY = "file.to.image.transfer";
 
 export interface IPFileProps {}
 const PFile: FC<IPFileProps> = (props) => {
+  const isMobile = Browser.isMobile();
   const [fileRsp, setFileRsp] = useState<NRsp<NFile>>({
     list: [],
   });
@@ -96,7 +99,7 @@ const PFile: FC<IPFileProps> = (props) => {
         </p>
         <p className="ant-upload-text">点击或拖拽上传</p>
       </Upload.Dragger>
-      {Browser.isMobile() && (
+      {isMobile && (
         <div className={SelfStyle.mobileCameraWrap}>
           <Button type="primary" block onClick={() => cameraInputRef.current?.click()}>
             拍照上传
@@ -237,7 +240,7 @@ const PFile: FC<IPFileProps> = (props) => {
         </div>
       </Modal>
       <PageFooter>
-        {!Browser.isMobile() && (
+        {!isMobile && (
           <Button
             icon={<ArrowLeftOutlined />}
             onClick={() => history.push("/")}
@@ -299,15 +302,26 @@ const PFile: FC<IPFileProps> = (props) => {
             </div>
           )}
           <Space size={16} style={{ display: 'flex', alignItems: 'center' }}>
-            {isImage && params.item ? (
+            {!isMobile && isImage && params.item ? (
               <Button
                 icon={<EyeOutlined />}
                 shape="circle"
                 onClick={() => onOpenPreview(params.item)}
               ></Button>
-            ) : (
+            ) : !isMobile ? (
               <div style={{ width: 32, height: 32 }}></div>
-            )}
+            ) : null}
+            {!isMobile && isImage && params.item ? (
+              <Tooltip title="转到图片应用">
+                <Button
+                  icon={<SwapRightOutlined />}
+                  shape="circle"
+                  onClick={() => onGoToImageManager(params.item)}
+                ></Button>
+              </Tooltip>
+            ) : !isMobile ? (
+              <div style={{ width: 32, height: 32 }}></div>
+            ) : null}
             <Button
               type="primary"
               loading={optionConfig?.downloadLoading}
@@ -361,6 +375,17 @@ const PFile: FC<IPFileProps> = (props) => {
     if (file instanceof File) {
       enqueueUploadFile(file);
     }
+  }
+  function onGoToImageManager(file: NFile) {
+    window.localStorage.setItem(
+      IMAGE_TRANSFER_STORAGE_KEY,
+      JSON.stringify({
+        id: file.id || "",
+        name: file.name || "",
+      })
+    );
+    message.loading("正在跳转到图片应用...", 0.8);
+    history.push("/image");
   }
   function onCameraFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
