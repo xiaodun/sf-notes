@@ -598,7 +598,9 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
                 className={`${SelfStyle.chapterWordStatsItem} ${item.chapter === currentChapter ? SelfStyle.currentChapterWordStatsItem : ""}`}
               >
                 <span>{item.name || `第 ${item.chapter} 章`}</span>
-                <span>{item.wordCount.toLocaleString()}</span>
+                <span className={item.wordCount < 2000 ? SelfStyle.shortChapterWordCount : ""}>
+                  {item.wordCount.toLocaleString()}
+                </span>
               </div>
             ))}
           </div>
