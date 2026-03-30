@@ -62,6 +62,7 @@ export const EditModal: ForwardRefRenderFunction<
     useState<Partial<IEditModalState>>(defaultState);
   const textAreaRef = useRef<TextAreaRef>();
   const autoCompleteRef = useRef<RefSelectProps>();
+  const focusTargetRef = useRef<'title' | 'content'>('content');
   const loadCountRef = useRef<number>(0);
   const noteTitleId = 'noteTitleId';
   const noteEditId = 'noteEditId';
@@ -78,21 +79,35 @@ export const EditModal: ForwardRefRenderFunction<
         if (data) {
           drafState.added = false;
           drafState.data = data;
+          focusTargetRef.current = 'content';
         } else {
           drafState.added = true;
+          focusTargetRef.current = 'content';
         }
       });
 
       setState(newState);
-      setTimeout(() => {
-        if (data) {
-          textAreaRef.current.focus();
-        } else {
-          autoCompleteRef.current.focus();
-        }
-      }, 20);
     },
   }));
+  useEffect(() => {
+    if (!state.open) {
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      if (focusTargetRef.current === 'content') {
+        textAreaRef.current?.focus();
+        const textArea = document.getElementById(noteEditId) as HTMLTextAreaElement;
+        textArea?.focus();
+        return;
+      }
+      autoCompleteRef.current?.focus();
+      const titleInput = document.getElementById(noteTitleId) as HTMLInputElement;
+      titleInput?.focus();
+    }, 120);
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [state.open, state.added]);
 
   const title = state.added ? '添加记事' : '编辑记事';
   const titlePlaceholder = `标题 默认为${moment().format(
