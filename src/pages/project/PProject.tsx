@@ -34,7 +34,7 @@ import NRsp from '@/common/namespace/NRsp';
 import { cloneDeep } from 'lodash';
 import UCopy from '@/common/utils/UCopy';
 import UGitlab from '@/common/utils/UGitlab';
-import { DeleteOutlined, MenuOutlined, ArrowLeftOutlined, SettingOutlined, EllipsisOutlined, FolderOpenOutlined } from '@ant-design/icons';
+import { DeleteOutlined, MenuOutlined, ArrowLeftOutlined, SettingOutlined, EllipsisOutlined, CopyOutlined } from '@ant-design/icons';
 import Browser from "@/utils/browser";
 import SBase from '@/common/service/SBase';
 import { DIRECTORY_MODAL_MEMORY_KEYS } from '@/common/components/directory/constants/directoryMemory';
@@ -187,9 +187,9 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       <div className={SelfStyle.nameColumn}>
         <Button
           shape="circle"
-          icon={<FolderOpenOutlined />}
+          icon={<CopyOutlined />}
           style={{ marginRight: 8 }}
-          onClick={() => onOpenProjectRoot(project)}
+          onClick={() => UCopy.copyStr(project.rootPath)}
         ></Button>
         <div className="name" onClick={() => UCopy.copyStr(project.name)}>
           {project.name}
@@ -205,6 +205,9 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   async function onOpenProjectRoot(project: NProject) {
     await SBase.openFile(project.rootPath);
   }
+  async function onOpenProjectCmd(project: NProject) {
+    await SBase.openFile(project.rootPath, 'cmd');
+  }
   async function delProject(project: NProject) {
     const rsp = await SProject.delProject(project);
     if (rsp.success) {
@@ -213,37 +216,45 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   }
   function renderOptionColumn(project: NProject) {
     let openBlock;
-    if (project.web.isStart && !project.isSfMock) {
+    if (project.name !== 'sf-notes') {
       const openLinkList = getOpenLinkList(project);
-      if (openLinkList.length > 1) {
-        openBlock = (
-          <Dropdown.Button
-            icon={<EllipsisOutlined />}
-            menu={{
-              items: openLinkList.slice(1).map((item) => ({
-                key: item.key,
-                label: (
-                  <a target="_blank" href={item.url}>
-                    {item.name}
-                  </a>
-                ),
-              })),
-            }}
-          >
+      const menuItems = openLinkList.slice(1).map((item) => ({
+        key: item.key,
+        label: (
+          <a target="_blank" href={item.url}>
+            {item.name}
+          </a>
+        ),
+      }));
+      menuItems.push({
+        key: 'open-project-root',
+        label: <a onClick={() => onOpenProjectRoot(project)}>在文件夹打开</a>,
+      });
+      menuItems.push({
+        key: 'open-project-cmd',
+        label: <a onClick={() => onOpenProjectCmd(project)}>在cmd打开</a>,
+      });
+      openBlock = (
+        <Dropdown.Button
+          icon={<EllipsisOutlined />}
+          menu={{
+            items: menuItems,
+          }}
+          onClick={() => {
+            if (!openLinkList.length) {
+              onOpenProjectRoot(project);
+            }
+          }}
+        >
+          {openLinkList.length ? (
             <a target="_blank" href={openLinkList[0].url}>
               打开
             </a>
-          </Dropdown.Button>
-        );
-      } else if (openLinkList.length === 1) {
-        openBlock = (
-          <Button>
-            <a target="_blank" href={openLinkList[0].url}>
-              打开
-            </a>
-          </Button>
-        );
-      }
+          ) : (
+            '打开'
+          )}
+        </Dropdown.Button>
+      );
     }
     return (
       <div className={SelfStyle.optionColumn}>
