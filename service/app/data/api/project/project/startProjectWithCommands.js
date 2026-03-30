@@ -63,7 +63,13 @@
             .toString(16)
             .slice(2, 8)}.bat`
         );
-        const batContent = [`cd ${projectRootPath}`, item.command].join('\r\n');
+        const driveLetter = projectRootPath.match(/^([A-Za-z]:)/);
+        const batLines = [];
+        if (driveLetter) {
+          batLines.push(driveLetter[1]);
+        }
+        batLines.push(`cd ${projectRootPath}`, item.command);
+        const batContent = batLines.join('\r\n');
         fs.writeFileSync(tempBatPath, batContent, 'utf-8');
         const itemName = item.name;
         const tabTitle = itemName || `${projectName}-${index}`;
