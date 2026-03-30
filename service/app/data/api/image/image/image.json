@@ -1,5 +1,12 @@
 [
     {
+        "name": "image.jpg",
+        "type": "image/jpeg",
+        "flag": "upload_9008e564fc920fb798577a50e138512e",
+        "id": "1774868265515",
+        "originalName": "image.jpg"
+    },
+    {
         "name": "Screenshot_2026-03-27-18-34-41-464_host.exp.exponent.jpg",
         "type": "image/jpeg",
         "flag": "upload_995e0370882be0b0f89d88a31fada83a",
