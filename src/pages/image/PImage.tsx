@@ -31,6 +31,7 @@ type ResizeHandle =
 const MIN_CROP_SIZE = 40;
 const EDGE_HIT_SIZE = 14;
 const PIMAGE_SELECTED_ID_KEY = "pimage.selected.id";
+const IMAGE_TRANSFER_STORAGE_KEY = "file.to.image.transfer";
 const PImage: FC<IPImageProps> = (props) => {
   const [imageRsp, setImageRsp] = useState<NRsp<NImage>>({
     list: [],
@@ -61,6 +62,7 @@ const PImage: FC<IPImageProps> = (props) => {
   const selectedImageIdRef = useRef<string>();
   const originalImageIdRef = useRef<string>();
   const activeImageIdRef = useRef<string>();
+  const transferredRef = useRef(false);
 
   const refreshView = useRefreshView();
 
@@ -121,6 +123,34 @@ const PImage: FC<IPImageProps> = (props) => {
   useEffect(() => {
     activeImageIdRef.current = selectedImage?.id;
   }, [selectedImage?.id]);
+  useEffect(() => {
+    if (transferredRef.current) {
+      return;
+    }
+    let fromFileId = "";
+    let fromFileName = "";
+    const transferRaw = window.localStorage.getItem(IMAGE_TRANSFER_STORAGE_KEY) || "";
+    if (transferRaw) {
+      try {
+        const transferData = JSON.parse(transferRaw) || {};
+        fromFileId = transferData.id || "";
+        fromFileName = transferData.name || "";
+      } catch (error) {
+      }
+      window.localStorage.removeItem(IMAGE_TRANSFER_STORAGE_KEY);
+    }
+    if (!fromFileId) {
+      const query = new URLSearchParams(window.location.search || "");
+      fromFileId = query.get("fromFileId") || "";
+      fromFileName = query.get("fromFileName") || "";
+    }
+    if (!fromFileId) {
+      transferredRef.current = true;
+      return;
+    }
+    transferredRef.current = true;
+    importFromFileManager(fromFileId, fromFileName);
+  }, []);
   
   const drawCropCanvas = () => {
     const canvas = canvasRef.current;
@@ -423,19 +453,9 @@ const PImage: FC<IPImageProps> = (props) => {
   }
 
   function customRequest({ file }: RcCustomRequestOptions) {
-    uploadConfigMapRef.current = produce(
-      uploadConfigMapRef.current,
-      (drafData) => {
-        drafData.set(file, {
-          uploadLoading: true,
-          loaded: 0,
-          total: file.size,
-          name: file.name,
-        });
-      }
-    );
+    ensureUploadConfig(file as File);
     refreshView();
-    addItem(file);
+    addItem(file as File);
   }
 
   async function getList() {
@@ -455,12 +475,16 @@ const PImage: FC<IPImageProps> = (props) => {
   }
 
   async function addItem(file: File) {
+    ensureUploadConfig(file);
     const rsp = await SImage.addItem(file, (event) => {
       if (event.loaded !== event.total) {
         uploadConfigMapRef.current = produce(
           uploadConfigMapRef.current,
           (drafData) => {
             const imageConfig = drafData.get(file);
+            if (!imageConfig) {
+              return;
+            }
             imageConfig.loaded = event.loaded;
             imageConfig.total = event.total;
           }
@@ -471,6 +495,9 @@ const PImage: FC<IPImageProps> = (props) => {
           uploadConfigMapRef.current,
           (drafData) => {
             const imageConfig = drafData.get(file);
+            if (!imageConfig) {
+              return;
+            }
             imageConfig.loaded = event.loaded;
             imageConfig.total = event.total;
             imageConfig.uploadLoading = false;
@@ -492,6 +519,37 @@ const PImage: FC<IPImageProps> = (props) => {
       const nextSelected =
         finalRsp.list.find((item) => item.id === preferredId) || finalRsp.list[0];
       setSelectedImageWithRemember(nextSelected);
+    }
+  }
+  function ensureUploadConfig(file: File) {
+    uploadConfigMapRef.current = produce(uploadConfigMapRef.current, (drafData) => {
+      if (drafData.get(file)) {
+        return;
+      }
+      drafData.set(file, {
+        uploadLoading: true,
+        loaded: 0,
+        total: file.size,
+        name: file.name,
+      });
+    });
+  }
+  async function importFromFileManager(fileId: string, fileName: string) {
+    try {
+      const blob = await SImage.downloadFromFileManager(fileId);
+      if (!(blob instanceof Blob)) {
+        message.error("文件转图片失败");
+        return;
+      }
+      const mimeType = normalizeImportedMimeType(blob.type, fileName);
+      const safeName = ensureImageFileName(fileName || `${fileId}.png`, mimeType);
+      const file = new File([blob], safeName, {
+        type: mimeType,
+      });
+      await addItem(file);
+      message.success("已转入图片应用");
+    } catch (error) {
+      message.error("文件转图片失败");
     }
   }
 
@@ -783,6 +841,63 @@ const PImage: FC<IPImageProps> = (props) => {
 
   function getNameWithoutExt(name: string) {
     return name.replace(/\.[^/.]+$/, "");
+  }
+  function getMimeTypeByName(fileName: string) {
+    const ext = (fileName || "").toLowerCase().split(".").pop() || "";
+    if (ext === "jpg" || ext === "jpeg") {
+      return "image/jpeg";
+    }
+    if (ext === "png") {
+      return "image/png";
+    }
+    if (ext === "webp") {
+      return "image/webp";
+    }
+    if (ext === "gif") {
+      return "image/gif";
+    }
+    if (ext === "bmp") {
+      return "image/bmp";
+    }
+    if (ext === "svg") {
+      return "image/svg+xml";
+    }
+    return "";
+  }
+  function normalizeImportedMimeType(blobType: string, fileName: string) {
+    if ((blobType || "").indexOf("image/") === 0) {
+      return blobType;
+    }
+    const nameMimeType = getMimeTypeByName(fileName);
+    if (nameMimeType) {
+      return nameMimeType;
+    }
+    return "image/png";
+  }
+  function ensureImageFileName(fileName: string, mimeType: string) {
+    const hasExt = /\.[a-z0-9]+$/i.test(fileName || "");
+    if (hasExt) {
+      return fileName;
+    }
+    if (mimeType === "image/jpeg") {
+      return `${fileName}.jpg`;
+    }
+    if (mimeType === "image/png") {
+      return `${fileName}.png`;
+    }
+    if (mimeType === "image/webp") {
+      return `${fileName}.webp`;
+    }
+    if (mimeType === "image/gif") {
+      return `${fileName}.gif`;
+    }
+    if (mimeType === "image/bmp") {
+      return `${fileName}.bmp`;
+    }
+    if (mimeType === "image/svg+xml") {
+      return `${fileName}.svg`;
+    }
+    return `${fileName}.png`;
   }
 
   async function getImageStats(url: string) {

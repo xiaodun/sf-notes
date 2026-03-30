@@ -32,12 +32,19 @@
 .btnWrap{
   width: 60%;
   margin: 30px auto 0;
-
+  @media screen and (max-width: 1000px) {
+    width: 100%;
+    margin: 20px auto 0;
+  }
 }
 
 .fileListWrap {
   width: 60%;
   margin: 65px auto;
+  @media screen and (max-width: 1000px) {
+    width: 100%;
+    margin: 24px auto;
+  }
 
   .itemWrap {
     display: flex;
@@ -58,6 +65,9 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      @media screen and (max-width: 1000px) {
+        padding-right: 8px;
+      }
     }
   
     .actions {
@@ -69,6 +79,10 @@
       position: relative;
       min-width: 140px;
       flex-shrink: 0;
+      @media screen and (max-width: 1000px) {
+        min-width: 86px;
+        padding-left: 8px;
+      }
       
       .loadingWrap {
         color: #349540;
