@@ -380,6 +380,9 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     );
     if (startRsp.success) {
       message.success('已执行');
+      if (project.isSfMock) {
+        onReStartNginx();
+      }
       setTimeout(
         () => {
           reqProjectStart(project, cloneDeep(MDProject.rsp));
