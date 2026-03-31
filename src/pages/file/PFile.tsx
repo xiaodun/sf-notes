@@ -287,7 +287,16 @@ const PFile: FC<IPFileProps> = (props) => {
 
     return (
       <div key={params.key} className={SelfStyle.itemWrap}>
-        <Typography.Text className={SelfStyle.name} ellipsis>
+        <Typography.Text
+          className={SelfStyle.name}
+          ellipsis
+          onClick={() => {
+            if (isImage && params.item) {
+              onCopyFileImage(params.item);
+            }
+          }}
+          style={isImage ? { cursor: "pointer" } : undefined}
+        >
           {params.name}
         </Typography.Text>
         <div
@@ -498,6 +507,48 @@ const PFile: FC<IPFileProps> = (props) => {
       console.error(error);
       message.error("截图复制失败，可能由于跨域限制或浏览器不支持");
     }
+  }
+  async function onCopyFileImage(file: NFile) {
+    try {
+      const src = `/${serviceConfig.prefix}/upload/downloadFile?id=${file.id}`;
+      await copyImageToClipboard(src);
+      message.success("已复制图片到剪贴板");
+    } catch (error) {
+      message.error("复制图片失败，可能由于浏览器权限限制");
+    }
+  }
+  async function copyImageToClipboard(src: string) {
+    if (!navigator.clipboard || !window.ClipboardItem) {
+      throw new Error("当前浏览器不支持剪贴板写入");
+    }
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = src;
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+    });
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, img.naturalWidth || img.width);
+    canvas.height = Math.max(1, img.naturalHeight || img.height);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      throw new Error("无法创建 canvas 上下文");
+    }
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob((data) => {
+        if (!data) {
+          reject(new Error("图片转换失败"));
+          return;
+        }
+        resolve(data);
+      }, "image/png");
+    });
+    const item = new ClipboardItem({ [blob.type]: blob });
+    await navigator.clipboard.write([item]);
   }
 
   async function getList() {
