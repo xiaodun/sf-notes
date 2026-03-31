@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, ConnectRC } from "umi";
-import { message, Spin, Select, Tooltip } from "antd";
+import { message, Spin, Select, Tooltip, Modal } from "antd";
 import SelfStyle from "./LNovel.less";
 import NNovel from "./NNovel";
 import SNovel from "./SNovel";
 import request from "@/utils/request";
 import NRsp from "@/common/namespace/NRsp";
 
-export interface NovelDetailProps {}
+export interface NovelDetailProps { }
 
 const NovelDetail: ConnectRC<NovelDetailProps> = () => {
   const { id } = useParams<{ id: string }>();
@@ -15,7 +15,7 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState<string>("");
   const [contentLoading, setContentLoading] = useState(false);
-  const [chapterList, setChapterList] = useState<{ chapter: number; exists: boolean }[]>([]);
+  const [chapterList, setChapterList] = useState<{ chapter: number; name?: string; exists: boolean }[]>([]);
   const [currentChapter, setCurrentChapter] = useState<number>(1);
   const [nextChapterContent, setNextChapterContent] = useState<string>(""); // 预加载的下一章内容
   const contentWrapperRef = useRef<HTMLDivElement>(null);
@@ -27,6 +27,11 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
   const [isSelectorOpen, setIsSelectorOpen] = useState<boolean>(false); // 选择器下拉菜单是否打开
   const lastScrollTopRef = useRef<number>(0); // 上次滚动位置
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null); // 自动隐藏定时器
+  const [chapterWordCount, setChapterWordCount] = useState<number | null>(null);
+  const [totalWordCount, setTotalWordCount] = useState<number | null>(null);
+  const [chapterWordStatsOpen, setChapterWordStatsOpen] = useState(false);
+  const [chapterWordStatsLoading, setChapterWordStatsLoading] = useState(false);
+  const [chapterWordStats, setChapterWordStats] = useState<{ chapter: number; name?: string; wordCount: number }[]>([]);
 
   useEffect(() => {
     if (id) {
@@ -39,6 +44,15 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
       loadChapterList();
     }
   }, [novel]);
+
+  useEffect(() => {
+    if (novel?.path) {
+      loadNovelWordCount();
+    } else {
+      setTotalWordCount(null);
+      setChapterWordStats([]);
+    }
+  }, [novel?.path]);
 
   useEffect(() => {
     if (novel && currentChapter > 0) {
@@ -82,24 +96,28 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
     }
   };
 
+  const countTextLength = useCallback((text: string): number => {
+    if (!text) return 0;
+    return text.replace(/\s/g, "").length;
+  }, []);
+
   // 计算从开头到指定段落索引的累计字数
   const calculateWordCount = useCallback((content: string, lineIndex: number): number => {
     if (!content) return 0;
     const lines = content.split('\n');
     let wordCount = 0;
-    
+
     // 计算从开头到当前段落（包含当前段落）的所有字数
     // 直接使用 length 属性累加每段的内容
     for (let i = 0; i <= lineIndex && i < lines.length; i++) {
       const line = lines[i];
       if (line) {
-        // 直接使用 length 属性计算字数
-        wordCount += line.length;
+        wordCount += countTextLength(line);
       }
     }
-    
+
     return wordCount;
-  }, []);
+  }, [countTextLength]);
 
   // 预加载下一章内容
   const preloadNextChapter = useCallback(async (chapter: number) => {
@@ -136,6 +154,54 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
     }
   };
 
+  const loadNovelWordCount = async () => {
+    if (!novel?.path) return;
+    try {
+      const result = await request({
+        url: "/novel/getNovelWordCount",
+        method: "post",
+        data: { path: novel.path },
+      });
+      if (result.success && result.data) {
+        setTotalWordCount(result.data.totalWordCount);
+      } else {
+        setTotalWordCount(null);
+      }
+    } catch (error) {
+      console.error("加载小说总字数失败:", error);
+      setTotalWordCount(null);
+    }
+  };
+
+  const loadChapterWordStats = async () => {
+    if (!novel?.path) return;
+    setChapterWordStatsLoading(true);
+    try {
+      const result = await request({
+        url: "/novel/getChapterWordStats",
+        method: "post",
+        data: { path: novel.path },
+      });
+      if (result.success && result.data?.chapterWordStats) {
+        setChapterWordStats(result.data.chapterWordStats);
+      } else {
+        setChapterWordStats([]);
+        message.error("加载章节字数统计失败");
+      }
+    } catch (error) {
+      console.error("加载章节字数统计失败:", error);
+      setChapterWordStats([]);
+      message.error("加载章节字数统计失败");
+    } finally {
+      setChapterWordStatsLoading(false);
+    }
+  };
+
+  const handleOpenChapterWordStats = async () => {
+    setChapterWordStatsOpen(true);
+    await loadChapterWordStats();
+  };
+
   // 格式化文本内容：保留原始格式，不做自动分段和排版
   const formatContent = useCallback((text: string): string => {
     if (!text) return "";
@@ -146,12 +212,12 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
     if (!novel?.path) return;
     setContentLoading(true);
     isSwitchingRef.current = true;
-    
+
     // 隐藏滚动条
     if (contentWrapperRef.current) {
       contentWrapperRef.current.style.overflow = 'hidden';
     }
-    
+
     try {
       const result = await request({
         url: "/novel/getChapterContent",
@@ -162,6 +228,7 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
         // 格式化内容
         const formattedContent = formatContent(result.data);
         setContent(formattedContent);
+        setChapterWordCount(countTextLength(formattedContent));
         // 更新阅读进度
         await updateReadingProgress(chapter);
         // 滚动到顶部
@@ -170,10 +237,12 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
         }
       } else {
         setContent("章节不存在或读取失败");
+        setChapterWordCount(null);
       }
     } catch (error) {
       console.error("加载章节内容失败:", error);
       setContent("加载失败");
+      setChapterWordCount(null);
     } finally {
       setContentLoading(false);
       // 延迟重置切换标记，避免滚动事件立即触发
@@ -214,21 +283,22 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
     if (currentChapter < maxChapter) {
       // 立即设置切换标志，阻止滚动事件处理
       isSwitchingRef.current = true;
-      
+
       // 如果有预加载的内容，直接使用，不显示加载动画
       if (nextChapterContent) {
         skipLoadRef.current = true; // 设置标志，跳过 useEffect 中的加载
-        
+
         // 隐藏滚动条
         if (contentWrapperRef.current) {
           contentWrapperRef.current.style.overflow = 'hidden';
         }
-        
+
         setContent(nextChapterContent);
+        setChapterWordCount(countTextLength(nextChapterContent));
         setCurrentChapter(currentChapter + 1);
         updateReadingProgress(currentChapter + 1);
         setNextChapterContent(""); // 清空预加载内容，触发新的预加载
-        
+
         // 立即滚动到顶部，使用多种方式确保生效
         if (contentWrapperRef.current) {
           contentWrapperRef.current.scrollTop = 0;
@@ -312,7 +382,7 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
         hideTimerRef.current = null;
       }
     }
-    
+
     return () => {
       if (hideTimerRef.current) {
         clearTimeout(hideTimerRef.current);
@@ -332,20 +402,20 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
       const scrollTop = wrapper.scrollTop;
       const scrollHeight = wrapper.scrollHeight;
       const clientHeight = wrapper.clientHeight;
-      
+
       // PC端和移动端统一逻辑：控制选择器显示/隐藏
       // 如果选择器下拉菜单打开，不执行自动隐藏逻辑
       if (!isSelectorOpen) {
         const scrollDelta = scrollTop - lastScrollTopRef.current;
         const scrollThreshold = 10; // 滚动阈值，避免微小滚动触发
-        
+
         if (Math.abs(scrollDelta) > scrollThreshold) {
           // 清除之前的定时器
           if (hideTimerRef.current) {
             clearTimeout(hideTimerRef.current);
             hideTimerRef.current = null;
           }
-          
+
           if (scrollDelta > 0) {
             // 向下滚动，立即隐藏选择器
             setShowChapterSelector(false);
@@ -354,7 +424,7 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
             setShowChapterSelector(true);
             // 3秒后自动隐藏（由上面的useEffect处理）
           }
-          
+
           lastScrollTopRef.current = scrollTop;
         }
       }
@@ -402,6 +472,10 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
   }
 
   const maxChapter = chapterList.length > 0 ? Math.max(...chapterList.map(c => c.chapter)) : 0;
+  const currentChapterItem = chapterList.find((item) => item.chapter === currentChapter);
+  const currentChapterText = currentChapterItem?.name || `第 ${currentChapter} 章`;
+  const chapterWordCountText = chapterWordCount === null ? "统计中..." : `${chapterWordCount.toLocaleString()} 字`;
+  const totalWordCountText = totalWordCount === null ? "统计中..." : `${totalWordCount.toLocaleString()}`;
 
   return (
     <div className={SelfStyle.detailContainer}>
@@ -458,27 +532,80 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
             // 下拉菜单关闭时，选择器继续保持显示，由上面的useEffect处理3秒后自动隐藏
           }}
           filterOption={(input, option) => {
-            const searchText = input.toLowerCase();
+            const searchText = input.trim();
             const optionValue = option?.value;
-            
-            // 直接匹配章节号
+            const label = String(option?.label || "");
+
+            // 1. 如果是纯数字，匹配最终次序（Sequnece Number）
             if (/^\d+$/.test(searchText)) {
               const chapterNum = parseInt(searchText, 10);
               return optionValue === chapterNum;
             }
-            
+
+            // 2. 精准匹配标识符部分（Folder-File）
+            // label格式为 "Folder-File-Sequence" (例如 "1-4-4")
+            // 我们提取最后一段之前的字符串作为标识符
+            const lastHyphenIndex = label.lastIndexOf('-');
+            if (lastHyphenIndex !== -1) {
+              const nameIdentifier = label.substring(0, lastHyphenIndex);
+              return nameIdentifier === searchText;
+            }
+
+            // 如果没有连字符（例如根目录文件 "1-1"），直接匹配
+            // 注意：根目录文件生成的名字可能是 "FileName-Sequence" (例如 "1-1")
+            // 如果用户搜 "1"，应该匹配 "1" 吗？
+            // 按照逻辑 "Folder-File"，根目录只有 "File"。
+            // 如果文件名是 "1"，label是 "1-1"。
+            // 用户搜 "1"，Identifier是 "1"，匹配成功。
+
             return false;
           }}
           className={SelfStyle.chapterSelect}
           getPopupContainer={(triggerNode) => triggerNode.parentElement || document.body}
         >
-          {Array.from({ length: maxChapter }, (_, i) => i + 1).map((ch) => (
-            <Select.Option key={ch} value={ch} label={`${ch} / ${maxChapter}`}>
-              {ch}
+          {chapterList.map((item) => (
+            <Select.Option key={item.chapter} value={item.chapter} label={item.name || `${item.chapter} / ${maxChapter}`}>
+              {item.name || item.chapter}
             </Select.Option>
           ))}
         </Select>
       </div>
+
+      <div className={SelfStyle.bottomInfoBar}>
+        <span>{`${currentChapterText}章`}</span>
+        <span>{`${chapterWordCountText}`}</span>
+        <button type="button" className={SelfStyle.wordStatTrigger} onClick={handleOpenChapterWordStats}>
+          {`总字数 ${totalWordCountText}`}
+        </button>
+      </div>
+      <Modal
+        title="章节字数统计"
+        open={chapterWordStatsOpen}
+        onCancel={() => setChapterWordStatsOpen(false)}
+        footer={null}
+        width={720}
+        destroyOnClose={false}
+      >
+        {chapterWordStatsLoading ? (
+          <div className={SelfStyle.chapterWordStatsLoading}>
+            <Spin />
+          </div>
+        ) : (
+          <div className={SelfStyle.chapterWordStatsList}>
+            {chapterWordStats.map((item) => (
+              <div
+                key={item.chapter}
+                className={`${SelfStyle.chapterWordStatsItem} ${item.chapter === currentChapter ? SelfStyle.currentChapterWordStatsItem : ""}`}
+              >
+                <span>{item.name || `第 ${item.chapter} 章`}</span>
+                <span className={item.wordCount < 2000 ? SelfStyle.shortChapterWordCount : ""}>
+                  {item.wordCount.toLocaleString()}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
