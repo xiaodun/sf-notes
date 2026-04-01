@@ -18,11 +18,8 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
   const [contentLoading, setContentLoading] = useState(false);
   const [chapterList, setChapterList] = useState<{ chapter: number; name?: string; exists: boolean }[]>([]);
   const [currentChapter, setCurrentChapter] = useState<number>(1);
-  const [nextChapterContent, setNextChapterContent] = useState<string>(""); // 预加载的下一章内容
   const contentWrapperRef = useRef<HTMLDivElement>(null);
-  const isLoadingNextRef = useRef<boolean>(false); // 防止重复加载
   const isSwitchingRef = useRef<boolean>(false); // 是否正在切换章节
-  const skipLoadRef = useRef<boolean>(false); // 是否跳过加载（使用预加载内容时）
   const lastScrollTopRef = useRef<number>(0); // 上次滚动位置
   const [chapterWordCount, setChapterWordCount] = useState<number | null>(null);
   const [totalWordCount, setTotalWordCount] = useState<number | null>(null);
@@ -54,24 +51,9 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
 
   useEffect(() => {
     if (novel && currentChapter > 0) {
-      // 如果使用预加载内容，跳过重新加载
-      if (skipLoadRef.current) {
-        skipLoadRef.current = false;
-        return;
-      }
       loadChapterContent(currentChapter);
     }
   }, [novel, currentChapter]);
-
-  // 预加载下一章
-  useEffect(() => {
-    if (novel && currentChapter > 0 && chapterList.length > 0 && !contentLoading) {
-      const maxChapter = Math.max(...chapterList.map(c => c.chapter));
-      if (currentChapter < maxChapter && !nextChapterContent) {
-        preloadNextChapter(currentChapter + 1);
-      }
-    }
-  }, [novel, currentChapter, chapterList, nextChapterContent, contentLoading, preloadNextChapter]);
 
   const loadNovel = async () => {
     if (!id) return;
@@ -95,7 +77,7 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
   };
 
   const countTextLength = useCallback((text: string): number => {
-    if (!text) return 0;
+    if (!text || typeof text !== 'string') return 0;
     return text.replace(/\s/g, "").length;
   }, []);
 
@@ -116,26 +98,6 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
 
     return wordCount;
   }, [countTextLength]);
-
-  // 预加载下一章内容
-  const preloadNextChapter = useCallback(async (chapter: number) => {
-    if (!novel?.path) return;
-    try {
-      const result = await request({
-        url: "/novel/getChapterContent",
-        method: "post",
-        data: { path: novel.path, chapter },
-      });
-      // 只要是成功请求，即使 data 为空（空白章节）也应该预加载进去
-      if (result.success) {
-        // 格式化并保存预加载的内容，如果是空白章节 data 就是 undefined 或空字符串
-        const formattedContent = formatContent(result.data || "");
-        setNextChapterContent(formattedContent);
-      }
-    } catch (error) {
-      console.error("预加载下一章失败:", error);
-    }
-  }, [novel?.path, formatContent]);
 
   const loadChapterList = async () => {
     if (!novel?.path) return;
@@ -293,129 +255,78 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
     }
   };
 
-  const handlePrevChapter = () => {
+  const handlePrevChapter = useCallback(() => {
     if (currentChapter > 1) {
       setCurrentChapter(currentChapter - 1);
       if (contentWrapperRef.current) {
         contentWrapperRef.current.scrollTop = 0;
       }
     }
-  };
+  }, [currentChapter]);
 
   const handleNextChapter = useCallback(() => {
     const maxChapter = chapterList.length > 0 ? Math.max(...chapterList.map(c => c.chapter)) : 0;
     if (currentChapter < maxChapter) {
       // 立即设置切换标志，阻止滚动事件处理
       isSwitchingRef.current = true;
-
-      // 如果有预加载的内容，直接使用，不显示加载动画
-      if (nextChapterContent) {
-        skipLoadRef.current = true; // 设置标志，跳过 useEffect 中的加载
-
-        // 隐藏滚动条
-        if (contentWrapperRef.current) {
-          contentWrapperRef.current.style.overflow = 'hidden';
-        }
-
-        setContent(nextChapterContent);
-        setChapterWordCount(countTextLength(nextChapterContent));
-        setCurrentChapter(currentChapter + 1);
-        updateReadingProgress(currentChapter + 1);
-        setNextChapterContent(""); // 清空预加载内容，触发新的预加载
-
-        // 立即滚动到顶部，使用多种方式确保生效
-        if (contentWrapperRef.current) {
-          contentWrapperRef.current.scrollTop = 0;
-          // 使用 requestAnimationFrame 确保在下一帧执行，避免被用户滚动覆盖
-          requestAnimationFrame(() => {
-            if (contentWrapperRef.current) {
-              contentWrapperRef.current.scrollTop = 0;
-              // 再延迟一下，确保滚动位置固定，然后恢复滚动条
-              setTimeout(() => {
-                if (contentWrapperRef.current) {
-                  contentWrapperRef.current.scrollTop = 0;
-                  // 恢复滚动条
-                  contentWrapperRef.current.style.overflow = 'auto';
-                }
-                isSwitchingRef.current = false;
-              }, 100);
-            }
-          });
-        } else {
-          setTimeout(() => {
-            isSwitchingRef.current = false;
-          }, 100);
-        }
-      } else {
-        // 没有预加载内容，正常加载
-        // 隐藏滚动条
-        if (contentWrapperRef.current) {
-          contentWrapperRef.current.style.overflow = 'hidden';
-        }
-        setCurrentChapter(currentChapter + 1);
-        // 延迟重置标志，等待加载完成后再恢复滚动条
-        setTimeout(() => {
-          if (contentWrapperRef.current) {
-            contentWrapperRef.current.style.overflow = 'auto';
-          }
-          isSwitchingRef.current = false;
-        }, 500);
+      if (contentWrapperRef.current) {
+        contentWrapperRef.current.style.overflow = 'hidden';
       }
+      setCurrentChapter(currentChapter + 1);
+      setTimeout(() => {
+        if (contentWrapperRef.current) {
+          contentWrapperRef.current.style.overflow = 'auto';
+        }
+        isSwitchingRef.current = false;
+      }, 500);
     }
-  }, [currentChapter, chapterList, nextChapterContent]);
+  }, [currentChapter, chapterList]);
 
   const handleChapterChange = (chapter: number) => {
-    // 通过选择器切换章节时，清空预加载的内容（因为预加载的是旧章节的下一章）
-    setNextChapterContent("");
     // 重置切换标志
     isSwitchingRef.current = false;
-    skipLoadRef.current = false;
     setCurrentChapter(chapter);
     if (contentWrapperRef.current) {
       contentWrapperRef.current.scrollTop = 0;
     }
   };
 
-  // 滚动到底部自动加载下一章
+  // 键盘事件监听：左右箭头键切换章节
   useEffect(() => {
-    const wrapper = contentWrapperRef.current;
-    if (!wrapper) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.repeat) {
+        return;
+      }
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
 
-    // 初始化滚动位置
-    lastScrollTopRef.current = wrapper.scrollTop;
+      const key = e.key;
+      const code = e.code;
+      const keyCode = e.keyCode;
 
-    const handleScroll = () => {
-      const scrollTop = wrapper.scrollTop;
-      const scrollHeight = wrapper.scrollHeight;
-      const clientHeight = wrapper.clientHeight;
+      const isLeft = key === 'ArrowLeft' || code === 'ArrowLeft' || keyCode === 37 || key === 'a' || key === 'A' || code === 'KeyA';
+      const isRight = key === 'ArrowRight' || code === 'ArrowRight' || keyCode === 39 || key === 'd' || key === 'D' || code === 'KeyD';
 
-      lastScrollTopRef.current = scrollTop;
+      if (isLeft) {
+        e.preventDefault();
+        handlePrevChapter();
+        return;
+      }
 
-      // 如果正在加载或切换，不处理自动加载下一章
-      if (isLoadingNextRef.current || contentLoading || isSwitchingRef.current) return;
-
-      // 检查是否真正滚动到底部（只有真正到底部才切换，避免还没看完就切换）
-      const threshold = 10; // 距离底部10px内才触发（真正到底部）
-
-      if (scrollTop + clientHeight >= scrollHeight - threshold) {
-        // 检查是否还有下一章
-        const maxChapter = chapterList.length > 0 ? Math.max(...chapterList.map(c => c.chapter)) : 0;
-        if (currentChapter < maxChapter) {
-          isLoadingNextRef.current = true;
-          handleNextChapter();
-          // 延迟重置标记
-          setTimeout(() => {
-            isLoadingNextRef.current = false;
-          }, 1000);
-        }
+      if (isRight) {
+        e.preventDefault();
+        handleNextChapter();
       }
     };
 
-    wrapper.addEventListener('scroll', handleScroll);
+    window.addEventListener('keydown', handleKeyDown);
     return () => {
-      wrapper.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [currentChapter, chapterList, contentLoading, handleNextChapter]);
+  }, [handlePrevChapter, handleNextChapter]);
+
+
 
   if (loading) {
     return (
@@ -470,7 +381,7 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
           </div>
         ) : (
           <div className={SelfStyle.content}>
-            {content ? (
+            {content && typeof content === 'string' ? (
               content.split('\n').map((line, index) => {
                 if (line.trim()) {
                   const wordCount = calculateWordCount(content, index);
@@ -488,6 +399,8 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
                   return <br key={index} />;
                 }
               })
+            ) : content === "" ? (
+              <p>（本章暂无内容）</p>
             ) : (
               <p>加载中...</p>
             )}
