@@ -198,68 +198,6 @@
   }
 }
 
-
-
-
-// 悬浮在右侧的章节选择器
-.floatingChapterSelector {
-  position: fixed;
-  right: 20px;
-  top: 0px;
-  z-index: 200;
-  pointer-events: auto; // 确保可以交互
-  transition: opacity 0.3s ease, transform 0.3s ease;
-
-  :global {
-    .ant-select {
-      .ant-select-selector {
-        background: rgba(255, 255, 255, 0.95);
-        border: 1px solid #e8e8e8;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      }
-      
-      .ant-select-selection-item {
-        font-size: 14px;
-        color: #333;
-      }
-    }
-  }
-
-  // 移动端适配
-  @media (max-width: 768px) {
-    right: 12px;
-    top: 12px;
-    z-index: 1000; // 提高 z-index 确保在最上层
-    
-    :global {
-      .ant-select {
-        .ant-select-selector {
-          background: rgba(255, 255, 255, 0.98);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-        
-        .ant-select-selection-item {
-          font-size: 12px;
-        }
-      }
-    }
-  }
-
-  // 显示状态
-  &.visible {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
-
-  // 隐藏状态
-  &.hidden {
-    opacity: 0;
-    transform: translateY(-10px);
-    pointer-events: none;
-  }
-}
-
 .bottomInfoBar {
   position: fixed;
   left: 0;
@@ -289,12 +227,81 @@
 }
 
 .wordStatTrigger {
-  padding: 0;
-  border: none;
+  padding: 6px 16px;
+  border: 1px solid #1677ff;
   background: transparent;
   color: #1677ff;
-  font-size: inherit;
+  font-size: 14px;
+  border-radius: 20px;
   cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: #fff;
+    background-color: #1677ff;
+    box-shadow: 0 4px 8px rgba(22, 119, 255, 0.2);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+}
+
+.chapterNavIcons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 20px;
+
+  .navIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    width: 36px;
+    height: 36px;
+    color: #1677ff;
+    background-color: transparent;
+    border: 1px solid #1677ff;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    box-shadow: 0 2px 0 rgba(22, 119, 255, 0.06);
+
+    &:hover {
+      color: #fff;
+      background-color: #1677ff;
+      border-color: #1677ff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(22, 119, 255, 0.2);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    &.disabled {
+      color: #bfbfbf;
+      background-color: #f5f5f5;
+      border-color: #d9d9d9;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+  }
+}
+
+.modalTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 24px; // 留出关闭按钮的空间
 }
 
 .chapterWordStatsLoading {
@@ -314,10 +321,16 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 12px 0;
+  padding: 12px 8px;
   border-bottom: 1px solid #f0f0f0;
   font-size: 14px;
   color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
 }
 
 .currentChapterWordStatsItem {

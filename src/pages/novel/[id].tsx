@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, ConnectRC } from "umi";
-import { message, Spin, Select, Tooltip, Modal } from "antd";
+import { message, Spin, Tooltip, Modal, Input } from "antd";
+import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import SelfStyle from "./LNovel.less";
 import NNovel from "./NNovel";
 import SNovel from "./SNovel";
@@ -22,16 +23,13 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
   const isLoadingNextRef = useRef<boolean>(false); // 防止重复加载
   const isSwitchingRef = useRef<boolean>(false); // 是否正在切换章节
   const skipLoadRef = useRef<boolean>(false); // 是否跳过加载（使用预加载内容时）
-  // 选择器显示状态：初始显示，3秒后自动隐藏
-  const [showChapterSelector, setShowChapterSelector] = useState<boolean>(true);
-  const [isSelectorOpen, setIsSelectorOpen] = useState<boolean>(false); // 选择器下拉菜单是否打开
   const lastScrollTopRef = useRef<number>(0); // 上次滚动位置
-  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null); // 自动隐藏定时器
   const [chapterWordCount, setChapterWordCount] = useState<number | null>(null);
   const [totalWordCount, setTotalWordCount] = useState<number | null>(null);
   const [chapterWordStatsOpen, setChapterWordStatsOpen] = useState(false);
   const [chapterWordStatsLoading, setChapterWordStatsLoading] = useState(false);
   const [chapterWordStats, setChapterWordStats] = useState<{ chapter: number; name?: string; wordCount: number }[]>([]);
+  const [chapterWordStatsSearchText, setChapterWordStatsSearchText] = useState<string>("");
 
   useEffect(() => {
     if (id) {
@@ -128,9 +126,10 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
         method: "post",
         data: { path: novel.path, chapter },
       });
-      if (result.success && result.data) {
-        // 格式化并保存预加载的内容
-        const formattedContent = formatContent(result.data);
+      // 只要是成功请求，即使 data 为空（空白章节）也应该预加载进去
+      if (result.success) {
+        // 格式化并保存预加载的内容，如果是空白章节 data 就是 undefined 或空字符串
+        const formattedContent = formatContent(result.data || "");
         setNextChapterContent(formattedContent);
       }
     } catch (error) {
@@ -199,7 +198,23 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
 
   const handleOpenChapterWordStats = async () => {
     setChapterWordStatsOpen(true);
-    await loadChapterWordStats();
+    
+    const scrollToCurrent = () => {
+      setTimeout(() => {
+        const activeItem = document.querySelector(`.${SelfStyle.currentChapterWordStatsItem}`);
+        if (activeItem) {
+          activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    };
+
+    if (chapterWordStats.length === 0) {
+      await loadChapterWordStats();
+      // 等待数据加载并渲染完成后再滚动
+      setTimeout(scrollToCurrent, 100);
+    } else {
+      scrollToCurrent();
+    }
   };
 
   // 格式化文本内容：保留原始格式，不做自动分段和排版
@@ -236,8 +251,15 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
           contentWrapperRef.current.scrollTop = 0;
         }
       } else {
-        setContent("章节不存在或读取失败");
-        setChapterWordCount(null);
+        // 后端返回成功，但没有数据，说明可能是空白章节
+        if (result.success) {
+          setContent(""); // 展示为空
+          setChapterWordCount(0);
+          await updateReadingProgress(chapter);
+        } else {
+          setContent("章节不存在或读取失败");
+          setChapterWordCount(null);
+        }
       }
     } catch (error) {
       console.error("加载章节内容失败:", error);
@@ -274,7 +296,9 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
   const handlePrevChapter = () => {
     if (currentChapter > 1) {
       setCurrentChapter(currentChapter - 1);
-      window.scrollTo(0, 0);
+      if (contentWrapperRef.current) {
+        contentWrapperRef.current.scrollTop = 0;
+      }
     }
   };
 
@@ -352,45 +376,7 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
     }
   };
 
-  // 初始显示3秒后自动隐藏，以及当选择器显示时自动启动3秒隐藏定时器
-  useEffect(() => {
-    // 如果选择器下拉菜单打开，不执行自动隐藏
-    if (isSelectorOpen) {
-      // 清除定时器
-      if (hideTimerRef.current) {
-        clearTimeout(hideTimerRef.current);
-        hideTimerRef.current = null;
-      }
-      return;
-    }
-
-    // 如果选择器显示，启动3秒后自动隐藏
-    if (showChapterSelector) {
-      // 清除之前的定时器
-      if (hideTimerRef.current) {
-        clearTimeout(hideTimerRef.current);
-      }
-      // 3秒后自动隐藏
-      hideTimerRef.current = setTimeout(() => {
-        setShowChapterSelector(false);
-        hideTimerRef.current = null;
-      }, 3000);
-    } else {
-      // 如果选择器隐藏，清除定时器
-      if (hideTimerRef.current) {
-        clearTimeout(hideTimerRef.current);
-        hideTimerRef.current = null;
-      }
-    }
-
-    return () => {
-      if (hideTimerRef.current) {
-        clearTimeout(hideTimerRef.current);
-      }
-    };
-  }, [showChapterSelector, isSelectorOpen]);
-
-  // 滚动到底部自动加载下一章 + PC端和移动端统一的选择器显示/隐藏控制
+  // 滚动到底部自动加载下一章
   useEffect(() => {
     const wrapper = contentWrapperRef.current;
     if (!wrapper) return;
@@ -403,34 +389,10 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
       const scrollHeight = wrapper.scrollHeight;
       const clientHeight = wrapper.clientHeight;
 
-      // PC端和移动端统一逻辑：控制选择器显示/隐藏
-      // 如果选择器下拉菜单打开，不执行自动隐藏逻辑
-      if (!isSelectorOpen) {
-        const scrollDelta = scrollTop - lastScrollTopRef.current;
-        const scrollThreshold = 10; // 滚动阈值，避免微小滚动触发
+      lastScrollTopRef.current = scrollTop;
 
-        if (Math.abs(scrollDelta) > scrollThreshold) {
-          // 清除之前的定时器
-          if (hideTimerRef.current) {
-            clearTimeout(hideTimerRef.current);
-            hideTimerRef.current = null;
-          }
-
-          if (scrollDelta > 0) {
-            // 向下滚动，立即隐藏选择器
-            setShowChapterSelector(false);
-          } else {
-            // 向上滚动，显示选择器
-            setShowChapterSelector(true);
-            // 3秒后自动隐藏（由上面的useEffect处理）
-          }
-
-          lastScrollTopRef.current = scrollTop;
-        }
-      }
-
-      // 如果正在加载或切换，或选择器下拉菜单打开，不处理自动加载下一章
-      if (isLoadingNextRef.current || contentLoading || isSwitchingRef.current || isSelectorOpen) return;
+      // 如果正在加载或切换，不处理自动加载下一章
+      if (isLoadingNextRef.current || contentLoading || isSwitchingRef.current) return;
 
       // 检查是否真正滚动到底部（只有真正到底部才切换，避免还没看完就切换）
       const threshold = 10; // 距离底部10px内才触发（真正到底部）
@@ -453,7 +415,7 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
     return () => {
       wrapper.removeEventListener('scroll', handleScroll);
     };
-  }, [currentChapter, chapterList, contentLoading, handleNextChapter, isSelectorOpen]);
+  }, [currentChapter, chapterList, contentLoading, handleNextChapter]);
 
   if (loading) {
     return (
@@ -476,6 +438,28 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
   const currentChapterText = currentChapterItem?.name || `第 ${currentChapter} 章`;
   const chapterWordCountText = chapterWordCount === null ? "统计中..." : `${chapterWordCount.toLocaleString()} 字`;
   const totalWordCountText = totalWordCount === null ? "统计中..." : `${totalWordCount.toLocaleString()}`;
+
+  const filteredChapterWordStats = chapterWordStats.filter((item) => {
+    if (!chapterWordStatsSearchText) return true;
+    
+    const searchText = chapterWordStatsSearchText.trim();
+    const label = String(item.name || "");
+
+    // 1. 如果是纯数字，匹配最终次序（Sequnece Number）
+    if (/^\d+$/.test(searchText)) {
+      const chapterNum = parseInt(searchText, 10);
+      return item.chapter === chapterNum;
+    }
+
+    // 2. 精准匹配标识符部分（Folder-File）
+    const lastHyphenIndex = label.lastIndexOf('-');
+    if (lastHyphenIndex !== -1) {
+      const nameIdentifier = label.substring(0, lastHyphenIndex);
+      return nameIdentifier === searchText;
+    }
+
+    return false;
+  });
 
   return (
     <div className={SelfStyle.detailContainer}>
@@ -511,75 +495,35 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
         )}
       </div>
 
-      {/* 悬浮在右侧的章节选择器 */}
-      <div className={`${SelfStyle.floatingChapterSelector} ${showChapterSelector ? SelfStyle.visible : SelfStyle.hidden}`}>
-        <Select
-          value={currentChapter}
-          onChange={handleChapterChange}
-          style={{ width: 140 }}
-          showSearch
-          optionLabelProp="label"
-          onDropdownVisibleChange={(open) => {
-            setIsSelectorOpen(open);
-            if (open) {
-              // 下拉菜单打开时，清除自动隐藏定时器，并确保选择器显示
-              if (hideTimerRef.current) {
-                clearTimeout(hideTimerRef.current);
-                hideTimerRef.current = null;
-              }
-              setShowChapterSelector(true);
-            }
-            // 下拉菜单关闭时，选择器继续保持显示，由上面的useEffect处理3秒后自动隐藏
-          }}
-          filterOption={(input, option) => {
-            const searchText = input.trim();
-            const optionValue = option?.value;
-            const label = String(option?.label || "");
-
-            // 1. 如果是纯数字，匹配最终次序（Sequnece Number）
-            if (/^\d+$/.test(searchText)) {
-              const chapterNum = parseInt(searchText, 10);
-              return optionValue === chapterNum;
-            }
-
-            // 2. 精准匹配标识符部分（Folder-File）
-            // label格式为 "Folder-File-Sequence" (例如 "1-4-4")
-            // 我们提取最后一段之前的字符串作为标识符
-            const lastHyphenIndex = label.lastIndexOf('-');
-            if (lastHyphenIndex !== -1) {
-              const nameIdentifier = label.substring(0, lastHyphenIndex);
-              return nameIdentifier === searchText;
-            }
-
-            // 如果没有连字符（例如根目录文件 "1-1"），直接匹配
-            // 注意：根目录文件生成的名字可能是 "FileName-Sequence" (例如 "1-1")
-            // 如果用户搜 "1"，应该匹配 "1" 吗？
-            // 按照逻辑 "Folder-File"，根目录只有 "File"。
-            // 如果文件名是 "1"，label是 "1-1"。
-            // 用户搜 "1"，Identifier是 "1"，匹配成功。
-
-            return false;
-          }}
-          className={SelfStyle.chapterSelect}
-          getPopupContainer={(triggerNode) => triggerNode.parentElement || document.body}
-        >
-          {chapterList.map((item) => (
-            <Select.Option key={item.chapter} value={item.chapter} label={item.name || `${item.chapter} / ${maxChapter}`}>
-              {item.name || item.chapter}
-            </Select.Option>
-          ))}
-        </Select>
-      </div>
-
       <div className={SelfStyle.bottomInfoBar}>
         <span>{`${currentChapterText}章`}</span>
         <span>{`${chapterWordCountText}`}</span>
         <button type="button" className={SelfStyle.wordStatTrigger} onClick={handleOpenChapterWordStats}>
           {`总字数 ${totalWordCountText}`}
         </button>
+        <div className={SelfStyle.chapterNavIcons}>
+          <LeftOutlined 
+            className={`${SelfStyle.navIcon} ${currentChapter <= 1 ? SelfStyle.disabled : ''}`} 
+            onClick={currentChapter > 1 ? handlePrevChapter : undefined} 
+          />
+          <RightOutlined 
+            className={`${SelfStyle.navIcon} ${currentChapter >= maxChapter ? SelfStyle.disabled : ''}`} 
+            onClick={currentChapter < maxChapter ? handleNextChapter : undefined} 
+          />
+        </div>
       </div>
       <Modal
-        title="章节字数统计"
+        title={
+          <div className={SelfStyle.modalTitle}>
+            <span>章节字数统计</span>
+            <Input
+              placeholder="搜索章节..."
+              allowClear
+              onChange={(e) => setChapterWordStatsSearchText(e.target.value)}
+              style={{ width: 200 }}
+            />
+          </div>
+        }
         open={chapterWordStatsOpen}
         onCancel={() => setChapterWordStatsOpen(false)}
         footer={null}
@@ -592,10 +536,14 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
           </div>
         ) : (
           <div className={SelfStyle.chapterWordStatsList}>
-            {chapterWordStats.map((item) => (
+            {filteredChapterWordStats.map((item) => (
               <div
                 key={item.chapter}
                 className={`${SelfStyle.chapterWordStatsItem} ${item.chapter === currentChapter ? SelfStyle.currentChapterWordStatsItem : ""}`}
+                onClick={() => {
+                  setChapterWordStatsOpen(false);
+                  handleChapterChange(item.chapter);
+                }}
               >
                 <span>{item.name || `第 ${item.chapter} 章`}</span>
                 <span className={item.wordCount < 2000 ? SelfStyle.shortChapterWordCount : ""}>
