@@ -1,7 +1,20 @@
 (function () {
-  return function (argData, argParams) {
+  return function (argData, argParams, external) {
     const data = argData || [];
     const novel = argParams; // 整个 novel 对象作为参数
+    if (novel && novel.watchAction === "close" && novel.path) {
+      const closed = external && external.closeNovelWatcher && external.closeNovelWatcher(novel.path);
+      return {
+        isWrite: false,
+        response: {
+          code: 200,
+          data: {
+            success: true,
+            closed: !!closed,
+          },
+        },
+      };
+    }
     const index = data.findIndex((item) => item.id === novel.id);
     
     if (index === -1) {

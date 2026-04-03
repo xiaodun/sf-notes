@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 (function () {
-  return function (argData, argParams) {
+  return function (argData, argParams, external) {
     const novelPath = argParams.path;
     const chapter = parseInt(argParams.chapter);
     
@@ -82,7 +82,8 @@ const path = require("path");
         };
       }
 
-      // 读取文件内容
+      external && external.ensureNovelWatcher && external.ensureNovelWatcher(novelPath, chapter);
+
       const content = fs.readFileSync(targetFilePath, "utf-8");
 
       return {

@@ -63,6 +63,7 @@ const path = require("path");
   }
 
   function alignDeleteAddBlock(dels, adds) {
+    const MODIFY_SIM_THRESHOLD = 0.55;
     const n = dels.length;
     const m = adds.length;
     const dp = Array.from({ length: n + 1 }, () => Array(m + 1).fill(0));
@@ -80,7 +81,7 @@ const path = require("path");
     for (let i = 1; i <= n; i++) {
       for (let j = 1; j <= m; j++) {
         const sim = lineSimilarity(dels[i - 1].text, adds[j - 1].text);
-        const modifyPenalty = sim >= 0.3 ? 1 - sim : 1.25;
+        const modifyPenalty = sim >= MODIFY_SIM_THRESHOLD ? 1 - sim : Number.POSITIVE_INFINITY;
         const candDelete = dp[i - 1][j] + 1;
         const candAdd = dp[i][j - 1] + 1;
         const candModify = dp[i - 1][j - 1] + modifyPenalty;
@@ -278,6 +279,7 @@ const path = require("path");
         if (op.type === "delete") {
           if (!markedParagraphIndexes.includes(op.oldIndex)) continue;
           const oldText = op.text || "";
+          if (oldText.trim() === "") continue;
           const newText = "";
           changes.push({
             paragraphIndex: op.oldIndex,
@@ -296,6 +298,7 @@ const path = require("path");
         }
         if (op.type === "add") {
           const newText = op.text || "";
+          if (newText.trim() === "") continue;
           const lineIndex = op.newIndex;
           changes.push({
             paragraphIndex: lineIndex,

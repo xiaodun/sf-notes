@@ -7,6 +7,8 @@ import NNovel from "./NNovel";
 import SNovel from "./SNovel";
 import request from "@/utils/request";
 import NRsp from "@/common/namespace/NRsp";
+import UWsBridge from "@/common/utils/UWsBridge";
+import wsEvent from "@/common/constants/wsEvent";
 
 export interface NovelDetailProps { }
 
@@ -32,6 +34,14 @@ interface DiffToken {
 interface ParagraphItem {
   text: string;
   lineNo: number;
+}
+
+interface RenderRow {
+  type: "paragraph" | "deleted";
+  lineNo: number;
+  paragraphIndex?: number;
+  text?: string;
+  changeItem?: ParagraphDiffItem;
 }
 
 const NovelDetail: ConnectRC<NovelDetailProps> = () => {
@@ -63,7 +73,10 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
   const [changedParagraphSet, setChangedParagraphSet] = useState<Set<number>>(new Set());
   const [selectedDiffParagraphSet, setSelectedDiffParagraphSet] = useState<Set<number>>(new Set());
   const [paragraphChangeMap, setParagraphChangeMap] = useState<Record<number, ParagraphDiffItem>>({});
+  const [deletedChangeList, setDeletedChangeList] = useState<ParagraphDiffItem[]>([]);
   const editingTextAreaRef = useRef<any>(null);
+  const currentChapterRef = useRef<number>(1);
+  const novelPathRef = useRef<string>("");
 
   useEffect(() => {
     if (id) {
@@ -103,6 +116,14 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
       }
     }, 0);
   }, [editingLineIndex]);
+
+  useEffect(() => {
+    currentChapterRef.current = currentChapter;
+  }, [currentChapter]);
+
+  useEffect(() => {
+    novelPathRef.current = novel?.path || "";
+  }, [novel?.path]);
 
   const loadNovel = async () => {
     if (!id) return;
@@ -267,15 +288,22 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
           .map((item: ParagraphDiffItem) => (item.newLineNo ? item.newLineNo - 1 : item.paragraphIndex))
           .filter((idx: number) => idx >= 0);
         const changeMap: Record<number, ParagraphDiffItem> = {};
+        const deletedChanges: ParagraphDiffItem[] = [];
         for (const changeItem of changes) {
+          if (changeItem.changeType === "delete" && changeItem.oldLineNo) {
+            deletedChanges.push(changeItem);
+            continue;
+          }
           const key = changeItem.newLineNo ? changeItem.newLineNo - 1 : changeItem.paragraphIndex;
           if (key >= 0) {
             changeMap[key] = changeItem;
           }
         }
+        deletedChanges.sort((a, b) => Number(a.oldLineNo || 0) - Number(b.oldLineNo || 0));
         setMarkedParagraphSet(new Set(markedIndexes));
         setChangedParagraphSet(new Set(changedIndexes));
         setParagraphChangeMap(changeMap);
+        setDeletedChangeList(deletedChanges);
         if (Array.isArray(data.debugTrace) && data.debugTrace.length > 0) {
           console.log("[章节对比映射]", data.debugTrace);
         }
@@ -283,11 +311,13 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
         setMarkedParagraphSet(new Set());
         setChangedParagraphSet(new Set());
         setParagraphChangeMap({});
+        setDeletedChangeList([]);
       }
     } catch (error) {
       setMarkedParagraphSet(new Set());
       setChangedParagraphSet(new Set());
       setParagraphChangeMap({});
+      setDeletedChangeList([]);
     }
   };
 
@@ -349,6 +379,29 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
       }, 300);
     }
   };
+
+  const refreshCurrentChapterContentSilently = useCallback(async () => {
+    const currentPath = novelPathRef.current;
+    if (!currentPath) return;
+    const wrapper = contentWrapperRef.current;
+    const prevScrollTop = wrapper ? wrapper.scrollTop : 0;
+    try {
+      const result = await request({
+        url: "/novel/getChapterContent",
+        method: "post",
+        data: { path: currentPath, chapter: currentChapterRef.current },
+      });
+      if (result?.success) {
+        const formattedContent = formatContent(result.data || "");
+        setContent(formattedContent);
+        setChapterWordCount(countTextLength(formattedContent));
+        await refreshParagraphMarkStatus(currentChapterRef.current);
+        if (wrapper) {
+          wrapper.scrollTop = prevScrollTop;
+        }
+      }
+    } catch (e) {}
+  }, [countTextLength, formatContent, refreshParagraphMarkStatus]);
 
 
   const updateReadingProgress = async (chapter: number) => {
@@ -740,6 +793,34 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
     };
   }, [handlePrevChapter, handleNextChapter]);
 
+  useEffect(() => {
+    const off = UWsBridge.on(wsEvent.key.NOVEL, (payload) => {
+      if (!payload) return;
+      if (payload.type !== wsEvent.type.CHAPTER_FILE_CHANGED) return;
+      if (!novelPathRef.current || payload.novelPath !== novelPathRef.current) return;
+      if (Number(payload.chapter) !== Number(currentChapterRef.current)) return;
+      refreshCurrentChapterContentSilently();
+    });
+    return () => {
+      off();
+    };
+  }, [refreshCurrentChapterContentSilently]);
+
+  useEffect(() => {
+    const currentPath = novel?.path;
+    return () => {
+      if (!currentPath) return;
+      request({
+        url: "/novel/editNovel",
+        method: "post",
+        data: {
+          watchAction: "close",
+          path: currentPath,
+        },
+      }).catch(() => {});
+    };
+  }, [novel?.path]);
+
 
 
   if (loading) {
@@ -796,20 +877,65 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
         ) : (
           <div className={SelfStyle.content}>
             {content && typeof content === 'string' ? (
-              getParagraphItems(content).map((paragraphItem, index) => {
-                const line = paragraphItem.text;
+              (() => {
+                const paragraphItems = getParagraphItems(content);
+                const rows: RenderRow[] = [];
+                const deletes = [...deletedChangeList];
+                let di = 0;
+                for (let i = 0; i < paragraphItems.length; i++) {
+                  const paragraphItem = paragraphItems[i];
+                  while (di < deletes.length && Number(deletes[di].oldLineNo || 0) <= paragraphItem.lineNo) {
+                    rows.push({
+                      type: "deleted",
+                      lineNo: Number(deletes[di].oldLineNo || 0),
+                      changeItem: deletes[di],
+                    });
+                    di++;
+                  }
+                  rows.push({
+                    type: "paragraph",
+                    lineNo: paragraphItem.lineNo,
+                    paragraphIndex: i,
+                    text: paragraphItem.text,
+                  });
+                }
+                while (di < deletes.length) {
+                  rows.push({
+                    type: "deleted",
+                    lineNo: Number(deletes[di].oldLineNo || 0),
+                    changeItem: deletes[di],
+                  });
+                  di++;
+                }
+                return rows.map((row, rowIndex) => {
+                if (row.type === "deleted") {
+                  const changeItem = row.changeItem as ParagraphDiffItem;
+                  return (
+                    <div key={`deleted-${rowIndex}-${row.lineNo}`} className={SelfStyle.paragraphRow}>
+                      <div className={SelfStyle.paragraphLeftPanel}>
+                        <div className={SelfStyle.paragraphMetaRow}>
+                          <span>{`${row.lineNo} 行 · ${rowIndex + 1} 段`}</span>
+                          <span>{`共 ${countTextLength(changeItem.oldText || "").toLocaleString()} 字`}</span>
+                        </div>
+                      </div>
+                      <p className={SelfStyle.changedSingleDelete}>{changeItem.oldText || "(已删除)"}</p>
+                    </div>
+                  );
+                }
+                const index = row.paragraphIndex as number;
+                const line = row.text as string;
                 const currentLineTotalWordCount = calculateWordCount(content, index);
-                const rawLineIndex = paragraphItem.lineNo - 1;
+                const rawLineIndex = row.lineNo - 1;
                 const changedItem = paragraphChangeMap[rawLineIndex];
                 const showChangedPreview = !!(changedParagraphSet.has(rawLineIndex) && changedItem);
                 return (
                   <div
-                    key={index}
+                    key={rowIndex}
                     className={SelfStyle.paragraphRow}
                   >
                     <div className={SelfStyle.paragraphLeftPanel}>
                       <div className={SelfStyle.paragraphMetaRow}>
-                        <span>{`${paragraphItem.lineNo} 行 · ${index + 1} 段`}</span>
+                        <span>{`${row.lineNo} 行 · ${rowIndex + 1} 段`}</span>
                         <span>{`共 ${currentLineTotalWordCount.toLocaleString()} 字`}</span>
                       </div>
                       <div className={SelfStyle.paragraphActionRow}>
@@ -907,7 +1033,7 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
                           <p className={SelfStyle.contentLine}>
                             {buildInlineDiffTokens(changedItem.oldText, changedItem.newText).map((token, tokenIndex) => (
                               <span
-                                key={`${index}-${tokenIndex}`}
+                                key={`${rowIndex}-${tokenIndex}`}
                                 className={
                                   token.type === "add"
                                     ? SelfStyle.inlineDiffAdd
@@ -927,7 +1053,8 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
                     )}
                   </div>
                 );
-              })
+              });
+              })()
             ) : content === "" ? (
               <p>（本章暂无内容）</p>
             ) : (
