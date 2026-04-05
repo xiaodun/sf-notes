@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, ConnectRC } from "umi";
 import { message, Spin, Modal, Input, Checkbox } from "antd";
-import { LeftOutlined, RightOutlined, EditOutlined, CheckOutlined, CloseOutlined, TagsOutlined, DiffOutlined, RollbackOutlined } from "@ant-design/icons";
+import { LeftOutlined, RightOutlined, EditOutlined, CheckOutlined, CloseOutlined, TagsOutlined, DiffOutlined, RollbackOutlined, DeleteOutlined } from "@ant-design/icons";
 import SelfStyle from "./LNovel.less";
 import NNovel from "./NNovel";
 import SNovel from "./SNovel";
@@ -44,6 +44,15 @@ interface RenderRow {
   changeItem?: ParagraphDiffItem;
 }
 
+interface ChapterSegment {
+  id: string;
+  title: string;
+  lines: string[];
+  wordCount: number;
+  startLine: number;
+  endLine: number;
+}
+
 const NovelDetail: ConnectRC<NovelDetailProps> = () => {
   const { id } = useParams<{ id: string }>();
   const [novel, setNovel] = useState<NNovel | null>(null);
@@ -74,6 +83,14 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
   const [selectedDiffParagraphSet, setSelectedDiffParagraphSet] = useState<Set<number>>(new Set());
   const [paragraphChangeMap, setParagraphChangeMap] = useState<Record<number, ParagraphDiffItem>>({});
   const [deletedChangeList, setDeletedChangeList] = useState<ParagraphDiffItem[]>([]);
+  const [segmentModalOpen, setSegmentModalOpen] = useState(false);
+  const [segmentList, setSegmentList] = useState<ChapterSegment[]>([]);
+  const [segmentPrefixLines, setSegmentPrefixLines] = useState<string[]>([]);
+  const [segmentRangeMin, setSegmentRangeMin] = useState<number>(900);
+  const [segmentRangeMax, setSegmentRangeMax] = useState<number>(1500);
+  const [newChapterTitle, setNewChapterTitle] = useState<string>("");
+  const [insertParagraphNo, setInsertParagraphNo] = useState<number>(1);
+  const [readingProgress, setReadingProgress] = useState<{ chapter: number; paragraphIndex: number } | null>(null);
   const editingTextAreaRef = useRef<any>(null);
   const currentChapterRef = useRef<number>(1);
   const novelPathRef = useRef<string>("");
@@ -135,6 +152,10 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
         setNovel(novelData);
         // 设置当前章节（如果没有则默认1）
         setCurrentChapter(novelData.currentChapter || 1);
+        // 加载阅读进度标记
+        if (novelData.readingProgress) {
+          setReadingProgress(novelData.readingProgress);
+        }
       } else {
         message.error("加载小说信息失败");
       }
@@ -143,6 +164,20 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
       message.error("加载小说信息失败");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveReadingProgress = async (chapter: number, paragraphIndex: number) => {
+    if (!novel?.id) return;
+    try {
+      const progressData = { chapter, paragraphIndex };
+      await SNovel.editItem({
+        ...novel,
+        readingProgress: progressData,
+      });
+      setReadingProgress(progressData);
+    } catch (error) {
+      console.error("保存阅读进度失败:", error);
     }
   };
 
@@ -163,6 +198,69 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
     }
     return items;
   }, []);
+
+  const isChapterTitleLine = useCallback((line: string) => {
+    const value = String(line || "").trim();
+    if (!value) return false;
+    return /^第[\d一二三四五六七八九十百千万零两]+[章节回]/.test(value);
+  }, []);
+
+  const parseChapterSegments = useCallback((text: string) => {
+    const lines = String(text || "").replace(/\r\n/g, "\n").split("\n");
+    const markerIndexes: number[] = [];
+    for (let i = 0; i < lines.length; i++) {
+      if (isChapterTitleLine(lines[i])) {
+        markerIndexes.push(i);
+      }
+    }
+    if (markerIndexes.length < 1) {
+      return { prefixLines: [], segments: [] as ChapterSegment[] };
+    }
+    const prefixLines = lines.slice(0, markerIndexes[0]);
+    const segments: ChapterSegment[] = [];
+    for (let i = 0; i < markerIndexes.length; i++) {
+      const start = markerIndexes[i];
+      const end = i < markerIndexes.length - 1 ? markerIndexes[i + 1] : lines.length;
+      const segLines = lines.slice(start, end);
+      const title = String(segLines[0] || `第${i + 1}章`).trim();
+      const wordCount = countTextLength(segLines.join("\n"));
+      segments.push({
+        id: `${start}-${i}-${Date.now()}`,
+        title,
+        lines: segLines,
+        wordCount,
+        startLine: start + 1,
+        endLine: end,
+      });
+    }
+    return { prefixLines, segments };
+  }, [countTextLength, isChapterTitleLine]);
+
+  const normalizeChapterTitleLine = useCallback((line: string, chapterNo: number) => {
+    const value = String(line || "").trim();
+    const match = value.match(/^第[\d一二三四五六七八九十百千万零两]+[章节回](.*)$/);
+    const suffix = match ? match[1] : (value ? ` ${value}` : "");
+    return `第${chapterNo}章${suffix || ""}`.trim();
+  }, []);
+
+  const reparseAndNormalizeSegments = useCallback((fullLines: string[]) => {
+    const parsed = parseChapterSegments(fullLines.join("\n"));
+    const normalizedSegments = parsed.segments.map((seg, idx) => {
+      const clonedLines = [...seg.lines];
+      if (clonedLines.length > 0) {
+        clonedLines[0] = normalizeChapterTitleLine(clonedLines[0], idx + 1);
+      }
+      return {
+        ...seg,
+        title: clonedLines[0] || seg.title,
+        lines: clonedLines,
+        wordCount: countTextLength(clonedLines.join("\n")),
+      };
+    });
+    setSegmentPrefixLines(parsed.prefixLines);
+    setSegmentList(normalizedSegments);
+    return { prefixLines: parsed.prefixLines, segments: normalizedSegments };
+  }, [countTextLength, normalizeChapterTitleLine, parseChapterSegments]);
 
   // 计算从开头到指定段落索引的累计字数
   const calculateWordCount = useCallback((content: string, lineIndex: number): number => {
@@ -721,6 +819,109 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
     }
   };
 
+  const handleOpenSegmentManager = () => {
+    reparseAndNormalizeSegments(String(content || "").replace(/\r\n/g, "\n").split("\n"));
+    setNewChapterTitle("");
+    setInsertParagraphNo(1);
+    setSegmentModalOpen(true);
+  };
+
+  const handleDeleteParagraph = async (rawLineIndex: number) => {
+    const normalizedContent = String(content || "").replace(/\r\n/g, "\n");
+    const rawLines = normalizedContent.split("\n");
+    if (rawLineIndex < 0 || rawLineIndex >= rawLines.length) return;
+    const oldContent = String(content || "");
+    rawLines.splice(rawLineIndex, 1);
+    const nextContent = rawLines.join("\n");
+    setContent(nextContent);
+    setChapterWordCount(countTextLength(nextContent));
+    setEditingLineIndex(null);
+    setEditingLineText("");
+    try {
+      const success = await saveChapterContent(nextContent);
+      if (!success) {
+        setContent(oldContent);
+        setChapterWordCount(countTextLength(oldContent));
+        message.error("删除段落失败");
+        return;
+      }
+      await refreshParagraphMarkStatus(currentChapter);
+      message.success("已删除该段");
+    } catch (error) {
+      setContent(oldContent);
+      setChapterWordCount(countTextLength(oldContent));
+      message.error("删除段落失败");
+    }
+  };
+
+  const insertChapterAtParagraph = () => {
+    const baseLines = segmentList.length > 0
+      ? [...segmentPrefixLines, ...segmentList.flatMap((seg) => seg.lines)]
+      : String(content || "").replace(/\r\n/g, "\n").split("\n");
+    const paragraphItems = getParagraphItems(baseLines.join("\n"));
+    const maxPara = Math.max(1, paragraphItems.length);
+    const targetPara = Math.max(1, Math.min(insertParagraphNo || 1, maxPara));
+    const insertLineIndex = paragraphItems.length > 0
+      ? (paragraphItems[targetPara - 1] ? paragraphItems[targetPara - 1].lineNo - 1 : baseLines.length)
+      : 0;
+    const title = newChapterTitle.trim();
+    const chapterNo = (segmentList.length || 0) + 1;
+    const newLine = title ? `第${chapterNo}章 ${title}` : `第${chapterNo}章`;
+    const nextLines = [...baseLines];
+    nextLines.splice(insertLineIndex, 0, newLine);
+    reparseAndNormalizeSegments(nextLines);
+    setNewChapterTitle("");
+    message.success(`已在第 ${targetPara} 段前插入章节`);
+  };
+
+  const shiftBoundaryByParagraph = (segmentIndex: number, direction: "up" | "down") => {
+    if (segmentIndex < 0 || segmentIndex >= segmentList.length) return;
+    const next = segmentList.map((seg) => ({ ...seg, lines: [...seg.lines] }));
+    if (direction === "up") {
+      if (segmentIndex <= 0) return;
+      const prev = next[segmentIndex - 1];
+      const curr = next[segmentIndex];
+      if (curr.lines.length <= 1) return;
+      const moved = curr.lines.splice(1, 1)[0];
+      prev.lines.push(moved);
+    } else {
+      if (segmentIndex >= next.length - 1) return;
+      const curr = next[segmentIndex];
+      const nextSeg = next[segmentIndex + 1];
+      if (curr.lines.length <= 1) return;
+      const moved = curr.lines.pop() as string;
+      nextSeg.lines.splice(1, 0, moved);
+    }
+    const fullLines = [...segmentPrefixLines, ...next.flatMap((seg) => seg.lines)];
+    reparseAndNormalizeSegments(fullLines);
+  };
+
+  const handleApplySegmentOrder = async () => {
+    if (segmentList.length === 0) {
+      return;
+    }
+    const nextLines = [...segmentPrefixLines, ...segmentList.flatMap((seg) => seg.lines)];
+    const nextContent = nextLines.join("\n");
+    const oldContent = String(content || "");
+    setContent(nextContent);
+    setChapterWordCount(countTextLength(nextContent));
+    try {
+      const success = await saveChapterContent(nextContent);
+      if (!success) {
+        setContent(oldContent);
+        setChapterWordCount(countTextLength(oldContent));
+        message.error("章节重排保存失败");
+        return;
+      }
+      await refreshParagraphMarkStatus(currentChapter);
+      message.success("已应用，继续调整后可再次应用");
+    } catch (error) {
+      setContent(oldContent);
+      setChapterWordCount(countTextLength(oldContent));
+      message.error("章节重排保存失败");
+    }
+  };
+
   const handlePrevChapter = useCallback(() => {
     if (currentChapter > 1) {
       setCurrentChapter(currentChapter - 1);
@@ -866,6 +1067,11 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
 
     return false;
   });
+  const segmentOutRangeCount = segmentList.filter((seg) => seg.wordCount < segmentRangeMin || seg.wordCount > segmentRangeMax).length;
+  const segmentRangeSummary = segmentList.length > 0
+    ? `合规 ${segmentList.length - segmentOutRangeCount}/${segmentList.length}`
+    : "尚未分段";
+  const totalParagraphCount = getParagraphItems(content).length;
 
   return (
     <div className={SelfStyle.detailContainer}>
@@ -961,6 +1167,16 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
                             >
                               <RollbackOutlined />
                             </button>
+                            <button
+                              type="button"
+                              className={SelfStyle.editLineButton}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteParagraph(rawLineIndex);
+                              }}
+                            >
+                              <DeleteOutlined />
+                            </button>
                           </>
                         ) : (
                           <>
@@ -998,6 +1214,16 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
                                 <DiffOutlined />
                               </button>
                             )}
+                            <button
+                              type="button"
+                              className={SelfStyle.editLineButton}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteParagraph(rawLineIndex);
+                              }}
+                            >
+                              <DeleteOutlined />
+                            </button>
                           </>
                         )}
                       </div>
@@ -1047,7 +1273,10 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
                             ))}
                           </p>
                         ) : (
-                          <p className={SelfStyle.contentLine}>{line}</p>
+                          <p 
+                            className={`${SelfStyle.contentLine} ${isChapterTitleLine(line) ? SelfStyle.chapterHeadingLine : ""} ${readingProgress?.chapter === currentChapter && readingProgress?.paragraphIndex === index ? SelfStyle.readingProgressMark : ""}`}
+                            onClick={() => saveReadingProgress(currentChapter, index)}
+                          >{line}</p>
                         )}
                       </>
                     )}
@@ -1074,6 +1303,9 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
         </button>
         <button type="button" className={SelfStyle.wordStatTrigger} onClick={handleOpenDiff}>
           查看变更
+        </button>
+        <button type="button" className={SelfStyle.wordStatTrigger} onClick={handleOpenSegmentManager}>
+          章节分段
         </button>
         <button type="button" className={SelfStyle.wordStatTrigger} onClick={handleClearChapterMark}>
           清空标记
@@ -1226,6 +1458,81 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
             )}
           </div>
         )}
+      </Modal>
+      <Modal
+        title="章节分段与字数检查"
+        open={segmentModalOpen}
+        onCancel={() => setSegmentModalOpen(false)}
+        onOk={handleApplySegmentOrder}
+        okText="应用重排"
+        cancelText="关闭"
+        width={980}
+      >
+        <div className={SelfStyle.segmentTopBar}>
+          <div className={SelfStyle.segmentRangeBox}>
+            <span>字数范围</span>
+            <Input
+              value={String(segmentRangeMin)}
+              onChange={(e) => setSegmentRangeMin(Math.max(0, parseInt(e.target.value || "0", 10) || 0))}
+              style={{ width: 88 }}
+            />
+            <span>~</span>
+            <Input
+              value={String(segmentRangeMax)}
+              onChange={(e) => setSegmentRangeMax(Math.max(0, parseInt(e.target.value || "0", 10) || 0))}
+              style={{ width: 88 }}
+            />
+          </div>
+          <div className={SelfStyle.segmentSummary}>{segmentRangeSummary}</div>
+        </div>
+        <div className={SelfStyle.segmentInsertBar}>
+          <span>插入到第</span>
+          <Input
+            value={String(insertParagraphNo)}
+            onChange={(e) => setInsertParagraphNo(Math.max(1, parseInt(e.target.value || "1", 10) || 1))}
+            style={{ width: 88 }}
+          />
+          <span>{`段前（当前共 ${totalParagraphCount} 段）`}</span>
+          <span>章节标题</span>
+          <Input
+            placeholder="可选，不填则仅按顺序编号"
+            value={newChapterTitle}
+            onChange={(e) => setNewChapterTitle(e.target.value)}
+            style={{ width: 260 }}
+          />
+          <button type="button" className={SelfStyle.segmentInsertConfirm} onClick={insertChapterAtParagraph}>插入章节</button>
+          <span className={SelfStyle.segmentInsertHint}>插入后会自动重编号并重新计算字数</span>
+        </div>
+        <div className={SelfStyle.segmentListWrap}>
+          {segmentList.length === 0 && (
+            <div className={SelfStyle.segmentEmpty}>暂无章节，先在上方选择段落位置插入章节</div>
+          )}
+          {segmentList.map((seg, idx) => {
+            const outRange = seg.wordCount < segmentRangeMin || seg.wordCount > segmentRangeMax;
+            const lowerGap = seg.wordCount < segmentRangeMin ? segmentRangeMin - seg.wordCount : 0;
+            const upperGap = seg.wordCount > segmentRangeMax ? seg.wordCount - segmentRangeMax : 0;
+            const gapText = upperGap > 0 ? `超出 ${upperGap} 字` : lowerGap > 0 ? `还差 ${lowerGap} 字` : "范围内";
+            return (
+              <div
+                key={seg.id}
+                className={`${SelfStyle.segmentItem} ${outRange ? SelfStyle.segmentItemWarn : ""}`}
+              >
+                <div className={SelfStyle.segmentItemHead}>
+                  <span className={SelfStyle.segmentTitle}>{seg.title}</span>
+                  <span className={SelfStyle.segmentWordCount}>{`${seg.wordCount} 字`}</span>
+                  <span className={outRange ? SelfStyle.segmentStatusWarn : SelfStyle.segmentStatusOk}>
+                    {outRange ? "超范围" : "合规"}
+                  </span>
+                </div>
+                <div className={SelfStyle.segmentBetween}>{`行 ${seg.startLine}~${seg.endLine} · ${gapText}`}</div>
+                <div className={SelfStyle.segmentActions}>
+                  <button type="button" disabled={idx === 0 || segmentList[idx].lines.length <= 1} onClick={() => shiftBoundaryByParagraph(idx, "up")}>上移</button>
+                  <button type="button" disabled={idx >= segmentList.length - 1 || segmentList[idx].lines.length <= 1} onClick={() => shiftBoundaryByParagraph(idx, "down")}>下移</button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </Modal>
     </div>
   );

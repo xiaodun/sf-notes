@@ -36,6 +36,7 @@
       name: novel.name,
       path: novel.path,
       currentChapter: novel.currentChapter !== undefined ? novel.currentChapter : data[index].currentChapter,
+      readingProgress: novel.readingProgress !== undefined ? novel.readingProgress : data[index].readingProgress,
       updateTime: new Date().toISOString(),
     };
     
