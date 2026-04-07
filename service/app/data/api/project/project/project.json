@@ -168,7 +168,7 @@
                 "commands": [
                     {
                         "name": "git-story",
-                        "command": "cd \"C:/Users/SZLD03287/Documents/affluence-git-story\" \n\nset REACT_NATIVE_PACKAGER_HOSTNAME=172.17.48.50 && npx expo start --lan --clear"
+                        "command": "pnpm start"
                     }
                 ],
                 "runUrl": "http://localhost:"
