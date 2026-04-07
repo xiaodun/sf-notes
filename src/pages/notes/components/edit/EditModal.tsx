@@ -240,7 +240,7 @@ export const EditModal: ForwardRefRenderFunction<
       if (!state.data.title) {
         params.title = moment().format(UDate.ymdhms);
       }
-      const addRsp = await SNotes.addItem(params);
+      const addRsp = await SNotes.addItem(params, state.index);
       if (addRsp.success) {
         onClose();
         props.onOk();
