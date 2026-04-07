@@ -16,3 +16,5 @@ service/app/data/api/football/football/**/*.json
 # !service/app/data/**/mockData/
 # !service/app/data/**/mockData/**/*.json
 service/app/data/**/upload_*
+/build
+service/app/data/api/noval/noval/marks/
