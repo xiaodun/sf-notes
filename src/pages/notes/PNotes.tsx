@@ -292,7 +292,7 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
     }
   }
   function onAddNote() {
-    editModalRef.current.showModal(null, 0);
+    editModalRef.current.showModal(null, MDNotes.rsp.list.length);
   }
   function onToggleShowModel() {
     if (MDNotes.isTitleModel) {
