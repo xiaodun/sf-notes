@@ -8,6 +8,7 @@
       name: novel.name || "",
       path: novel.path || "",
       currentChapter: novel.currentChapter || 1,
+      readingProgress: novel.readingProgress,
       id: Date.now().toString(),
       createTime: Date.now(),
       updateTime: new Date().toISOString(),
