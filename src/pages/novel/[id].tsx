@@ -94,6 +94,7 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
   const editingTextAreaRef = useRef<any>(null);
   const currentChapterRef = useRef<number>(1);
   const novelPathRef = useRef<string>("");
+  const readingProgressRef = useRef<{ chapter: number; paragraphIndex: number } | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -123,6 +124,27 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
   }, [novel, currentChapter]);
 
   useEffect(() => {
+    if (!readingProgress) return;
+    if (readingProgress.chapter !== currentChapter) return;
+    if (contentLoading) return;
+    const timer = setTimeout(() => {
+      const wrapper = contentWrapperRef.current;
+      if (!wrapper) return;
+      const targetByClass = wrapper.querySelector(`.${SelfStyle.readingProgressRow}`) as HTMLElement | null;
+      const targetByIndex = wrapper.querySelector(`[data-reading-index="${readingProgress.paragraphIndex}"]`) as HTMLElement | null;
+      const target = targetByClass || targetByIndex;
+      if (!target) return;
+      const wrapperRect = wrapper.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      const inView = targetRect.bottom > wrapperRect.top + 40 && targetRect.top < wrapperRect.bottom - 40;
+      if (!inView) {
+        target.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 360);
+    return () => clearTimeout(timer);
+  }, [readingProgress, currentChapter, content, contentLoading]);
+
+  useEffect(() => {
     if (editingLineIndex === null) return;
     setTimeout(() => {
       const textarea = editingTextAreaRef.current?.resizableTextArea?.textArea as HTMLTextAreaElement | undefined;
@@ -141,6 +163,10 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
   useEffect(() => {
     novelPathRef.current = novel?.path || "";
   }, [novel?.path]);
+
+  useEffect(() => {
+    readingProgressRef.current = readingProgress;
+  }, [readingProgress]);
 
   const loadNovel = async () => {
     if (!id) return;
@@ -341,7 +367,7 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
 
   const handleOpenChapterWordStats = async () => {
     setChapterWordStatsOpen(true);
-    
+
     const scrollToCurrent = () => {
       setTimeout(() => {
         const activeItem = document.querySelector(`.${SelfStyle.currentChapterWordStatsItem}`);
@@ -442,9 +468,6 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
         setEditingLineIndex(null);
         await updateReadingProgress(chapter);
         await refreshParagraphMarkStatus(chapter);
-        if (contentWrapperRef.current) {
-          contentWrapperRef.current.scrollTop = 0;
-        }
       } else {
         if (result.success) {
           setContent("");
@@ -470,8 +493,20 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
       setContentLoading(false);
       setTimeout(() => {
         if (contentWrapperRef.current) {
-          contentWrapperRef.current.scrollTop = 0;
           contentWrapperRef.current.style.overflow = 'auto';
+          const progress = readingProgressRef.current;
+          if (progress && progress.chapter === chapter) {
+            const targetByClass = contentWrapperRef.current.querySelector(`.${SelfStyle.readingProgressRow}`) as HTMLElement | null;
+            const targetByIndex = contentWrapperRef.current.querySelector(`[data-reading-index="${progress.paragraphIndex}"]`) as HTMLElement | null;
+            const target = targetByClass || targetByIndex;
+            if (target) {
+              target.scrollIntoView({ behavior: "smooth", block: "center" });
+            } else {
+              contentWrapperRef.current.scrollTop = 0;
+            }
+          } else {
+            contentWrapperRef.current.scrollTop = 0;
+          }
         }
         isSwitchingRef.current = false;
       }, 300);
@@ -498,7 +533,7 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
           wrapper.scrollTop = prevScrollTop;
         }
       }
-    } catch (e) {}
+    } catch (e) { }
   }, [countTextLength, formatContent, refreshParagraphMarkStatus]);
 
 
@@ -592,7 +627,7 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
           return next;
         });
         if (showMessage) {
-        message.success("段落已标记");
+          message.success("段落已标记");
         }
       } else {
         if (showMessage) {
@@ -896,6 +931,20 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
     reparseAndNormalizeSegments(fullLines);
   };
 
+  const handleCopyTextWithoutChapterTitles = () => {
+    // 收集所有章节的内容，去除章节标题
+    const allLines = segmentList.flatMap(seg => seg.lines.slice(1)); // 去除章节标题行
+    const textWithoutTitles = allLines.join('\n');
+
+    // 复制到剪贴板
+    navigator.clipboard.writeText(textWithoutTitles).then(() => {
+      message.success('已复制去除章节标题的文本到剪贴板');
+    }).catch(err => {
+      console.error('复制失败:', err);
+      message.error('复制失败，请手动复制');
+    });
+  };
+
   const handleApplySegmentOrder = async () => {
     if (segmentList.length === 0) {
       return;
@@ -1018,7 +1067,7 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
           watchAction: "close",
           path: currentPath,
         },
-      }).catch(() => {});
+      }).catch(() => { });
     };
   }, [novel?.path]);
 
@@ -1048,7 +1097,7 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
 
   const filteredChapterWordStats = chapterWordStats.filter((item) => {
     if (!chapterWordStatsSearchText) return true;
-    
+
     const searchText = chapterWordStatsSearchText.trim();
     const label = String(item.name || "");
 
@@ -1114,83 +1163,40 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
                   di++;
                 }
                 return rows.map((row, rowIndex) => {
-                if (row.type === "deleted") {
-                  const changeItem = row.changeItem as ParagraphDiffItem;
+                  if (row.type === "deleted") {
+                    const changeItem = row.changeItem as ParagraphDiffItem;
+                    return (
+                      <div key={`deleted-${rowIndex}-${row.lineNo}`} className={SelfStyle.paragraphRow}>
+                        <div className={SelfStyle.paragraphLeftPanel}>
+                          <div className={SelfStyle.paragraphMetaRow}>
+                            <span>{`${row.lineNo} 行 · ${rowIndex + 1} 段`}</span>
+                            <span>{`共 ${countTextLength(changeItem.oldText || "").toLocaleString()} 字`}</span>
+                          </div>
+                        </div>
+                        <p className={SelfStyle.changedSingleDelete}>{changeItem.oldText || "(已删除)"}</p>
+                      </div>
+                    );
+                  }
+                  const index = row.paragraphIndex as number;
+                  const line = row.text as string;
+                  const currentLineTotalWordCount = calculateWordCount(content, index);
+                  const rawLineIndex = row.lineNo - 1;
+                  const changedItem = paragraphChangeMap[rawLineIndex];
+                  const showChangedPreview = !!(changedParagraphSet.has(rawLineIndex) && changedItem);
                   return (
-                    <div key={`deleted-${rowIndex}-${row.lineNo}`} className={SelfStyle.paragraphRow}>
+                    <div
+                      key={rowIndex}
+                    className={`${SelfStyle.paragraphRow} ${readingProgress?.chapter === currentChapter && readingProgress?.paragraphIndex === index ? SelfStyle.readingProgressRow : ""}`}
+                    data-reading-index={index}
+                    >
                       <div className={SelfStyle.paragraphLeftPanel}>
                         <div className={SelfStyle.paragraphMetaRow}>
                           <span>{`${row.lineNo} 行 · ${rowIndex + 1} 段`}</span>
-                          <span>{`共 ${countTextLength(changeItem.oldText || "").toLocaleString()} 字`}</span>
+                          <span>{`共 ${currentLineTotalWordCount.toLocaleString()} 字`}</span>
                         </div>
-                      </div>
-                      <p className={SelfStyle.changedSingleDelete}>{changeItem.oldText || "(已删除)"}</p>
-                    </div>
-                  );
-                }
-                const index = row.paragraphIndex as number;
-                const line = row.text as string;
-                const currentLineTotalWordCount = calculateWordCount(content, index);
-                const rawLineIndex = row.lineNo - 1;
-                const changedItem = paragraphChangeMap[rawLineIndex];
-                const showChangedPreview = !!(changedParagraphSet.has(rawLineIndex) && changedItem);
-                return (
-                  <div
-                    key={rowIndex}
-                    className={SelfStyle.paragraphRow}
-                  >
-                    <div className={SelfStyle.paragraphLeftPanel}>
-                      <div className={SelfStyle.paragraphMetaRow}>
-                        <span>{`${row.lineNo} 行 · ${rowIndex + 1} 段`}</span>
-                        <span>{`共 ${currentLineTotalWordCount.toLocaleString()} 字`}</span>
-                      </div>
-                      <div className={SelfStyle.paragraphActionRow}>
-                        {showChangedPreview ? (
-                          <>
-                            <button
-                              type="button"
-                              className={SelfStyle.editLineButton}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleMarkParagraphVersion(rawLineIndex);
-                              }}
-                            >
-                              <TagsOutlined />
-                            </button>
-                            <button
-                              type="button"
-                              className={SelfStyle.editLineButton}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRevertParagraph(rawLineIndex);
-                              }}
-                            >
-                              <RollbackOutlined />
-                            </button>
-                            <button
-                              type="button"
-                              className={SelfStyle.editLineButton}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteParagraph(rawLineIndex);
-                              }}
-                            >
-                              <DeleteOutlined />
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <button
-                              type="button"
-                              className={SelfStyle.editLineButton}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleStartEditLine(index, line);
-                              }}
-                            >
-                              <EditOutlined />
-                            </button>
-                            {!markedParagraphSet.has(rawLineIndex) && (
+                        <div className={SelfStyle.paragraphActionRow}>
+                          {showChangedPreview ? (
+                            <>
                               <button
                                 type="button"
                                 className={SelfStyle.editLineButton}
@@ -1201,88 +1207,132 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
                               >
                                 <TagsOutlined />
                               </button>
-                            )}
-                            {markedParagraphSet.has(rawLineIndex) && changedParagraphSet.has(rawLineIndex) && (
                               <button
                                 type="button"
                                 className={SelfStyle.editLineButton}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleOpenDiff(rawLineIndex);
+                                  handleRevertParagraph(rawLineIndex);
                                 }}
                               >
-                                <DiffOutlined />
+                                <RollbackOutlined />
                               </button>
-                            )}
-                            <button
-                              type="button"
-                              className={SelfStyle.editLineButton}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteParagraph(rawLineIndex);
-                              }}
-                            >
-                              <DeleteOutlined />
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    {editingLineIndex === index ? (
-                      <div className={SelfStyle.editLineWrap}>
-                        <Input.TextArea
-                          ref={editingTextAreaRef}
-                          value={editingLineText}
-                          onChange={(e) => setEditingLineText(e.target.value)}
-                          allowClear
-                          autoSize={{ minRows: 2, maxRows: 8 }}
-                        />
-                        <div className={SelfStyle.editLineActions}>
-                          <button type="button" onClick={handleCancelEditLine}><CloseOutlined /></button>
-                          <button type="button" disabled={savingLine} onClick={handleSaveEditLine}>
-                            {savingLine ? "..." : <CheckOutlined />}
-                          </button>
+                              <button
+                                type="button"
+                                className={SelfStyle.editLineButton}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteParagraph(rawLineIndex);
+                                }}
+                              >
+                                <DeleteOutlined />
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                className={SelfStyle.editLineButton}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleStartEditLine(index, line);
+                                }}
+                              >
+                                <EditOutlined />
+                              </button>
+                              {!markedParagraphSet.has(rawLineIndex) && (
+                                <button
+                                  type="button"
+                                  className={SelfStyle.editLineButton}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleMarkParagraphVersion(rawLineIndex);
+                                  }}
+                                >
+                                  <TagsOutlined />
+                                </button>
+                              )}
+                              {markedParagraphSet.has(rawLineIndex) && changedParagraphSet.has(rawLineIndex) && (
+                                <button
+                                  type="button"
+                                  className={SelfStyle.editLineButton}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleOpenDiff(rawLineIndex);
+                                  }}
+                                >
+                                  <DiffOutlined />
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                className={SelfStyle.editLineButton}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteParagraph(rawLineIndex);
+                                }}
+                              >
+                                <DeleteOutlined />
+                              </button>
+                            </>
+                          )}
                         </div>
                       </div>
-                    ) : (
-                      <>
-                        {showChangedPreview && changedItem.changeType === "add" ? (
-                          <p className={SelfStyle.changedSingleAdd}>{changedItem.newText}</p>
-                        ) : showChangedPreview && changedItem.changeType === "delete" ? (
-                          <p className={SelfStyle.changedSingleDelete}>{changedItem.oldText}</p>
-                        ) : showChangedPreview && changedItem.displayMode === "block" ? (
-                          <div className={SelfStyle.changedPreviewWrap}>
-                            <p className={SelfStyle.changedOldLine}>{changedItem.oldText}</p>
-                            <p className={SelfStyle.changedNewLine}>{changedItem.newText}</p>
+                      {editingLineIndex === index ? (
+                        <div className={SelfStyle.editLineWrap}>
+                          <Input.TextArea
+                            ref={editingTextAreaRef}
+                            value={editingLineText}
+                            onChange={(e) => setEditingLineText(e.target.value)}
+                            allowClear
+                            autoSize={{ minRows: 2, maxRows: 8 }}
+                          />
+                          <div className={SelfStyle.editLineActions}>
+                            <button type="button" onClick={handleCancelEditLine}><CloseOutlined /></button>
+                            <button type="button" disabled={savingLine} onClick={handleSaveEditLine}>
+                              {savingLine ? "..." : <CheckOutlined />}
+                            </button>
                           </div>
-                        ) : showChangedPreview ? (
-                          <p className={SelfStyle.contentLine}>
-                            {buildInlineDiffTokens(changedItem.oldText, changedItem.newText).map((token, tokenIndex) => (
-                              <span
-                                key={`${rowIndex}-${tokenIndex}`}
-                                className={
-                                  token.type === "add"
-                                    ? SelfStyle.inlineDiffAdd
-                                    : token.type === "remove"
-                                      ? SelfStyle.inlineDiffRemove
-                                      : ""
-                                }
-                              >
-                                {token.text}
-                              </span>
-                            ))}
-                          </p>
-                        ) : (
-                          <p 
-                            className={`${SelfStyle.contentLine} ${isChapterTitleLine(line) ? SelfStyle.chapterHeadingLine : ""} ${readingProgress?.chapter === currentChapter && readingProgress?.paragraphIndex === index ? SelfStyle.readingProgressMark : ""}`}
-                            onClick={() => saveReadingProgress(currentChapter, index)}
-                          >{line}</p>
-                        )}
-                      </>
-                    )}
-                  </div>
-                );
-              });
+                        </div>
+                      ) : (
+                        <>
+                          {showChangedPreview && changedItem.changeType === "add" ? (
+                            <p className={SelfStyle.changedSingleAdd}>{changedItem.newText}</p>
+                          ) : showChangedPreview && changedItem.changeType === "delete" ? (
+                            <p className={SelfStyle.changedSingleDelete}>{changedItem.oldText}</p>
+                          ) : showChangedPreview && changedItem.displayMode === "block" ? (
+                            <div className={SelfStyle.changedPreviewWrap}>
+                              <p className={SelfStyle.changedOldLine}>{changedItem.oldText}</p>
+                              <p className={SelfStyle.changedNewLine}>{changedItem.newText}</p>
+                            </div>
+                          ) : showChangedPreview ? (
+                            <p className={SelfStyle.contentLine}>
+                              {buildInlineDiffTokens(changedItem.oldText, changedItem.newText).map((token, tokenIndex) => (
+                                <span
+                                  key={`${rowIndex}-${tokenIndex}`}
+                                  className={
+                                    token.type === "add"
+                                      ? SelfStyle.inlineDiffAdd
+                                      : token.type === "remove"
+                                        ? SelfStyle.inlineDiffRemove
+                                        : ""
+                                  }
+                                >
+                                  {token.text}
+                                </span>
+                              ))}
+                            </p>
+                          ) : (
+                            <p
+                              className={`${SelfStyle.contentLine} ${isChapterTitleLine(line) ? SelfStyle.chapterHeadingLine : ""} ${readingProgress?.chapter === currentChapter && readingProgress?.paragraphIndex === index ? SelfStyle.readingProgressMark : ""}`}
+                              onClick={() => saveReadingProgress(currentChapter, index)}
+                            >{line}</p>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  );
+                });
               })()
             ) : content === "" ? (
               <p>（本章暂无内容）</p>
@@ -1311,13 +1361,13 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
           清空标记
         </button>
         <div className={SelfStyle.chapterNavIcons}>
-          <LeftOutlined 
-            className={`${SelfStyle.navIcon} ${currentChapter <= 1 ? SelfStyle.disabled : ''}`} 
-            onClick={currentChapter > 1 ? handlePrevChapter : undefined} 
+          <LeftOutlined
+            className={`${SelfStyle.navIcon} ${currentChapter <= 1 ? SelfStyle.disabled : ''}`}
+            onClick={currentChapter > 1 ? handlePrevChapter : undefined}
           />
-          <RightOutlined 
-            className={`${SelfStyle.navIcon} ${currentChapter >= maxChapter ? SelfStyle.disabled : ''}`} 
-            onClick={currentChapter < maxChapter ? handleNextChapter : undefined} 
+          <RightOutlined
+            className={`${SelfStyle.navIcon} ${currentChapter >= maxChapter ? SelfStyle.disabled : ''}`}
+            onClick={currentChapter < maxChapter ? handleNextChapter : undefined}
           />
         </div>
       </div>
@@ -1484,6 +1534,7 @@ const NovelDetail: ConnectRC<NovelDetailProps> = () => {
             />
           </div>
           <div className={SelfStyle.segmentSummary}>{segmentRangeSummary}</div>
+          <button type="button" className={SelfStyle.segmentInsertConfirm} onClick={handleCopyTextWithoutChapterTitles}>复制去除章节标题的文本</button>
         </div>
         <div className={SelfStyle.segmentInsertBar}>
           <span>插入到第</span>
