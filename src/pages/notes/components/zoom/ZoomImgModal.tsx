@@ -5,7 +5,6 @@ import React, {
   useState,
 } from "react";
 import { Modal, Button } from "antd";
-import { produce } from "immer";
 export interface IZoomImgModal {
   showModal: (src: string) => void;
 }
@@ -21,20 +20,11 @@ const ZoomImgModal: ForwardRefRenderFunction<IZoomImgModal> = (props, ref) => {
   const [state, setState] = useState<IZoomImgModalState>(defaultState);
   useImperativeHandle(ref, () => ({
     showModal: (src: string) => {
-      setState(
-        produce(state, (drafState) => {
-          drafState.open = true;
-          drafState.src = src;
-        })
-      );
+      setState({ open: true, src });
     },
   }));
   function onCancel() {
-    setState(
-      produce(state, (drafState) => {
-        drafState.open = false;
-      })
-    );
+    setState((prev) => ({ ...prev, open: false }));
   }
   return (
     <Modal
