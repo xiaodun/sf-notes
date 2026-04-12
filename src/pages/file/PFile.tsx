@@ -54,6 +54,8 @@ const PFile: FC<IPFileProps> = (props) => {
     naturalWidth: 0,
     naturalHeight: 0,
   });
+  const [previewImageIndex, setPreviewImageIndex] = useState(0);
+  const [imageList, setImageList] = useState<NFile[]>([]);
 
   const refreshView = useRefreshView();
   useEffect(() => {
@@ -86,6 +88,37 @@ const PFile: FC<IPFileProps> = (props) => {
     previewConfig.naturalWidth,
     previewConfig.naturalHeight,
   ]);
+
+  // 键盘事件监听：左右箭头键切换预览图片
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!previewConfig.visible) return;
+      if (e.repeat) return;
+      
+      const key = e.key;
+      const code = e.code;
+      const keyCode = e.keyCode;
+
+      const isLeft = key === 'ArrowLeft' || code === 'ArrowLeft' || keyCode === 37;
+      const isRight = key === 'ArrowRight' || code === 'ArrowRight' || keyCode === 39;
+
+      if (isLeft) {
+        e.preventDefault();
+        handlePrevImage();
+        return;
+      }
+
+      if (isRight) {
+        e.preventDefault();
+        handleNextImage();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [previewConfig.visible, handlePrevImage, handleNextImage]);
   return (
     <div>
       <Upload.Dragger
@@ -151,13 +184,15 @@ const PFile: FC<IPFileProps> = (props) => {
         title={
           previewRenderedSize.width ? (
             <span>
-              图片预览{" "}
+              图片预览 ({previewImageIndex + 1}/{imageList.length}){
+                " "
+              }
               <span style={{ color: "#888", fontSize: 14, marginLeft: 12 }}>
                 ({previewRenderedSize.width} x {previewRenderedSize.height})
               </span>
             </span>
           ) : (
-            "图片预览"
+            <span>图片预览 ({previewImageIndex + 1}/{imageList.length})</span>
           )
         }
       >
@@ -167,9 +202,16 @@ const PFile: FC<IPFileProps> = (props) => {
               flex: 1,
               overflow: "auto",
               background: "#1f1f1f",
+              position: "relative",
             }}
             onWheel={onPreviewWheel}
           >
+            <Button
+              type="text"
+              icon={<ArrowLeftOutlined />}
+              onClick={handlePrevImage}
+              style={{ position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)', zIndex: 1, fontSize: '24px', color: '#fff', background: 'rgba(0, 0, 0, 0.5)', borderRadius: '50%', width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            />
             <div
               style={{
                 minWidth: "100%",
@@ -213,6 +255,12 @@ const PFile: FC<IPFileProps> = (props) => {
                 }}
               />
             </div>
+            <Button
+              type="text"
+              icon={<ArrowLeftOutlined style={{ transform: 'rotate(180deg)' }} />}
+              onClick={handleNextImage}
+              style={{ position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)', zIndex: 1, fontSize: '24px', color: '#fff', background: 'rgba(0, 0, 0, 0.5)', borderRadius: '50%', width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            />
           </div>
           <div style={{ padding: "12px 24px", background: "#fff", borderTop: "1px solid #f0f0f0" }}>
             <div
@@ -234,7 +282,9 @@ const PFile: FC<IPFileProps> = (props) => {
               <Button type="primary" onClick={onCopyImage}>
                 截图到剪贴板
               </Button>
-              <Button onClick={onClosePreview}>关闭</Button>
+              <Button onClick={onClosePreview}>
+                关闭
+              </Button>
             </div>
           </div>
         </div>
@@ -416,12 +466,54 @@ const PFile: FC<IPFileProps> = (props) => {
     addItem(file);
   }
   function onOpenPreview(file: NFile) {
+    // 收集所有图片文件
+    const images = fileRsp.list.filter(item => {
+      return /\.(png|jpe?g|gif|svg|webp|bmp)$/i.test(item.name);
+    });
+    setImageList(images);
+    
+    // 找到当前文件在图片列表中的索引
+    const index = images.findIndex(item => item.id === file.id);
+    setPreviewImageIndex(index);
+    
     setPreviewConfig({
       visible: true,
       src: `/${serviceConfig.prefix}/upload/downloadFile?id=${file.id}`,
       scale: 1,
       naturalWidth: 0,
       naturalHeight: 0,
+    });
+    setPreviewRenderedSize({
+      width: 0,
+      height: 0,
+    });
+  }
+
+  function handlePrevImage() {
+    if (imageList.length === 0) return;
+    const currentIndex = previewImageIndex;
+    const newIndex = currentIndex > 0 ? currentIndex - 1 : imageList.length - 1;
+    setPreviewImageIndex(newIndex);
+    setPreviewConfig({
+      ...previewConfig,
+      src: `/${serviceConfig.prefix}/upload/downloadFile?id=${imageList[newIndex].id}`,
+      // 保持当前的 naturalWidth 和 naturalHeight，避免图片瞬间变大
+    });
+    setPreviewRenderedSize({
+      width: 0,
+      height: 0,
+    });
+  }
+
+  function handleNextImage() {
+    if (imageList.length === 0) return;
+    const currentIndex = previewImageIndex;
+    const newIndex = currentIndex < imageList.length - 1 ? currentIndex + 1 : 0;
+    setPreviewImageIndex(newIndex);
+    setPreviewConfig({
+      ...previewConfig,
+      src: `/${serviceConfig.prefix}/upload/downloadFile?id=${imageList[newIndex].id}`,
+      // 保持当前的 naturalWidth 和 naturalHeight，避免图片瞬间变大
     });
     setPreviewRenderedSize({
       width: 0,
