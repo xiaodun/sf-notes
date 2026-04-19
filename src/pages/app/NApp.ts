@@ -42,21 +42,6 @@ namespace NApp {
       linkType: "internal",
     },
     {
-      name: "足球",
-      path: NRouter.footballPath,
-      linkType: "external", // 外部链接
-    },
-    {
-      name: "大乐透",
-      path: NRouter.lotteryPath,
-      linkType: "external",
-    },
-    {
-      name: "七星彩",
-      path: NRouter.sevenStarPath,
-      linkType: "external",
-    },
-    {
       name: "段子",
       path: NRouter.jokesPath,
       linkType: "internal",

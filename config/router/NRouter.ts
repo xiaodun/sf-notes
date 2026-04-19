@@ -13,15 +13,9 @@ export namespace NRouter {
   export const projectSwaggerPath = projectPath + "/swagger";
   export const iterativePath = "/iterative";
   export const iterativeReleasePath = iterativePath + "/release";
-  export const footballPath = "/football";
-  export const footballPredictPath = footballPath + "/predict";
   export const jokesPath = "/jokes";
   export const classicsPath = "/classics";
   export const maximPath = "/maxim";
-  export const lotteryPath = "/lottery";
-  export const lotteryPredictPath = lotteryPath + "/predict";
-  export const sevenStarPath = "/seven-star";
-  export const sevenStarPredictPath = sevenStarPath + "/predict";
   export const behaviorPath = "/behavior";
   export const behaviorDetailPath = behaviorPath + "/:id";
   export const novelPath = "/novel";
@@ -88,16 +82,6 @@ export namespace NRouter {
       wrappers: [rootComponentPath],
     },
     {
-      path: footballPath,
-      component: "." + footballPath,
-      wrappers: [rootComponentPath],
-    },
-    {
-      path: footballPredictPath,
-      component: "." + footballPredictPath,
-      wrappers: [rootComponentPath],
-    },
-    {
       path: jokesPath,
       component: "." + jokesPath,
       wrappers: [rootComponentPath],
@@ -110,26 +94,6 @@ export namespace NRouter {
     {
       path: maximPath,
       component: "." + maximPath,
-      wrappers: [rootComponentPath],
-    },
-    {
-      path: lotteryPath,
-      component: "." + lotteryPath,
-      wrappers: [rootComponentPath],
-    },
-    {
-      path: lotteryPredictPath,
-      component: "." + lotteryPredictPath,
-      wrappers: [rootComponentPath],
-    },
-    {
-      path: sevenStarPath,
-      component: "." + sevenStarPath,
-      wrappers: [rootComponentPath],
-    },
-    {
-      path: sevenStarPredictPath,
-      component: "." + sevenStarPredictPath,
       wrappers: [rootComponentPath],
     },
     {
