@@ -17,6 +17,11 @@ namespace NApp {
       linkType: "internal",
     },
     {
+      name: "API调试",
+      path: NRouter.apiDebugPath,
+      linkType: "internal",
+    },
+    {
       name: "迭代开发",
       path: NRouter.iterativePath,
       linkType: "internal",

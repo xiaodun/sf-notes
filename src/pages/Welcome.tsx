@@ -46,6 +46,7 @@ export const Welcome: ConnectRC<IWelcomeProps> = (props) => {
         NRouter.projectSnippetPath,
         NRouter.projectSwaggerPath,
         NRouter.iterativePath,
+        NRouter.apiDebugPath,
       ].includes(props.match.path)
     ) {
       controlLayout = false;
