@@ -9,7 +9,7 @@ const { Option } = Select;
 function decideDefaultDepth(data: any): number {
   let count = 0;
   function walk(d: any, depth: number) {
-    if (count > 2000 || depth > 10) return;
+    if (count > 5000 || depth > 12) return;
     if (d && typeof d === 'object') {
       const keys = Array.isArray(d) ? d.map((_, i) => i) : Object.keys(d);
       for (const k of keys) {
@@ -19,9 +19,9 @@ function decideDefaultDepth(data: any): number {
     }
   }
   walk(data, 0);
-  if (count <= 200) return 99;
-  if (count <= 800) return 6;
-  return 3;
+  if (count <= 1000) return 99;   // 一千以内全展开
+  if (count <= 3000) return 8;    // 中等大小展 8 层
+  return 5;                        // 超大数据展 5 层
 }
 
 // ─── 树节点（左侧箭头版） ────────────────────────────────────────────────────
