@@ -1,0 +1,410 @@
+// ── 整体布局 ──────────────────────────────────────────────────────────────────
+.main {
+  display: flex;
+  height: calc(100vh - 64px);
+  overflow: hidden;
+}
+
+// ── 左侧侧边栏 ────────────────────────────────────────────────────────────────
+.sidebar {
+  width: 230px;
+  min-width: 230px;
+  border-right: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  background: #fafafa;
+}
+
+.sidebarHeader {
+  padding: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.apiList {
+  flex: 1;
+  overflow-y: auto;
+}
+
+// ── App 分组行 ────────────────────────────────────────────────────────────────
+.appHeader {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  background: #f5f5f5;
+
+  &:hover {
+    background: #ebebeb;
+  }
+
+  &.active {
+    background: #e6f7ff;
+    border-left: 2px solid #1890ff;
+  }
+}
+
+.appToggle {
+  font-size: 11px;
+  color: #999;
+  flex-shrink: 0;
+}
+
+.appName {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.appAction {
+  color: #bbb;
+  font-size: 12px;
+  flex-shrink: 0;
+  cursor: pointer;
+  padding: 2px;
+
+  &:hover {
+    color: #666;
+  }
+}
+
+.appApis {
+  padding-left: 8px;
+}
+
+.ungroupedLabel {
+  font-size: 11px;
+  color: #bbb;
+  padding: 6px 10px 2px;
+  letter-spacing: 0.5px;
+}
+
+// ── API 列表项 ────────────────────────────────────────────────────────────────
+.apiItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #f5f5f5;
+  transition: background 0.15s;
+
+  &:hover {
+    background: #e6f7ff;
+  }
+
+  &.active {
+    background: #bae7ff;
+    border-left: 2px solid #1890ff;
+  }
+}
+
+.methodTag {
+  font-size: 10px;
+  font-weight: bold;
+  padding: 1px 4px;
+  border-radius: 3px;
+  flex-shrink: 0;
+
+  &.get {
+    color: #389e0d;
+    background: #f6ffed;
+    border: 1px solid #b7eb8f;
+  }
+
+  &.post {
+    color: #d46b08;
+    background: #fff7e6;
+    border: 1px solid #ffd591;
+  }
+}
+
+.apiName {
+  flex: 1;
+  font-size: 12px;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.delBtn {
+  opacity: 0;
+  color: #bbb;
+  flex-shrink: 0;
+  font-size: 12px;
+
+  .apiItem:hover & {
+    opacity: 1;
+  }
+
+  &:hover {
+    color: #ff4d4f !important;
+  }
+}
+
+// ── 右侧内容区 ────────────────────────────────────────────────────────────────
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 14px 16px;
+  gap: 10px;
+}
+
+.panelTitle {
+  font-size: 15px;
+  font-weight: 500;
+  color: #222;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+// ── App 配置：Headers 表格 ────────────────────────────────────────────────────
+.headersTable {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.headersRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+// ── API 调试：名称行 ──────────────────────────────────────────────────────────
+.nameRow {
+  display: flex;
+  align-items: center;
+}
+
+.nameDisplay {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  color: #222;
+  padding: 4px 0;
+
+  &:hover .nameEditIcon {
+    opacity: 1;
+  }
+}
+
+.nameEditIcon {
+  font-size: 13px;
+  color: #aaa;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+// ── URL 行 ────────────────────────────────────────────────────────────────────
+.urlRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+// ── 参数区 ────────────────────────────────────────────────────────────────────
+.paramsArea {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: 12px;
+  color: #888;
+}
+
+// ── 操作按钮行 ────────────────────────────────────────────────────────────────
+.actionRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+// ── 响应区 ────────────────────────────────────────────────────────────────────
+.responseArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: 4px;
+}
+
+.responseMeta {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: #666;
+}
+
+.statusOk {
+  color: #52c41a;
+  font-weight: bold;
+}
+
+.statusErr {
+  color: #ff4d4f;
+  font-weight: bold;
+}
+
+.responseBox {
+  flex: 1;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 12px;
+  padding: 12px;
+  border-radius: 4px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  min-height: 80px;
+}
+
+// ── JSON Viewer ───────────────────────────────────────────────────────────────
+.jsonViewer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background: #1e1e1e;
+  overflow: hidden;
+}
+
+.jsonSearchBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid #333;
+  background: #f5f5f5;
+  flex-shrink: 0;
+}
+
+.matchCount {
+  font-size: 12px;
+  color: #555;
+  min-width: 60px;
+}
+
+.jsonBody {
+  flex: 1;
+  overflow: auto;
+  padding: 10px 8px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #d4d4d4;
+}
+
+.jPre {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+  color: #d4d4d4;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  line-height: 1.7;
+}
+
+// 单行
+.jLine {
+  display: flex;
+  align-items: flex-start;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+// 左侧箭头（折叠/展开）
+.jArrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  cursor: pointer;
+  color: #aaa;
+  user-select: none;
+  font-size: 12px;
+  line-height: 1;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  transition: background 0.12s, color 0.12s;
+
+  &:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.18);
+  }
+}
+
+// 没有箭头时占位
+.jArrowPlaceholder {
+  display: inline-block;
+  width: 22px;
+  flex-shrink: 0;
+}
+
+// 节点尺寸提示
+.jSize {
+  color: #6a6a6a;
+  font-size: 11px;
+  font-style: italic;
+}
+
+// JSON 节点颜色
+.jNull  { color: #569cd6 }
+.jBool  { color: #569cd6 }
+.jNum   { color: #b5cea8 }
+.jStr   { color: #ce9178 }
+.jKey   { color: #9cdcfe }
+.jPunct { color: #d4d4d4 }
+
+// 搜索高亮（global，因 dangerouslySetInnerHTML 用字符串 className）
+:global {
+  .hlMark {
+    background: rgba(255, 230, 80, 0.55);
+    color: #1e1e1e;
+    border-radius: 2px;
+    padding: 0 1px;
+  }
+  .hlActive {
+    background: #ff9800 !important;
+    color: #1e1e1e !important;
+  }
+}
+
+// ── 全局 ──────────────────────────────────────────────────────────────────────
+.empty {
+  text-align: center;
+  color: #ccc;
+  padding: 40px 0;
+  font-size: 13px;
+}
+
+// CSS module 中的高亮类（供 CJsonViewer 通过 dangerouslySetInnerHTML 引用）
+.hlMark {
+  background: rgba(255, 230, 80, 0.55);
+  color: #1e1e1e;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+.hlActive {
+  background: #ff9800 !important;
+  color: #1e1e1e !important;
+}
