@@ -74,9 +74,22 @@ const PApiDebug: React.FC = () => {
   const [addApiVisible, setAddApiVisible] = useState(false);
   const [addApiForm, setAddApiForm] = useState<{ name: string; method: 'GET' | 'POST'; url: string; appId: number | null }>({ name: '', method: 'GET', url: '', appId: null });
 
+  const nameInputRef = useRef<any>(null);
   const addAppNameRef = useRef<any>(null);
   const addApiNameRef = useRef<any>(null);
-  const nameInputRef = useRef<any>(null);
+
+  // 打开弹窗并自动聚焦
+  const openAddAppModal = () => {
+    setAddAppName('');
+    setAddAppVisible(true);
+    setTimeout(() => addAppNameRef.current?.focus(), 50);
+  };
+
+  const openAddApiModal = (appId: number | null = null) => {
+    setAddApiForm({ name: '', method: 'GET', url: '', appId });
+    setAddApiVisible(true);
+    setTimeout(() => addApiNameRef.current?.focus(), 50);
+  };
 
   // ── 加载 ──────────────────────────────────────────────────────────────────
 
@@ -290,10 +303,10 @@ const PApiDebug: React.FC = () => {
       {/* ── 左侧 ── */}
       <div className={SelfStyle.sidebar}>
         <div className={SelfStyle.sidebarHeader}>
-          <Button type="primary" icon={<AppstoreAddOutlined />} block size="small" onClick={() => setAddAppVisible(true)}>
+          <Button type="primary" icon={<AppstoreAddOutlined />} block size="small" onClick={openAddAppModal}>
             新建分组
           </Button>
-          <Button icon={<ApiOutlined />} block size="small" style={{ marginTop: 6 }} onClick={() => { setAddApiForm({ name: '', method: 'GET', url: '', appId: null }); setAddApiVisible(true); }}>
+          <Button icon={<ApiOutlined />} block size="small" style={{ marginTop: 6 }} onClick={() => openAddApiModal(null)}>
             新建 API
           </Button>
         </div>
@@ -310,7 +323,7 @@ const PApiDebug: React.FC = () => {
                     {expanded ? <CaretDownOutlined /> : <CaretRightOutlined />}
                   </span>
                   <span className={SelfStyle.appName} onClick={() => openAppPanel(app)}>{app.name}</span>
-                  <PlusOutlined className={SelfStyle.appAction} onClick={() => { setAddApiForm({ name: '', method: 'GET', url: '', appId: app.id }); setAddApiVisible(true); }} />
+                  <PlusOutlined className={SelfStyle.appAction} onClick={() => openAddApiModal(app.id)} />
                   <Popconfirm title="删除分组及其所有 API？" onConfirm={() => handleDelApp(app.id)}>
                     <DeleteOutlined className={SelfStyle.appAction} />
                   </Popconfirm>
@@ -339,8 +352,15 @@ const PApiDebug: React.FC = () => {
         {/* ─ App 配置面板 ─ */}
         {panelMode === 'app' && editingApp && (
           <>
-            <div className={SelfStyle.panelTitle}>分组配置 · {editingApp.name}</div>
-            <div className={SelfStyle.label}>公共 Headers（每个接口请求都会携带）</div>
+            <div className={SelfStyle.panelTitle}>分组配置</div>
+            <div className={SelfStyle.label}>分组名称</div>
+            <Input
+              value={editingApp.name}
+              onChange={(e) => setEditingApp({ ...editingApp, name: e.target.value })}
+              placeholder="分组名称"
+              style={{ maxWidth: 360 }}
+            />
+            <div className={SelfStyle.label} style={{ marginTop: 4 }}>公共 Headers（每个接口请求都会携带）</div>
             <div className={SelfStyle.headersTable}>
               <div className={SelfStyle.headersRow} style={{ fontWeight: 600, color: '#888', fontSize: 12 }}>
                 <span style={{ flex: 1 }}>Key</span>
@@ -451,14 +471,12 @@ const PApiDebug: React.FC = () => {
       </div>
 
       {/* ── 新建应用弹窗 ── */}
-      <Modal title="新建分组" open={addAppVisible} onOk={handleAddApp} onCancel={() => { setAddAppVisible(false); setAddAppName(''); }} okText="创建" cancelText="取消"
-        afterOpenChange={(o) => { if (o) addAppNameRef.current?.focus(); }}>
+      <Modal title="新建分组" open={addAppVisible} onOk={handleAddApp} onCancel={() => { setAddAppVisible(false); setAddAppName(''); }} okText="创建" cancelText="取消">
         <Input ref={addAppNameRef} placeholder="分组名称（如：Lotus 云函数）" value={addAppName} onChange={(e) => setAddAppName(e.target.value)} onPressEnter={handleAddApp} style={{ marginTop: 8 }} />
       </Modal>
 
       {/* ── 新建 API 弹窗 ── */}
-      <Modal title="新建 API" open={addApiVisible} onOk={handleAddApi} onCancel={() => setAddApiVisible(false)} okText="创建" cancelText="取消"
-        afterOpenChange={(o) => { if (o) addApiNameRef.current?.focus(); }}>
+      <Modal title="新建 API" open={addApiVisible} onOk={handleAddApi} onCancel={() => setAddApiVisible(false)} okText="创建" cancelText="取消">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
           <Input ref={addApiNameRef} placeholder="名称（如：获取用户信息）" value={addApiForm.name} onChange={(e) => setAddApiForm({ ...addApiForm, name: e.target.value })} onPressEnter={handleAddApi} />
           <Select value={addApiForm.method} onChange={(v) => setAddApiForm({ ...addApiForm, method: v })} style={{ width: '100%' }}>
