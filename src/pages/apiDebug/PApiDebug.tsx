@@ -5,6 +5,7 @@ import {
   message,
   Popconfirm,
   Modal,
+  Radio,
 } from 'antd';
 import {
   PlusOutlined,
@@ -30,7 +31,14 @@ const LS_KEY = 'apiDebug_selectedApiId';
 // ─── 类型 ─────────────────────────────────────────────────────────────────────
 
 interface IHeaderItem { id: number; key: string; value: string }
-interface IApp { id: number; name: string; headers: IHeaderItem[] }
+interface IPrefixItem { id: number; name: string; value: string }
+interface IApp {
+  id: number;
+  name: string;
+  prefixes?: IPrefixItem[];
+  activePrefixId?: number | null;
+  headers: IHeaderItem[];
+}
 interface IApiItem {
   id: number; appId: number | null; name: string; method: 'GET' | 'POST';
   url: string; lastQuery: string; lastBody: string;
@@ -197,6 +205,37 @@ const PApiDebug: React.FC = () => {
     setEditingApp({ ...editingApp, headers: editingApp.headers.filter((h) => h.id !== id) });
   };
 
+  const addPrefix = () => {
+    if (!editingApp) return;
+    const newId = Date.now();
+    const prefixes = editingApp.prefixes || [];
+    const next: IPrefixItem[] = [...prefixes, { id: newId, name: '', value: '' }];
+    setEditingApp({
+      ...editingApp,
+      prefixes: next,
+      activePrefixId: editingApp.activePrefixId ?? newId,
+    });
+  };
+
+  const updatePrefix = (id: number, field: 'name' | 'value', val: string) => {
+    if (!editingApp) return;
+    setEditingApp({
+      ...editingApp,
+      prefixes: (editingApp.prefixes || []).map((p) => (p.id === id ? { ...p, [field]: val } : p)),
+    });
+  };
+
+  const delPrefix = (id: number) => {
+    if (!editingApp) return;
+    const next = (editingApp.prefixes || []).filter((p) => p.id !== id);
+    setEditingApp({
+      ...editingApp,
+      prefixes: next,
+      activePrefixId:
+        editingApp.activePrefixId === id ? (next[0]?.id ?? null) : editingApp.activePrefixId,
+    });
+  };
+
   // ── API 操作 ──────────────────────────────────────────────────────────────
 
   const handleAddApi = async () => {
@@ -267,6 +306,36 @@ const PApiDebug: React.FC = () => {
   };
 
   const selectedApi = apis.find((a) => a.id === selectedApiId) || null;
+  const selectedApp = selectedApi?.appId ? apps.find((a) => a.id === selectedApi.appId) || null : null;
+  const selectedActivePrefix: IPrefixItem | null = (() => {
+    if (!selectedApp || !selectedApp.prefixes || !selectedApp.prefixes.length) return null;
+    return selectedApp.prefixes.find((p) => p.id === selectedApp.activePrefixId) || selectedApp.prefixes[0];
+  })();
+  const selectedApiPrefix = selectedActivePrefix?.value || '';
+
+  const buildFullUrl = (prefix: string, path: string) => {
+    const p = (prefix || '').replace(/\/+$/, '');
+    const s = path.charAt(0) === '/' ? path : '/' + path;
+    return p + s;
+  };
+
+  // 快捷切换当前激活的 prefix（保存到后端）
+  const switchActivePrefix = async (prefixId: number) => {
+    if (!selectedApp) return;
+    setApps((prev) => prev.map((a) => (a.id === selectedApp.id ? { ...a, activePrefixId: prefixId } : a)));
+    await request({
+      url: '/apiDebug/saveApp',
+      method: 'post',
+      data: { app: { id: selectedApp.id, activePrefixId: prefixId } },
+    });
+  };
+
+  const formatBody = () => {
+    if (!body.trim()) return;
+    try {
+      setBody(JSON.stringify(JSON.parse(body), null, 2));
+    } catch {}
+  };
 
   // ── 侧边栏 ────────────────────────────────────────────────────────────────
 
@@ -360,6 +429,33 @@ const PApiDebug: React.FC = () => {
               placeholder="分组名称"
               style={{ maxWidth: 360 }}
             />
+            <div className={SelfStyle.label} style={{ marginTop: 4 }}>
+              公共前缀（可配置多个，每次只生效一个）
+            </div>
+            <div className={SelfStyle.headersTable}>
+              <div className={SelfStyle.prefixRow} style={{ fontWeight: 600, color: '#888', fontSize: 12 }}>
+                <span style={{ width: 28, textAlign: 'center' }}>启用</span>
+                <span style={{ flex: 1 }}>名称（如 dev / prod）</span>
+                <span style={{ flex: 2 }}>前缀地址</span>
+                <span style={{ width: 24 }} />
+              </div>
+              {(editingApp.prefixes || []).map((p) => (
+                <div key={p.id} className={SelfStyle.prefixRow}>
+                  <Radio
+                    style={{ width: 28, marginRight: 0 }}
+                    checked={editingApp.activePrefixId === p.id}
+                    onChange={() => setEditingApp({ ...editingApp, activePrefixId: p.id })}
+                  />
+                  <Input size="small" style={{ flex: 1 }} value={p.name} placeholder="环境名" onChange={(e) => updatePrefix(p.id, 'name', e.target.value)} />
+                  <Input size="small" style={{ flex: 2 }} value={p.value} placeholder="http://localhost:9100/api" onChange={(e) => updatePrefix(p.id, 'value', e.target.value)} />
+                  <DeleteOutlined style={{ color: '#ccc', cursor: 'pointer', width: 24, textAlign: 'center' }} onClick={() => delPrefix(p.id)} />
+                </div>
+              ))}
+              <Button size="small" icon={<PlusOutlined />} type="dashed" onClick={addPrefix} style={{ width: '100%', marginTop: 6 }}>
+                添加前缀
+              </Button>
+            </div>
+
             <div className={SelfStyle.label} style={{ marginTop: 4 }}>公共 Headers（每个接口请求都会携带）</div>
             <div className={SelfStyle.headersTable}>
               <div className={SelfStyle.headersRow} style={{ fontWeight: 600, color: '#888', fontSize: 12 }}>
@@ -413,8 +509,36 @@ const PApiDebug: React.FC = () => {
                 <Option value="GET">GET</Option>
                 <Option value="POST">POST</Option>
               </Select>
-              <Input value={url} onChange={(e) => setUrl(e.target.value)} onBlur={() => saveApiField({ url: url.trim() })} placeholder="请求地址" style={{ flex: 1 }} />
+              <Input
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                onBlur={() => saveApiField({ url: url.trim() })}
+                placeholder={selectedApiPrefix ? '请求路径（拼接在分组前缀后）' : '请求地址（http://...）'}
+                style={{ flex: 1 }}
+              />
             </div>
+            {selectedApp && (selectedApp.prefixes?.length || 0) > 0 && (
+              <div className={SelfStyle.prefixSwitcherRow}>
+                <span className={SelfStyle.label}>当前前缀：</span>
+                <Select
+                  size="small"
+                  value={selectedActivePrefix?.id}
+                  onChange={switchActivePrefix}
+                  style={{ minWidth: 240 }}
+                >
+                  {selectedApp.prefixes!.map((p) => (
+                    <Option key={p.id} value={p.id}>
+                      {(p.name || '未命名') + '  ·  ' + (p.value || '(空)')}
+                    </Option>
+                  ))}
+                </Select>
+              </div>
+            )}
+            {selectedApiPrefix && url && !/^https?:\/\//i.test(url) && (
+              <div className={SelfStyle.urlPreview}>
+                实际请求：<span>{buildFullUrl(selectedApiPrefix, url)}</span>
+              </div>
+            )}
 
             {/* 参数区 */}
             <div className={SelfStyle.paramsArea}>
@@ -425,8 +549,18 @@ const PApiDebug: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <div className={SelfStyle.label}>Body（JSON）</div>
-                  <TextArea value={body} onChange={(e) => setBody(e.target.value)} placeholder={'{\n  "key": "value"\n}'} autoSize={{ minRows: 5, maxRows: 10 }} style={{ fontFamily: 'Consolas, Monaco, monospace', fontSize: 12 }} />
+                  <div className={SelfStyle.bodyLabelRow}>
+                    <span className={SelfStyle.label}>Body（JSON）</span>
+                    <a className={SelfStyle.formatBtn} onClick={formatBody}>格式化</a>
+                  </div>
+                  <TextArea
+                    value={body}
+                    onChange={(e) => setBody(e.target.value)}
+                    onBlur={formatBody}
+                    placeholder={'{\n  "key": "value"\n}'}
+                    autoSize={{ minRows: 6, maxRows: 18 }}
+                    style={{ fontFamily: 'Consolas, Monaco, monospace', fontSize: 12 }}
+                  />
                 </>
               )}
             </div>

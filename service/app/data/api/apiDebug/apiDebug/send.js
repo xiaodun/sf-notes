@@ -27,20 +27,34 @@
     var query = argParams.query || '';
     var body = argParams.body || '';
 
-    if (url && !/^https?:\/\//i.test(url)) {
-      url = 'http://' + url;
-    }
-
-    // 合并所属分组的 headers
+    // 合并所属分组的 headers，并尝试拼接当前选中的 prefix
     var appHeaders = {};
     var apiIndex = argData.apis.findIndex(function (a) { return a.id === apiId; });
     if (apiIndex !== -1 && argData.apis[apiIndex].appId) {
       var app = argData.apps.find(function (a) { return a.id === argData.apis[apiIndex].appId; });
-      if (app && app.headers) {
-        app.headers.forEach(function (h) {
-          if (h.key && h.key.trim()) appHeaders[h.key.trim()] = h.value || '';
-        });
+      if (app) {
+        if (app.headers) {
+          app.headers.forEach(function (h) {
+            if (h.key && h.key.trim()) appHeaders[h.key.trim()] = h.value || '';
+          });
+        }
+        // 找当前激活的 prefix（找不到激活的就用第一条）
+        var activePrefix = '';
+        if (app.prefixes && app.prefixes.length) {
+          var active = app.prefixes.find(function (p) { return p.id === app.activePrefixId; });
+          if (!active) active = app.prefixes[0];
+          activePrefix = (active && active.value) || '';
+        }
+        if (activePrefix && url && !/^https?:\/\//i.test(url)) {
+          var prefixStr = String(activePrefix).replace(/\/+$/, '');
+          var pathPart = url.charAt(0) === '/' ? url : '/' + url;
+          url = prefixStr + pathPart;
+        }
       }
+    }
+
+    if (url && !/^https?:\/\//i.test(url)) {
+      url = 'http://' + url;
     }
 
     var targetUrl = url;
