@@ -10,7 +10,6 @@ import {
 import {
   PlusOutlined,
   DeleteOutlined,
-  SaveOutlined,
   SendOutlined,
   CaretDownOutlined,
   CaretRightOutlined,
@@ -21,7 +20,8 @@ import {
 } from '@ant-design/icons';
 import React, { useEffect, useRef, useState } from 'react';
 import request from '@/utils/request';
-import CJsonViewer from './CJsonViewer';
+import CJsonViewer from './CJsonViewerLazy';
+import ResponseBodyScroller from './ResponseBodyScroller';
 import SelfStyle from './LApiDebug.less';
 
 const { TextArea } = Input;
@@ -43,10 +43,24 @@ interface IApiItem {
   id: number; appId: number | null; name: string; method: 'GET' | 'POST';
   url: string; lastQuery: string; lastBody: string;
   lastResponse: IResponse | null;
+  /** getList 为控制体积省略了大 body，需 getCache 补全 */
+  lastResponseIsPartial?: boolean;
 }
 interface IResponse {
   success: boolean; status?: number; elapsed?: number;
   body?: string; parsedBody?: any; error?: string;
+  parseSkipped?: boolean;
+  bodyCharLength?: number;
+  largeCachedBody?: boolean;
+  hint?: string;
+  /** 正文在服务端 .body.txt，由 getResponseSlice 分片加载 */
+  bodyStorage?: 'file';
+  /** 与 .body.txt 前缀一致，随 getCache / send 返回，供格式化 */
+  bodyPublicHead?: string;
+  /** 公共前缀 UTF-8 字节长，与分片 cursor 对齐 */
+  bodyPublicHeadByteLength?: number;
+  /** 结构外层快照：大数组/深层对象会被惰性标记，避免前端一次性吃完整包 */
+  bodyEnvelope?: any;
 }
 
 // ─── 主组件 ───────────────────────────────────────────────────────────────────
@@ -86,6 +100,16 @@ const PApiDebug: React.FC = () => {
   const addAppNameRef = useRef<any>(null);
   const addApiNameRef = useRef<any>(null);
 
+  /** 分组配置草稿：用于离开面板时补写、删除分组时置空 */
+  const editingAppDraftRef = useRef<IApp | null>(null);
+  const prevPanelModeRef = useRef<'app' | 'api' | null>(panelMode);
+  const skipAutosaveOnceForAppIdRef = useRef<number | null>(null);
+  const appsRef = useRef<IApp[]>(apps);
+  appsRef.current = apps;
+  if (panelMode === 'app' && editingApp) {
+    editingAppDraftRef.current = editingApp;
+  }
+
   // 打开弹窗并自动聚焦
   const openAddAppModal = () => {
     setAddAppName('');
@@ -111,11 +135,20 @@ const PApiDebug: React.FC = () => {
     });
 
   useEffect(() => {
-    fetchList().then(({ newApis }) => {
-      // 恢复上次选中的 API
-      const savedId = Number(localStorage.getItem(LS_KEY));
-      if (savedId) {
-        const target = newApis.find((a) => a.id === savedId);
+    fetchList().then(({ newApps, newApis }) => {
+      const saved = localStorage.getItem(LS_KEY) || '';
+      if (saved.startsWith('app:')) {
+        const appId = Number(saved.slice(4));
+        const target = newApps.find((a) => a.id === appId);
+        if (target) {
+          setExpandedApps((s) => new Set([...s, appId]));
+          openAppPanel(target);
+          return;
+        }
+      }
+      const apiId = saved.startsWith('api:') ? Number(saved.slice(4)) : Number(saved);
+      if (apiId) {
+        const target = newApis.find((a) => a.id === apiId);
         if (target) {
           if (target.appId) setExpandedApps((s) => new Set([...s, target.appId!]));
           openApiPanel(target);
@@ -144,13 +177,44 @@ const PApiDebug: React.FC = () => {
     setResponse(item.lastResponse || null);
     setEditingName(false);
     setPanelMode('api');
-    localStorage.setItem(LS_KEY, String(item.id));
+    localStorage.setItem(LS_KEY, 'api:' + item.id);
+
+    /** 正文外置：列表无公共前缀，需 getCache 补全 bodyPublicHead 等再渲染 */
+    if (item.lastResponse?.bodyStorage === 'file') {
+      void request({ url: '/apiDebug/getCache', method: 'get', params: { apiId: item.id } }).then((rsp: any) => {
+        if (!rsp.success || rsp.lastResponse == null) return;
+        setResponse(rsp.lastResponse);
+        setApis((prev) =>
+          prev.map((a) =>
+            a.id === item.id
+              ? { ...a, lastResponse: rsp.lastResponse, lastResponseIsPartial: false }
+              : a
+          )
+        );
+      });
+      return;
+    }
+    if (item.lastResponseIsPartial) {
+      void request({ url: '/apiDebug/getCache', method: 'get', params: { apiId: item.id } }).then((rsp: any) => {
+        if (!rsp.success || rsp.lastResponse == null) return;
+        setResponse(rsp.lastResponse);
+        setApis((prev) =>
+          prev.map((a) =>
+            a.id === item.id
+              ? { ...a, lastResponse: rsp.lastResponse, lastResponseIsPartial: false }
+              : a
+          )
+        );
+      });
+    }
   };
 
   const openAppPanel = (app: IApp) => {
-    setEditingApp(JSON.parse(JSON.stringify(app))); // 深拷贝，不直接修改原始
+    skipAutosaveOnceForAppIdRef.current = app.id;
+    setEditingApp(JSON.parse(JSON.stringify(app)));
     setPanelMode('app');
     setSelectedApiId(null);
+    localStorage.setItem(LS_KEY, 'app:' + app.id);
   };
 
   // ── App 操作 ──────────────────────────────────────────────────────────────
@@ -173,19 +237,79 @@ const PApiDebug: React.FC = () => {
 
   const handleDelApp = async (id: number) => {
     await request({ url: '/apiDebug/delApp', method: 'post', data: { id } });
-    if (panelMode === 'app' && editingApp?.id === id) setPanelMode(null);
+    if (panelMode === 'app' && editingApp?.id === id) {
+      setPanelMode(null);
+      setEditingApp(null);
+      editingAppDraftRef.current = null;
+    }
     fetchList();
   };
 
-  const handleSaveApp = async () => {
-    if (!editingApp) return;
-    const validHeaders = editingApp.headers.filter((h) => h.key.trim());
-    const rsp: any = await request({ url: '/apiDebug/saveApp', method: 'post', data: { app: { ...editingApp, headers: validHeaders } } });
-    if (rsp.success) {
-      message.success('保存成功');
-      fetchList();
-    }
+  /** Headers：key/value 去首尾空格，去掉 key 为空的行 */
+  const trimAppHeaders = (app: IApp): IApp => {
+    const headers = app.headers
+      .map((h) => ({
+        ...h,
+        key: String(h.key || '').trim(),
+        value: String(h.value || '').trim(),
+      }))
+      .filter((h) => h.key);
+    return { ...app, headers };
   };
+
+  /** 分组公共配置写入后端 */
+  const persistAppConfig = (app: IApp) => {
+    const normalized = trimAppHeaders(app);
+    return request({
+      url: '/apiDebug/saveApp',
+      method: 'post',
+      data: { app: normalized },
+    }).then((rsp: any) => {
+      if (rsp.success) {
+        skipAutosaveOnceForAppIdRef.current = normalized.id;
+        setEditingApp((prev) => {
+          if (!prev || prev.id !== normalized.id) return prev;
+          return { ...prev, headers: normalized.headers };
+        });
+        fetchList();
+      }
+      return rsp;
+    }) as Promise<any>;
+  };
+
+  // 分组配置：编辑后防抖自动保存
+  useEffect(() => {
+    if (panelMode !== 'app' || !editingApp) return undefined;
+
+    if (skipAutosaveOnceForAppIdRef.current === editingApp.id) {
+      skipAutosaveOnceForAppIdRef.current = null;
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => {
+      void persistAppConfig(editingApp).then((rsp: any) => {
+        if (!rsp.success && rsp.message) {
+          message.error(rsp.message);
+        }
+      });
+    }, 450);
+
+    return () => window.clearTimeout(timer);
+  }, [editingApp, panelMode]);
+
+  // 离开分组配置面板时立即补写一次（避免防抖期内切走导致未落盘）
+  useEffect(() => {
+    const prev = prevPanelModeRef.current;
+    prevPanelModeRef.current = panelMode;
+
+    if (prev !== 'app' || panelMode === 'app') return undefined;
+
+    const draft = editingAppDraftRef.current;
+    if (!draft || !appsRef.current.some((a) => a.id === draft.id)) return undefined;
+
+    void persistAppConfig(draft);
+    return undefined;
+  }, [panelMode]);
 
   const addHeader = () => {
     if (!editingApp) return;
@@ -474,8 +598,8 @@ const PApiDebug: React.FC = () => {
                 添加 Header
               </Button>
             </div>
-            <div className={SelfStyle.actionRow}>
-              <Button type="primary" icon={<SaveOutlined />} onClick={handleSaveApp}>保存</Button>
+            <div style={{ marginTop: 12, fontSize: 12, color: '#888' }}>
+              公共配置已自动保存
             </div>
           </>
         )}
@@ -586,8 +710,35 @@ const PApiDebug: React.FC = () => {
               {response ? (
                 response.error ? (
                   <div className={SelfStyle.responseBox}>{`错误：${response.error}`}</div>
+                ) : response.bodyStorage === 'file' && selectedApiId ? (
+                  <>
+                    {response.hint && (
+                      <div style={{ marginBottom: 8, fontSize: 12, color: '#595959' }}>
+                        {response.hint}
+                      </div>
+                    )}
+                    <ResponseBodyScroller
+                      key={selectedApiId}
+                      apiId={selectedApiId}
+                      bodyCharLength={response.bodyCharLength}
+                      bodyPublicHead={response.bodyPublicHead}
+                      bodyEnvelope={response.bodyEnvelope}
+                    />
+                  </>
                 ) : (
-                  <CJsonViewer data={response.parsedBody} rawBody={response.body} />
+                  <>
+                    {response.parseSkipped && response.bodyCharLength != null && (
+                      <div style={{ marginBottom: 8, fontSize: 12, color: '#d48806' }}>
+                        响应体约 {response.bodyCharLength} 字符，已跳过树形 JSON 解析以降低内存占用；下方为原文。
+                      </div>
+                    )}
+                    {response.largeCachedBody && response.hint && !response.bodyStorage && (
+                      <div style={{ marginBottom: 8, fontSize: 12, color: '#d48806' }}>
+                        {response.hint}
+                      </div>
+                    )}
+                    <CJsonViewer data={response.parsedBody} rawBody={response.body} />
+                  </>
                 )
               ) : (
                 <div className={SelfStyle.responseBox}>{'// 响应结果将显示在这里'}</div>

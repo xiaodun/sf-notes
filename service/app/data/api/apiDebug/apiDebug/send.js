@@ -2,23 +2,14 @@
   var http = require('http');
   var https = require('https');
   var urlModule = require('url');
-  var fs = require('fs');
   var path = require('path');
-
-  var CACHE_DIR = 'data/api/apiDebug/apiDebug/cache';
-
-  function ensureCacheDir() {
-    if (!fs.existsSync(CACHE_DIR)) {
-      fs.mkdirSync(CACHE_DIR, { recursive: true });
-    }
+  var fs = require('fs');
+  /** sf-inner-service 用 eval 执行本文件，相对 require 会解析到 node_modules，必须用绝对路径 */
+  var _cacheStoragePath = path.join(process.cwd(), 'data', 'api', 'apiDebug', 'apiDebug', 'cacheStorage.js');
+  if (!fs.existsSync(_cacheStoragePath)) {
+    _cacheStoragePath = path.join(process.cwd(), 'service', 'app', 'data', 'api', 'apiDebug', 'apiDebug', 'cacheStorage.js');
   }
-
-  function writeCache(apiId, cache) {
-    try {
-      ensureCacheDir();
-      fs.writeFileSync(path.join(CACHE_DIR, apiId + '.json'), JSON.stringify(cache, null, 2));
-    } catch (e) {}
-  }
+  var storage = require(_cacheStoragePath);
 
   return function (argData, argParams, external) {
     var apiId = argParams.apiId;
@@ -35,7 +26,8 @@
       if (app) {
         if (app.headers) {
           app.headers.forEach(function (h) {
-            if (h.key && h.key.trim()) appHeaders[h.key.trim()] = h.value || '';
+            var k = String((h && h.key) || '').trim();
+            if (k) appHeaders[k] = String((h && h.value) || '').trim();
           });
         }
         // 找当前激活的 prefix（找不到激活的就用第一条）
@@ -67,28 +59,42 @@
     var lib = isHttps ? https : http;
     var startTime = Date.now();
 
-    var reqHeaders = Object.assign({ 'Content-Type': 'application/json' }, appHeaders);
+    var reqHeaders = Object.assign(
+      {
+        'Content-Type': 'application/json',
+        'Accept-Encoding': 'gzip, deflate, br',
+      },
+      appHeaders
+    );
+    /** 大列表等接口可能较慢，与常见网关超时对齐 */
+    var OUTBOUND_TIMEOUT_MS = 300000;
     var reqOptions = {
       hostname: parsed.hostname,
       port: parsed.port ? parseInt(parsed.port) : (isHttps ? 443 : 80),
       path: parsed.path || '/',
       method: method,
       headers: reqHeaders,
-      timeout: 15000,
+      timeout: OUTBOUND_TIMEOUT_MS,
     };
     if (method === 'POST' && body) {
       reqOptions.headers['Content-Length'] = Buffer.byteLength(body);
     }
 
     function persistAndRespond(result) {
-      writeCache(apiId, {
+      var cachePayload = {
         lastQuery: method === 'GET' ? query : '',
         lastBody: method === 'POST' ? body : '',
         lastMethod: method,
         lastResponse: result,
         updatedAt: Date.now(),
-      });
-      try { external.response.end(JSON.stringify({ success: true, result: result })); } catch (e) {}
+      };
+      try {
+        storage.persistApiCache(apiId, cachePayload);
+      } catch (e) {}
+      var wire = storage.toClientResponseResult(result);
+      try {
+        external.response.end(JSON.stringify({ success: true, result: wire }));
+      } catch (e2) {}
     }
 
     var req = lib.request(reqOptions, function (res) {
@@ -97,20 +103,33 @@
       res.on('end', function () {
         var rawBody = Buffer.concat(chunks).toString('utf-8');
         var parsedBody = null;
-        try { parsedBody = JSON.parse(rawBody); } catch (e) {}
+        /** 超大 JSON 避免二次整包 parse 占内存；前端仍可用 body 原文展示 */
+        var MAX_PARSE_CHARS = 2000000;
+        var parseSkipped = rawBody.length > MAX_PARSE_CHARS;
+        if (!parseSkipped) {
+          try {
+            parsedBody = JSON.parse(rawBody);
+          } catch (e) {}
+        }
         persistAndRespond({
           success: true,
           status: res.statusCode,
           elapsed: Date.now() - startTime,
           body: rawBody,
           parsedBody: parsedBody,
+          parseSkipped: parseSkipped || undefined,
+          bodyCharLength: parseSkipped ? rawBody.length : undefined,
         });
       });
     });
 
     req.on('timeout', function () {
       req.destroy();
-      persistAndRespond({ success: false, error: '请求超时（15s）', elapsed: 15000 });
+      persistAndRespond({
+        success: false,
+        error: '请求超时（' + Math.round(OUTBOUND_TIMEOUT_MS / 1000) + 's）',
+        elapsed: OUTBOUND_TIMEOUT_MS,
+      });
     });
     req.on('error', function (e) {
       persistAndRespond({ success: false, error: e.message, elapsed: Date.now() - startTime });
