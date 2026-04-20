@@ -437,12 +437,6 @@ const PApiDebug: React.FC = () => {
   })();
   const selectedApiPrefix = selectedActivePrefix?.value || '';
 
-  const buildFullUrl = (prefix: string, path: string) => {
-    const p = (prefix || '').replace(/\/+$/, '');
-    const s = path.charAt(0) === '/' ? path : '/' + path;
-    return p + s;
-  };
-
   // 快捷切换当前激活的 prefix（保存到后端）
   const switchActivePrefix = async (prefixId: number) => {
     if (!selectedApp) return;
@@ -492,6 +486,7 @@ const PApiDebug: React.FC = () => {
   );
 
   return (
+    <div className={SelfStyle.pageRoot}>
     <div className={SelfStyle.main}>
       {/* ── 左侧 ── */}
       <div className={SelfStyle.sidebar}>
@@ -606,7 +601,7 @@ const PApiDebug: React.FC = () => {
 
         {/* ─ API 调试面板 ─ */}
         {panelMode === 'api' && selectedApi && (
-          <>
+          <div className={SelfStyle.apiPanel}>
             {/* 名称行 */}
             <div className={SelfStyle.nameRow}>
               {editingName ? (
@@ -627,42 +622,50 @@ const PApiDebug: React.FC = () => {
               )}
             </div>
 
-            {/* URL 行 */}
+            {/* URL 行：有分组前缀时，前缀选择器与路径输入连成一体 */}
             <div className={SelfStyle.urlRow}>
               <Select value={method} style={{ width: 90 }} onChange={handleMethodChange}>
                 <Option value="GET">GET</Option>
                 <Option value="POST">POST</Option>
               </Select>
-              <Input
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                onBlur={() => saveApiField({ url: url.trim() })}
-                placeholder={selectedApiPrefix ? '请求路径（拼接在分组前缀后）' : '请求地址（http://...）'}
-                style={{ flex: 1 }}
-              />
-            </div>
-            {selectedApp && (selectedApp.prefixes?.length || 0) > 0 && (
-              <div className={SelfStyle.prefixSwitcherRow}>
-                <span className={SelfStyle.label}>当前前缀：</span>
-                <Select
-                  size="small"
-                  value={selectedActivePrefix?.id}
-                  onChange={switchActivePrefix}
-                  style={{ minWidth: 240 }}
+              {selectedApp && (selectedApp.prefixes?.length || 0) > 0 ? (
+                <Input.Group
+                  compact
+                  className={SelfStyle.urlCompact}
+                  style={{ display: 'flex', flex: 1, minWidth: 0 }}
                 >
-                  {selectedApp.prefixes!.map((p) => (
-                    <Option key={p.id} value={p.id}>
-                      {(p.name || '未命名') + '  ·  ' + (p.value || '(空)')}
-                    </Option>
-                  ))}
-                </Select>
-              </div>
-            )}
-            {selectedApiPrefix && url && !/^https?:\/\//i.test(url) && (
-              <div className={SelfStyle.urlPreview}>
-                实际请求：<span>{buildFullUrl(selectedApiPrefix, url)}</span>
-              </div>
-            )}
+                  <Select
+                    value={selectedActivePrefix?.id}
+                    onChange={switchActivePrefix}
+                    dropdownMatchSelectWidth={false}
+                    className={SelfStyle.urlPrefixSelect}
+                    style={{ width: 220, flexShrink: 0 }}
+                  >
+                    {selectedApp.prefixes!.map((p) => (
+                      <Option key={p.id} value={p.id}>
+                        {(p.name || '未命名') + '  ·  ' + (p.value || '(空)')}
+                      </Option>
+                    ))}
+                  </Select>
+                  <Input
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    onBlur={() => saveApiField({ url: url.trim() })}
+                    placeholder={selectedApiPrefix ? '路径（如 /api/notes/getNoteList）' : '请求地址（http://...）'}
+                    className={SelfStyle.urlPathInput}
+                    style={{ flex: 1, minWidth: 80 }}
+                  />
+                </Input.Group>
+              ) : (
+                <Input
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  onBlur={() => saveApiField({ url: url.trim() })}
+                  placeholder="请求地址（http://...）"
+                  style={{ flex: 1, minWidth: 0 }}
+                />
+              )}
+            </div>
 
             {/* 参数区 */}
             <div className={SelfStyle.paramsArea}>
@@ -713,12 +716,13 @@ const PApiDebug: React.FC = () => {
                 ) : response.bodyStorage === 'file' && selectedApiId ? (
                   <>
                     {response.hint && (
-                      <div style={{ marginBottom: 8, fontSize: 12, color: '#595959' }}>
+                      <div style={{ marginBottom: 8, fontSize: 12, color: '#595959', flexShrink: 0 }}>
                         {response.hint}
                       </div>
                     )}
                     <ResponseBodyScroller
                       key={selectedApiId}
+                      className={SelfStyle.responseBodyScroller}
                       apiId={selectedApiId}
                       bodyCharLength={response.bodyCharLength}
                       bodyPublicHead={response.bodyPublicHead}
@@ -737,14 +741,16 @@ const PApiDebug: React.FC = () => {
                         {response.hint}
                       </div>
                     )}
-                    <CJsonViewer data={response.parsedBody} rawBody={response.body} />
+                    <div className={SelfStyle.viewerFill}>
+                      <CJsonViewer data={response.parsedBody} rawBody={response.body} />
+                    </div>
                   </>
                 )
               ) : (
                 <div className={SelfStyle.responseBox}>{'// 响应结果将显示在这里'}</div>
               )}
             </div>
-          </>
+          </div>
         )}
 
         {/* ─ 空状态 ─ */}
@@ -776,6 +782,7 @@ const PApiDebug: React.FC = () => {
         </div>
       </Modal>
 
+    </div>
     </div>
   );
 };

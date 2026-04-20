@@ -1,7 +1,17 @@
 // ── 整体布局 ──────────────────────────────────────────────────────────────────
+// 与 Welcome 里 Content 的 margin-top（顶栏+间距）对齐，避免整页高度 > 视口导致外层再出一条滚动条
+.pageRoot {
+  height: calc(100vh - 96px);
+  max-height: calc(100vh - 96px);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
 .main {
   display: flex;
-  height: calc(100vh - 64px);
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
   overflow: hidden;
 }
 
@@ -9,6 +19,7 @@
 .sidebar {
   width: 230px;
   min-width: 230px;
+  min-height: 0;
   border-right: 1px solid #f0f0f0;
   display: flex;
   flex-direction: column;
@@ -151,6 +162,8 @@
 // ── 右侧内容区 ────────────────────────────────────────────────────────────────
 .content {
   flex: 1;
+  min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -183,6 +196,23 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+// ── API 调试：整页占满右侧，响应区吃剩余高度 ─────────────────────────────────────
+.apiPanel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  gap: 10px;
+}
+
+.apiPanel .paramsArea {
+  flex: 0 1 auto;
+  max-height: 38vh;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 // ── API 调试：名称行 ──────────────────────────────────────────────────────────
@@ -220,23 +250,27 @@
   align-items: center;
 }
 
-.urlPreview {
-  font-size: 12px;
-  color: #888;
-  padding: 2px 0 0 98px;
-  font-family: 'Consolas', 'Monaco', monospace;
+/** 前缀选择 + 路径输入（antd Input.Group compact + flex 覆盖默认 inline-block） */
+.urlCompact {
+  flex: 1;
+  min-width: 0;
 
-  span {
-    color: #1890ff;
-    word-break: break-all;
+  :global(.ant-select-single:not(.ant-select-customize-input) .ant-select-selector) {
+    border-radius: 2px 0 0 2px;
+  }
+
+  :global(.ant-input) {
+    border-radius: 0 2px 2px 0;
   }
 }
 
-.prefixSwitcherRow {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding-left: 98px;
+.urlPrefixSelect {
+  text-align: left;
+}
+
+.urlPathInput {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
 }
 
 // ── 参数区 ────────────────────────────────────────────────────────────────────
@@ -271,10 +305,31 @@
 // ── 响应区 ────────────────────────────────────────────────────────────────────
 .responseArea {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  min-height: 0;
   gap: 4px;
+}
+
+/** 大响应 / 普通响应：JSON 查看器纵向撑满剩余区域 */
+.responseBodyScroller {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.viewerFill {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  // 仅内层 jsonBody 滚动；jsonViewer 本身不再设 min-height，避免撑破外层 flex
+  .jsonBody {
+    min-height: 200px;
+  }
 }
 
 .responseMeta {
@@ -282,6 +337,7 @@
   gap: 16px;
   font-size: 12px;
   color: #666;
+  flex-shrink: 0;
 }
 
 .statusOk {
@@ -305,7 +361,7 @@
   overflow: auto;
   white-space: pre-wrap;
   word-break: break-all;
-  min-height: 80px;
+  min-height: 200px;
 }
 
 // ── JSON Viewer ───────────────────────────────────────────────────────────────
@@ -338,6 +394,7 @@
 
 .jsonBody {
   flex: 1;
+  min-height: 0;
   overflow: auto;
   padding: 10px 8px;
   font-family: 'Consolas', 'Monaco', monospace;
