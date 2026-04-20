@@ -75,16 +75,10 @@ const StartConfigModal: React.FC<StartConfigModalProps> = ({
   };
 
   const removeCommand = (index: number) => {
-    if (index === 0) {
-      return;
-    }
     setCommands((prev) => {
-      if (prev.length <= 1) {
-        return prev;
-      }
       const next = [...prev];
       next.splice(index, 1);
-      return next.length ? next : [{ name: projectName || '', command: 'npm run dev' }];
+      return next;
     });
   };
 
@@ -153,11 +147,9 @@ const StartConfigModal: React.FC<StartConfigModalProps> = ({
               placeholder="请输入启动命令"
               autoSize={{ minRows: 2, maxRows: 6 }}
             />
-            {index > 0 && (
-              <Button danger onClick={() => removeCommand(index)}>
-                删除
-              </Button>
-            )}
+            <Button danger onClick={() => removeCommand(index)}>
+              删除
+            </Button>
           </div>
         </div>
       ))}
