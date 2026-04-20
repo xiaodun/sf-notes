@@ -302,6 +302,11 @@
   align-items: center;
 }
 
+// 导出：与项目管理「打开」同为 ant-dropdown-button，与「发送」并排、不换行挤压
+.exportDropdown {
+  flex-shrink: 0;
+}
+
 // ── 响应区 ────────────────────────────────────────────────────────────────────
 .responseArea {
   flex: 1;
@@ -334,7 +339,9 @@
 
 .responseMeta {
   display: flex;
-  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
   font-size: 12px;
   color: #666;
   flex-shrink: 0;
