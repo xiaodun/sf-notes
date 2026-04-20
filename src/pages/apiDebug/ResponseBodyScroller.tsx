@@ -2,9 +2,11 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Typography } from 'antd';
 import request from '@/utils/request';
 import CJsonViewer from './CJsonViewerLazy';
+import SelfStyle from './LApiDebug.less';
 
 interface ResponseBodyScrollerProps {
   apiId: number;
+  className?: string;
   bodyCharLength?: number;
   /** 结构外层快照（由服务端裁剪大数组/深层对象） */
   bodyEnvelope?: any;
@@ -21,10 +23,10 @@ const MAX_PUBLIC_PARSE_CHARS = 600_000;
  */
 const ResponseBodyScroller: React.FC<ResponseBodyScrollerProps> = ({
   apiId,
+  className,
   bodyCharLength,
   bodyEnvelope,
   bodyPublicHead = '',
-  className,
 }) => {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchErr, setSearchErr] = useState<string | null>(null);
@@ -170,23 +172,21 @@ const ResponseBodyScroller: React.FC<ResponseBodyScrollerProps> = ({
     void fetchSegment(q, false);
   }, [fetchSegment, fileExhausted, searchLoading]);
 
+  const rootClass = [SelfStyle.responseBodyScroller, className].filter(Boolean).join(' ');
+
   return (
-    <div className={className}>
-      <Typography.Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 8 }}>
+    <div className={rootClass}>
+      <Typography.Text
+        type="secondary"
+        style={{ fontSize: 12, display: 'block', marginBottom: 8, flexShrink: 0 }}
+      >
         {bodyCharLength != null && bodyCharLength > 0 && (
           <>约 {bodyCharLength.toLocaleString()} 字符（正文主体在服务端 .body.txt）</>
         )}
       </Typography.Text>
 
       {viewerData != null ? (
-        <div
-          style={{
-            height: 520,
-            minHeight: 320,
-            marginBottom: 16,
-            display: 'flex',
-          }}
-        >
+        <div className={SelfStyle.viewerFill}>
           <CJsonViewer
             key={treeVersion}
             apiId={apiId}
@@ -205,7 +205,7 @@ const ResponseBodyScroller: React.FC<ResponseBodyScrollerProps> = ({
           />
         </div>
       ) : (
-        <Typography.Paragraph type="warning" style={{ fontSize: 12, marginBottom: 16 }}>
+        <Typography.Paragraph type="warning" style={{ fontSize: 12, marginBottom: 16, flexShrink: 0 }}>
           当前缓存尚未生成可展示结构，请重新发送一次请求。
         </Typography.Paragraph>
       )}
