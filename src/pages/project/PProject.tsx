@@ -271,9 +271,13 @@ const Project: ConnectRC<IProjectProps> = (props) => {
             </Link>
           </Button>
 
-          {project.web.isStart === null && <Button loading={true} type="link"></Button>}
-          {project.web.isStart === true && <Tag color="#87d068">已启动</Tag>}
-          {Boolean(project.startConfig?.commands?.length) && project.web.isStart === false && (
+          {Boolean(project.startConfig?.runUrl) && project.web.isStart === null && (
+            <Button loading={true} type="link"></Button>
+          )}
+          {Boolean(project.startConfig?.runUrl) && project.web.isStart === true && (
+            <Tag color="#87d068">已启动</Tag>
+          )}
+          {Boolean(project.startConfig?.commands?.length) && project.web.isStart !== true && project.web.isStart !== null && (
             <Button type="dashed" onClick={() => onStartProject(project)}>
               启动
             </Button>
@@ -376,21 +380,28 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       message.error('项目未配置启动命令');
       return;
     }
+    const hasRunUrl = !!String(project.startConfig?.runUrl || '').trim();
     const startRsp = await SProject.startProjectWithCommands({
       projectId: project.id,
       projectName: project.name,
     });
-    const newRsp = produce(MDProject.rsp, (drafState) => {
-      const item = drafState.list.find((item) => item.name === project.name);
-      item.web.isStart = null;
-    });
-    NModel.dispatch(
-      new NMDProject.ARSetState({
-        rsp: newRsp,
-      })
-    );
+    // 只有配置了运行地址时才显示 loading 状态等待检测
+    if (hasRunUrl) {
+      const newRsp = produce(MDProject.rsp, (drafState) => {
+        const item = drafState.list.find((item) => item.name === project.name);
+        item.web.isStart = null;
+      });
+      NModel.dispatch(
+        new NMDProject.ARSetState({
+          rsp: newRsp,
+        })
+      );
+    }
     if (startRsp.success) {
       message.success('已执行');
+      if (!hasRunUrl) {
+        return;
+      }
       if (project.isSfMock) {
         onReStartNginx();
       }
