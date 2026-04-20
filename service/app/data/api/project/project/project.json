@@ -75,7 +75,10 @@
             "id": 1774230745884,
             "startConfig": {
                 "commands": [
-                    "node mockService.js"
+                    {
+                        "name": "sf-mock",
+                        "command": "node mockService.js"
+                    }
                 ],
                 "runUrl": "http://localhost:9192"
             },

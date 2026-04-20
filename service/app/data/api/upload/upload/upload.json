@@ -1,14 +1,38 @@
 [
     {
-        "name": "upload_4684812987428135423.jpg",
-        "type": "image/jpeg",
-        "flag": "upload_5d1623a14ff7c9e67b8853a49f7f12ea",
-        "id": "1776430938939"
+        "name": "06-only-empty-folder.zip",
+        "type": "application/x-zip-compressed",
+        "flag": "upload_4f36f8fd7417344fb74de07fdf299c8c",
+        "id": "1776665149724"
     },
     {
-        "name": "upload_1207246362853163497.jpg",
-        "type": "image/jpeg",
-        "flag": "upload_41076cc9d1f57e7c27e01d4c63af22a9",
-        "id": "1776430938933"
+        "name": "03-dual-root-readme-and-app.zip",
+        "type": "application/x-zip-compressed",
+        "flag": "upload_e896b0570826190aa57a62b8c294b374",
+        "id": "1776665149716"
+    },
+    {
+        "name": "04-two-top-level-folders.zip",
+        "type": "application/x-zip-compressed",
+        "flag": "upload_5a7f655df6bfc9732edf869023e2a2d7",
+        "id": "1776665149708"
+    },
+    {
+        "name": "05-deep-single-wrapper.zip",
+        "type": "application/x-zip-compressed",
+        "flag": "upload_ce6b82fd86c65f716f777e2500161358",
+        "id": "1776665149697"
+    },
+    {
+        "name": "02-flat-root-two-files.zip",
+        "type": "application/x-zip-compressed",
+        "flag": "upload_d073c657a18b696e9f8f8e4862517c9c",
+        "id": "1776665149690"
+    },
+    {
+        "name": "01-single-outer-folder.zip",
+        "type": "application/x-zip-compressed",
+        "flag": "upload_76107703bc2d7543cdc577a27dd29f82",
+        "id": "1776665149358"
     }
 ]
