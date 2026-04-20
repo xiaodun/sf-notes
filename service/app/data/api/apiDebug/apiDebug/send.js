@@ -114,6 +114,7 @@
         persistAndRespond({
           success: true,
           status: res.statusCode,
+          statusText: res.statusMessage || undefined,
           elapsed: Date.now() - startTime,
           body: rawBody,
           parsedBody: parsedBody,

@@ -30,10 +30,6 @@
           bodyStorage: 'file',
           bodyCharLength: lastResponse.bodyCharLength || 0,
           bodyEnvelope: lastResponse.bodyEnvelope || undefined,
-          largeCachedBody: true,
-          hint:
-            lastResponse.hint ||
-            '正文在 .body.txt；打开本条将 getCache 拉取公共前缀（可格式化）与按需分片说明。',
           parsedBody: null,
         },
         isPartial: true,
@@ -51,11 +47,9 @@
         status: lastResponse.status,
         elapsed: lastResponse.elapsed,
         error: lastResponse.error,
-        largeCachedBody: true,
         bodyCharLength: lastResponse.body.length,
         body: lastResponse.body.slice(0, PARTIAL_PREVIEW_CHARS),
         parsedBody: null,
-        hint: '完整响应已写入本地缓存，打开本条 API 时会自动拉取；也可重新发送请求。',
       },
       isPartial: true,
     };
