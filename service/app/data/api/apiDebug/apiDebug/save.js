@@ -1,7 +1,14 @@
 (function () {
+  var path = require('path');
+  var fs = require('fs');
+  var _cacheStoragePath = path.join(process.cwd(), 'data', 'api', 'apiDebug', 'apiDebug', 'cacheStorage.js');
+  if (!fs.existsSync(_cacheStoragePath)) {
+    _cacheStoragePath = path.join(process.cwd(), 'service', 'app', 'data', 'api', 'apiDebug', 'apiDebug', 'cacheStorage.js');
+  }
+  var storage = require(_cacheStoragePath);
+
   return function (argData, argParams) {
     var item = argParams.item;
-    // lastQuery/lastBody/lastResponse 由独立缓存文件管理，不进主 JSON
     delete item.lastQuery;
     delete item.lastBody;
     delete item.lastResponse;
@@ -22,9 +29,11 @@
       item.savedParams = [];
       argData.apis.push(item);
     }
+
+    storage.writeMainDataWithRetry(argData);
+
     return {
-      isWrite: true,
-      data: argData,
+      isWrite: false,
       response: { code: 200, data: { success: true, item: item } },
     };
   };

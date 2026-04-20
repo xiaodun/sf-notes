@@ -2,6 +2,9 @@
   var fs = require('fs');
   var path = require('path');
   var CACHE_DIR = 'data/api/apiDebug/apiDebug/cache';
+  /** 列表接口不内联超大 lastResponse.body，避免一次 getList 撑爆内存/前端；完整内容见 getCache */
+  var MAX_INLINE_BODY_CHARS = 512 * 1024;
+  var PARTIAL_PREVIEW_CHARS = 8000;
 
   function loadCache(apiId) {
     try {
@@ -13,13 +16,60 @@
     return null;
   }
 
+  function trimLastResponseForList(lastResponse) {
+    if (!lastResponse) {
+      return { lastResponse: null, isPartial: false };
+    }
+    if (lastResponse.bodyStorage === 'file') {
+      return {
+        lastResponse: {
+          success: lastResponse.success,
+          status: lastResponse.status,
+          elapsed: lastResponse.elapsed,
+          error: lastResponse.error,
+          bodyStorage: 'file',
+          bodyCharLength: lastResponse.bodyCharLength || 0,
+          bodyEnvelope: lastResponse.bodyEnvelope || undefined,
+          largeCachedBody: true,
+          hint:
+            lastResponse.hint ||
+            '正文在 .body.txt；打开本条将 getCache 拉取公共前缀（可格式化）与按需分片说明。',
+          parsedBody: null,
+        },
+        isPartial: true,
+      };
+    }
+    if (typeof lastResponse.body !== 'string') {
+      return { lastResponse: lastResponse, isPartial: false };
+    }
+    if (lastResponse.body.length <= MAX_INLINE_BODY_CHARS) {
+      return { lastResponse: lastResponse, isPartial: false };
+    }
+    return {
+      lastResponse: {
+        success: lastResponse.success,
+        status: lastResponse.status,
+        elapsed: lastResponse.elapsed,
+        error: lastResponse.error,
+        largeCachedBody: true,
+        bodyCharLength: lastResponse.body.length,
+        body: lastResponse.body.slice(0, PARTIAL_PREVIEW_CHARS),
+        parsedBody: null,
+        hint: '完整响应已写入本地缓存，打开本条 API 时会自动拉取；也可重新发送请求。',
+      },
+      isPartial: true,
+    };
+  }
+
   return function (argData) {
     var apis = (argData.apis || []).map(function (api) {
       var cache = loadCache(api.id);
+      var trimmed = cache && cache.lastResponse ? trimLastResponseForList(cache.lastResponse) : { lastResponse: null, isPartial: false };
       return Object.assign({}, api, {
         lastQuery: cache ? cache.lastQuery || '' : '',
         lastBody: cache ? cache.lastBody || '' : '',
-        lastResponse: cache ? cache.lastResponse || null : null,
+        lastResponse: trimmed.lastResponse,
+        lastResponseIsPartial: trimmed.isPartial || undefined,
       });
     });
     return {
