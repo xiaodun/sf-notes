@@ -17,8 +17,9 @@ import {
   CheckOutlined,
   AppstoreAddOutlined,
   ApiOutlined,
+  DownloadOutlined,
 } from '@ant-design/icons';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import request from '@/utils/request';
 import CJsonViewer from './CJsonViewerLazy';
 import ResponseBodyScroller from './ResponseBodyScroller';
@@ -47,7 +48,9 @@ interface IApiItem {
   lastResponseIsPartial?: boolean;
 }
 interface IResponse {
-  success: boolean; status?: number; elapsed?: number;
+  success: boolean; status?: number; /** 上游 HTTP 原因短语，如 Not Found */
+  statusText?: string;
+  elapsed?: number;
   body?: string; parsedBody?: any; error?: string;
   parseSkipped?: boolean;
   bodyCharLength?: number;
@@ -63,6 +66,76 @@ interface IResponse {
   bodyEnvelope?: any;
 }
 
+/** 上游返回 4xx/5xx 且无可展示正文（无 body、无解析结果、非外置文件） */
+function isUpstreamHttpErrorWithEmptyBody(res: IResponse): boolean {
+  if (res.error) return false;
+  const st = res.status;
+  if (st == null || st < 400) return false;
+  if (res.bodyStorage === 'file') return false;
+  if (res.parsedBody != null) return false;
+  if (res.bodyEnvelope != null) return false;
+  const b = res.body;
+  if (typeof b === 'string' && b.trim().length > 0) return false;
+  return true;
+}
+
+type WireExport =
+  | { mode: 'json'; value: unknown }
+  | { mode: 'text'; value: string }
+  | { mode: 'error'; value: { error: string } };
+
+/** 外置正文且前缀无法 parse 成完整 JSON、又无 envelope 时，需经服务端拉整包正文 */
+type WireExportPick = WireExport | 'need_full_body' | null;
+
+/**
+ * 仅导出「上游 HTTP 响应体」：与真实接口返回一致，不含 success/status/elapsed/parseSkipped 等调试字段。
+ * 合法 JSON → .json；非 JSON 的整段原文（如 HTML、纯文本）→ .txt。
+ */
+function pickWireResponseBodyExport(res: IResponse): WireExportPick {
+  if (res.parsedBody != null) return { mode: 'json', value: res.parsedBody };
+  if (typeof res.body === 'string' && res.body.length > 0) {
+    try {
+      return { mode: 'json', value: JSON.parse(res.body) };
+    } catch {
+      return { mode: 'text', value: res.body };
+    }
+  }
+  if (res.bodyStorage === 'file' && res.bodyPublicHead) {
+    try {
+      return { mode: 'json', value: JSON.parse(res.bodyPublicHead) };
+    } catch {
+      if (res.bodyEnvelope != null) return { mode: 'json', value: res.bodyEnvelope };
+      return 'need_full_body';
+    }
+  }
+  if (res.bodyEnvelope != null) return { mode: 'json', value: res.bodyEnvelope };
+  if (res.error) return { mode: 'error', value: { error: res.error } };
+  return null;
+}
+
+function downloadWireExport(base: string, picked: WireExport) {
+  if (picked.mode === 'text') {
+    const blob = new Blob([picked.value], { type: 'text/plain;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${base}-response-body.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+    return;
+  }
+  const text = JSON.stringify(picked.value, null, 2);
+  const blob = new Blob([text], { type: 'application/json;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${base}-response-body.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+}
+
 // ─── 主组件 ───────────────────────────────────────────────────────────────────
 
 const PApiDebug: React.FC = () => {
@@ -73,13 +146,13 @@ const PApiDebug: React.FC = () => {
   // 侧边栏展开
   const [expandedApps, setExpandedApps] = useState<Set<number>>(new Set());
 
-  // 面板：app 配置 or api 调试
+  // 面板：app 配置 or API
   const [panelMode, setPanelMode] = useState<'app' | 'api' | null>(null);
 
   // App 配置面板
   const [editingApp, setEditingApp] = useState<IApp | null>(null);
 
-  // API 调试面板
+  // API 面板
   const [selectedApiId, setSelectedApiId] = useState<number | null>(null);
   const [apiName, setApiName] = useState('');
   const [editingName, setEditingName] = useState(false);
@@ -89,6 +162,7 @@ const PApiDebug: React.FC = () => {
   const [body, setBody] = useState('');
   const [response, setResponse] = useState<IResponse | null>(null);
   const [sending, setSending] = useState(false);
+  const [exportAllLoading, setExportAllLoading] = useState(false);
 
   // 弹窗
   const [addAppVisible, setAddAppVisible] = useState(false);
@@ -404,6 +478,70 @@ const PApiDebug: React.FC = () => {
 
   // ── 发送 ──────────────────────────────────────────────────────────────────
 
+  /** 从服务端缓存读取与 send 落盘一致的完整响应（含外置 .body.txt 原文），再触发浏览器下载 */
+  const handleExportAllFromApi = useCallback(async () => {
+    if (!selectedApiId || !response) {
+      message.warning('请先发送请求并收到响应');
+      return;
+    }
+    const base = (apiName || 'response').replace(/[\\/:*?"<>|]+/g, '_').trim().slice(0, 80) || 'response';
+    setExportAllLoading(true);
+    try {
+      const rsp: any = await request({
+        url: '/apiDebug/getLastResponseFull',
+        method: 'get',
+        params: { apiId: selectedApiId },
+      });
+      if (!rsp.success) return;
+      if (rsp.mode === 'stream') {
+        const blob: Blob = await request({
+          url: '/apiDebug/downloadResponseBody',
+          method: 'get',
+          params: { apiId: selectedApiId },
+          responseType: 'blob',
+        });
+        let downloadBlob: Blob = blob;
+        if (blob.size < 2048) {
+          const t = await blob.text();
+          try {
+            const j = JSON.parse(t);
+            if (j && j.success === false) {
+              message.error(j.message || '下载失败');
+              return;
+            }
+          } catch (_) {
+            /* 非 JSON 的小正文 */
+          }
+          downloadBlob = new Blob([t], { type: 'text/plain;charset=utf-8' });
+        }
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(downloadBlob);
+        a.download = `${base}-response-raw-body.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+        message.success(rsp.message || '已下载');
+        return;
+      }
+      if (rsp.mode === 'json' && rsp.result != null) {
+        const picked = pickWireResponseBodyExport(rsp.result as IResponse);
+        if (picked === 'need_full_body') {
+          message.warning('服务端缓存异常：无法从正文组装导出，请重试发送');
+          return;
+        }
+        if (!picked) {
+          message.warning('服务端缓存中无可导出的响应正文');
+          return;
+        }
+        downloadWireExport(base, picked);
+        message.success('已从服务端拉取并导出接口响应体');
+      }
+    } finally {
+      setExportAllLoading(false);
+    }
+  }, [apiName, response, selectedApiId]);
+
   const handleSend = async () => {
     if (!selectedApiId) return;
     if (!url.trim()) { message.warning('请填写请求地址'); return; }
@@ -599,7 +737,7 @@ const PApiDebug: React.FC = () => {
           </>
         )}
 
-        {/* ─ API 调试面板 ─ */}
+        {/* ─ API 面板 ─ */}
         {panelMode === 'api' && selectedApi && (
           <div className={SelfStyle.apiPanel}>
             {/* 名称行 */}
@@ -695,6 +833,16 @@ const PApiDebug: React.FC = () => {
             {/* 操作 */}
             <div className={SelfStyle.actionRow}>
               <Button icon={<SendOutlined />} type="primary" loading={sending} onClick={handleSend}>发送</Button>
+              {response && (
+                <Button
+                  className={SelfStyle.exportDropdown}
+                  icon={<DownloadOutlined />}
+                  loading={exportAllLoading}
+                  onClick={handleExportAllFromApi}
+                >
+                  导出
+                </Button>
+              )}
             </div>
 
             {/* 响应区 */}
@@ -707,38 +855,26 @@ const PApiDebug: React.FC = () => {
                       {response.status ?? (response.error ? '错误' : '-')}
                     </span>
                   </span>
-                  {response.elapsed != null && <span>耗时：{response.elapsed}ms</span>}
                 </div>
               )}
               {response ? (
                 response.error ? (
                   <div className={SelfStyle.responseBox}>{`错误：${response.error}`}</div>
                 ) : response.bodyStorage === 'file' && selectedApiId ? (
-                  <>
-                    {response.hint && (
-                      <div style={{ marginBottom: 8, fontSize: 12, color: '#595959', flexShrink: 0 }}>
-                        {response.hint}
-                      </div>
-                    )}
-                    <ResponseBodyScroller
-                      key={selectedApiId}
-                      className={SelfStyle.responseBodyScroller}
-                      apiId={selectedApiId}
-                      bodyCharLength={response.bodyCharLength}
-                      bodyPublicHead={response.bodyPublicHead}
-                      bodyEnvelope={response.bodyEnvelope}
-                    />
-                  </>
+                  <ResponseBodyScroller
+                    key={selectedApiId}
+                    className={SelfStyle.responseBodyScroller}
+                    apiId={selectedApiId}
+                    bodyPublicHead={response.bodyPublicHead}
+                    bodyEnvelope={response.bodyEnvelope}
+                  />
                 ) : (
                   <>
-                    {response.parseSkipped && response.bodyCharLength != null && (
-                      <div style={{ marginBottom: 8, fontSize: 12, color: '#d48806' }}>
-                        响应体约 {response.bodyCharLength} 字符，已跳过树形 JSON 解析以降低内存占用；下方为原文。
-                      </div>
-                    )}
-                    {response.largeCachedBody && response.hint && !response.bodyStorage && (
-                      <div style={{ marginBottom: 8, fontSize: 12, color: '#d48806' }}>
-                        {response.hint}
+                    {isUpstreamHttpErrorWithEmptyBody(response) && (
+                      <div className={SelfStyle.responseBox} style={{ marginBottom: 8 }}>
+                        {`对方返回 HTTP ${response.status}${
+                          response.statusText ? ` ${response.statusText}` : ''
+                        }，无响应体（仅状态行，属常见情况）。`}
                       </div>
                     )}
                     <div className={SelfStyle.viewerFill}>
