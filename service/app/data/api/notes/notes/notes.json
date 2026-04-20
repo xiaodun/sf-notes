@@ -1,5 +1,14 @@
 [
     {
+        "content": "/api/proxy-gateway/api/v5/mt5/ticket/orders 返回的是数字  \nhttps://portal2.dev.ccp.risk-vantagefx.com/api/proxy-gateway/api/v5/mt5/orders/119396160?serverId=20001 返回的又是字符串 这都详情toHistory的判断有什么影响吗",
+        "base64": {},
+        "createTime": 1776681106061,
+        "updateTime": "",
+        "title": "2026-04-20 06:31:46",
+        "titleColor": "",
+        "id": 1776681106061
+    },
+    {
         "content": "83474007",
         "base64": {},
         "createTime": 1776667551461,

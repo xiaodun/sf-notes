@@ -242,8 +242,6 @@ function migrateLegacyBodyToSidecarIfNeeded(apiId) {
     var pub = sliceBodyPublicHeadFromFullString(lr.body);
     slim.bodyPublicHead = pub.head;
     slim.bodyPublicHeadByteLength = pub.headByteLength;
-    slim.hint =
-      '正文在 .body.txt；元数据已带公共前缀（可格式化），其余请在前端按需加载分片。';
     cache.lastResponse = slim;
     fs.writeFileSync(j, JSON.stringify(cache, null, 2));
   } catch (e) {}
@@ -265,8 +263,6 @@ function persistApiCache(apiId, cache) {
     var pub2 = sliceBodyPublicHeadFromFullString(lr.body);
     slim.bodyPublicHead = pub2.head;
     slim.bodyPublicHeadByteLength = pub2.headByteLength;
-    slim.hint =
-      '正文在 .body.txt；元数据已带公共前缀（可格式化），其余请在前端按需加载分片。';
     var outCache = {
       lastQuery: cache.lastQuery,
       lastBody: cache.lastBody,
@@ -295,7 +291,6 @@ function toClientResponseResult(result) {
   var pub3 = sliceBodyPublicHeadFromFullString(result.body);
   o.bodyPublicHead = pub3.head;
   o.bodyPublicHeadByteLength = pub3.headByteLength;
-  o.hint = '正文已落盘；已附带可格式化的公共前缀，其余按需分片加载。';
   return o;
 }
 
@@ -507,6 +502,65 @@ function writeMainDataWithRetry(data, maxRetries) {
   }
 }
 
+/** 与 send.js 一致：超过则不在导出 JSON 内嵌正文，改走 downloadResponseBody 流式下载 */
+var MAX_EXPORT_INLINE_BODY_BYTES = 48 * 1024 * 1024;
+
+/**
+ * 从磁盘缓存组装「上次真实响应」：外置正文时合并 .body.txt 中的 UTF-8 原文。
+ * @returns {{ ok: true, mode: 'json', result: object } | { ok: true, mode: 'stream', byteSize: number } | { ok: false, message: string }}
+ */
+function buildLastResponseForExport(apiId) {
+  migrateLegacyBodyToSidecarIfNeeded(apiId);
+  var j = jsonPath(apiId);
+  if (!fs.existsSync(j)) {
+    return { ok: false, message: '无本地缓存' };
+  }
+  var cache;
+  try {
+    cache = JSON.parse(fs.readFileSync(j, 'utf-8'));
+  } catch (e) {
+    return { ok: false, message: '缓存文件损坏' };
+  }
+  var lr = cache.lastResponse;
+  if (!lr) {
+    return { ok: false, message: '无上次响应' };
+  }
+  if (lr.bodyStorage === 'file') {
+    var side = bodyPath(apiId);
+    if (!fs.existsSync(side)) {
+      return { ok: false, message: '正文文件缺失' };
+    }
+    var st = fs.statSync(side);
+    if (st.size > MAX_EXPORT_INLINE_BODY_BYTES) {
+      return { ok: true, mode: 'stream', byteSize: st.size };
+    }
+    var full = fs.readFileSync(side, 'utf8');
+    var out = {};
+    Object.keys(lr).forEach(function (k) {
+      out[k] = lr[k];
+    });
+    out.body = full;
+    delete out.bodyStorage;
+    delete out.bodyEnvelope;
+    delete out.bodyPublicHead;
+    delete out.bodyPublicHeadByteLength;
+    out.bodyCharLength = full.length;
+    var MAX_PARSE_CHARS = 2000000;
+    if (full.length <= MAX_PARSE_CHARS) {
+      try {
+        out.parsedBody = JSON.parse(full);
+      } catch (e1) {
+        out.parsedBody = null;
+      }
+    } else {
+      out.parseSkipped = true;
+      delete out.parsedBody;
+    }
+    return { ok: true, mode: 'json', result: out };
+  }
+  return { ok: true, mode: 'json', result: JSON.parse(JSON.stringify(lr)) };
+}
+
 module.exports = {
   CACHE_DIR: CACHE_DIR,
   /** 可调：超过则写入 .body.txt 且接口响应不再携带全文 */
@@ -523,4 +577,6 @@ module.exports = {
   bodyPath: bodyPath,
   jsonPath: jsonPath,
   writeMainDataWithRetry: writeMainDataWithRetry,
+  buildLastResponseForExport: buildLastResponseForExport,
+  MAX_EXPORT_INLINE_BODY_BYTES: MAX_EXPORT_INLINE_BODY_BYTES,
 };

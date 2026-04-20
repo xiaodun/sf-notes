@@ -7,12 +7,10 @@ import SelfStyle from './LApiDebug.less';
 interface ResponseBodyScrollerProps {
   apiId: number;
   className?: string;
-  bodyCharLength?: number;
   /** 结构外层快照（由服务端裁剪大数组/深层对象） */
   bodyEnvelope?: any;
   /** envelope 缺失时的 JSON 兜底 */
   bodyPublicHead?: string;
-  className?: string;
 }
 
 /** 公共头内尝试 JSON.parse 生成树的上限 */
@@ -24,7 +22,6 @@ const MAX_PUBLIC_PARSE_CHARS = 600_000;
 const ResponseBodyScroller: React.FC<ResponseBodyScrollerProps> = ({
   apiId,
   className,
-  bodyCharLength,
   bodyEnvelope,
   bodyPublicHead = '',
 }) => {
@@ -176,15 +173,6 @@ const ResponseBodyScroller: React.FC<ResponseBodyScrollerProps> = ({
 
   return (
     <div className={rootClass}>
-      <Typography.Text
-        type="secondary"
-        style={{ fontSize: 12, display: 'block', marginBottom: 8, flexShrink: 0 }}
-      >
-        {bodyCharLength != null && bodyCharLength > 0 && (
-          <>约 {bodyCharLength.toLocaleString()} 字符（正文主体在服务端 .body.txt）</>
-        )}
-      </Typography.Text>
-
       {viewerData != null ? (
         <div className={SelfStyle.viewerFill}>
           <CJsonViewer
