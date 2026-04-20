@@ -409,6 +409,26 @@
 .jKey   { color: #9cdcfe }
 .jPunct { color: #d4d4d4 }
 
+// 大 JSON 按需加载更多
+.jLoadMore {
+  font-size: 12px;
+  color: #6cb6ff;
+  cursor: pointer;
+  user-select: none;
+  margin-left: 4px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.jTrunc,
+.jSearchNote {
+  color: #888;
+  font-size: 12px;
+  font-style: italic;
+}
+
 // 搜索高亮（global，因 dangerouslySetInnerHTML 用字符串 className）
 :global {
   .hlMark {
