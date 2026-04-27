@@ -12,14 +12,19 @@
           let url = prefix + item.pathUrl;
           let methodTransform = {
             post: "postJSON",
+            put: "putJSON",
+            patch: "patchJSON",
+            delete: "delete",
             get: "get",
           };
+          const m = String(item.data.method || "get").toLowerCase();
+          const ajaxMethod = methodTransform[m] || m;
 
           return `
                       {
                         name:"${pathName}",
                         url:"${url}",
-                        method:"${methodTransform[item.data.method]}",
+                        method:"${ajaxMethod}",
                         desc:"${item.data.summary}"
                       }`;
         })
