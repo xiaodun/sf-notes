@@ -1,344 +1,181 @@
 {
-    "config": {
-        "addBasePath": "C:/Users/SZLD03287/Documents/affluence-git-story",
-        "showEnumList": false,
-        "gitlabBasePath": "",
-        "nginxVisitWay": "ip",
-        "swaggerPathShowWay": "path",
-        "lastOptionSwaggerDomain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger"
-    },
-    "projectList": [
-        {
-            "rootPath": "D://github//sf-notes",
-            "name": "sf-notes",
-            "id": 1634522259207,
-            "isSfMock": false,
-            "closeAjaxCode": true,
-            "sfMock": {
-                "serverList": [
-                    {
-                        "port": 9000,
-                        "isMock": true,
-                        "openUrl": "http://172.17.48.50:9000",
-                        "openDomainUrl": "http://wx.mock.sf-notes:9000"
-                    },
-                    {
-                        "port": 9001,
-                        "url": "http://192.168.10.197:8880",
-                        "openUrl": "http://172.17.48.50:9001",
-                        "openDomainUrl": "http://wx.prd.sf-notes:9001"
-                    },
-                    {
-                        "name": "本地链接",
-                        "openUrl": "http://localhost:8000"
-                    }
-                ]
-            },
-            "snippetList": [
-                {
-                    "name": "一个模块",
-                    "isGroup": true,
-                    "children": [
-                        {
-                            "name": "创建列表模块",
-                            "script": "createTableModule"
-                        }
-                    ]
-                },
-                {
-                    "name": "模态框",
-                    "isGroup": true,
-                    "children": [
-                        {
-                            "name": "有表单验证",
-                            "script": "createWithFormModal"
-                        },
-                        {
-                            "name": "信息展示",
-                            "script": "createShowContentModal"
-                        }
-                    ]
-                }
-            ],
-            "isDefaultCopySwagger": false,
-            "startConfig": {
-                "commands": [],
-                "runUrl": ""
-            }
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\sf-mock",
-            "sfMock": {
-                "serverList": []
-            },
-            "name": "sf-mock",
-            "id": 1774230745884,
-            "startConfig": {
-                "commands": [
-                    {
-                        "name": "sf-mock",
-                        "command": "node mockService.js"
-                    }
-                ],
-                "runUrl": "http://localhost:9192"
-            },
-            "isSfMock": true
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-lottery-client",
-            "sfMock": {
-                "serverList": [
-                    {
-                        "port": 9300,
-                        "isMock": true,
-                        "openUrl": "http://172.17.48.50:9300",
-                        "openDomainUrl": "http://wx.mock.affluence-lottery-client:9300"
-                    },
-                    {
-                        "name": "本地链接",
-                        "openUrl": "http://localhost:5173"
-                    }
-                ]
-            },
-            "name": "affluence-lottery-client",
-            "id": 1774229887993,
-            "startConfig": {
-                "commands": [
-                    {
-                        "name": "lottery-client",
-                        "command": "npm run dev:h5"
-                    },
-                    {
-                        "name": "lottery-clound",
-                        "command": "cd clound-service\nnode app.js"
-                    }
-                ],
-                "runUrl": "http://localhost:5173"
-            }
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-spend-client",
-            "sfMock": {
-                "serverList": []
-            },
-            "name": "affluence-spend-client",
-            "id": 1774229969419,
-            "startConfig": {
-                "commands": [
-                    {
-                        "name": "spend-client",
-                        "command": "npm run dev:h5"
-                    }
-                ],
-                "runUrl": "http://localhost:5274"
-            }
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app",
-            "sfMock": {
-                "serverList": [
-                    {
-                        "port": 9100,
-                        "isMock": true,
-                        "openUrl": "http://172.17.48.50:9100",
-                        "openDomainUrl": "http://wx.mock.ccs-app:9100"
-                    },
-                    {
-                        "name": "本地链接",
-                        "openUrl": "http://localhost:3000"
-                    }
-                ],
-                "addressPath": ""
-            },
-            "name": "ccs-app",
-            "id": 1774230197427,
-            "startConfig": {
-                "commands": [
-                    {
-                        "name": "ccs-app",
-                        "command": "npm run dev"
-                    }
-                ],
-                "runUrl": "http://localhost:3000"
-            },
-            "isSfMock": false
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-git-story",
-            "sfMock": {
-                "serverList": []
-            },
-            "name": "affluence-git-story",
-            "id": 1774595529600,
-            "startConfig": {
-                "commands": [
-                    {
-                        "name": "git-story",
-                        "command": "pnpm start"
-                    }
-                ],
-                "runUrl": "http://localhost:"
-            }
-        }
-    ],
-    "inExcludeGroups": {
-        "https://api-v2.dev.ccp.risk-vantagefx.com/swagger": [
-            "v5"
+  "config": {
+    "addBasePath": "C:/Users/SZLD03287/Documents/affluence-git-story",
+    "gitlabBasePath": "",
+    "nginxVisitWay": "ip"
+  },
+  "projectList": [
+    {
+      "rootPath": "D://github//sf-notes",
+      "name": "sf-notes",
+      "id": 1634522259207,
+      "isSfMock": false,
+      "closeAjaxCode": true,
+      "sfMock": {
+        "serverList": [
+          {
+            "port": 9000,
+            "isMock": true,
+            "openUrl": "http://172.17.48.50:9000",
+            "openDomainUrl": "http://wx.mock.sf-notes:9000"
+          },
+          {
+            "port": 9001,
+            "url": "http://192.168.10.197:8880",
+            "openUrl": "http://172.17.48.50:9001",
+            "openDomainUrl": "http://wx.prd.sf-notes:9001"
+          },
+          {
+            "name": "本地链接",
+            "openUrl": "http://localhost:8000"
+          }
         ]
+      },
+      "snippetList": [
+        {
+          "name": "一个模块",
+          "isGroup": true,
+          "children": [
+            {
+              "name": "创建列表模块",
+              "script": "createTableModule"
+            }
+          ]
+        },
+        {
+          "name": "模态框",
+          "isGroup": true,
+          "children": [
+            {
+              "name": "有表单验证",
+              "script": "createWithFormModal"
+            },
+            {
+              "name": "信息展示",
+              "script": "createShowContentModal"
+            }
+          ]
+        }
+      ],
+      "isDefaultCopySwagger": false,
+      "startConfig": {
+        "commands": [],
+        "runUrl": ""
+      }
     },
-    "swaggerList": [
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "id": 1777269951480,
-            "crateTime": 1777269951480,
-            "updateTime": 1777372420076
-        }
-    ],
-    "apiPrefixs": {},
-    "attentionPathList": [
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "v5",
-            "tagName": "Plugin Library (V5 Pipeline)",
-            "pathKey": "post:/api/v5/plugins",
-            "pathUrl": "/api/v5/plugins",
-            "method": "post",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "v5",
-            "tagName": "Plugin Library (V5 Pipeline)",
-            "pathKey": "post:/api/v5/plugins/inspect-dll-version",
-            "pathUrl": "/api/v5/plugins/inspect-dll-version",
-            "method": "post",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "v5",
-            "tagName": "Plugin Library (V5 Pipeline)",
-            "pathKey": "get:/api/v5/plugins",
-            "pathUrl": "/api/v5/plugins",
-            "method": "get",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "v5",
-            "tagName": "Plugin Library (V5 Pipeline)",
-            "pathKey": "get:/api/v5/plugins/{id}",
-            "pathUrl": "/api/v5/plugins/{id}",
-            "method": "get",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "v5",
-            "tagName": "Plugin Library (V5 Pipeline)",
-            "pathKey": "put:/api/v5/plugins/{id}",
-            "pathUrl": "/api/v5/plugins/{id}",
-            "method": "put",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "v5",
-            "tagName": "Plugin Library (V5 Pipeline)",
-            "pathKey": "delete:/api/v5/plugins/{id}",
-            "pathUrl": "/api/v5/plugins/{id}",
-            "method": "delete",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "v5",
-            "tagName": "Plugin Library (V5 Pipeline)",
-            "pathKey": "post:/api/v5/plugins/{id}/enable",
-            "pathUrl": "/api/v5/plugins/{id}/enable",
-            "method": "post",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "v5",
-            "tagName": "Plugin Library (V5 Pipeline)",
-            "pathKey": "post:/api/v5/plugins/{id}/disable",
-            "pathUrl": "/api/v5/plugins/{id}/disable",
-            "method": "post",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "v5",
-            "tagName": "Plugin Versions (V5 Pipeline)",
-            "pathKey": "get:/api/v5/plugins/{pluginId}/versions",
-            "pathUrl": "/api/v5/plugins/{pluginId}/versions",
-            "method": "get",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "v5",
-            "tagName": "Plugin Versions (V5 Pipeline)",
-            "pathKey": "post:/api/v5/plugins/{pluginId}/versions",
-            "pathUrl": "/api/v5/plugins/{pluginId}/versions",
-            "method": "post",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "v5",
-            "tagName": "Plugin Versions (V5 Pipeline)",
-            "pathKey": "get:/api/v5/plugins/{pluginId}/versions/{versionId}",
-            "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}",
-            "method": "get",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "v5",
-            "tagName": "Plugin Versions (V5 Pipeline)",
-            "pathKey": "delete:/api/v5/plugins/{pluginId}/versions/{versionId}",
-            "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}",
-            "method": "delete",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "v5",
-            "tagName": "Plugin Versions (V5 Pipeline)",
-            "pathKey": "post:/api/v5/plugins/{pluginId}/versions/{versionId}/mark-latest",
-            "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}/mark-latest",
-            "method": "post",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "v5",
-            "tagName": "Plugin Versions (V5 Pipeline)",
-            "pathKey": "post:/api/v5/plugins/{pluginId}/versions/{versionId}/files",
-            "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}/files",
-            "method": "post",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "v5",
-            "tagName": "Plugin Versions (V5 Pipeline)",
-            "pathKey": "delete:/api/v5/plugins/{pluginId}/versions/{versionId}/files/{fileId}",
-            "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}/files/{fileId}",
-            "method": "delete",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "v5",
-            "tagName": "Plugin Versions (V5 Pipeline)",
-            "pathKey": "get:/api/v5/plugins/{pluginId}/versions/{versionId}/files/{fileId}/download",
-            "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}/files/{fileId}/download",
-            "method": "get",
-            "isPath": true
-        }
-    ]
+    {
+      "rootPath": "C:\\Users\\SZLD03287\\Documents\\sf-mock",
+      "sfMock": {
+        "serverList": []
+      },
+      "name": "sf-mock",
+      "id": 1774230745884,
+      "startConfig": {
+        "commands": [
+          {
+            "name": "sf-mock",
+            "command": "node mockService.js"
+          }
+        ],
+        "runUrl": "http://localhost:9192"
+      },
+      "isSfMock": true
+    },
+    {
+      "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-lottery-client",
+      "sfMock": {
+        "serverList": [
+          {
+            "port": 9300,
+            "isMock": true,
+            "openUrl": "http://172.17.48.50:9300",
+            "openDomainUrl": "http://wx.mock.affluence-lottery-client:9300"
+          },
+          {
+            "name": "本地链接",
+            "openUrl": "http://localhost:5173"
+          }
+        ]
+      },
+      "name": "affluence-lottery-client",
+      "id": 1774229887993,
+      "startConfig": {
+        "commands": [
+          {
+            "name": "lottery-client",
+            "command": "npm run dev:h5"
+          },
+          {
+            "name": "lottery-clound",
+            "command": "cd clound-service\nnode app.js"
+          }
+        ],
+        "runUrl": "http://localhost:5173"
+      }
+    },
+    {
+      "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-spend-client",
+      "sfMock": {
+        "serverList": []
+      },
+      "name": "affluence-spend-client",
+      "id": 1774229969419,
+      "startConfig": {
+        "commands": [
+          {
+            "name": "spend-client",
+            "command": "npm run dev:h5"
+          }
+        ],
+        "runUrl": "http://localhost:5274"
+      }
+    },
+    {
+      "rootPath": "C:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app",
+      "sfMock": {
+        "serverList": [
+          {
+            "port": 9100,
+            "isMock": true,
+            "openUrl": "http://172.17.48.50:9100",
+            "openDomainUrl": "http://wx.mock.ccs-app:9100"
+          },
+          {
+            "name": "本地链接",
+            "openUrl": "http://localhost:3000"
+          }
+        ],
+        "addressPath": ""
+      },
+      "name": "ccs-app",
+      "id": 1774230197427,
+      "startConfig": {
+        "commands": [
+          {
+            "name": "ccs-app",
+            "command": "npm run dev"
+          }
+        ],
+        "runUrl": "http://localhost:3000"
+      },
+      "isSfMock": false
+    },
+    {
+      "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-git-story",
+      "sfMock": {
+        "serverList": []
+      },
+      "name": "affluence-git-story",
+      "id": 1774595529600,
+      "startConfig": {
+        "commands": [
+          {
+            "name": "git-story",
+            "command": "pnpm start"
+          }
+        ],
+        "runUrl": "http://localhost:"
+      }
+    }
+  ]
 }
