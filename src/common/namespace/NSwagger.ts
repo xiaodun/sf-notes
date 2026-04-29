@@ -8,6 +8,12 @@ export namespace NSwagger {
   export interface IPathInfos {
     get?: IMethodInfos;
     post?: IMethodInfos;
+    put?: IMethodInfos;
+    patch?: IMethodInfos;
+    delete?: IMethodInfos;
+    options?: IMethodInfos;
+    head?: IMethodInfos;
+    trace?: IMethodInfos;
   }
   export interface IGroupWithTag {
     [key: string]: ITagWithPaths;

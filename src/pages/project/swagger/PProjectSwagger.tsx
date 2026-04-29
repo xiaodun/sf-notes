@@ -44,10 +44,115 @@ import KeyValueExtractionModal, {
 } from './components/KeyValueExtractionModal';
 import { UModal } from '@/common/utils/modal/UModal';
 import SBase from '@/common/service/SBase';
+import USwagger from '@/common/utils/USwagger';
 
 export interface IPProjectSwaggerProps {
   MDProject: NMDProject.IState;
   MDGlobal: NMDGlobal.IState;
+}
+
+/** 接近 TS 的类型字面量，用于侧栏「复制」 */
+function tsLikeTypeFromRecord(r: NProject.IRenderFormatInfo): string {
+  if (r.enum?.length) {
+    return r.enum.join(' | ');
+  }
+  if (r.type === 'array') {
+    if (r.itemsType) {
+      return `${r.itemsType}[]`;
+    }
+    return 'unknown[]';
+  }
+  if (r.format && r.type) {
+    return `${r.type}(${r.format})`;
+  }
+  return r.type ? String(r.type) : 'unknown';
+}
+
+function formatFieldLineTs(
+  r: NProject.IRenderFormatInfo,
+  indent: string,
+  forResponse: boolean,
+): string[] {
+  const desc = (r.description || '')
+    .replace(/\r?\n/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const comment = desc ? ` // ${desc}` : '';
+  const optional = forResponse ? r.required === false : r.required !== true;
+  const opt = optional ? '?' : '';
+
+  if (r.type === 'array' && r.children?.length) {
+    const inner = r.children.flatMap((c) =>
+      formatFieldLineTs(c, indent + '  ', forResponse),
+    );
+    return [
+      `${indent}${r.name}${opt}: Array<{`,
+      ...inner,
+      `${indent}>;${comment}`,
+    ];
+  }
+
+  if (r.children?.length && (r.type === 'object' || !r.type)) {
+    const inner = r.children.flatMap((c) =>
+      formatFieldLineTs(c, indent + '  ', forResponse),
+    );
+    return [`${indent}${r.name}${opt}: {`, ...inner, `${indent}};${comment}`];
+  }
+
+  const typ = tsLikeTypeFromRecord(r);
+  return [`${indent}${r.name}${opt}: ${typ};${comment}`];
+}
+
+function formatRequestParamsUsage(m: NProject.IRenderMethodInfo): string {
+  const p = m.parameters;
+  if (!p?.length) {
+    return '{}';
+  }
+  const inner = p.flatMap((row) => formatFieldLineTs(row, '  ', false));
+  return `{\n${inner.join('\n')}\n}`;
+}
+
+function formatResponseUsage(m: NProject.IRenderMethodInfo): string {
+  const roots = m.responses;
+  if (!roots?.length) {
+    return '（无）';
+  }
+  const root = roots[0];
+
+  if (root.type === 'array') {
+    if (root.children?.length) {
+      const inner = root.children.flatMap((row) =>
+        formatFieldLineTs(row, '  ', true),
+      );
+      return `Array<{\n${inner.join('\n')}\n}>`;
+    }
+    const it = root.itemsType || 'unknown';
+    return `${it}[]`;
+  }
+
+  if (root.children?.length) {
+    const inner = root.children.flatMap((row) =>
+      formatFieldLineTs(row, '  ', true),
+    );
+    return `{\n${inner.join('\n')}\n}`;
+  }
+
+  return tsLikeTypeFromRecord(root) || '（无）';
+}
+
+function buildSwaggerApiFieldsDocText(m: NProject.IRenderMethodInfo): string {
+  const lines: string[] = [];
+  lines.push(`${(m.method || 'get').toUpperCase()} ${m.pathUrl}`);
+  if (m.summary?.trim()) {
+    lines.push(`接口说明：${m.summary.trim()}`);
+  }
+  lines.push('');
+  lines.push('【请求参数】');
+  lines.push(formatRequestParamsUsage(m));
+  lines.push('');
+  lines.push('【返回格式】');
+  lines.push(formatResponseUsage(m));
+  return lines.join('\n');
 }
 
 const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
@@ -371,13 +476,36 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                     >
                       {Object.values(domainItem.data).map(
                         (groupItem) => {
+                          const groupMenuCheckbox: NProject.IMenuCheckbox = {
+                            domain: domainItem.domain,
+                            groupName: groupItem.groupName,
+                            isGroup: true,
+                          };
                           return (
                             <Menu.SubMenu
                               key={
                                 domainItem.domain +
                                 groupItem.groupName
                               }
-                              title={groupItem.groupName}
+                              title={
+                                <>
+                                  <span onClick={(e) => onStop(e)}>
+                                    <Checkbox
+                                      checked={getMenuChecked(
+                                        groupMenuCheckbox,
+                                      )}
+                                      onChange={(e) =>
+                                        onMenuDomainCheckedChange(
+                                          e.target.checked,
+                                          groupMenuCheckbox,
+                                        )
+                                      }
+                                      className={SelfStyle.tagCheckbox}
+                                    />
+                                  </span>
+                                  {groupItem.groupName}
+                                </>
+                              }
                             >
                               {Object.values(groupItem.tags).map(
                                 (tagItem, tagIndex) => {
@@ -420,15 +548,17 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                                         </>
                                       }
                                     >
-                                      {Object.values(
+                                      {Object.entries(
                                         tagItem.paths,
-                                      ).map((pathItem) => {
+                                      ).map(([pathKey, pathItem]) => {
                                         const pathMenuCheckbox = {
                                           domain: domainItem.domain,
                                           groupName:
                                             groupItem.groupName,
                                           tagName: tagItem.tagName,
+                                          pathKey,
                                           pathUrl: pathItem.pathUrl,
+                                          method: pathItem.method,
                                           data: pathItem,
                                           isPath: true,
                                         };
@@ -577,6 +707,9 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                   </Button>
                 </>
               )}
+              <Button type="default" onClick={onCopyApiFieldsDoc}>
+                复制
+              </Button>
             </div>
           </div>
           <div className={SelfStyle.baseInfo}>
@@ -751,10 +884,47 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       <Alert message="没有返回" type="error" showIcon />
     );
   }
+  function getSiblingPathMethodPairs(
+    domain: string,
+    groupName: string,
+    tagName: string,
+  ): USwagger.IPathMethodPair[] {
+    const domainSwagger = MDProject.domainSwaggerList.find(
+      (d) => d.domain === domain,
+    );
+    const paths =
+      domainSwagger?.data?.[groupName]?.tags?.[tagName]?.paths;
+    if (!paths) {
+      return [];
+    }
+    return Object.values(paths)
+      .filter((p) => p && typeof p.pathUrl === 'string' && p.pathUrl.length > 0)
+      .map((p) => ({
+        pathUrl: p.pathUrl,
+        method: p.method || 'get',
+      }));
+  }
   function renderMenuPathUrl(
     pathMenuCheckbox: NProject.IMenuCheckbox,
     pathItem: NProject.IRenderMethodInfo,
   ) {
+    const pathUrlForLabel =
+      pathItem.pathUrl ||
+      pathMenuCheckbox.pathUrl ||
+      USwagger.parsePathOperationKey(pathMenuCheckbox.pathKey || '').swaggerPath ||
+      '';
+    const pathModeLabel =
+      MDProject.config.swaggerPathShowWay === 'path'
+        ? USwagger.getMenuPathDisplayLabel(
+            pathUrlForLabel,
+            pathItem.method,
+            getSiblingPathMethodPairs(
+              pathMenuCheckbox.domain,
+              pathMenuCheckbox.groupName,
+              pathMenuCheckbox.tagName,
+            ),
+          )
+        : '';
     return (
       <Menu.Item
         onClick={() => {
@@ -764,7 +934,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
           pathMenuCheckbox.domain +
           pathMenuCheckbox.groupName +
           pathMenuCheckbox.tagName +
-          pathMenuCheckbox.pathUrl
+          (pathMenuCheckbox.pathKey || pathMenuCheckbox.pathUrl)
         }
       >
         <Checkbox
@@ -780,14 +950,15 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         {pathItem.notFound ? (
           <Tag color="#a39e9e">失效</Tag>
         ) : (
-          <>
-            <Tag className="path-tag" color="#87d068">
-              {pathItem.method.substring(-4)}
-            </Tag>
-          </>
+          <span
+            className={SelfStyle.methodBadge}
+            data-http-method={(pathItem.method || 'get').toLowerCase()}
+          >
+            {(pathItem.method || 'get').toUpperCase()}
+          </span>
         )}
         {MDProject.config.swaggerPathShowWay == 'path'
-          ? renderPathUrl(pathMenuCheckbox.pathUrl)
+          ? renderPathUrl(pathModeLabel, pathUrlForLabel || pathItem.pathUrl)
           : pathItem.summary}
       </Menu.Item>
     );
@@ -858,10 +1029,13 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         const domainSwagger = rsp.list.find(
           (item) => item.domain === selectMenuCheckbox.domain,
         );
-        selectMenuCheckbox.data =
+        const paths =
           domainSwagger?.data?.[selectMenuCheckbox.groupName]?.tags?.[
             selectMenuCheckbox.tagName
-          ]?.paths?.[selectMenuCheckbox.pathUrl];
+          ]?.paths;
+        const pathLookupKey =
+          selectMenuCheckbox.pathKey ?? selectMenuCheckbox.pathUrl;
+        selectMenuCheckbox.data = paths?.[pathLookupKey];
         if (selectMenuCheckbox.data) {
           setCurrentMenuCheckbox(selectMenuCheckbox);
           setRenderMethodInfos(selectMenuCheckbox.data);
@@ -872,30 +1046,137 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   function onSearchSwagger(value: string) {
     setSearchSwaggerValue(value);
   }
+  function attentionPathDedupeKey(item: NProject.IMenuCheckbox) {
+    const method =
+      (item.method ||
+        USwagger.parsePathOperationKey(item.pathKey || '').method ||
+        '').toLowerCase();
+    const pathPart =
+      item.pathKey ||
+      (item.pathUrl
+        ? method
+          ? `${method}:${item.pathUrl}`
+          : item.pathUrl
+        : '');
+    return `${item.domain}\x1e${item.groupName}\x1e${item.tagName}\x1e${
+      pathPart
+    }`;
+  }
+  function isMenuTagRow(
+    a: NProject.IMenuCheckbox,
+    b: NProject.IMenuCheckbox,
+  ) {
+    return (
+      a.domain === b.domain &&
+      a.groupName === b.groupName &&
+      a.tagName === b.tagName &&
+      !!a.isTag &&
+      !!b.isTag
+    );
+  }
+  function isMenuGroupRow(
+    a: NProject.IMenuCheckbox,
+    b: NProject.IMenuCheckbox,
+  ) {
+    return (
+      a.domain === b.domain &&
+      a.groupName === b.groupName &&
+      !!a.isGroup &&
+      !!b.isGroup
+    );
+  }
+  function pathImpliedByAncestor(
+    pathCb: NProject.IMenuCheckbox,
+    list: NProject.IMenuCheckbox[],
+  ) {
+    const parentTag: NProject.IMenuCheckbox = {
+      domain: pathCb.domain!,
+      groupName: pathCb.groupName!,
+      tagName: pathCb.tagName!,
+      isTag: true,
+    };
+    const parentGroup: NProject.IMenuCheckbox = {
+      domain: pathCb.domain!,
+      groupName: pathCb.groupName!,
+      isGroup: true,
+    };
+    return list.some(
+      (item) =>
+        isMenuTagRow(item, parentTag) || isMenuGroupRow(item, parentGroup),
+    );
+  }
+  function tagImpliedByGroup(
+    tagCb: NProject.IMenuCheckbox,
+    list: NProject.IMenuCheckbox[],
+  ) {
+    const parentGroup: NProject.IMenuCheckbox = {
+      domain: tagCb.domain!,
+      groupName: tagCb.groupName!,
+      isGroup: true,
+    };
+    return list.some((item) => isMenuGroupRow(item, parentGroup));
+  }
   function getMenuCheckedPathUrlList() {
     const list: NProject.IMenuCheckbox[] = [];
+    const seen = new Set<string>();
+    const pushPath = (row: NProject.IMenuCheckbox) => {
+      const k = attentionPathDedupeKey(row);
+      if (seen.has(k)) {
+        return;
+      }
+      seen.add(k);
+      list.push(row);
+    };
+
     MDProject.menuCheckedList.forEach((menuCheckedInfos) => {
       if (menuCheckedInfos.isPath) {
-        list.push(menuCheckedInfos);
-      } else {
-        const domainSwagger = MDProject.domainSwaggerList.find(
-          (domainSwagger) =>
-            domainSwagger.domain === menuCheckedInfos.domain,
-        );
-
-        Object.keys(
+        pushPath(menuCheckedInfos);
+        return;
+      }
+      const domainSwagger = MDProject.domainSwaggerList.find(
+        (d) => d.domain === menuCheckedInfos.domain,
+      );
+      if (!domainSwagger?.data?.[menuCheckedInfos.groupName!]?.tags) {
+        return;
+      }
+      if (menuCheckedInfos.isGroup) {
+        Object.values(
+          domainSwagger.data[menuCheckedInfos.groupName].tags,
+        ).forEach((tagItem) => {
+          Object.keys(tagItem.paths).forEach((pathKey) => {
+            const row = tagItem.paths[pathKey];
+            pushPath({
+              domain: menuCheckedInfos.domain,
+              tagName: tagItem.tagName,
+              groupName: menuCheckedInfos.groupName!,
+              data: row,
+              pathKey,
+              pathUrl: row.pathUrl,
+              method: row.method,
+              isPath: true,
+            });
+          });
+        });
+        return;
+      }
+      if (menuCheckedInfos.isTag && menuCheckedInfos.tagName) {
+        const paths =
           domainSwagger.data[menuCheckedInfos.groupName].tags[
             menuCheckedInfos.tagName
-          ].paths,
-        ).forEach((pathUrl) => {
-          list.push({
+          ]?.paths;
+        if (!paths) {
+          return;
+        }
+        Object.keys(paths).forEach((pathKey) => {
+          const row = paths[pathKey];
+          pushPath({
             domain: menuCheckedInfos.domain,
             tagName: menuCheckedInfos.tagName,
             groupName: menuCheckedInfos.groupName,
-            data: domainSwagger.data[menuCheckedInfos.groupName].tags[
-              menuCheckedInfos.tagName
-            ].paths[pathUrl],
-            pathUrl,
+            data: row,
+            pathKey,
+            pathUrl: row.pathUrl,
+            method: row.method,
             isPath: true,
           });
         });
@@ -906,23 +1187,31 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   function onBatchCancelPathAttention() {
     const list = getMenuCheckedPathUrlList();
 
-    if (list.length) {
-      reqCanclePathAttention(list);
-      setRenderMethodInfos(null);
+    if (!list.length) {
+      message.warning('请先勾选分组、标签或具体接口');
+      return;
     }
+    reqCanclePathAttention(list);
+    setRenderMethodInfos(null);
   }
 
   function onBatchCreateAjaxCode() {
     const list = getMenuCheckedPathUrlList();
 
+    if (!list.length) {
+      message.warning('请先勾选分组、标签或具体接口');
+      return;
+    }
     showGenerateAjaxCodeModal(list);
   }
   function onBatchPathAttention() {
     const list = getMenuCheckedPathUrlList();
 
-    if (list.length) {
-      reqSetPathAttention(list);
+    if (!list.length) {
+      message.warning('请先勾选分组、标签或具体接口');
+      return;
     }
+    reqSetPathAttention(list);
   }
   function onAttentionPath() {
     reqSetPathAttention([currentMenuCheckbox]);
@@ -934,6 +1223,10 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     const menuCheckboxList = isBatch
       ? getMenuCheckedPathUrlList()
       : [currentMenuCheckbox];
+    if (isBatch && !menuCheckboxList.length) {
+      message.warning('请先勾选分组、标签或具体接口');
+      return;
+    }
     const pathList = menuCheckboxList.map(
       (item) => getPrefixByPathUrl(item) + item.pathUrl,
     );
@@ -978,6 +1271,14 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     if (rsp.success) {
       reqGetAttentionList(false);
     }
+  }
+  function onCopyApiFieldsDoc() {
+    if (!rendMethodInfos || rendMethodInfos.notFound) {
+      message.warning('请先选择一个接口');
+      return;
+    }
+    const text = buildSwaggerApiFieldsDocText(rendMethodInfos);
+    UCopy.copyStr(text);
   }
   function onCopyPathUrl(pathUrl: string, withPrefix: boolean) {
     let content = pathUrl;
@@ -1087,13 +1388,18 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       );
     }
   }
-  function renderPathUrl(pathUrl: string) {
-    const list = pathUrl.split('/').filter(Boolean);
-    const item = list[list.length - 1];
+  /** @param displayText 菜单上展示的区分文案；@param copyFullPath 复制到剪贴板的内容，默认用展示文案 */
+  function renderPathUrl(displayText: string, copyFullPath?: string) {
+    const copyStr = copyFullPath ?? displayText;
     return (
       <>
-        <CopyOutlined onClick={() => UCopy.copyStr(item)} />
-        <span className={SelfStyle.pathValue}>{item}</span>
+        <CopyOutlined onClick={() => UCopy.copyStr(copyStr)} />
+        <span
+          className={SelfStyle.pathValue}
+          title={copyFullPath || displayText}
+        >
+          {displayText}
+        </span>
       </>
     );
   }
@@ -1144,22 +1450,26 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                     //搜索标签下面
                     Object.keys(
                       domainItem.data[groupName].tags[tagName].paths,
-                    ).forEach((pathUrl) => {
+                    ).forEach((pathKey) => {
                       const pathValueStr = JSON.stringify(
                         domainItem.data[groupName].tags[tagName]
-                          .paths[pathUrl],
+                          .paths[pathKey],
                       );
                       if (pathValueStr.includes(searchSwaggerValue)) {
                         //搜索路径下面
+                        const row =
+                          domainItem.data[groupName].tags[tagName].paths[
+                            pathKey
+                          ];
                         list.push({
                           domain: domainItem.domain,
                           groupName,
                           tagName,
-                          pathUrl,
+                          pathKey,
+                          pathUrl: row.pathUrl,
+                          method: row.method,
                           isPath: true,
-                          data: domainItem.data[groupName].tags[
-                            tagName
-                          ].paths[pathUrl],
+                          data: row,
                         });
                       }
                     });
@@ -1290,20 +1600,98 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     }
   }
   function getMenuChecked(params: NProject.IMenuCheckbox) {
-    return MDProject.menuCheckedList.some((item) =>
-      isEqual(params, item),
-    );
+    const list = MDProject.menuCheckedList;
+    if (list.some((item) => isEqual(params, item))) {
+      return true;
+    }
+    if (params.isPath) {
+      return pathImpliedByAncestor(params, list);
+    }
+    if (params.isTag) {
+      return tagImpliedByGroup(params, list);
+    }
+    return false;
   }
   function onMenuDomainCheckedChange(
     checked: boolean,
     params: NProject.IMenuCheckbox,
   ) {
-    if (checked) {
-      NModel.dispatch(
-        new NMDProject.ARSetState({
-          menuCheckedList: [...MDProject.menuCheckedList, params],
-        }),
+    if (!checked) {
+      const directIdx = MDProject.menuCheckedList.findIndex((item) =>
+        isEqual(item, params),
       );
+      if (directIdx === -1) {
+        if (params.isPath) {
+          const parentTag: NProject.IMenuCheckbox = {
+            domain: params.domain,
+            groupName: params.groupName,
+            tagName: params.tagName,
+            isTag: true,
+          };
+          const parentGroup: NProject.IMenuCheckbox = {
+            domain: params.domain,
+            groupName: params.groupName,
+            isGroup: true,
+          };
+          const tagIdx = MDProject.menuCheckedList.findIndex((item) =>
+            isMenuTagRow(item, parentTag),
+          );
+          const groupIdx = MDProject.menuCheckedList.findIndex((item) =>
+            isMenuGroupRow(item, parentGroup),
+          );
+          if (tagIdx !== -1 || groupIdx !== -1) {
+            const drop = new Set<number>();
+            if (tagIdx >= 0) {
+              drop.add(tagIdx);
+            }
+            if (groupIdx >= 0) {
+              drop.add(groupIdx);
+            }
+            const newList = MDProject.menuCheckedList.filter(
+              (_, i) => !drop.has(i),
+            );
+            NModel.dispatch(
+              new NMDProject.ARSetState({
+                menuCheckedList: newList,
+              }),
+            );
+            return;
+          }
+        }
+        if (
+          params.isTag &&
+          tagImpliedByGroup(params, MDProject.menuCheckedList)
+        ) {
+          const parentGroup: NProject.IMenuCheckbox = {
+            domain: params.domain!,
+            groupName: params.groupName!,
+            isGroup: true,
+          };
+          const gi = MDProject.menuCheckedList.findIndex((item) =>
+            isMenuGroupRow(item, parentGroup),
+          );
+          if (gi !== -1) {
+            const newList = MDProject.menuCheckedList.filter(
+              (_, i) => i !== gi,
+            );
+            NModel.dispatch(
+              new NMDProject.ARSetState({
+                menuCheckedList: newList,
+              }),
+            );
+            return;
+          }
+        }
+      }
+    }
+    if (checked) {
+      if (!MDProject.menuCheckedList.some((item) => isEqual(item, params))) {
+        NModel.dispatch(
+          new NMDProject.ARSetState({
+            menuCheckedList: [...MDProject.menuCheckedList, params],
+          }),
+        );
+      }
     } else {
       const newList = produce(
         MDProject.menuCheckedList,
@@ -1311,7 +1699,9 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
           const index = drafState.findIndex((item) =>
             isEqual(params, item),
           );
-          drafState.splice(index, 1);
+          if (index !== -1) {
+            drafState.splice(index, 1);
+          }
         },
       );
       NModel.dispatch(
@@ -1320,9 +1710,6 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         }),
       );
     }
-    return MDProject.menuCheckedList.some((item) =>
-      isEqual(params, item),
-    );
   }
   function openEnterSwaggerModal() {
     swaggerModalRef.current.showModal(
