@@ -283,10 +283,11 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
           tagName,
           paths: {},
         });
-        Object.keys(pathInfos).forEach((pathUrl) => {
-          const methodInfo = pathInfos[pathUrl];
-          renderPaths.paths[pathUrl] = USwagger.parseMethodInfo(
-            pathUrl,
+        Object.keys(pathInfos).forEach((pathKey) => {
+          const methodInfo = pathInfos[pathKey];
+          const { swaggerPath } = USwagger.parsePathOperationKey(pathKey);
+          renderPaths.paths[pathKey] = USwagger.parseMethodInfo(
+            swaggerPath,
             methodInfo,
             formValues.version
           );
