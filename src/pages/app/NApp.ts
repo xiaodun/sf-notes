@@ -17,6 +17,11 @@ namespace NApp {
       linkType: "internal",
     },
     {
+      name: "Swagger",
+      path: NRouter.swaggerPath,
+      linkType: "internal",
+    },
+    {
       name: "API",
       path: NRouter.apiDebugPath,
       linkType: "internal",

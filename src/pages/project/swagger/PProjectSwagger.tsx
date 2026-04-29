@@ -19,6 +19,7 @@ import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import { connect, ConnectRC, NMDGlobal, NMDProject } from 'umi';
 import SelfStyle from './LProjectSwagger.less';
 import SProject from '../SProject';
+import SSwagger from '@/pages/swagger/SSwagger';
 import EnterSwaggerModal, {
   IEnterSwaggerModal,
 } from './components/EnterSwaggerModal';
@@ -189,7 +190,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     reqGetSwagger();
     reqGetAttentionList(true);
     reqGetProjectList();
-    SProject.getInExcludeGroups();
+    reqGetInExcludeGroups();
     setTimeout(() => {
       document.title = 'Swagger文档';
     }, 1000);
@@ -323,8 +324,8 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         onOk={() => {
           reqGetSwagger();
           reqGetAttentionList(false);
-          SProject.getInExcludeGroups();
-          SProject.getConfig();
+          reqGetInExcludeGroups();
+          reqGetProject();
         }}
       ></EnterSwaggerModal>
       <GenerateAjaxCodeModal
@@ -655,7 +656,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     );
   }
   function onChangeConfig(config: Partial<NProject.IConfig>) {
-    SProject.updateConfig(config);
+    SSwagger.updateConfig(config);
   }
   function renderSwaggerUI() {
     let contentNode: ReactNode = null;
@@ -964,11 +965,21 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     );
   }
   async function reqGetProject() {
-    const rsp = await SProject.getConfig();
+    const rsp = await SSwagger.getConfig();
     if (rsp.success) {
       NModel.dispatch(
         new NMDProject.ARSetState({
           config: rsp.data,
+        }),
+      );
+    }
+  }
+  async function reqGetInExcludeGroups() {
+    const rsp = await SSwagger.getInExcludeGroups();
+    if (rsp.success) {
+      NModel.dispatch(
+        new NMDProject.ARSetState({
+          inExcludeGroups: rsp.data,
         }),
       );
     }
@@ -985,7 +996,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     generateAjaxCodeRef.current.showModal(checkedPathList);
   }
   async function reqGetAttentionList(isFirst: boolean) {
-    const rsp = await SProject.getAttentionList();
+    const rsp = await SSwagger.getAttentionList();
     if (rsp.success) {
       NModel.dispatch(
         new NMDProject.ARSetState({
@@ -1005,7 +1016,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     }
   }
   async function reqGetApiPrefix() {
-    const rsp = await SProject.getApiPrefixs();
+    const rsp = await SSwagger.getApiPrefixs();
     if (rsp.success) {
       NModel.dispatch(
         new NMDProject.ARSetState({
@@ -1015,7 +1026,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     }
   }
   async function reqGetSwagger() {
-    const rsp = await SProject.getSwaggerList();
+    const rsp = await SSwagger.getSwaggerList();
     if (rsp.success) {
       NModel.dispatch(
         new NMDProject.ARSetState({
@@ -1258,7 +1269,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     setRenderMethodInfos(null);
   }
   async function reqSetPathAttention(list: NProject.IMenuCheckbox[]) {
-    const rsp = await SProject.setPathAttention(list);
+    const rsp = await SSwagger.setPathAttention(list);
     if (rsp.success) {
       reqGetAttentionList(false);
       message.success('关注成功');
@@ -1267,7 +1278,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   async function reqCanclePathAttention(
     list: NProject.IMenuCheckbox[],
   ) {
-    const rsp = await SProject.cancelPathAttention(list);
+    const rsp = await SSwagger.cancelPathAttention(list);
     if (rsp.success) {
       reqGetAttentionList(false);
     }
@@ -1306,7 +1317,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     let project = projectList.find(
       (project) => project.id == currentDefaultProject.id,
     );
-    const rsp = await SProject.copySwaggerDataWithProject({
+    const rsp = await SSwagger.copySwaggerDataWithProject({
       rspItemList,
       name: project.name,
       isRsp,
@@ -1323,7 +1334,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     rspItemList: NProject.IRenderFormatInfo[],
     isRsp: boolean,
   ) {
-    const rsp = await SProject.copySwaggerData({
+    const rsp = await SSwagger.copySwaggerData({
       rspItemList,
       isRsp,
     });
@@ -1510,7 +1521,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     domainItem: NProject.IDomainSwagger,
   ) {
     onStop(event);
-    const rsp = await SProject.delSwaggerDomain(domainItem);
+    const rsp = await SSwagger.delSwaggerDomain(domainItem);
     if (rsp.success) {
       message.success('已删除!');
       reqGetSwagger();

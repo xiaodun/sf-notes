@@ -1,0 +1,195 @@
+{
+    "config": {
+        "showEnumList": false,
+        "swaggerPathShowWay": "path",
+        "lastOptionSwaggerDomain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger"
+    },
+    "inExcludeGroups": {
+        "https://api-v2.dev.ccp.risk-vantagefx.com/swagger": [
+            "v5"
+        ]
+    },
+    "swaggerList": [
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "id": 1777269951480,
+            "crateTime": 1777269951480,
+            "updateTime": 1777455806122
+        }
+    ],
+    "apiPrefixs": {},
+    "attentionPathList": [
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Library (V5 Pipeline)",
+            "pathKey": "post:/api/v5/plugins",
+            "pathUrl": "/api/v5/plugins",
+            "method": "post",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Library (V5 Pipeline)",
+            "pathKey": "post:/api/v5/plugins/inspect-dll-version",
+            "pathUrl": "/api/v5/plugins/inspect-dll-version",
+            "method": "post",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Library (V5 Pipeline)",
+            "pathKey": "get:/api/v5/plugins",
+            "pathUrl": "/api/v5/plugins",
+            "method": "get",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Library (V5 Pipeline)",
+            "pathKey": "get:/api/v5/plugins/{id}",
+            "pathUrl": "/api/v5/plugins/{id}",
+            "method": "get",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Library (V5 Pipeline)",
+            "pathKey": "put:/api/v5/plugins/{id}",
+            "pathUrl": "/api/v5/plugins/{id}",
+            "method": "put",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Library (V5 Pipeline)",
+            "pathKey": "delete:/api/v5/plugins/{id}",
+            "pathUrl": "/api/v5/plugins/{id}",
+            "method": "delete",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Library (V5 Pipeline)",
+            "pathKey": "post:/api/v5/plugins/{id}/enable",
+            "pathUrl": "/api/v5/plugins/{id}/enable",
+            "method": "post",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Library (V5 Pipeline)",
+            "pathKey": "post:/api/v5/plugins/{id}/disable",
+            "pathUrl": "/api/v5/plugins/{id}/disable",
+            "method": "post",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Versions (V5 Pipeline)",
+            "pathKey": "get:/api/v5/plugins/{pluginId}/versions",
+            "pathUrl": "/api/v5/plugins/{pluginId}/versions",
+            "method": "get",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Versions (V5 Pipeline)",
+            "pathKey": "post:/api/v5/plugins/{pluginId}/versions",
+            "pathUrl": "/api/v5/plugins/{pluginId}/versions",
+            "method": "post",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Versions (V5 Pipeline)",
+            "pathKey": "get:/api/v5/plugins/{pluginId}/versions/{versionId}",
+            "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}",
+            "method": "get",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Versions (V5 Pipeline)",
+            "pathKey": "delete:/api/v5/plugins/{pluginId}/versions/{versionId}",
+            "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}",
+            "method": "delete",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Versions (V5 Pipeline)",
+            "pathKey": "post:/api/v5/plugins/{pluginId}/versions/{versionId}/mark-latest",
+            "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}/mark-latest",
+            "method": "post",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Versions (V5 Pipeline)",
+            "pathKey": "post:/api/v5/plugins/{pluginId}/versions/{versionId}/files",
+            "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}/files",
+            "method": "post",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Versions (V5 Pipeline)",
+            "pathKey": "delete:/api/v5/plugins/{pluginId}/versions/{versionId}/files/{fileId}",
+            "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}/files/{fileId}",
+            "method": "delete",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Versions (V5 Pipeline)",
+            "pathKey": "get:/api/v5/plugins/{pluginId}/versions/{versionId}/files/{fileId}/download",
+            "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}/files/{fileId}/download",
+            "method": "get",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Audit Log",
+            "pathKey": "post:/api/v5/audit-logs/list",
+            "pathUrl": "/api/v5/audit-logs/list",
+            "method": "post",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Audit Log",
+            "pathKey": "post:/api/v5/audit-logs/export",
+            "pathUrl": "/api/v5/audit-logs/export",
+            "method": "post",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Audit Log",
+            "pathKey": "post:/api/v5/audit-logs",
+            "pathUrl": "/api/v5/audit-logs",
+            "method": "post",
+            "isPath": true
+        }
+    ],
+    "_migratedFromProjectOnce": 1777455682943
+}

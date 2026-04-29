@@ -8,7 +8,7 @@ import { Modal, Button } from 'antd';
 import { produce } from 'immer';
 import SelfStyle from './GenerateAjaxCodeModal.less';
 import NProject from '../../NProject';
-import SProject from '../../SProject';
+import SSwagger from '@/pages/swagger/SSwagger';
 import UCopy from '@/common/utils/UCopy';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 export interface IGenerateAjaxCodeModal {
@@ -86,7 +86,7 @@ const GenerateAjaxCodeModal: ForwardRefRenderFunction<
   async function reqGetAjaxCode(
     checkedPathList: NProject.IMenuCheckbox[],
   ) {
-    const rsp = await SProject.getAjaxCode(
+    const rsp = await SSwagger.getAjaxCode(
       props.projectName,
       checkedPathList,
     );
