@@ -1,14 +1,28 @@
 (function () {
-  const path = require("path");
-  const fs = require("fs");
-  const p1 = path.resolve(
-    process.cwd(),
-    "./data/api/project/project/getApiPrefix.js"
-  );
-  const p2 = path.resolve(
-    process.cwd(),
-    "./service/app/data/api/project/project/getApiPrefix.js"
-  );
-  const target = fs.existsSync(p1) ? p1 : p2;
-  return eval(fs.readFileSync(target, "utf-8").toString());
+  return function (argData, argParams, external) {
+    const _ = require("lodash");
+
+    let apiPrefixs = _.cloneDeep(argData.apiPrefixs);
+    Object.keys(argData.apiPrefixs).forEach((domain) => {
+      Object.keys(argData.apiPrefixs[domain]).forEach((group) => {
+        apiPrefixs[domain][group] = {};
+        Object.keys(argData.apiPrefixs[domain][group]).forEach((prefix) => {
+          argData.apiPrefixs[domain][group][prefix].forEach((item) => {
+            apiPrefixs[domain][group][item] = { prefix };
+          });
+        });
+      });
+    });
+    return {
+      isWrite: false,
+
+      response: {
+        code: 200,
+        data: {
+          success: true,
+          data: apiPrefixs,
+        },
+      },
+    };
+  };
 })();

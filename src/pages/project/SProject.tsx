@@ -1,7 +1,6 @@
 import NRsp from "@/common/namespace/NRsp";
 import NProject from "./NProject";
 import request from "@/utils/request";
-import { TEnterSwaggerModalWay } from "./swagger/components/EnterSwaggerModal";
 import NProjectSnippet from "./snippet/NProjectSnippet";
 import { NModal } from "@/common/utils/modal/NModal";
 import NModel from "@/common/namespace/NModel";
@@ -43,27 +42,6 @@ namespace SProject {
       data,
     });
   }
-  export async function getInExcludeGroups() {
-    return request({
-      url: "/project/getInExcludeGroups",
-      method: "post",
-    }).then((rsp: NRsp<NProject.IInExcludeGroups>) => {
-      NModel.dispatch(new NMDProject.ARSetState({ inExcludeGroups: rsp.data }));
-
-      return rsp;
-    });
-  }
-  export async function delSwaggerDomain(
-    domainItem: NProject.IDomainSwagger
-  ): Promise<NRsp<boolean>> {
-    return request({
-      url: "/project/delSwaggerDomain",
-      method: "post",
-      data: {
-        domainItem,
-      },
-    });
-  }
   export async function generateProjectMockStructrue(): Promise<NRsp<boolean>> {
     return request({
       url: "/project/generateProjectMockStructrue",
@@ -74,17 +52,6 @@ namespace SProject {
     return request({
       url: "/project/reStartNginx",
       method: "post",
-    });
-  }
-  export async function copySwaggerDataWithProject(data: {
-    rspItemList: NProject.IRenderFormatInfo[];
-    isRsp: boolean;
-    name: string;
-  }): Promise<NRsp<string>> {
-    return request({
-      url: "/project/copySwaggerDataWithProject",
-      method: "post",
-      data,
     });
   }
   export async function getProjectSendPath(
@@ -107,16 +74,6 @@ namespace SProject {
       data: {
         id,
       },
-    });
-  }
-  export async function copySwaggerData(data: {
-    rspItemList: NProject.IRenderFormatInfo[];
-    isRsp: boolean;
-  }): Promise<NRsp<string>> {
-    return request({
-      url: "/project/copySwaggerData",
-      method: "post",
-      data,
     });
   }
   export async function getConfig(): Promise<NRsp<NProject.IConfig>> {
@@ -209,105 +166,6 @@ namespace SProject {
       url: "/project/createProjectSnippet",
       method: "post",
       data,
-    });
-  }
-  export async function getKeyValueExtraction(
-    strategy: string,
-    content: string,
-    valueType: "number" | "string"
-  ): Promise<NRsp<NProjectSnippet.IExtractionResult>> {
-    return request({
-      url: "/project/keyValueExtraction",
-      method: "post",
-      data: {
-        strategy,
-        content,
-        valueType,
-      },
-    });
-  }
-  export async function getEnumCode(
-    enumList: string[],
-    values?: Object
-  ): Promise<NRsp<Object>> {
-    return request({
-      url: "/project/getEnumCode",
-      method: "post",
-      data: {
-        enumList,
-        values,
-      },
-    });
-  }
-  export async function getAjaxCode(
-    projectName: String,
-    checkedPathList: NProject.IMenuCheckbox[]
-  ): Promise<NRsp<NProject.IAjaxCode>> {
-    return request({
-      url: "/project/getAjaxCode",
-      method: "post",
-      data: {
-        projectName,
-        checkedPathList,
-      },
-    });
-  }
-  export async function getAttentionList(): Promise<
-    NRsp<NProject.IAttentionInfo>
-  > {
-    return request({
-      url: "/project/getAttentionList",
-      method: "get",
-    });
-  }
-
-  export async function setPathAttention(
-    data: NProject.IMenuCheckbox[]
-  ): Promise<NRsp<NProject.IApiWithPrefix>> {
-    return request({
-      url: "/project/setPathAttention",
-      method: "post",
-      data,
-    });
-  }
-  export async function cancelPathAttention(
-    data: NProject.IMenuCheckbox[]
-  ): Promise<NRsp<NProject.IApiWithPrefix>> {
-    return request({
-      url: "/project/cancelPathAttention",
-      method: "post",
-      data,
-    });
-  }
-  export async function getApiPrefixs(): Promise<
-    NRsp<NProject.IApiWithPrefix>
-  > {
-    return request({
-      url: "/project/getApiPrefix",
-    });
-  }
-  export async function saveSwagger(
-    data: NProject.IDomainSwagger,
-    way: TEnterSwaggerModalWay,
-    oldDomainName: string,
-    checkGroupNameList: string[]
-  ): Promise<NRsp<boolean>> {
-    return request({
-      url: "/project/saveSwagger",
-      method: "post",
-      data: {
-        ...data,
-        way,
-        oldDomainName,
-        checkGroupNameList,
-      },
-    });
-  }
-  export async function getSwaggerList(): Promise<
-    NRsp<NProject.IDomainSwagger>
-  > {
-    return request({
-      url: "/project/getSwagger",
     });
   }
   export async function isProjectStart(

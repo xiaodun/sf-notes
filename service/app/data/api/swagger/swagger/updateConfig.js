@@ -1,14 +1,17 @@
 (function () {
-  const path = require("path");
-  const fs = require("fs");
-  const p1 = path.resolve(
-    process.cwd(),
-    "./data/api/project/project/updateConfig.js"
-  );
-  const p2 = path.resolve(
-    process.cwd(),
-    "./service/app/data/api/project/project/updateConfig.js"
-  );
-  const target = fs.existsSync(p1) ? p1 : p2;
-  return eval(fs.readFileSync(target, "utf-8").toString());
+  return function (argData, argParams, external) {
+    Object.keys(argParams.config).forEach((key) => {
+      argData.config[key] = argParams.config[key];
+    });
+    return {
+      isWrite: true,
+      data: argData,
+      response: {
+        code: 200,
+        data: {
+          data: argData.config,
+        },
+      },
+    };
+  };
 })();
