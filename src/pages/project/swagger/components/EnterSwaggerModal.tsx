@@ -23,13 +23,17 @@ import USwagger from "@/common/utils/USwagger";
 import NSwagger from "@/common/namespace/NSwagger";
 import SelfStyle from "./EnterSwaggerModal.less";
 import NProject from "../../NProject";
-import SProject from "../../SProject";
-import { NMDProject } from "umi";
+import SSwagger from "@/pages/swagger/SSwagger";
 
 export interface IEnterSwaggerModal {
   showModal: (
     domainSwaggerList: NProject.IDomainSwagger[],
-    MDProject: NMDProject.IState
+    state: {
+      inExcludeGroups: NProject.IInExcludeGroups;
+      config: {
+        lastOptionSwaggerDomain: string;
+      };
+    }
   ) => void;
   reload: (url: string, inExcludeGroups: NProject.IInExcludeGroups) => void;
 }
@@ -78,15 +82,15 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
   useImperativeHandle(ref, () => ({
     showModal: (
       domainSwaggerList: NProject.IDomainSwagger[],
-      MDProject: NMDProject.IState
+      swaggerState
     ) => {
       setDomainNameList(domainSwaggerList.map((item) => item.domain));
       setState(
         produce(state, (drafState) => {
           drafState.open = true;
-          tempDataRef.current.inExcludeGroups = MDProject.inExcludeGroups;
+          tempDataRef.current.inExcludeGroups = swaggerState.inExcludeGroups;
           form.setFieldsValue({
-            url: MDProject.config.lastOptionSwaggerDomain,
+            url: swaggerState.config.lastOptionSwaggerDomain,
           });
           setTimeout(() => {
             if (urlInputRef.current) {
@@ -310,7 +314,7 @@ const EnterSwaggerModal: ForwardRefRenderFunction<
 
       return;
     }
-    await SProject.saveSwagger(
+    await SSwagger.saveSwagger(
       {
         data: tempDataRef.current.renderSwaggerInfos,
         domain: tempDataRef.current.domain,
