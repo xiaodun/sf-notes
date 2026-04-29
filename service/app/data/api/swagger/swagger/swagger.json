@@ -1,7 +1,7 @@
 {
     "config": {
         "showEnumList": false,
-        "swaggerPathShowWay": "path",
+        "swaggerPathShowWay": "desc",
         "lastOptionSwaggerDomain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger"
     },
     "inExcludeGroups": {
@@ -14,7 +14,7 @@
             "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
             "id": 1777269951480,
             "crateTime": 1777269951480,
-            "updateTime": 1777455806122
+            "updateTime": 1777456395636
         }
     ],
     "apiPrefixs": {},
