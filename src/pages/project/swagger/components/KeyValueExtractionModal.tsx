@@ -8,7 +8,7 @@ import React, {
 import { Modal, Button, Form, Input, Radio, Space } from 'antd';
 import { produce } from 'immer';
 import SelfStyle from './KeyValueExtractionModal.less';
-import SProject from '../../SProject';
+import SSwagger from '@/pages/swagger/SSwagger';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import NProjectSnippet from '../../snippet/NProjectSnippet';
 export interface IKeyValueExtractionModal {
@@ -174,7 +174,7 @@ const KeyValueExtractionModal: ForwardRefRenderFunction<
   async function reqKeyValueExtraction(strategyArg?: string) {
     form.validateFields().then(async (values) => {
       const strategy = strategyArg || state.strategy || 'auto';
-      const rsp = await SProject.getKeyValueExtraction(
+      const rsp = await SSwagger.getKeyValueExtraction(
         strategy,
         values.content,
         values.valueType,

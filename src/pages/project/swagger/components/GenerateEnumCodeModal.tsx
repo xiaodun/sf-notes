@@ -7,7 +7,7 @@ import React, {
 import { Modal, Button, Form, Input, Tabs, message } from 'antd';
 import { produce } from 'immer';
 import SelfStyle from './GenerateEnumCodeModal.less';
-import SProject from '../../SProject';
+import SSwagger from '@/pages/swagger/SSwagger';
 import UCopy from '@/common/utils/UCopy';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 export interface IGenerateEnumCodeModal {
@@ -79,7 +79,7 @@ const GenerateEnumCodeModal: ForwardRefRenderFunction<
     </Modal>
   );
   async function reqGetEnumCode(enumList: string[], values?: Object) {
-    const rsp = await SProject.getEnumCode(enumList, values);
+    const rsp = await SSwagger.getEnumCode(enumList, values);
     if (rsp.success) {
       setCodeinfos(rsp.data);
     }

@@ -145,11 +145,6 @@ const Project: ConnectRC<IProjectProps> = (props) => {
           </Button>
         )}
         <Button onClick={onShowAddModal}>添加项目</Button>
-        <Button>
-          <Link to={NRouter.projectSwaggerPath} target="_blank">
-            Swagger
-          </Link>
-        </Button>
         <Radio.Group
           value={MDProject.config.nginxVisitWay}
           onChange={(e) => onChangeConfig({ nginxVisitWay: e.target.value })}
