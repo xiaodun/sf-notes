@@ -119,7 +119,13 @@ export namespace NProject {
     domain: string;
     groupName: string;
     tagName: string;
+    /** paths 对象中的键，含方法：`get:/api/foo`；旧数据可能仅有 pathUrl */
+    pathKey?: string;
     pathUrl?: string;
+    /** 关注列表旧数据兼容：多方法同 path 时可辅助定位 */
+    method?: string;
+    /** Swagger 分组（group）级全选 */
+    isGroup?: boolean;
     isTag?: boolean;
     isPath?: boolean;
     data?: NProject.IRenderMethodInfo;

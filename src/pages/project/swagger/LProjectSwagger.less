@@ -58,20 +58,57 @@
       .ant-menu {
         height: 100%;
       }
-      .path-tag {
-        width: 40px;
-        height: 25px;
-        padding: 0;
-        color: #f55e5e;
-        font-size: 15px;
-        text-align: center;
-        background-color: #fff !important;
-        border: 1px solid rgb(135, 208, 104);
-      }
+    }
+    /* HTTP 方法徽标：自适应宽度，与 SelfStyle.methodBadge 对应 */
+    .methodBadge {
+      display: inline-flex;
+      flex-shrink: 0;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      margin-right: 8px;
+      padding: 2px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.2;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+      color: #334155;
+      vertical-align: middle;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+    }
+    .methodBadge[data-http-method='get'] {
+      color: #0958d9;
+      background: #e6f4ff;
+      border-color: #91caff;
+    }
+    .methodBadge[data-http-method='post'] {
+      color: #237804;
+      background: #f6ffed;
+      border-color: #b7eb8f;
+    }
+    .methodBadge[data-http-method='put'],
+    .methodBadge[data-http-method='patch'] {
+      color: #ad4e00;
+      background: #fff7e6;
+      border-color: #ffd591;
+    }
+    .methodBadge[data-http-method='delete'] {
+      color: #cf1322;
+      background: #fff2f0;
+      border-color: #ffccc7;
     }
     .pathValue {
+      max-width: 240px;
+      margin-left: 2px;
+      overflow: hidden;
       color: #333;
       font-weight: bold;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      vertical-align: bottom;
     }
   }
   .apiDoc {
