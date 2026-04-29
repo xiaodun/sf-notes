@@ -1,14 +1,25 @@
 (function () {
-  const path = require("path");
-  const fs = require("fs");
-  const p1 = path.resolve(
-    process.cwd(),
-    "./data/api/project/project/getSwagger.js"
-  );
-  const p2 = path.resolve(
-    process.cwd(),
-    "./service/app/data/api/project/project/getSwagger.js"
-  );
-  const target = fs.existsSync(p1) ? p1 : p2;
-  return eval(fs.readFileSync(target, "utf-8").toString());
+  return function (argData, argParams, external) {
+    const fs = require("fs");
+    const path = require("path");
+    external.createSwaggerFolder();
+    argData.swaggerList.forEach((item) => {
+      item.data = JSON.parse(
+        fs
+          .readFileSync(
+            path.join(external.getSwaggerFolderPath(), item.id + ".json")
+          )
+          .toString()
+      ).data;
+    });
+    return {
+      response: {
+        code: 200,
+        data: {
+          success: true,
+          list: argData.swaggerList,
+        },
+      },
+    };
+  };
 })();
