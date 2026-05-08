@@ -1,6 +1,8 @@
 import NRsp from "@/common/namespace/NRsp";
+import NModel from "@/common/namespace/NModel";
 import NProject from "@/pages/project/NProject";
 import request from "@/utils/request";
+import { NMDProject } from "umi";
 
 namespace SSwagger {
   export async function getConfig(): Promise<NRsp<NProject.IConfig>> {
@@ -11,11 +13,14 @@ namespace SSwagger {
   }
 
   export async function updateConfig(config: Partial<NProject.IConfig>) {
-    return request({
+    return (request({
       url: "/swagger/updateConfig",
       method: "post",
       data: { config },
-    }) as Promise<NRsp<NProject.IConfig>>;
+    }) as Promise<NRsp<NProject.IConfig>>).then((rsp) => {
+      NModel.dispatch(new NMDProject.ARSetState({ config: rsp.data }));
+      return rsp;
+    });
   }
 
   export async function getInExcludeGroups(): Promise<
