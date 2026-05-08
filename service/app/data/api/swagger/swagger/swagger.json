@@ -166,37 +166,28 @@
         {
             "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
             "groupName": "v5",
-            "tagName": "Audit Log",
-            "pathKey": "post:/api/v5/audit-logs/list",
-            "pathUrl": "/api/v5/audit-logs/list",
-            "method": "post",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "v5",
-            "tagName": "Audit Log",
-            "pathKey": "post:/api/v5/audit-logs/export",
-            "pathUrl": "/api/v5/audit-logs/export",
-            "method": "post",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "v5",
-            "tagName": "Audit Log",
-            "pathKey": "post:/api/v5/audit-logs",
-            "pathUrl": "/api/v5/audit-logs",
-            "method": "post",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "v5",
             "tagName": "Plugin Config Manager — .ini (V5 Pipeline)",
             "pathKey": "post:/api/v5/plugins/{pluginId}/versions/{versionId}/config/ini/files/{fileId}/parameters",
             "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}/config/ini/files/{fileId}/parameters",
             "method": "post",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Config Manager — Text (V5 Pipeline)",
+            "pathKey": "get:/api/v5/plugins/{pluginId}/versions/{versionId}/config/text/files/{fileId}",
+            "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}/config/text/files/{fileId}",
+            "method": "get",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Config Manager — YAML (V5 Pipeline)",
+            "pathKey": "get:/api/v5/plugins/{pluginId}/versions/{versionId}/config/yaml/files/{fileId}/rules",
+            "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}/config/yaml/files/{fileId}/rules",
+            "method": "get",
             "isPath": true
         }
     ],
