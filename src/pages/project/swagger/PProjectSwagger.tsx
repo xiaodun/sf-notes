@@ -475,8 +475,80 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                         </div>
                       }
                     >
-                      {Object.values(domainItem.data).map(
-                        (groupItem) => {
+                      {(() => {
+                        const groups = Object.values(domainItem.data);
+                        const renderTagMenus = (
+                          groupItem: (typeof groups)[number],
+                        ) =>
+                          Object.values(groupItem.tags).map(
+                            (tagItem, tagIndex) => {
+                              const tagMenuCheckbox: NProject.IMenuCheckbox =
+                                {
+                                  domain: domainItem.domain,
+                                  groupName: groupItem.groupName,
+                                  tagName: tagItem.tagName,
+                                  isTag: true,
+                                };
+                              return (
+                                <Menu.SubMenu
+                                  key={
+                                    domainItem.domain +
+                                    groupItem.groupName +
+                                    tagItem.tagName +
+                                    tagIndex
+                                  }
+                                  title={
+                                    <>
+                                      <span
+                                        onClick={(e) => onStop(e)}
+                                      >
+                                        <Checkbox
+                                          checked={getMenuChecked(
+                                            tagMenuCheckbox,
+                                          )}
+                                          onChange={(e) =>
+                                            onMenuDomainCheckedChange(
+                                              e.target.checked,
+                                              tagMenuCheckbox,
+                                            )
+                                          }
+                                          className={
+                                            SelfStyle.tagCheckbox
+                                          }
+                                        ></Checkbox>
+                                      </span>
+                                      {tagItem.tagName}
+                                    </>
+                                  }
+                                >
+                                  {Object.entries(tagItem.paths).map(
+                                    ([pathKey, pathItem]) => {
+                                      const pathMenuCheckbox = {
+                                        domain: domainItem.domain,
+                                        groupName: groupItem.groupName,
+                                        tagName: tagItem.tagName,
+                                        pathKey,
+                                        pathUrl: pathItem.pathUrl,
+                                        method: pathItem.method,
+                                        data: pathItem,
+                                        isPath: true,
+                                      };
+                                      return renderMenuPathUrl(
+                                        pathMenuCheckbox,
+                                        pathItem,
+                                      );
+                                    },
+                                  )}
+                                </Menu.SubMenu>
+                              );
+                            },
+                          );
+                        if (groups.length <= 1) {
+                          return groups.length === 1
+                            ? renderTagMenus(groups[0])
+                            : null;
+                        }
+                        return groups.map((groupItem) => {
                           const groupMenuCheckbox: NProject.IMenuCheckbox = {
                             domain: domainItem.domain,
                             groupName: groupItem.groupName,
@@ -485,8 +557,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                           return (
                             <Menu.SubMenu
                               key={
-                                domainItem.domain +
-                                groupItem.groupName
+                                domainItem.domain + groupItem.groupName
                               }
                               title={
                                 <>
@@ -508,74 +579,11 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                                 </>
                               }
                             >
-                              {Object.values(groupItem.tags).map(
-                                (tagItem, tagIndex) => {
-                                  const tagMenuCheckbox: NProject.IMenuCheckbox =
-                                    {
-                                      domain: domainItem.domain,
-                                      groupName: groupItem.groupName,
-                                      tagName: tagItem.tagName,
-                                      isTag: true,
-                                    };
-                                  return (
-                                    <Menu.SubMenu
-                                      key={
-                                        domainItem.domain +
-                                        groupItem.groupName +
-                                        tagItem.tagName +
-                                        tagIndex
-                                      }
-                                      title={
-                                        <>
-                                          <span
-                                            onClick={(e) => onStop(e)}
-                                          >
-                                            <Checkbox
-                                              checked={getMenuChecked(
-                                                tagMenuCheckbox,
-                                              )}
-                                              onChange={(e) =>
-                                                onMenuDomainCheckedChange(
-                                                  e.target.checked,
-                                                  tagMenuCheckbox,
-                                                )
-                                              }
-                                              className={
-                                                SelfStyle.tagCheckbox
-                                              }
-                                            ></Checkbox>
-                                          </span>
-                                          {tagItem.tagName}
-                                        </>
-                                      }
-                                    >
-                                      {Object.entries(
-                                        tagItem.paths,
-                                      ).map(([pathKey, pathItem]) => {
-                                        const pathMenuCheckbox = {
-                                          domain: domainItem.domain,
-                                          groupName:
-                                            groupItem.groupName,
-                                          tagName: tagItem.tagName,
-                                          pathKey,
-                                          pathUrl: pathItem.pathUrl,
-                                          method: pathItem.method,
-                                          data: pathItem,
-                                          isPath: true,
-                                        };
-                                        return renderMenuPathUrl(
-                                          pathMenuCheckbox,
-                                          pathItem,
-                                        );
-                                      })}
-                                    </Menu.SubMenu>
-                                  );
-                                },
-                              )}
+                              {renderTagMenus(groupItem)}
                             </Menu.SubMenu>
                           );
-                        },
-                      )}
+                        });
+                      })()}
                     </Menu.SubMenu>
                   );
                 })
