@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Note from "./components/note/note";
 import SelfStyle from "./LNotes.less";
 import SNotes from "./SNotes";
@@ -26,6 +26,9 @@ import {
 import NNotes from "./NNotes";
 import UWsBridge from "@/common/utils/UWsBridge";
 import wsEvent from "@/common/constants/wsEvent";
+
+/** 移动端 getNoteList 分页大小（与接口 offset/limit 一致） */
+const MOBILE_PAGE_SIZE = 4;
 
 const DragHandle = SortableHandle(() => (
   <MenuOutlined style={{ cursor: "grab", color: "#999" }} />
@@ -105,6 +108,16 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
   const [trashLoading, setTrashLoading] = useState(false);
   const [trashList, setTrashList] = useState<NNotes[]>([]);
   const [restoringId, setRestoringId] = useState<string | undefined>();
+  const [mobileNotesTotal, setMobileNotesTotal] = useState(0);
+  const mobileNotesTotalRef = useRef(0);
+  const [mobileListLoading, setMobileListLoading] = useState(false);
+  const [mobileListLoadingMore, setMobileListLoadingMore] = useState(false);
+  const loadMoreSentinelRef = useRef<HTMLDivElement>(null);
+  const latestRspRef = useRef(MDNotes.rsp);
+  const mobileAppendBusyRef = useRef(false);
+  latestRspRef.current = MDNotes.rsp;
+  mobileNotesTotalRef.current = mobileNotesTotal;
+
   useEffect(() => {
     setIsSortModel(MDNotes.isTitleModel && !isMobile);
   }, [MDNotes.isTitleModel, isMobile]);
@@ -125,27 +138,154 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
     };
   }, []);
 
+  function normalizeNoteListColors(list: NNotes[] | undefined) {
+    (list || []).forEach((item) => {
+      if (!item.titleColor) {
+        item.titleColor = "";
+      }
+    });
+  }
+
   async function reqGetList() {
+    if (isMobile) {
+      await reqGetMobileListFirstPage();
+      return;
+    }
     const rsp = await SNotes.getList();
     if (rsp.success) {
-      rsp.list.forEach((item) => {
-        if (!item.titleColor) {
-          item.titleColor = "";
-        }
-      });
+      normalizeNoteListColors(rsp.list);
+      setMobileNotesTotal(0);
       NModel.dispatch(new NMDNotes.ARSetRsp(rsp));
     }
   }
-  const titleOptionList = MDNotes.rsp.list
+
+  async function reqGetMobileListFirstPage() {
+    setMobileListLoading(true);
+    mobileAppendBusyRef.current = false;
+    try {
+      const rsp = await SNotes.getList({
+        offset: 0,
+        limit: MOBILE_PAGE_SIZE,
+      });
+      if (rsp.success) {
+        normalizeNoteListColors(rsp.list);
+        const total =
+          typeof rsp.total === "number"
+            ? rsp.total
+            : rsp.list?.length ?? 0;
+        setMobileNotesTotal(total);
+        NModel.dispatch(
+          new NMDNotes.ARSetRsp({
+            ...latestRspRef.current,
+            ...rsp,
+            list: rsp.list || [],
+          }),
+        );
+      }
+    } finally {
+      setMobileListLoading(false);
+    }
+  }
+
+  const reqAppendMobileListPage = useCallback(async () => {
+    if (!isMobile || mobileAppendBusyRef.current) {
+      return;
+    }
+    const prevListAtStart = latestRspRef.current.list || [];
+    const offset = prevListAtStart.length;
+    if (offset >= mobileNotesTotalRef.current) {
+      return;
+    }
+    mobileAppendBusyRef.current = true;
+    setMobileListLoadingMore(true);
+    try {
+      const rsp = await SNotes.getList({
+        offset,
+        limit: MOBILE_PAGE_SIZE,
+      });
+      if (!rsp.success) {
+        return;
+      }
+      const chunk = rsp.list || [];
+      if (!chunk.length) {
+        setMobileNotesTotal(offset);
+        return;
+      }
+      normalizeNoteListColors(chunk);
+      if (typeof rsp.total === "number") {
+        setMobileNotesTotal(rsp.total);
+      }
+      const merged = [...prevListAtStart, ...chunk];
+      NModel.dispatch(
+        new NMDNotes.ARSetRsp({
+          ...latestRspRef.current,
+          ...rsp,
+          list: merged,
+        }),
+      );
+    } finally {
+      mobileAppendBusyRef.current = false;
+      setMobileListLoadingMore(false);
+    }
+  }, [isMobile]);
+  const noteList = MDNotes.rsp?.list || [];
+  const titleOptionList = noteList
     .map((item) => ({
       value: item.title,
     }))
     .filter((item) => item.value);
   const matchIdList = getMatchIdList();
+  const filteredNotes =
+    matchIdList.length > 0
+      ? noteList.filter((notes) => matchIdList.some((id) => notes.id === id))
+      : noteList;
+  const showMobileLoadMore =
+    isMobile &&
+    !mobileListLoading &&
+    filteredNotes.length > 0 &&
+    filteredNotes.length < mobileNotesTotal;
+
+  useEffect(() => {
+    if (
+      typeof IntersectionObserver === "undefined" ||
+      !showMobileLoadMore ||
+      mobileListLoadingMore
+    ) {
+      return;
+    }
+    const el = loadMoreSentinelRef.current;
+    if (!el) {
+      return;
+    }
+    let io: IntersectionObserver | undefined;
+    try {
+      io = new IntersectionObserver(
+        (entries) => {
+          if (!entries[0]?.isIntersecting) {
+            return;
+          }
+          reqAppendMobileListPage();
+        },
+        { root: null, rootMargin: "320px", threshold: 0 },
+      );
+      io.observe(el);
+    } catch {
+      return;
+    }
+    return () => {
+      io?.disconnect();
+    };
+  }, [
+    showMobileLoadMore,
+    filteredNotes.length,
+    mobileNotesTotal,
+    mobileListLoadingMore,
+    reqAppendMobileListPage,
+  ]);
 
   const onSortEnd = ({ oldIndex, newIndex }: SortEnd) => {
     if (oldIndex !== newIndex) {
-      const newList = [...MDNotes.rsp.list];
+      const newList = [...(MDNotes.rsp?.list || [])];
       const [movedItem] = newList.splice(oldIndex, 1);
       newList.splice(newIndex, 0, movedItem);
 
@@ -161,48 +301,52 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
   };
   return (
     <div>
-      {matchIdList.length > 0 ? (
-        MDNotes.rsp.list
-          .filter((notes) =>
-            matchIdList.length > 0
-              ? matchIdList.some((id) => notes.id === id)
-              : true
-          )
-          .map((note, index) => (
-            <div key={note.id} className={SelfStyle.noteWrapper}>
-              <Note
-                data={note}
-                index={index}
-                editModalRef={editModalRef}
-                zoomModalRef={zoomModalRef}
-              ></Note>
-            </div>
-          ))
-      ) : (
-        isMobile || !isSortModel ? (
-          <div>
-            {MDNotes.rsp.list.map((value, index) => (
-              <div key={value.id} className={SelfStyle.noteWrapper}>
-                <Note
-                  data={value}
-                  index={index}
-                  editModalRef={editModalRef}
-                  zoomModalRef={zoomModalRef}
-                  isSortModel={isSortModel}
-                ></Note>
-              </div>
-            ))}
-          </div>
-        ) : (
+      <Spin spinning={isMobile && mobileListLoading}>
+        {isSortModel && !isMobile && matchIdList.length === 0 ? (
           <SortableList
-            items={MDNotes.rsp.list}
+            items={noteList}
             onSortEnd={onSortEnd}
             editModalRef={editModalRef}
             zoomModalRef={zoomModalRef}
             isSortModel={isSortModel}
           />
-        )
-      )}
+        ) : (
+          <>
+            {filteredNotes.map((note) => {
+              const index = noteList.findIndex((n) => n.id === note.id);
+              return (
+                <div key={note.id} className={SelfStyle.noteWrapper}>
+                  <Note
+                    data={note}
+                    index={index < 0 ? 0 : index}
+                    editModalRef={editModalRef}
+                    zoomModalRef={zoomModalRef}
+                    isSortModel={false}
+                  ></Note>
+                </div>
+              );
+            })}
+            {showMobileLoadMore ? (
+              <div
+                ref={loadMoreSentinelRef}
+                style={{ height: 24, marginBottom: 8 }}
+                aria-hidden
+              />
+            ) : null}
+            {isMobile && mobileListLoadingMore ? (
+              <div
+                style={{
+                  textAlign: "center",
+                  color: "#999",
+                  padding: "12px 0 24px",
+                }}
+              >
+                加载中…
+              </div>
+            ) : null}
+          </>
+        )}
+      </Spin>
       <EditModal
         onOk={reqGetList}
         ref={editModalRef}
@@ -352,24 +496,28 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
           message.success("已清空");
           setTrashList([]);
           await reqGetList();
+          setTrashOpen(false);
         }
       },
     });
   }
 
   function getMatchIdList() {
+    const rawList = MDNotes.rsp?.list || [];
     //名字标题的在前
-    let matchTitleIdList = MDNotes.rsp.list
+    let matchTitleIdList = rawList
       .filter((notes) => {
+        const title = notes.title ?? "";
         return searchKeyList.some(
           (key) =>
-            key.indexOf(notes.title) !== -1 || notes.title.indexOf(key) !== -1
+            key.indexOf(title) !== -1 || title.indexOf(key) !== -1,
         );
       })
       .map((notes) => notes.id);
-    let matchContentIdList = MDNotes.rsp.list
+    let matchContentIdList = rawList
       .filter((notes) => {
-        return searchKeyList.some((key) => notes.content.indexOf(key) !== -1);
+        const content = notes.content ?? "";
+        return searchKeyList.some((key) => content.indexOf(key) !== -1);
       })
       .map((notes) => notes.id);
     const idList = uniq([...matchTitleIdList, ...matchContentIdList]);
