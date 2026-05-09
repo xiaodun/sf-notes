@@ -32,6 +32,12 @@ export interface INoteProps {
   zoomModalRef: React.MutableRefObject<IZoomImgModal>;
   dragHandle?: ReactNode;
   isSortModel?: boolean;
+  /** 回收站：与主列表相同的正文渲染，禁用编辑/删除与自动保存 */
+  trashMode?: boolean;
+  onRestore?: () => void;
+  restoreLoading?: boolean;
+  /** 正在恢复其它条目时禁用本条的恢复按钮 */
+  restoreDisabled?: boolean;
 }
 export interface INoteAction {
   content: ReactNode;
@@ -43,14 +49,15 @@ export interface INoteAction {
   copyId?: string;
 }
 const Note: FC<INoteProps> = (props) => {
-  const { data, MDNotes } = props;
+  const { data, MDNotes, trashMode } = props;
   const cloneData = cloneDeep(data);
 
-
-  const { isExpand } = MDNotes.noteSettingObjs[data.id];
+  const isExpand = trashMode
+    ? true
+    : MDNotes.noteSettingObjs[data.id]?.isExpand ?? false;
   return (
     <div style={{ marginBottom: 20 }}>
-      {MDNotes.isTitleModel && !isExpand ? (
+      {MDNotes.isTitleModel && !isExpand && !trashMode ? (
         <Card
           size="small"
           title={getTitle(data.title)}
@@ -76,55 +83,69 @@ const Note: FC<INoteProps> = (props) => {
         ></Card>
       ) : (
         <>
-          {renderActionWrap(SelfStyle.top, data.titleColor)}
+          {!trashMode && renderActionWrap(SelfStyle.top, data.titleColor)}
           <div className={SelfStyle.noteWrapper}>
             <Card
               size="small"
               title={getTitle(data.title)}
               extra={
-                <Space>
-                  {MDNotes.isTitleModel && (
-                    <>
-                      {isExpand ? (
-                        <Button
-                          onClick={() => {
-                            NModel.dispatch(
-                              new NMDNotes.ArChangeNoteExpand({
-                                id: data.id,
-                                isExpand: false,
-                              })
-                            );
-                          }}
-                        >
-                          收起
-                        </Button>
-                      ) : (
-                        <Button
-                          onClick={() => {
-                            NModel.dispatch(
-                              new NMDNotes.ArChangeNoteExpand({
-                                id: data.id,
-                                isExpand: true,
-                              })
-                            );
-                          }}
-                        >
-                          展开
-                        </Button>
-                      )}
-                    </>
-                  )}
-                  <Button
-                    onClick={() => reqDelItem(data.id)}
-                    icon={<CloseOutlined></CloseOutlined>}
-                  ></Button>
-                </Space>
+                trashMode ? (
+                  <Space>
+                    <Button
+                      type="primary"
+                      size="small"
+                      loading={props.restoreLoading}
+                      disabled={props.restoreDisabled}
+                      onClick={() => props.onRestore?.()}
+                    >
+                      恢复
+                    </Button>
+                  </Space>
+                ) : (
+                  <Space>
+                    {MDNotes.isTitleModel && (
+                      <>
+                        {isExpand ? (
+                          <Button
+                            onClick={() => {
+                              NModel.dispatch(
+                                new NMDNotes.ArChangeNoteExpand({
+                                  id: data.id,
+                                  isExpand: false,
+                                }),
+                              );
+                            }}
+                          >
+                            收起
+                          </Button>
+                        ) : (
+                          <Button
+                            onClick={() => {
+                              NModel.dispatch(
+                                new NMDNotes.ArChangeNoteExpand({
+                                  id: data.id,
+                                  isExpand: true,
+                                }),
+                              );
+                            }}
+                          >
+                            展开
+                          </Button>
+                        )}
+                      </>
+                    )}
+                    <Button
+                      onClick={() => reqDelItem(data.id)}
+                      icon={<CloseOutlined></CloseOutlined>}
+                    ></Button>
+                  </Space>
+                )
               }
             >
               {parseContent(data.content, data.base64)}
             </Card>
           </div>
-          {renderActionWrap(SelfStyle.bottom)}
+          {!trashMode && renderActionWrap(SelfStyle.bottom)}
         </>
       )}
     </div>
@@ -246,7 +267,7 @@ const Note: FC<INoteProps> = (props) => {
   function parseContent(content: string = '', base64imgs: Object) {
     let list = dealCode(content);
     list = dealLink(list, base64imgs);
-    if (!isEqual(data, cloneData)) {
+    if (!trashMode && !isEqual(data, cloneData)) {
       SNotes.editItem(cloneData).then((rsp) => {
         if (rsp.success) {
           const newNotesRsp = NRsp.updateItem(
@@ -477,6 +498,9 @@ const Note: FC<INoteProps> = (props) => {
       }
     });
 
+    if (trashMode) {
+      return;
+    }
     const res = await SNotes.editItem(newNote);
     if (res.success) {
       NModel.dispatch(
@@ -518,14 +542,16 @@ const Note: FC<INoteProps> = (props) => {
               >
                 复制
               </Button>
-              <Button
-                type="link"
-                size="small"
-                onClick={() => reqDelPart(item.start, item.count)}
-                style={{ padding: 0 }}
-              >
-                删除
-              </Button>
+              {!trashMode && (
+                <Button
+                  type="link"
+                  size="small"
+                  onClick={() => reqDelPart(item.start, item.count)}
+                  style={{ padding: 0 }}
+                >
+                  删除
+                </Button>
+              )}
             </Space>
           </div>
           <div className="contents">

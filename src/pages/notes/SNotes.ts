@@ -13,6 +13,19 @@ export namespace SNotes {
       url: "/notes/getNoteList",
     });
   }
+  export async function getDeletedList(): Promise<NRsp<NNotes>> {
+    return request({
+      url: "/notes/getDeletedNoteList",
+    });
+  }
+  export async function restoreItem(id: string): Promise<NRsp> {
+    return request({
+      url: "/notes/restoreNote",
+      params: {
+        id,
+      },
+    });
+  }
   export async function delItem(id: string): Promise<NRsp> {
     return request({
       url: "/notes/delNote",
