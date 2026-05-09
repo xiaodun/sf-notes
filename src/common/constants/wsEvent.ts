@@ -7,6 +7,7 @@ const wsEvent = {
   type: {
     ADD: "ADD",
     DELETE: "DELETE",
+    RESTORE: "RESTORE",
     EDIT: "EDIT",
     CHAPTER_FILE_CHANGED: "CHAPTER_FILE_CHANGED",
   },
