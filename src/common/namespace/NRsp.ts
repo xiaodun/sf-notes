@@ -4,6 +4,8 @@ export interface NRsp<T = null> {
   success?: boolean;
   message?: string;
   list?: T[];
+  /** 分页接口（如 getNoteList offset/limit）可选返回 */
+  total?: number;
   data?: T;
   isHaveReadMsg?: boolean;
 }

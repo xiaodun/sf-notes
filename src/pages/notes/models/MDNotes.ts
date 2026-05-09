@@ -43,8 +43,9 @@ export default {
   effects: {},
   reducers: {
     setRsp(state, { payload }: NMDNotes.ARSetRsp) {
-      state.rsp = payload;
-      payload.list.forEach((item) => {
+      const list = payload.list || [];
+      state.rsp = { ...payload, list };
+      list.forEach((item) => {
         if (!state.noteSettingObjs[item.id]) {
           state.noteSettingObjs[item.id] = {
             isExpand: false,

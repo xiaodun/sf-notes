@@ -8,9 +8,20 @@ export namespace SNotes {
       url: "/notes/clearDeletedNote",
     });
   }
-  export async function getList(): Promise<NRsp<NNotes>> {
+  export type TGetNoteListOpts = { offset: number; limit: number };
+
+  export async function getList(
+    opts?: TGetNoteListOpts,
+  ): Promise<NRsp<NNotes>> {
+    const params: Record<string, number> | undefined =
+      opts &&
+      typeof opts.offset === "number" &&
+      typeof opts.limit === "number"
+        ? { offset: opts.offset, limit: opts.limit }
+        : undefined;
     return request({
       url: "/notes/getNoteList",
+      ...(params ? { params } : {}),
     });
   }
   export async function getDeletedList(): Promise<NRsp<NNotes>> {
