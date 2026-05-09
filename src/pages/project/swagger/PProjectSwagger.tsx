@@ -15,7 +15,14 @@ import {
   Select,
   Radio,
 } from 'antd';
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import React, {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { connect, ConnectRC, NMDGlobal, NMDProject } from 'umi';
 import SelfStyle from './LProjectSwagger.less';
 import SProject from '../SProject';
@@ -156,10 +163,180 @@ function buildSwaggerApiFieldsDocText(m: NProject.IRenderMethodInfo): string {
   return lines.join('\n');
 }
 
+/** 侧栏「在域名中定位 / Tab 滚动恢复」调试；定位问题后改为 false */
+const SWAGGER_SIDEBAR_DEBUG_LOG = true;
+
+function swaggerSidebarDbg(
+  phase: string,
+  detail?: Record<string, unknown>,
+) {
+  if (!SWAGGER_SIDEBAR_DEBUG_LOG) return;
+  if (detail !== undefined) {
+    console.log(`[SwaggerSidebar] ${phase}`, detail);
+  } else {
+    console.log(`[SwaggerSidebar] ${phase}`);
+  }
+}
+
+/** 侧栏内按 data-swagger-menu-item 定位并滚动（即时改 scrollTop，避免 smooth 被布局打断） */
+function scrollSwaggerMenuItemIntoView(
+  root: HTMLElement | null,
+  jumpKey: string,
+  reason?: string,
+): boolean {
+  if (!root || !jumpKey) {
+    swaggerSidebarDbg('scrollIntoView:skip', {
+      reason: reason ?? 'call',
+      noRoot: !root,
+      noKey: !jumpKey,
+    });
+    return false;
+  }
+  const attrNodes = root.querySelectorAll('[data-swagger-menu-item]');
+  let active: HTMLElement | null = null;
+  let matchKind: 'exact' | 'fallback-selected' | 'none' = 'none';
+  for (const el of attrNodes) {
+    if (el.getAttribute('data-swagger-menu-item') === jumpKey) {
+      active = el as HTMLElement;
+      matchKind = 'exact';
+      break;
+    }
+  }
+  if (!active) {
+    active = root.querySelector(
+      '.ant-menu-item-selected',
+    ) as HTMLElement | null;
+    if (active) {
+      matchKind = 'fallback-selected';
+    }
+  }
+  if (!active) {
+    const sample: string[] = [];
+    attrNodes.forEach((el, i) => {
+      if (i < 8) {
+        sample.push(String(el.getAttribute('data-swagger-menu-item')));
+      }
+    });
+    swaggerSidebarDbg('scrollIntoView:no-active', {
+      reason: reason ?? 'call',
+      jumpKey,
+      dataAttrCount: attrNodes.length,
+      sampleKeys: sample,
+    });
+    return false;
+  }
+  const chain: HTMLElement[] = [];
+  let p: HTMLElement | null = active.parentElement;
+  while (p && root.contains(p)) {
+    const st = getComputedStyle(p);
+    if (
+      (st.overflowY === 'auto' || st.overflowY === 'scroll') &&
+      p.scrollHeight > p.clientHeight + 2
+    ) {
+      chain.push(p);
+    }
+    p = p.parentElement;
+  }
+  const tabsHolder = root.querySelector(
+    '.ant-tabs-content-holder',
+  ) as HTMLElement | null;
+  if (
+    tabsHolder &&
+    root.contains(tabsHolder) &&
+    !chain.includes(tabsHolder)
+  ) {
+    const st = getComputedStyle(tabsHolder);
+    if (
+      (st.overflowY === 'auto' || st.overflowY === 'scroll') &&
+      tabsHolder.scrollHeight > tabsHolder.clientHeight + 2
+    ) {
+      chain.push(tabsHolder);
+    }
+  }
+  if (
+    root.scrollHeight > root.clientHeight + 2 &&
+    !chain.includes(root)
+  ) {
+    chain.push(root);
+  }
+  for (const sc of chain) {
+    const relTop =
+      active.getBoundingClientRect().top -
+      sc.getBoundingClientRect().top +
+      sc.scrollTop;
+    sc.scrollTop = Math.max(
+      0,
+      relTop - sc.clientHeight / 2 + active.offsetHeight / 2,
+    );
+  }
+  swaggerSidebarDbg('scrollIntoView:ok', {
+    reason: reason ?? 'call',
+    jumpKey,
+    matchKind,
+    chainLen: chain.length,
+    outerScrollTop: root.scrollTop,
+    innerScrollTop: tabsHolder?.scrollTop ?? null,
+  });
+  return true;
+}
+
+type TSwaggerSidebarScrollSnap = { outer: number; inner: number };
+
+function readSwaggerSidebarScrolls(
+  root: HTMLElement | null,
+): TSwaggerSidebarScrollSnap {
+  if (!root) {
+    return { outer: 0, inner: 0 };
+  }
+  const inner = root.querySelector(
+    '.ant-tabs-content-holder',
+  ) as HTMLElement | null;
+  return {
+    outer: root.scrollTop,
+    inner: inner ? inner.scrollTop : 0,
+  };
+}
+
+function applySwaggerSidebarScrolls(
+  root: HTMLElement | null,
+  snap: TSwaggerSidebarScrollSnap,
+) {
+  if (!root) {
+    return;
+  }
+  const inner = root.querySelector(
+    '.ant-tabs-content-holder',
+  ) as HTMLElement | null;
+  if (inner) {
+    inner.scrollTop = snap.inner;
+  }
+  root.scrollTop = snap.outer;
+}
+
+/** 与侧栏 `Menu.Item` 的 key / data-swagger-menu-item 一致，用于受控 selectedKeys */
+function getSwaggerPathMenuItemKey(
+  cb: NProject.IMenuCheckbox | null | undefined,
+): string | null {
+  if (!cb?.domain || !cb.groupName || !cb.tagName) {
+    return null;
+  }
+  if (cb.isGroup) {
+    return null;
+  }
+  const id = cb.pathKey || cb.pathUrl;
+  if (!id) {
+    return null;
+  }
+  return cb.domain + cb.groupName + cb.tagName + id;
+}
+
 const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   const { MDProject } = props;
   const swaggerModalRef = useRef<IEnterSwaggerModal>();
   const apiDocWrapRef = useRef<HTMLDivElement>();
+  const apiMenuRef = useRef<HTMLDivElement>(null);
+  /** 从「关注」跳入域名菜单后，待滚动的菜单项 key（与 data-swagger-menu-item 一致） */
+  const pendingSwaggerMenuJumpKeyRef = useRef<string | null>(null);
   const generateAjaxCodeRef = useRef<IGenerateAjaxCodeModal>();
   const generateEnumCodeRef = useRef<IGenerateEnumCodeModal>();
   const keyValueExtractionRef = useRef<IKeyValueExtractionModal>();
@@ -184,6 +361,149 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     checkedAttentionGroupNameList,
     setCheckedAttentionGroupNameList,
   ] = useState<string[]>([]);
+  /** 域名 Tab 侧栏菜单展开项（用于从「关注」跳回时自动展开） */
+  const [domainMenuOpenKeys, setDomainMenuOpenKeys] = useState<string[]>([]);
+
+  const menuActiveTabKeyRef = useRef(menuActiveTabKey);
+  menuActiveTabKeyRef.current = menuActiveTabKey;
+  const sidebarScrollByTabRef = useRef<
+    Record<string, TSwaggerSidebarScrollSnap>
+  >({
+    domain: { outer: 0, inner: 0 },
+    attentionList: { outer: 0, inner: 0 },
+  });
+
+  const persistSwaggerSidebarScroll = useCallback((fromTab?: string) => {
+    const t = fromTab ?? menuActiveTabKeyRef.current;
+    if (t !== 'domain' && t !== 'attentionList') {
+      return;
+    }
+    const snap = readSwaggerSidebarScrolls(apiMenuRef.current);
+    sidebarScrollByTabRef.current[t] = snap;
+    swaggerSidebarDbg('persistScroll', {
+      tab: t,
+      snap,
+      pendingJump: pendingSwaggerMenuJumpKeyRef.current,
+    });
+  }, []);
+
+  useLayoutEffect(() => {
+    const pending = pendingSwaggerMenuJumpKeyRef.current;
+    if (pending) {
+      swaggerSidebarDbg('restoreLayout:skip-pending', {
+        tab: menuActiveTabKey,
+        pending,
+      });
+      return;
+    }
+    const tab = menuActiveTabKey;
+    if (tab !== 'domain' && tab !== 'attentionList') {
+      return;
+    }
+    const snap =
+      sidebarScrollByTabRef.current[tab] ?? { outer: 0, inner: 0 };
+    swaggerSidebarDbg('restoreLayout:apply', { tab, snap });
+    applySwaggerSidebarScrolls(apiMenuRef.current, snap);
+  }, [menuActiveTabKey]);
+
+  useEffect(() => {
+    const pending = pendingSwaggerMenuJumpKeyRef.current;
+    if (pending) {
+      swaggerSidebarDbg('restoreTimer:skip-schedule', {
+        tab: menuActiveTabKey,
+        pending,
+      });
+      return;
+    }
+    const tab = menuActiveTabKey;
+    if (tab !== 'domain' && tab !== 'attentionList') {
+      return;
+    }
+    const snap =
+      sidebarScrollByTabRef.current[tab] ?? { outer: 0, inner: 0 };
+    swaggerSidebarDbg('restoreTimer:schedule', { tab, snap, delaysMs: [0, 50, 140] });
+    const timers = [0, 50, 140].map((ms) =>
+      window.setTimeout(() => {
+        if (pendingSwaggerMenuJumpKeyRef.current) {
+          swaggerSidebarDbg('restoreTimer:skip-apply', { ms, pending: pendingSwaggerMenuJumpKeyRef.current });
+          return;
+        }
+        swaggerSidebarDbg('restoreTimer:apply', { ms, tab, snap });
+        applySwaggerSidebarScrolls(apiMenuRef.current, snap);
+      }, ms),
+    );
+    return () => {
+      timers.forEach((id) => window.clearTimeout(id));
+    };
+  }, [menuActiveTabKey]);
+
+  useLayoutEffect(() => {
+    const key = pendingSwaggerMenuJumpKeyRef.current;
+    if (!key || menuActiveTabKey !== 'domain' || searchSwaggerValue) {
+      swaggerSidebarDbg('jumpLayout:skip', {
+        key,
+        menuActiveTabKey,
+        searchSwaggerValue,
+      });
+      return;
+    }
+    swaggerSidebarDbg('jumpLayout:run', { key, domainMenuOpenKeys });
+    scrollSwaggerMenuItemIntoView(apiMenuRef.current, key, 'useLayoutEffect');
+  }, [
+    menuActiveTabKey,
+    domainMenuOpenKeys,
+    searchSwaggerValue,
+    rendMethodInfos,
+    MDProject.domainSwaggerList,
+  ]);
+
+  useEffect(() => {
+    const key = pendingSwaggerMenuJumpKeyRef.current;
+    if (!key || menuActiveTabKey !== 'domain' || searchSwaggerValue) {
+      swaggerSidebarDbg('jumpRetryEffect:skip', {
+        key,
+        menuActiveTabKey,
+        searchSwaggerValue,
+      });
+      return;
+    }
+    swaggerSidebarDbg('jumpRetryEffect:schedule', {
+      key,
+      delaysMs: [80, 200, 400, 650],
+      clearPendingMs: 720,
+    });
+    const timers = [80, 200, 400, 650].map((ms) =>
+      window.setTimeout(() => {
+        const cur = pendingSwaggerMenuJumpKeyRef.current;
+        if (!cur || cur !== key) {
+          swaggerSidebarDbg('jumpRetry:skip', { ms, cur, expect: key });
+          return;
+        }
+        scrollSwaggerMenuItemIntoView(
+          apiMenuRef.current,
+          key,
+          `retry@${ms}ms`,
+        );
+      }, ms),
+    );
+    const clearPendingTimer = window.setTimeout(() => {
+      if (pendingSwaggerMenuJumpKeyRef.current === key) {
+        swaggerSidebarDbg('jumpPending:clear', { key });
+        pendingSwaggerMenuJumpKeyRef.current = null;
+      } else {
+        swaggerSidebarDbg('jumpPending:clear-skip', {
+          expect: key,
+          actual: pendingSwaggerMenuJumpKeyRef.current,
+        });
+      }
+    }, 720);
+    return () => {
+      swaggerSidebarDbg('jumpRetryEffect:cleanup', { key });
+      timers.forEach((id) => window.clearTimeout(id));
+      window.clearTimeout(clearPendingTimer);
+    };
+  }, [menuActiveTabKey, domainMenuOpenKeys, searchSwaggerValue, rendMethodInfos]);
+
   useEffect(() => {
     reqGetProject();
     reqGetApiPrefix();
@@ -401,7 +721,9 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
           </Space>
         </div>
         <div className={SelfStyle.contentWrap}>
-          <div className={SelfStyle.apiMenu}>{getApiMenu()}</div>
+          <div ref={apiMenuRef} className={SelfStyle.apiMenu}>
+            {getApiMenu()}
+          </div>
 
           {renderSwaggerUI()}
         </div>
@@ -409,14 +731,25 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     </>
   );
   function getApiMenu() {
+    const pathMenuSelectedKeys = (() => {
+      const k = getSwaggerPathMenuItemKey(currentMenuCheckbox);
+      return k ? [k] : [];
+    })();
     return (
       <>
         <Tabs activeKey={menuActiveTabKey} onChange={onMenuTabChange}>
           <Tabs.TabPane key="domain" tab="域名">
             <Menu
-              defaultOpenKeys={['myDomainSearch']}
               mode="inline"
               theme="light"
+              selectedKeys={pathMenuSelectedKeys}
+              {...(searchSwaggerValue
+                ? { defaultOpenKeys: ['myDomainSearch'] as string[] }
+                : {
+                    openKeys: domainMenuOpenKeys,
+                    onOpenChange: (keys) =>
+                      setDomainMenuOpenKeys(keys as string[]),
+                  })}
             >
               {searchSwaggerValue ? (
                 <Menu.SubMenu
@@ -595,6 +928,7 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
               mode="inline"
               defaultOpenKeys={['myAttention']}
               theme="light"
+              selectedKeys={pathMenuSelectedKeys}
             >
               <Menu.SubMenu
                 key="myAttention"
@@ -690,7 +1024,12 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
               )}
             </div>
             <div className="right-wrap">
-              {menuActiveTabKey === 'attentionList' ? (
+              {menuActiveTabKey === 'attentionList' && (
+                <Button type="default" onClick={onJumpAttentionItemToDomainMenu}>
+                  在域名中定位
+                </Button>
+              )}
+              {isPathInAttentionList(currentMenuCheckbox) ? (
                 <Button
                   type="default"
                   onClick={onCancelAttentionPath}
@@ -934,17 +1273,18 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
             ),
           )
         : '';
+    const menuItemJumpKey =
+      pathMenuCheckbox.domain +
+      pathMenuCheckbox.groupName +
+      pathMenuCheckbox.tagName +
+      (pathMenuCheckbox.pathKey || pathMenuCheckbox.pathUrl);
     return (
       <Menu.Item
+        data-swagger-menu-item={menuItemJumpKey}
         onClick={() => {
           onSelectApi(pathItem, pathMenuCheckbox);
         }}
-        key={
-          pathMenuCheckbox.domain +
-          pathMenuCheckbox.groupName +
-          pathMenuCheckbox.tagName +
-          (pathMenuCheckbox.pathKey || pathMenuCheckbox.pathUrl)
-        }
+        key={menuItemJumpKey}
       >
         <Checkbox
           checked={getMenuChecked(pathMenuCheckbox)}
@@ -1012,13 +1352,20 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         }),
       );
       if (rsp.data.list.length && isFirst) {
+        swaggerSidebarDbg('reqGetAttention:switch-to-attention', {
+          isFirst,
+          tab: menuActiveTabKeyRef.current,
+        });
+        persistSwaggerSidebarScroll(menuActiveTabKeyRef.current);
         setMenuActiveTabKey('attentionList');
       }
 
       if (
-        menuActiveTabKey == 'attentionList' &&
+        menuActiveTabKeyRef.current === 'attentionList' &&
         !rsp.data.list.length
       ) {
+        swaggerSidebarDbg('reqGetAttention:switch-to-domain-empty', {});
+        persistSwaggerSidebarScroll('attentionList');
         setMenuActiveTabKey('domain');
       }
     }
@@ -1080,6 +1427,21 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     return `${item.domain}\x1e${item.groupName}\x1e${item.tagName}\x1e${
       pathPart
     }`;
+  }
+  /** 当前选中的接口是否已在「关注」列表中（域名 Tab 与关注 Tab 文案一致） */
+  function isPathInAttentionList(pathCb: NProject.IMenuCheckbox) {
+    const list = MDProject.attentionInfos?.list;
+    if (!list?.length || !pathCb) {
+      return false;
+    }
+    if (!pathCb.domain || !pathCb.groupName || !pathCb.tagName) {
+      return false;
+    }
+    if (!pathCb.pathKey && !pathCb.pathUrl) {
+      return false;
+    }
+    const key = attentionPathDedupeKey(pathCb);
+    return list.some((item) => attentionPathDedupeKey(item) === key);
   }
   function isMenuTagRow(
     a: NProject.IMenuCheckbox,
@@ -1439,6 +1801,98 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     }
   }
 
+  /** 从「关注」Tab 跳到「域名」侧栏对应域名/分组/标签并展开，选中同一接口 */
+  function onJumpAttentionItemToDomainMenu() {
+    const pathCb = currentMenuCheckbox;
+    if (!pathCb?.domain || !pathCb.groupName || !pathCb.tagName) {
+      message.warning('当前选择不是具体接口');
+      return;
+    }
+    const domainItem = MDProject.domainSwaggerList.find(
+      (d) => d.domain === pathCb.domain,
+    );
+    if (!domainItem?.data) {
+      message.warning('未找到对应域名，请先在「域名」中录入 Swagger');
+      return;
+    }
+    const groupRow =
+      domainItem.data[pathCb.groupName] ||
+      Object.values(domainItem.data).find(
+        (g) => g.groupName === pathCb.groupName,
+      );
+    if (!groupRow?.tags) {
+      message.warning('未找到对应分组');
+      return;
+    }
+    const tagEntries = Object.values(groupRow.tags);
+    const tagIndex = tagEntries.findIndex((t) => t.tagName === pathCb.tagName);
+    if (tagIndex < 0) {
+      message.warning('未找到对应标签');
+      return;
+    }
+    const tagItem = tagEntries[tagIndex];
+    const paths = tagItem.paths;
+    let pathKey = pathCb.pathKey;
+    let pathItem = pathKey ? paths[pathKey] : undefined;
+    if (!pathItem && pathCb.pathUrl) {
+      const met = (pathCb.method || 'get').toLowerCase();
+      const found = Object.entries(paths).find(
+        ([, p]) =>
+          p.pathUrl === pathCb.pathUrl &&
+          (p.method || 'get').toLowerCase() === met,
+      );
+      if (found) {
+        pathKey = found[0];
+        pathItem = found[1];
+      }
+    }
+    if (!pathItem || !pathKey) {
+      message.warning('未在域名文档中找到该接口，可能已变更或路径不一致');
+      return;
+    }
+    const groups = Object.values(domainItem.data);
+    const domainMenuKey =
+      domainItem.id != null ? String(domainItem.id) : domainItem.domain;
+    const nextOpenKeys: string[] = [domainMenuKey];
+    if (groups.length > 1) {
+      nextOpenKeys.push(domainItem.domain + pathCb.groupName);
+    }
+    nextOpenKeys.push(
+      domainItem.domain + pathCb.groupName + pathCb.tagName + tagIndex,
+    );
+    const pathMenuCheckbox: NProject.IMenuCheckbox = {
+      domain: domainItem.domain,
+      groupName: pathCb.groupName,
+      tagName: pathCb.tagName,
+      pathKey,
+      pathUrl: pathItem.pathUrl,
+      method: pathItem.method,
+      data: pathItem,
+      isPath: true,
+    };
+    const jumpKey =
+      pathMenuCheckbox.domain +
+      pathMenuCheckbox.groupName +
+      pathMenuCheckbox.tagName +
+      (pathMenuCheckbox.pathKey || pathMenuCheckbox.pathUrl);
+    // 须先于 setState：避免 flushSync 提前提交时「恢复滚动」在 pending 写入前执行并盖住定位
+    pendingSwaggerMenuJumpKeyRef.current = jumpKey;
+    swaggerSidebarDbg('onJumpAttention:begin', {
+      jumpKey,
+      pathKey,
+      pathUrl: pathItem.pathUrl,
+      method: pathItem.method,
+      nextOpenKeys,
+      tabBefore: menuActiveTabKeyRef.current,
+      searchBefore: searchSwaggerValue,
+    });
+    persistSwaggerSidebarScroll(menuActiveTabKeyRef.current);
+    setSearchSwaggerValue('');
+    setDomainMenuOpenKeys(nextOpenKeys);
+    setMenuActiveTabKey('domain');
+    onSelectApi(pathItem, pathMenuCheckbox);
+  }
+
   function filterAttentionPathList() {
     return MDProject.attentionInfos.list.filter((item) =>
       JSON.stringify(item).includes(searchSwaggerValue),
@@ -1503,6 +1957,12 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
     return list;
   }
   function onMenuTabChange(activeKey: string) {
+    swaggerSidebarDbg('onMenuTabChange', {
+      from: menuActiveTabKeyRef.current,
+      to: activeKey,
+      pendingJump: pendingSwaggerMenuJumpKeyRef.current,
+    });
+    persistSwaggerSidebarScroll();
     setMenuActiveTabKey(activeKey);
     setRenderMethodInfos(lastRendMethodInfos);
     setLastRenderMethodInfos(rendMethodInfos);
