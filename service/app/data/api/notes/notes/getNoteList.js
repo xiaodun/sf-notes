@@ -1,15 +1,27 @@
 (function () {
   return function (argData, argParams) {
-    //argData 数据的副本
+    argParams = argParams || {};
+    const active = (argData || []).filter((item) => !item.deleted);
+    const offset = Number(argParams.offset);
+    const limit = Number(argParams.limit);
+    const paginated =
+      argParams.offset != null &&
+      argParams.limit != null &&
+      Number.isFinite(offset) &&
+      Number.isFinite(limit) &&
+      limit > 0 &&
+      offset >= 0;
+    const list = paginated
+      ? active.slice(offset, offset + limit)
+      : active;
     return {
-      isWrite: false, //是否覆盖数据
-      //data:argData,//需要存储的新数据
+      isWrite: false,
       response: {
-        //返回的数据
         code: 200,
         data: {
           success: true,
-          list: (argData || []).filter((item) => !item.deleted),
+          list,
+          ...(paginated ? { total: active.length } : {}),
         },
       },
     };
