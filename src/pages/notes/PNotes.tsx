@@ -2,8 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import Note from "./components/note/note";
 import SelfStyle from "./LNotes.less";
 import SNotes from "./SNotes";
-import { Button, message, Radio, Select } from "antd";
-import { ArrowLeftOutlined, MenuOutlined } from "@ant-design/icons";
+import { Button, message, Radio, Select, Modal, Spin } from "antd";
+import {
+  ArrowLeftOutlined,
+  MenuOutlined,
+  InboxOutlined,
+} from "@ant-design/icons";
 import { RefSelectProps } from "antd/lib/select";
 import EditModal, { IEditModal } from "./components/edit/EditModal";
 import ZoomImgModal, { IZoomImgModal } from "./components/zoom/ZoomImgModal";
@@ -97,6 +101,10 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
   const lastSerachKeyList = useRef([]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [isSortModel, setIsSortModel] = useState(false);
+  const [trashOpen, setTrashOpen] = useState(false);
+  const [trashLoading, setTrashLoading] = useState(false);
+  const [trashList, setTrashList] = useState<NNotes[]>([]);
+  const [restoringId, setRestoringId] = useState<string | undefined>();
   useEffect(() => {
     setIsSortModel(MDNotes.isTitleModel && !isMobile);
   }, [MDNotes.isTitleModel, isMobile]);
@@ -216,43 +224,139 @@ const PNotes: ConnectRC<PNotesProps> = (props) => {
             标题模式
           </Radio.Button>
         </Radio.Group>
+        <Button icon={<InboxOutlined />} onClick={() => openTrashModal()}>
+          回收站
+        </Button>
         {!isMobile && (
-          <>
-            <div id={searchContentId}>
-              <Select
-                ref={searchSelectRef}
-                className={SelfStyle.searchSelect}
-                getPopupContainer={() =>
-                  document.getElementById(searchContentId)
-                }
-                mode="tags"
-                allowClear={true}
-                placeholder="搜索内容"
-                onChange={onSearchContent}
-                open={searchOpen}
-                onFocus={() => setSearchOpen(true)}
-                onBlur={() => setSearchOpen(false)}
-              >
-                {titleOptionList.map((item, index) => (
-                  <Select.Option key={index} value={item.value}>
-                    {item.value}
-                  </Select.Option>
-                ))}
-              </Select>
-            </div>
-            <Button onClick={() => onClearDeletedNote()}>清空删除备份</Button>
-          </>
+          <div id={searchContentId}>
+            <Select
+              ref={searchSelectRef}
+              className={SelfStyle.searchSelect}
+              getPopupContainer={() =>
+                document.getElementById(searchContentId)
+              }
+              mode="tags"
+              allowClear={true}
+              placeholder="搜索内容"
+              onChange={onSearchContent}
+              open={searchOpen}
+              onFocus={() => setSearchOpen(true)}
+              onBlur={() => setSearchOpen(false)}
+            >
+              {titleOptionList.map((item, index) => (
+                <Select.Option key={index} value={item.value}>
+                  {item.value}
+                </Select.Option>
+              ))}
+            </Select>
+          </div>
         )}
       </PageFooter>
+      <Modal
+        title="回收站"
+        visible={trashOpen}
+        onCancel={() => setTrashOpen(false)}
+        footer={[
+          <Button
+            key="clear"
+            danger
+            disabled={!trashList.length}
+            onClick={() => onClearTrashConfirm()}
+          >
+            清空回收站
+          </Button>,
+          <Button key="close" type="primary" onClick={() => setTrashOpen(false)}>
+            关闭
+          </Button>,
+        ]}
+        width={Math.min(920, typeof window !== "undefined" ? window.innerWidth - 32 : 920)}
+        bodyStyle={{ maxHeight: "70vh", overflow: "auto", paddingTop: 8 }}
+        destroyOnClose
+      >
+        <Spin spinning={trashLoading}>
+          {!trashList.length && !trashLoading ? (
+            <div
+              style={{
+                color: "#999",
+                textAlign: "center",
+                padding: "24px 0",
+              }}
+            >
+              暂无已删除备份
+            </div>
+          ) : (
+            trashList.map((item, idx) => (
+              <Note
+                key={String(item.id)}
+                data={item}
+                index={idx}
+                editModalRef={editModalRef}
+                zoomModalRef={zoomModalRef}
+                trashMode
+                onRestore={() => onRestoreNote(String(item.id))}
+                restoreLoading={restoringId === String(item.id)}
+                restoreDisabled={
+                  !!restoringId && restoringId !== String(item.id)
+                }
+              />
+            ))
+          )}
+        </Spin>
+      </Modal>
       <ZoomImgModal ref={zoomModalRef}></ZoomImgModal>
     </div>
   );
-  async function onClearDeletedNote() {
-    const rsp = await SNotes.clearDeletedNote();
-    if (rsp.success) {
-      message.success("已清空");
+  async function openTrashModal() {
+    setTrashOpen(true);
+    await loadTrashList();
+  }
+
+  async function loadTrashList() {
+    setTrashLoading(true);
+    try {
+      const rsp = await SNotes.getDeletedList();
+      if (rsp.success && rsp.list) {
+        setTrashList(rsp.list);
+      } else {
+        setTrashList([]);
+      }
+    } finally {
+      setTrashLoading(false);
     }
   }
+
+  async function onRestoreNote(id: string) {
+    setRestoringId(id);
+    try {
+      const rsp = await SNotes.restoreItem(id);
+      if (rsp.success) {
+        message.success("已恢复到列表最前");
+        await reqGetList();
+        await loadTrashList();
+      }
+    } finally {
+      setRestoringId(undefined);
+    }
+  }
+
+  function onClearTrashConfirm() {
+    Modal.confirm({
+      title: "清空回收站？",
+      content: "所有已删除备份将永久移除，无法找回。",
+      okText: "清空",
+      okType: "danger",
+      cancelText: "取消",
+      onOk: async () => {
+        const rsp = await SNotes.clearDeletedNote();
+        if (rsp.success) {
+          message.success("已清空");
+          setTrashList([]);
+          await reqGetList();
+        }
+      },
+    });
+  }
+
   function getMatchIdList() {
     //名字标题的在前
     let matchTitleIdList = MDNotes.rsp.list
