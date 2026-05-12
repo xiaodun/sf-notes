@@ -48,6 +48,183 @@ export interface INoteAction {
   type: TCopyType;
   copyId?: string;
 }
+
+function resolveNotePasteImgSrc(
+  link: string,
+  noteBase64: Record<string, unknown>,
+  otherNotes: NNotes[],
+): string | undefined {
+  if (link.indexOf(NNotes.imgProtocolKey) !== 0) {
+    return link;
+  }
+  let src = noteBase64[link] as string | undefined;
+  if (!src && otherNotes?.length) {
+    for (let i = 0; i < otherNotes.length; i++) {
+      const b = otherNotes[i]?.base64 as Record<string, string> | undefined;
+      if (b?.[link]) {
+        src = b[link];
+        break;
+      }
+    }
+  }
+  return src;
+}
+
+function escapeHtmlForNoteClipboard(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function escapeAttrForNoteClipboard(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/** 与 dealLink 一致：链接/内嵌图 → HTML 片段（保留行间文字与多图） */
+function noteSegmentLinksToHtml(
+  segment: string,
+  noteBase64: Record<string, unknown>,
+  otherNotes: NNotes[],
+): string {
+  const imgStuffixList = [
+    '.jpg',
+    '.jpeg',
+    '.gif',
+    '.png',
+    '.svg',
+    '.webp',
+  ];
+  const linkPattern = new RegExp(
+    `((https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;\\u4e00-\\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\\u4e00-\\u9fa5])|(${NNotes.imgProtocolKey}://[.A-Za-z0-9]+)`,
+    'g',
+  );
+  if (!segment.match(linkPattern)) {
+    return escapeHtmlForNoteClipboard(segment)
+      .replace(/\r\n/g, '\n')
+      .replace(/\n/g, '<br/>');
+  }
+  let html = '';
+  let lastIndex = 0;
+  let result: RegExpExecArray | null;
+  const re = new RegExp(linkPattern.source, linkPattern.flags);
+  while ((result = re.exec(segment)) !== null) {
+    if (result.index !== lastIndex) {
+      html += escapeHtmlForNoteClipboard(
+        segment.slice(lastIndex, result.index),
+      )
+        .replace(/\r\n/g, '\n')
+        .replace(/\n/g, '<br/>');
+    }
+    const link = result[0];
+    const isImg = imgStuffixList.some(
+      (stuffix) => link.lastIndexOf(stuffix) !== -1,
+    );
+    if (isImg) {
+      const src = resolveNotePasteImgSrc(link, noteBase64, otherNotes);
+      if (src) {
+        html += `<img alt="" style="max-width:100%;max-height:480px;vertical-align:middle;display:block;margin:6px 0" src="${escapeAttrForNoteClipboard(src)}" />`;
+      } else {
+        html += escapeHtmlForNoteClipboard(link);
+      }
+    } else {
+      html += `<a href="${escapeAttrForNoteClipboard(link)}">${escapeHtmlForNoteClipboard(link)}</a>`;
+    }
+    lastIndex = result.index + link.length;
+  }
+  if (lastIndex < segment.length) {
+    html += escapeHtmlForNoteClipboard(segment.slice(lastIndex))
+      .replace(/\r\n/g, '\n')
+      .replace(/\n/g, '<br/>');
+  }
+  return html;
+}
+
+function buildNoteTopCopyHtml(
+  content: string,
+  note: NNotes,
+  otherNotes: NNotes[],
+): string {
+  const noteBase64 = (note.base64 || {}) as Record<string, unknown>;
+  const codeRe = /```([\s\S]*?)```/g;
+  const parts: string[] = [];
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = codeRe.exec(content)) !== null) {
+    if (m.index > last) {
+      parts.push(
+        noteSegmentLinksToHtml(
+          content.slice(last, m.index),
+          noteBase64,
+          otherNotes,
+        ),
+      );
+    }
+    parts.push(
+      `<pre style="white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:12px;">${escapeHtmlForNoteClipboard(m[1] || '')}</pre>`,
+    );
+    last = m.index + m[0].length;
+  }
+  if (last < content.length) {
+    parts.push(
+      noteSegmentLinksToHtml(
+        content.slice(last),
+        noteBase64,
+        otherNotes,
+      ),
+    );
+  }
+  if (parts.length === 0) {
+    parts.push(noteSegmentLinksToHtml(content, noteBase64, otherNotes));
+  }
+  const body = parts.join('');
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body><div style="font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:14px;line-height:1.55">${body}</div></body></html>`;
+}
+
+/**
+ * 纯文本：保留原文与换行，内嵌图用【图片】占位（不塞 data URL），便于在记事本里阅读顺序。
+ * 代码块内不替换。
+ */
+function buildNoteStructuredPlainForClipboard(
+  content: string,
+  note: NNotes,
+  otherNotes: NNotes[],
+): string {
+  const noteBase64 = (note.base64 || {}) as Record<string, unknown>;
+  const keyRe = new RegExp(
+    `${NNotes.imgProtocolKey}://[.A-Za-z0-9]+`,
+    'g',
+  );
+  function replaceImgKeys(seg: string): string {
+    return seg.replace(keyRe, (link) => {
+      const src = resolveNotePasteImgSrc(link, noteBase64, otherNotes);
+      return src ? '【图片】' : link;
+    });
+  }
+  let out = '';
+  let last = 0;
+  const codeRe = /```([\s\S]*?)```/g;
+  let m: RegExpExecArray | null;
+  while ((m = codeRe.exec(content)) !== null) {
+    if (m.index > last) {
+      out += replaceImgKeys(content.slice(last, m.index));
+    }
+    out += m[0];
+    last = m.index + m[0].length;
+  }
+  if (last < content.length) {
+    out += replaceImgKeys(content.slice(last));
+  }
+  if (out === '') {
+    out = replaceImgKeys(content);
+  }
+  return out;
+}
+
 const Note: FC<INoteProps> = (props) => {
   const { data, MDNotes, trashMode } = props;
   const cloneData = cloneDeep(data);
@@ -239,8 +416,17 @@ const Note: FC<INoteProps> = (props) => {
       );
     }
   }
-  async function onCopy() {
-    UCopy.copyStr(data.content);
+  /**
+   * 剪贴板同时带 text/html（多图+排版）与 text/plain（正文+【图片】占位），避免仅 HTML 时微信等粘贴为空。
+   * 勿用 async/await 排在 clipboard.write 前，以免丢失用户手势。
+   */
+  function onCopy() {
+    const raw = data.content ?? '';
+    const list = MDNotes.rsp?.list ?? [];
+    const structured = buildNoteStructuredPlainForClipboard(raw, data, list);
+    const plain = structured.trim().length ? structured : raw;
+    const html = buildNoteTopCopyHtml(raw, data, list);
+    void UCopy.copyHtmlPlain(html, plain);
   }
   async function reqTopItem(data: NNotes) {
     const rsp = await SNotes.topItem(data);
@@ -337,7 +523,14 @@ const Note: FC<INoteProps> = (props) => {
     //处理链接
     let prefix = 'link',
       key = 0;
-    const imgStuffixList = ['.jpg', '.jpeg', '.gif', '.png', '.svg'];
+    const imgStuffixList = [
+      '.jpg',
+      '.jpeg',
+      '.gif',
+      '.png',
+      '.svg',
+      '.webp',
+    ];
     const linkPattern = RegExp(
       `((https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;\u4e00-\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5])|(${NNotes.imgProtocolKey}://[.A-Za-z0-9]+)`,
       'g',
