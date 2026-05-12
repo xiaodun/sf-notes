@@ -82,38 +82,6 @@
             "isSfMock": true
         },
         {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-lottery-client",
-            "sfMock": {
-                "serverList": [
-                    {
-                        "port": 9300,
-                        "isMock": true,
-                        "openUrl": "http://172.17.48.50:9300",
-                        "openDomainUrl": "http://wx.mock.affluence-lottery-client:9300"
-                    },
-                    {
-                        "name": "本地链接",
-                        "openUrl": "http://localhost:5173"
-                    }
-                ]
-            },
-            "name": "affluence-lottery-client",
-            "id": 1774229887993,
-            "startConfig": {
-                "commands": [
-                    {
-                        "name": "lottery-client",
-                        "command": "npm run dev:h5"
-                    },
-                    {
-                        "name": "lottery-clound",
-                        "command": "cd clound-service\nnode app.js"
-                    }
-                ],
-                "runUrl": "http://localhost:5173"
-            }
-        },
-        {
             "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-spend-client",
             "sfMock": {
                 "serverList": []
@@ -159,23 +127,6 @@
                 "runUrl": "http://localhost:3000"
             },
             "isSfMock": false
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-git-story",
-            "sfMock": {
-                "serverList": []
-            },
-            "name": "affluence-git-story",
-            "id": 1774595529600,
-            "startConfig": {
-                "commands": [
-                    {
-                        "name": "git-story",
-                        "command": "pnpm start"
-                    }
-                ],
-                "runUrl": "http://localhost:"
-            }
         }
     ]
 }
