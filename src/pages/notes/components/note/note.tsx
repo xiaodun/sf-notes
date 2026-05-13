@@ -1,4 +1,4 @@
-import React, { FC, ReactNode } from 'react';
+import React, { FC, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import SelfStyle from './note.less';
 import { Card, Button, Menu, Dropdown, Space } from 'antd';
 import {
@@ -19,7 +19,7 @@ import NModel from '@/common/namespace/NModel';
 import { IEditModal } from '../edit/EditModal';
 import { IZoomImgModal } from '../zoom/ZoomImgModal';
 import { NConnect } from '@/common/namespace/NConnect';
-import { cloneDeep, isEqual } from 'lodash';
+import { cloneDeep, debounce, isEqual } from 'lodash';
 import Browser from '@/utils/browser';
 import { produce } from 'immer';
 
@@ -225,9 +225,102 @@ function buildNoteStructuredPlainForClipboard(
   return out;
 }
 
+function samePersistedNoteBody(a: NNotes, b: NNotes): boolean {
+  return (
+    a.id === b.id &&
+    a.content === b.content &&
+    isEqual(a.base64 ?? {}, b.base64 ?? {})
+  );
+}
+
 const Note: FC<INoteProps> = (props) => {
   const { data, MDNotes, trashMode } = props;
-  const cloneData = cloneDeep(data);
+  const [localDraft, setLocalDraft] = useState<NNotes | null>(null);
+  const effectiveData = localDraft ?? data;
+  const cloneData = cloneDeep(effectiveData);
+
+  const mdNotesRspRef = useRef(MDNotes.rsp);
+  mdNotesRspRef.current = MDNotes.rsp;
+
+  const localDraftRef = useRef<NNotes | null>(null);
+  useEffect(() => {
+    localDraftRef.current = localDraft;
+  }, [localDraft]);
+
+  const trashModeRef = useRef(trashMode);
+  useEffect(() => {
+    trashModeRef.current = trashMode;
+  }, [trashMode]);
+
+  /** dealLink 与 effective 不一致时自动落库；有 localDraft（片段删除批处理中）时不触发，避免抢写 */
+  const persistDraftDebounced = useMemo(
+    () =>
+      debounce((draft: NNotes) => {
+        SNotes.editItem(draft).then((rsp) => {
+          if (rsp.success) {
+            const newNotesRsp = NRsp.updateItem(
+              mdNotesRspRef.current,
+              draft,
+              (d) => d.id === draft.id,
+            );
+            NModel.dispatch(new NMDNotes.ARSetRsp(newNotesRsp));
+          }
+        });
+      }, 420),
+    [data.id],
+  );
+
+  const runFlushDeleteBatchRef = useRef<() => Promise<void>>(async () => {});
+
+  runFlushDeleteBatchRef.current = async () => {
+    const draft = localDraftRef.current;
+    if (!draft || trashModeRef.current) {
+      return;
+    }
+    persistDraftDebounced.cancel();
+    const res = await SNotes.editItem(draft);
+    if (!res.success) {
+      return;
+    }
+    const stored = (res.data as NNotes) ?? draft;
+    NModel.dispatch(
+      new NMDNotes.ARSetRsp(
+        NRsp.updateItem(
+          mdNotesRspRef.current,
+          stored,
+          (d) => d.id === stored.id,
+        ),
+      ),
+    );
+    const cur = localDraftRef.current;
+    if (!cur) {
+      return;
+    }
+    if (samePersistedNoteBody(cur, stored)) {
+      localDraftRef.current = null;
+      setLocalDraft(null);
+      return;
+    }
+    void runFlushDeleteBatchRef.current();
+  };
+
+  const scheduleDeleteFlushDebounced = useMemo(
+    () => debounce(() => void runFlushDeleteBatchRef.current(), 420),
+    [data.id],
+  );
+
+  useEffect(
+    () => () => {
+      persistDraftDebounced.cancel();
+      scheduleDeleteFlushDebounced.cancel();
+    },
+    [persistDraftDebounced, scheduleDeleteFlushDebounced],
+  );
+
+  useEffect(() => {
+    setLocalDraft(null);
+    scheduleDeleteFlushDebounced.cancel();
+  }, [data.id, scheduleDeleteFlushDebounced]);
 
   const isExpand = trashMode
     ? true
@@ -319,7 +412,7 @@ const Note: FC<INoteProps> = (props) => {
                 )
               }
             >
-              {parseContent(data.content, data.base64)}
+              {parseContent(effectiveData.content, effectiveData.base64)}
             </Card>
           </div>
           {!trashMode && renderActionWrap(SelfStyle.bottom)}
@@ -453,17 +546,8 @@ const Note: FC<INoteProps> = (props) => {
   function parseContent(content: string = '', base64imgs: Object) {
     let list = dealCode(content);
     list = dealLink(list, base64imgs);
-    if (!trashMode && !isEqual(data, cloneData)) {
-      SNotes.editItem(cloneData).then((rsp) => {
-        if (rsp.success) {
-          const newNotesRsp = NRsp.updateItem(
-            MDNotes.rsp,
-            cloneData,
-            (data) => data.id === cloneData.id,
-          );
-          NModel.dispatch(new NMDNotes.ARSetRsp(newNotesRsp));
-        }
-      });
+    if (!trashMode && localDraft === null && !isEqual(effectiveData, cloneData)) {
+      persistDraftDebounced(cloneDeep(cloneData));
     }
     return withAble(list);
   }
@@ -558,7 +642,7 @@ const Note: FC<INoteProps> = (props) => {
         let initalCount = item.start;
         strList.forEach((str) => {
           let type: TCopyType = 'str';
-          const id = props.data.id + '-' + prefix + '-' + key++;
+          const id = effectiveData.id + '-' + prefix + '-' + key++;
           let result: RegExpExecArray | null,
             lastIndex = 0;
 
@@ -676,15 +760,15 @@ const Note: FC<INoteProps> = (props) => {
     return newList;
   }
   async function reqDelPart(start: number, count: number) {
-    const content = props.data.content;
+    const base = localDraftRef.current ?? data;
+    const content = base.content;
     const end = start + count;
     const newContent =
       content.substring(0, start) +
       content.substring(end, content.length);
 
-    const newNote: NNotes = produce(props.data, (drafState) => {
+    const newNote: NNotes = produce(base, (drafState) => {
       drafState.content = newContent;
-      //删除的是否为base64图片,不及时清除会导致接口响应缓慢
       const delContent = content.substring(start, end).trim();
       if (delContent.startsWith(NNotes.imgProtocolKey)) {
         delete drafState.base64[delContent];
@@ -694,18 +778,10 @@ const Note: FC<INoteProps> = (props) => {
     if (trashMode) {
       return;
     }
-    const res = await SNotes.editItem(newNote);
-    if (res.success) {
-      NModel.dispatch(
-        new NMDNotes.ARSetRsp(
-          NRsp.updateItem(
-            MDNotes.rsp,
-            newNote,
-            (data) => data.id === newNote.id,
-          ),
-        ),
-      );
-    }
+    setLocalDraft(newNote);
+    localDraftRef.current = newNote;
+    persistDraftDebounced.cancel();
+    scheduleDeleteFlushDebounced();
   }
   function copyNoteContent(copyInfos: INoteAction) {
     if (copyInfos.type === 'str') {
