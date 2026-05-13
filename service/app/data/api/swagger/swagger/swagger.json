@@ -14,7 +14,7 @@
             "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
             "id": 1777269951480,
             "crateTime": 1777269951480,
-            "updateTime": 1778204335453
+            "updateTime": 1778651528376
         }
     ],
     "apiPrefixs": {},
@@ -188,6 +188,60 @@
             "pathKey": "get:/api/v5/plugins/{pluginId}/versions/{versionId}/config/yaml/files/{fileId}/rules",
             "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}/config/yaml/files/{fileId}/rules",
             "method": "get",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Config Manager — YAML (V5 Pipeline)",
+            "pathKey": "post:/api/v5/plugins/{pluginId}/versions/{versionId}/config/yaml/files/{fileId}/rules",
+            "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}/config/yaml/files/{fileId}/rules",
+            "method": "post",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Config Manager — YAML (V5 Pipeline)",
+            "pathKey": "put:/api/v5/plugins/{pluginId}/versions/{versionId}/config/yaml/files/{fileId}/rules/{ruleId}",
+            "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}/config/yaml/files/{fileId}/rules/{ruleId}",
+            "method": "put",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Config Manager — YAML (V5 Pipeline)",
+            "pathKey": "delete:/api/v5/plugins/{pluginId}/versions/{versionId}/config/yaml/files/{fileId}/rules/{ruleId}",
+            "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}/config/yaml/files/{fileId}/rules/{ruleId}",
+            "method": "delete",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Config Manager — YAML (V5 Pipeline)",
+            "pathKey": "post:/api/v5/plugins/{pluginId}/versions/{versionId}/config/yaml/files/{fileId}/rules/reorder",
+            "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}/config/yaml/files/{fileId}/rules/reorder",
+            "method": "post",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Config Manager — YAML (V5 Pipeline)",
+            "pathKey": "get:/api/v5/plugins/{pluginId}/versions/{versionId}/config/yaml/files/{fileId}/preview/{serverId}",
+            "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}/config/yaml/files/{fileId}/preview/{serverId}",
+            "method": "get",
+            "isPath": true
+        },
+        {
+            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "v5",
+            "tagName": "Plugin Config Manager — YAML (V5 Pipeline)",
+            "pathKey": "post:/api/v5/plugins/{pluginId}/versions/{versionId}/config/yaml/files/{fileId}/sync",
+            "pathUrl": "/api/v5/plugins/{pluginId}/versions/{versionId}/config/yaml/files/{fileId}/sync",
+            "method": "post",
             "isPath": true
         }
     ],
