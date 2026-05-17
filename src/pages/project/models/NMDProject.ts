@@ -39,6 +39,7 @@ export default {
       showEnumList: false,
       swaggerPathShowWay: "path",
       lastOptionSwaggerDomain: "",
+      terminalCommand: "deepcode",
     },
     project: {
       name: "",
@@ -56,6 +57,7 @@ export default {
       startConfig: {
         commands: [],
         runUrl: "",
+        terminalCommand: "deepcode",
       },
       web: {
         isStart: null,

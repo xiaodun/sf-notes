@@ -16,7 +16,6 @@ import {
   Select,
   Space,
   Table,
-  Tag,
 } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect, ConnectRC, Link, NMDProject, history } from 'umi';
@@ -34,7 +33,7 @@ import NRsp from '@/common/namespace/NRsp';
 import { cloneDeep } from 'lodash';
 import UCopy from '@/common/utils/UCopy';
 import UGitlab from '@/common/utils/UGitlab';
-import { DeleteOutlined, MenuOutlined, ArrowLeftOutlined, SettingOutlined, EllipsisOutlined, CopyOutlined } from '@ant-design/icons';
+import { DeleteOutlined, MenuOutlined, ArrowLeftOutlined, SettingOutlined, EllipsisOutlined, CopyOutlined, CodeOutlined } from '@ant-design/icons';
 import Browser from "@/utils/browser";
 import SBase from '@/common/service/SBase';
 import { DIRECTORY_MODAL_MEMORY_KEYS } from '@/common/components/directory/constants/directoryMemory';
@@ -203,6 +202,13 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   async function onOpenProjectCmd(project: NProject) {
     await SBase.openFile(project.rootPath, 'cmd');
   }
+  async function onOpenTerminal(project: NProject) {
+    const termCmd = project.startConfig?.terminalCommand || MDProject.config.terminalCommand || 'deepcode';
+    const rsp = await SBase.openTerminal(project.rootPath, termCmd);
+    if (rsp.success) {
+      message.success('已打开终端');
+    }
+  }
   async function delProject(project: NProject) {
     const rsp = await SProject.delProject(project);
     if (rsp.success) {
@@ -210,6 +216,11 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     }
   }
   function renderOptionColumn(project: NProject) {
+    const hasStartCommands = Boolean(project.startConfig?.commands?.length);
+    const isStarted = project.web.isStart === true;
+    const isLoading = project.web.isStart === null;
+    const hasRunUrl = Boolean(String(project.startConfig?.runUrl || '').trim());
+
     let openBlock;
     if (project.name !== 'sf-notes') {
       const openLinkList = getOpenLinkList(project);
@@ -229,25 +240,41 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         key: 'open-project-cmd',
         label: <a onClick={() => onOpenProjectCmd(project)}>在cmd打开</a>,
       });
+
+      // 合并 启动/打开：启动后按钮从"启动"变为"打开"
+      let mainText: React.ReactNode = '打开';
+      let mainOnClick: (() => void) | undefined;
+
+      if (hasStartCommands && isLoading) {
+        // 启动中，loading 状态
+        mainText = '启动中...';
+      } else if (hasStartCommands && !isStarted) {
+        // 未启动，显示"启动"
+        mainText = '启动';
+        mainOnClick = () => onStartProject(project);
+      } else if (openLinkList.length) {
+        // 已启动或无启动配置：打开 URL
+        mainText = (
+          <a target="_blank" href={openLinkList[0].url}>
+            打开
+          </a>
+        );
+      } else {
+        // 默认：打开文件夹
+        mainText = '打开';
+        mainOnClick = () => onOpenProjectRoot(project);
+      }
+
       openBlock = (
         <Dropdown.Button
           icon={<EllipsisOutlined />}
           menu={{
             items: menuItems,
           }}
-          onClick={() => {
-            if (!openLinkList.length) {
-              onOpenProjectRoot(project);
-            }
-          }}
+          onClick={mainOnClick}
+          loading={isLoading}
         >
-          {openLinkList.length ? (
-            <a target="_blank" href={openLinkList[0].url}>
-              打开
-            </a>
-          ) : (
-            '打开'
-          )}
+          {mainText}
         </Dropdown.Button>
       );
     }
@@ -266,17 +293,15 @@ const Project: ConnectRC<IProjectProps> = (props) => {
             </Link>
           </Button>
 
-          {Boolean(project.startConfig?.runUrl) && project.web.isStart === null && (
-            <Button loading={true} type="link"></Button>
-          )}
-          {Boolean(project.startConfig?.runUrl) && project.web.isStart === true && (
-            <Tag color="#87d068">已启动</Tag>
-          )}
-          {Boolean(project.startConfig?.commands?.length) && project.web.isStart !== true && project.web.isStart !== null && (
-            <Button type="dashed" onClick={() => onStartProject(project)}>
-              启动
-            </Button>
-          )}
+          {openBlock}
+
+          <Button
+            icon={<CodeOutlined />}
+            onClick={() => onOpenTerminal(project)}
+          >
+            终端
+          </Button>
+
           {project.name !== 'sf-notes' && (
             <Button
               icon={<SettingOutlined />}
@@ -309,7 +334,6 @@ const Project: ConnectRC<IProjectProps> = (props) => {
               </Dropdown.Button>
             </>
           )}
-          {openBlock}
           {MDProject.config.gitlabBasePath && !project.isSfMock && (
             <>
               <Dropdown.Button
