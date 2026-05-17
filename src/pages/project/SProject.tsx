@@ -266,6 +266,7 @@ namespace SProject {
       command: string;
     }[];
     runUrl: string;
+    terminalCommand?: string;
   }): Promise<NRsp<boolean>> {
     return request({
       url: "/project/saveProjectStartConfig",
