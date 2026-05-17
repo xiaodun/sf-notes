@@ -207,6 +207,8 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     const rsp = await SBase.openTerminal(project.rootPath, termCmd);
     if (rsp.success) {
       message.success('已打开终端');
+    } else {
+      message.warning(rsp.message || '无法打开终端');
     }
   }
   async function delProject(project: NProject) {
