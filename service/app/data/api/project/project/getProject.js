@@ -2,7 +2,7 @@
   return function (argData = [], argParams, external) {
     const project = argData.projectList.find((item) => item.id == argParams.id);
     let isWrite = false;
-    if (!project.snippetList) {
+    if (project && !project.snippetList) {
       project.snippetList = [];
       isWrite = true;
     }
