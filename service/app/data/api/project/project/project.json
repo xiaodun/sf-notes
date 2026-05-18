@@ -1,10 +1,40 @@
 {
     "config": {
-        "addBasePath": "C:/Users/SZLD03287/Documents/affluence-git-story",
+        "addBasePath": "C:/Users/SZLD03287/Documents/affluence-git-pro",
         "gitlabBasePath": "",
         "nginxVisitWay": "ip"
     },
     "projectList": [
+        {
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app",
+            "sfMock": {
+                "serverList": [
+                    {
+                        "port": 9100,
+                        "isMock": true,
+                        "openUrl": "http://172.17.48.50:9100",
+                        "openDomainUrl": "http://wx.mock.ccs-app:9100"
+                    },
+                    {
+                        "name": "本地链接",
+                        "openUrl": "http://localhost:3000"
+                    }
+                ],
+                "addressPath": ""
+            },
+            "name": "ccs-app",
+            "id": 1774230197427,
+            "startConfig": {
+                "commands": [
+                    {
+                        "name": "ccs-app",
+                        "command": "npm run dev"
+                    }
+                ],
+                "runUrl": "http://localhost:3000"
+            },
+            "isSfMock": false
+        },
         {
             "rootPath": "D://github//sf-notes",
             "name": "sf-notes",
@@ -99,34 +129,52 @@
             }
         },
         {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app",
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-zen-browser",
             "sfMock": {
-                "serverList": [
-                    {
-                        "port": 9100,
-                        "isMock": true,
-                        "openUrl": "http://172.17.48.50:9100",
-                        "openDomainUrl": "http://wx.mock.ccs-app:9100"
-                    },
-                    {
-                        "name": "本地链接",
-                        "openUrl": "http://localhost:3000"
-                    }
-                ],
-                "addressPath": ""
+                "serverList": []
             },
-            "name": "ccs-app",
-            "id": 1774230197427,
+            "name": "affluence-zen-browser",
+            "id": 1779068545048,
             "startConfig": {
-                "commands": [
-                    {
-                        "name": "ccs-app",
-                        "command": "npm run dev"
-                    }
-                ],
-                "runUrl": "http://localhost:3000"
+                "commands": [],
+                "runUrl": ""
+            }
+        },
+        {
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\easy-network-chrome-extension",
+            "sfMock": {
+                "serverList": []
             },
-            "isSfMock": false
+            "name": "easy-network-chrome-extension",
+            "id": 1779068562440,
+            "startConfig": {
+                "commands": [],
+                "runUrl": ""
+            }
+        },
+        {
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-folio-chat",
+            "sfMock": {
+                "serverList": []
+            },
+            "name": "affluence-folio-chat",
+            "id": 1779068594592,
+            "startConfig": {
+                "commands": [],
+                "runUrl": ""
+            }
+        },
+        {
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-git-pro",
+            "sfMock": {
+                "serverList": []
+            },
+            "name": "affluence-git-pro",
+            "id": 1779068610892,
+            "startConfig": {
+                "commands": [],
+                "runUrl": ""
+            }
         }
     ]
 }
