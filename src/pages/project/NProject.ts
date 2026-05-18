@@ -29,6 +29,7 @@ export interface NProject {
       command: string;
     }[];
     runUrl: string;
+    terminalCommand?: string;
   };
   snippetList: NProjectSnippet[];
   web: {
@@ -51,6 +52,7 @@ export namespace NProject {
     gitlabBasePath: string;
     lastOptionSwaggerDomain: string;
     swaggerPathShowWay: "path" | "desc";
+    terminalCommand?: string;
   }
 
   export interface IAjaxCode {

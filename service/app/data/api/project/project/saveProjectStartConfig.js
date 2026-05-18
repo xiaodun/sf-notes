@@ -3,6 +3,7 @@
     const projectId = Number(argParams.projectId);
     const commands = Array.isArray(argParams.commands) ? argParams.commands : [];
     const runUrl = String(argParams.runUrl || "").trim();
+    const terminalCommand = String(argParams.terminalCommand || "").trim();
     const validCommands = commands
       .map((item) => ({
         name: String((item || {}).name || "").trim(),
@@ -41,6 +42,7 @@
     argData.projectList[projectIndex].startConfig = {
       commands: validCommands,
       runUrl,
+      terminalCommand,
     };
     return {
       isWrite: true,
