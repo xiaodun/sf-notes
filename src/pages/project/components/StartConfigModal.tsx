@@ -27,6 +27,7 @@ const StartConfigModal: React.FC<StartConfigModalProps> = ({
     { name: projectName || '', command: 'npm run dev' },
   ]);
   const [runUrl, setRunUrl] = useState('http://localhost:');
+  const [terminalCommand, setTerminalCommand] = useState('deepcode');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -42,9 +43,11 @@ const StartConfigModal: React.FC<StartConfigModalProps> = ({
         .filter((item) => item.command);
       setCommands(validCommands.length ? validCommands : [{ name: projectName || '', command: 'npm run dev' }]);
       setRunUrl(project.startConfig.runUrl || 'http://localhost:');
+      setTerminalCommand(project.startConfig.terminalCommand || 'deepcode');
     } else if (visible) {
       setCommands([{ name: projectName || '', command: 'npm run dev' }]);
       setRunUrl('http://localhost:');
+      setTerminalCommand('deepcode');
     }
   }, [visible, project, projectName]);
 
@@ -100,6 +103,7 @@ const StartConfigModal: React.FC<StartConfigModalProps> = ({
         projectId,
         commands: validCommands,
         runUrl: String(runUrl || '').trim(),
+        terminalCommand: String(terminalCommand || '').trim(),
       });
       if (rsp.success) {
         message.success('配置已保存');
@@ -156,6 +160,13 @@ const StartConfigModal: React.FC<StartConfigModalProps> = ({
       <Button type="dashed" onClick={addCommand} style={{ width: '100%', marginTop: 8 }}>
         添加命令
       </Button>
+      <Typography.Text style={{ marginTop: 12, marginBottom: 8, display: 'block' }}>终端命令 (在项目目录下执行)</Typography.Text>
+      <Input
+        value={terminalCommand}
+        onChange={(e) => setTerminalCommand(e.target.value)}
+        placeholder="例如 deepcode"
+        allowClear
+      />
       <Typography.Text style={{ marginTop: 12, marginBottom: 8, display: 'block' }}>项目运行地址</Typography.Text>
       <Input
         value={runUrl}

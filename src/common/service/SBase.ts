@@ -56,6 +56,19 @@ namespace SBase {
       },
     });
   }
+  export async function openTerminal(
+    filePath: string,
+    terminalCommand?: string
+  ): Promise<NRsp<boolean>> {
+    return request({
+      url: "/baseService/openTerminal",
+      method: "post",
+      data: {
+        filePath,
+        terminalCommand: terminalCommand || "",
+      },
+    });
+  }
   export async function sendDingMsg(
     url: string,
     data: object
