@@ -1,7 +1,7 @@
 #!/bin/bash
 # ============================================================
 # sf-notes 一键启动（macOS / iTerm）
-# 双击启动，或: bash startByTerminal.command
+# 用法:  bash startByTerminal.sh
 # ============================================================
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
@@ -21,17 +21,33 @@ fi
 lsof -ti:8881 2>/dev/null | xargs kill -9 2>/dev/null
 lsof -ti:8000 2>/dev/null | xargs kill -9 2>/dev/null
 
+# ---- 生成后端启动脚本（设 Tab 标题 + 启动服务）----
+cat > /tmp/_sf_svc.sh << 'SVC_EOF'
+#!/bin/bash
+printf '\033]1;notes-service\007'
+cd "__ROOT__/service/app" && echo '=== notes-service ===' && node service.js
+SVC_EOF
+
+# ---- 生成前端启动脚本 ----
+cat > /tmp/_sf_web.sh << 'WEB_EOF'
+#!/bin/bash
+printf '\033]1;sf-notes\007'
+cd "__ROOT__" && echo '=== sf-notes ===' && npm run dev
+WEB_EOF
+
+chmod +x /tmp/_sf_svc.sh /tmp/_sf_web.sh
+sed -i '' "s|__ROOT__|$ROOT|g" /tmp/_sf_svc.sh /tmp/_sf_web.sh
+
 echo "启动 iTerm..."
 
 osascript <<END_OSA
 tell application "iTerm"
     activate
-    -- 复用已有窗口则开新 Tab，没有则新建窗口
     if (count of windows) = 0 then
         set w to (create window with default profile)
         tell w
             tell current session
-                write text "cd '$ROOT/service/app' && echo '=== notes-service ===' && node service.js"
+                write text "bash /tmp/_sf_svc.sh"
             end tell
         end tell
     else
@@ -39,15 +55,14 @@ tell application "iTerm"
         tell w
             set t1 to (create tab with default profile)
             tell current session of t1
-                write text "cd '$ROOT/service/app' && echo '=== notes-service ===' && node service.js"
+                write text "bash /tmp/_sf_svc.sh"
             end tell
         end tell
     end if
-    -- Tab 2: 前端
     tell w
         set t2 to (create tab with default profile)
         tell current session of t2
-            write text "cd '$ROOT' && echo '=== sf-notes ===' && npm run dev"
+            write text "bash /tmp/_sf_web.sh"
         end tell
     end tell
 end tell
