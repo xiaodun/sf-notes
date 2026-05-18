@@ -20,11 +20,9 @@
 
     const terminalCommand = String(argParams.terminalCommand || "").trim();
 
-    // Tab title: strip first "-" segment, prepend "DP-"
+    // Tab title: add DP- prefix when opening via terminal command
     const projectName = path.basename(absPath);
-    const dashIdx = projectName.indexOf("-");
-    const shortName = dashIdx !== -1 ? projectName.slice(dashIdx + 1) : projectName;
-    const tabTitle = `DP-${shortName}`;
+    const tabTitle = terminalCommand ? `DP-${projectName}` : projectName;
 
     try {
       // Resolve full path to avoid PATH inheritance issues
