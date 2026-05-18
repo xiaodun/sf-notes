@@ -211,6 +211,14 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       message.warning(rsp.message || '无法打开终端');
     }
   }
+  async function onOpenTerminalTab(project: NProject) {
+    const rsp = await SBase.openTerminal(project.rootPath, '');
+    if (rsp.success) {
+      message.success('已打开终端');
+    } else {
+      message.warning(rsp.message || '无法打开终端');
+    }
+  }
   async function delProject(project: NProject) {
     const rsp = await SProject.delProject(project);
     if (rsp.success) {
@@ -238,11 +246,6 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         key: 'open-project-root',
         label: <a onClick={() => onOpenProjectRoot(project)}>在文件夹打开</a>,
       });
-      menuItems.push({
-        key: 'open-project-cmd',
-        label: <a onClick={() => onOpenProjectCmd(project)}>在cmd打开</a>,
-      });
-
       // 合并 启动/打开：启动后按钮从"启动"变为"打开"
       let mainText: React.ReactNode = '打开';
       let mainOnClick: (() => void) | undefined;
@@ -297,12 +300,24 @@ const Project: ConnectRC<IProjectProps> = (props) => {
 
           {openBlock}
 
-          <Button
-            icon={<CodeOutlined />}
+          <Dropdown.Button
+            icon={<EllipsisOutlined />}
+            menu={{
+              items: [
+                {
+                  key: 'open-terminal-tab',
+                  label: <a onClick={() => onOpenTerminalTab(project)}>Terminal打开</a>,
+                },
+                {
+                  key: 'open-project-cmd',
+                  label: <a onClick={() => onOpenProjectCmd(project)}>在cmd打开</a>,
+                },
+              ],
+            }}
             onClick={() => onOpenTerminal(project)}
           >
-            终端
-          </Button>
+            DP
+          </Dropdown.Button>
 
           {project.name !== 'sf-notes' && (
             <Button
