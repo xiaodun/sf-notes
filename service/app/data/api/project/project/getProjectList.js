@@ -6,10 +6,13 @@
     )
     if (sfNote && !sfNote.rootPath) {
       let pos = __dirname.indexOf('sf-notes') + 'sf-notes'.length
-      sfNote.rootPath = __dirname
+      const newRootPath = __dirname
         .substring(0, pos)
-        .replace(/\\/g, '\\')
-      isWrite = true
+        .replace(/\\/g, '\\\\')
+      if (sfNote.rootPath !== newRootPath) {
+        sfNote.rootPath = newRootPath
+        isWrite = true
+      }
     }
     return {
       isWrite: isWrite,
