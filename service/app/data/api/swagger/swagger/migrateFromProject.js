@@ -9,7 +9,7 @@
     const dataApiRoot =
       dataApiRootCandidates.find((p) => fs.existsSync(p)) ||
       dataApiRootCandidates[0];
-    if (argData._migratedFromProjectOnce) {
+    if (argData._migratedFromProjectOnce != null) {
       return false;
     }
     const projectDataPath = path.join(
@@ -87,7 +87,15 @@
       delete projectData.config.swaggerPathShowWay;
       delete projectData.config.lastOptionSwaggerDomain;
     }
-    fs.writeFileSync(projectDataPath, JSON.stringify(projectData, null, 2));
+    const originalContent = fs.readFileSync(projectDataPath, 'utf-8');
+    const lines = originalContent.split(/\r?\n/);
+    const secondLine = lines[1] || '';
+    const indentMatch = secondLine.match(/^(\s+)/);
+    const indent = indentMatch ? indentMatch[1].length : 2;
+    const newContent = JSON.stringify(projectData, null, indent);
+    if (newContent !== originalContent.replace(/\r\n/g, '\n')) {
+      fs.writeFileSync(projectDataPath, newContent);
+    }
 
     argData._migratedFromProjectOnce = Date.now();
     return true;
