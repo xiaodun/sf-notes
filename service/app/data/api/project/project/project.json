@@ -36,6 +36,30 @@
             "isSfMock": false
         },
         {
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-git-pro",
+            "sfMock": {
+                "serverList": []
+            },
+            "name": "affluence-git-pro",
+            "id": 1779068610892,
+            "startConfig": {
+                "commands": [],
+                "runUrl": ""
+            }
+        },
+        {
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-folio-chat",
+            "sfMock": {
+                "serverList": []
+            },
+            "name": "affluence-folio-chat",
+            "id": 1779068594592,
+            "startConfig": {
+                "commands": [],
+                "runUrl": ""
+            }
+        },
+        {
             "rootPath": "C://Users//SZLD03287//Documents//sf-notes",
             "name": "sf-notes",
             "id": 1634522259207,
@@ -147,30 +171,6 @@
             },
             "name": "easy-network-chrome-extension",
             "id": 1779068562440,
-            "startConfig": {
-                "commands": [],
-                "runUrl": ""
-            }
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-folio-chat",
-            "sfMock": {
-                "serverList": []
-            },
-            "name": "affluence-folio-chat",
-            "id": 1779068594592,
-            "startConfig": {
-                "commands": [],
-                "runUrl": ""
-            }
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-git-pro",
-            "sfMock": {
-                "serverList": []
-            },
-            "name": "affluence-git-pro",
-            "id": 1779068610892,
             "startConfig": {
                 "commands": [],
                 "runUrl": ""

@@ -1,5 +1,14 @@
 [
     {
+        "content": "针对未提交的更改给一个符合当前项目规范的简短英文提交信息 填充到 git commit -m \"\"\n<type>: <message>\n<type>(CCP-XXXX): <message>\n\n例如\ngit add .; git commit -m \"fix: use name field instead of displayName for plugin display and upload\"\n\n一行就行\n本次ticket单号：",
+        "base64": {},
+        "createTime": 1778238045243,
+        "updateTime": "",
+        "title": "2026-05-08 07:00:45",
+        "titleColor": "",
+        "id": 1778238045243
+    },
+    {
         "content": "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\nsk-551a5698002f4287af440e974f17a15e",
         "base64": {},
         "createTime": 1778817287246,
@@ -29,15 +38,6 @@
         "title": "2026-05-11 11:40:59",
         "titleColor": "",
         "id": 1778470859377
-    },
-    {
-        "content": "针对这次改动给一个符合当前项目规范的简短英文提交信息 填充到 git commit -m \"\"\n<type>: <message>\n<type>(CCP-XXXX): <message>\n\n例如\ngit add .; git commit -m \"fix: use name field instead of displayName for plugin display and upload\"\n\n一行就行\n本次ticket单号：",
-        "base64": {},
-        "createTime": 1778238045243,
-        "updateTime": "",
-        "title": "2026-05-08 07:00:45",
-        "titleColor": "",
-        "id": 1778238045243
     },
     {
         "content": "git commit -m \"merge: All conflicts resolved\"\nbase64img://916114.png\n",
