@@ -274,5 +274,36 @@ namespace SProject {
       data,
     });
   }
+
+  export async function getGitBatchPref(): Promise<
+    NRsp<{ lastAction: string; lastSelectedProjectIds: number[] }>
+  > {
+    return request({
+      url: "/project/getGitBatchPref",
+      method: "get",
+    });
+  }
+
+  export async function saveGitBatchPref(data: {
+    lastAction: string;
+    lastSelectedProjectIds: number[];
+  }): Promise<NRsp<boolean>> {
+    return request({
+      url: "/project/saveGitBatchPref",
+      method: "post",
+      data,
+    });
+  }
+
+  export async function gitExecuteOne(data: {
+    projectId: number;
+    action: string;
+  }): Promise<NRsp<any>> {
+    return request({
+      url: "/project/gitExecuteOne",
+      method: "post",
+      data,
+    });
+  }
 }
 export default SProject;
