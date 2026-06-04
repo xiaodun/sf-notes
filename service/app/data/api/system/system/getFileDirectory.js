@@ -1,8 +1,25 @@
 (function () {
   const fs = require("fs");
   const path = require("path");
+  const os = require("os");
   return function (argData, argParams) {
+    const platform = os.platform();
+
     function getDiskList() {
+      if (platform === "darwin") {
+        // macOS: list root directory and common locations
+        const roots = [
+          { name: "/", path: "/", isDisk: true },
+        ];
+        try {
+          const homeDir = os.homedir();
+          if (homeDir && homeDir !== "/") {
+            roots.push({ name: "~", path: homeDir, isDisk: true });
+          }
+        } catch (_) {}
+        return roots.map((r) => ({ ...r, isLeaf: false }));
+      }
+      // Windows: list drive letters
       const diskList = [];
       for (let i = 65; i <= 90; i++) {
         const drive = String.fromCharCode(i) + ':\\';
@@ -18,8 +35,12 @@
         isDisk: true,
       }));
     }
+
     if (argParams.path) {
-      const normalizePath = String(argParams.path).replace(/\//g, "\\");
+      let normalizePath = String(argParams.path);
+      if (platform !== "darwin") {
+        normalizePath = normalizePath.replace(/\//g, "\\");
+      }
       let entries = [];
       try {
         entries = fs.readdirSync(normalizePath, { withFileTypes: true });
@@ -30,7 +51,9 @@
             data: {
               success: true,
               list: getDiskList(),
-              message: "路径不存在，已回退到磁盘根目录",
+              message: platform === "darwin"
+                ? "路径不存在，已回退到根目录"
+                : "路径不存在，已回退到磁盘根目录",
             },
           },
         };

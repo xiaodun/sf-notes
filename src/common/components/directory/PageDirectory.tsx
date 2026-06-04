@@ -7,6 +7,7 @@ import { produce } from "immer";
 import { NSystem } from "@/common/namespace/NSystem";
 import SProject from "../../../pages/project/SProject";
 import NProject from "../../../pages/project/NProject";
+import Browser from "@/utils/browser";
 
 export type TFilter = "addedProject";
 export interface IPageDirectoryProps {
@@ -170,28 +171,44 @@ export default (props: PropsWithChildren<IPageDirectoryProps>) => {
     return null;
   }
   function buildPathChain(startPath: string) {
+    const isWin = Browser.isWindows();
     const normalized = normalizePath(startPath);
-    const match = normalized.match(/^([A-Za-z]:)\\?(.*)$/);
-    if (!match) {
-      return [normalized];
+    if (isWin) {
+      const match = normalized.match(/^([A-Za-z]:)\\\\?(.*)$/);
+      if (match) {
+        const drive = match[1];
+        const rest = match[2];
+        const parts = rest.split("\\").filter(Boolean);
+        const pathChain: string[] = [`${drive}\\`];
+        let current = `${drive}\\`;
+        parts.forEach((part) => {
+          current = normalizePath(`${current.replace(/\\+$/, "")}\\${part}`);
+          pathChain.push(current);
+        });
+        return pathChain;
+      }
     }
-    const drive = match[1];
-    const rest = match[2];
-    const parts = rest.split("\\").filter(Boolean);
-    const pathChain: string[] = [`${drive}\\`];
-    let current = `${drive}\\`;
+    // macOS / Linux
+    const parts = normalized.split("/").filter(Boolean);
+    const pathChain: string[] = [];
+    let current = "";
     parts.forEach((part) => {
-      current = normalizePath(`${current.replace(/\\+$/, "")}\\${part}`);
+      current = current + "/" + part;
       pathChain.push(current);
     });
+    if (pathChain.length === 0) pathChain.push("/");
     return pathChain;
   }
   function normalizePath(path: string) {
-    const normalized = String(path || "").replace(/\//g, "\\");
-    if (/^[A-Za-z]:\\?$/.test(normalized)) {
-      return normalized.replace(/\\?$/, "\\");
+    const isWin = Browser.isWindows();
+    if (isWin) {
+      const normalized = String(path || "").replace(/\//g, "\\");
+      if (/^[A-Za-z]:\\?$/.test(normalized)) {
+        return normalized.replace(/\\?$/, "\\");
+      }
+      return normalized.replace(/\\+$/, "");
     }
-    return normalized.replace(/\\+$/, "");
+    return String(path || "").replace(/\\/g, "/").replace(/\/+$/, "") || "/";
   }
   return (
     <div className={SelfStyle.container}>

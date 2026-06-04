@@ -10,6 +10,7 @@ import PageDirectory from '../../PageDirectory';
 import { NSystem } from '@/common/namespace/NSystem';
 import { TFilter } from '../../PageDirectory';
 import SSystem from '@/common/service/SSystem';
+import Browser from '@/utils/browser';
 import {
   DIRECTORY_MODAL_MEMORY_STORAGE_KEY,
   TDirectoryMemoryKey,
@@ -133,86 +134,77 @@ export const EditModal: ForwardRefRenderFunction<
     );
   }
   function createPathInfo(startPath?: string) {
-    if (!startPath) {
-      return null;
+    if (!startPath) return null;
+    const isWin = Browser.isWindows();
+    if (isWin) {
+      const normalizePath = startPath.replace(/\//g, "\\");
+      const pathParts = normalizePath.split("\\").filter(Boolean);
+      const name = pathParts[pathParts.length - 1] || normalizePath;
+      return {
+        name,
+        path: normalizePath,
+        stuffix: "",
+        isLeaf: false,
+        isDisk: /^[A-Za-z]:\\?$/.test(normalizePath),
+      } as NSystem.IDirectory;
     }
-    const normalizePath = startPath.replace(/\//g, "\\");
-    const pathParts = normalizePath.split("\\").filter(Boolean);
-    const name = pathParts[pathParts.length - 1] || normalizePath;
+    const normalizePath = startPath.replace(/\\/g, "/");
+    const pathParts = normalizePath.split("/").filter(Boolean);
+    const name = pathParts[pathParts.length - 1] || normalizePath || "/";
     return {
       name,
       path: normalizePath,
       stuffix: "",
       isLeaf: false,
-      isDisk: /^[A-Za-z]:\\?$/.test(normalizePath),
+      isDisk: normalizePath === "/",
     } as NSystem.IDirectory;
   }
   function normalizeStartPath(startPath?: string) {
     const value = String(startPath || "").trim();
-    if (!value) {
-      return "";
+    if (!value) return "";
+    const isWin = Browser.isWindows();
+    if (isWin) {
+      const normalized = value.replace(/\//g, "\\");
+      const driveOnly = normalized.match(/^([A-Za-z]):\\?$/);
+      if (driveOnly) return `${driveOnly[1]}\\`;
+      if (/^[A-Za-z]:[^\\]/.test(normalized)) return `${normalized.slice(0, 2)}\\`;
+      return normalized;
     }
-    const normalized = value.replace(/\//g, "\\");
-    const driveOnly = normalized.match(/^([A-Za-z]:)\\?$/);
-    if (driveOnly) {
-      return `${driveOnly[1]}\\`;
-    }
-    if (/^[A-Za-z]:[^\\]/.test(normalized)) {
-      return `${normalized.slice(0, 2)}\\`;
-    }
-    return normalized;
+    return value.replace(/\\/g, "/").replace(/\/+$/, "") || "/";
   }
   async function resolveValidStartPath(startPath?: string) {
     const normalized = normalizeStartPath(startPath);
-    if (!normalized) {
-      return '';
-    }
+    if (!normalized) return '';
     const isValid = await checkDirectoryPathValid(normalized);
     return isValid ? normalized : '';
   }
   async function getRememberedStartPath(memoryKey?: TDirectoryMemoryKey, defaultStartPath?: string) {
-    if (!memoryKey) {
-      return defaultStartPath || '';
-    }
+    if (!memoryKey) return defaultStartPath || '';
     const memoryMap = readMemoryMap();
     const rememberPath = normalizeStartPath(memoryMap[memoryKey]);
-    if (!rememberPath) {
-      return defaultStartPath || '';
-    }
+    if (!rememberPath) return defaultStartPath || '';
     const isValid = await checkDirectoryPathValid(rememberPath);
-    if (isValid) {
-      return rememberPath;
-    }
+    if (isValid) return rememberPath;
     removeRememberPath(memoryKey);
     return defaultStartPath || '';
   }
   async function checkDirectoryPathValid(targetPath?: string) {
     const normalized = normalizeStartPath(targetPath);
-    if (!normalized) {
-      return false;
-    }
+    if (!normalized) return false;
     const rsp = await SSystem.getFileDirectory(normalized);
-    if (!rsp.success) {
-      return false;
-    }
+    if (!rsp.success) return false;
     const messageText = String(rsp.message || '');
-    if (messageText.includes('路径不存在')) {
-      return false;
-    }
+    if (messageText.includes('路径不存在')) return false;
     return true;
   }
   function saveRememberPath(memoryKey?: TDirectoryMemoryKey, directoryPath?: string) {
-    if (!memoryKey || !directoryPath) {
-      return;
-    }
+    if (!memoryKey || !directoryPath) return;
     const memoryMap = readMemoryMap();
     memoryMap[memoryKey] = directoryPath;
     writeMemoryMap(memoryMap);
   }
   function removeRememberPath(memoryKey?: TDirectoryMemoryKey) {
-    if (!memoryKey) {
-      return;
-    }
+    if (!memoryKey) return;
     const memoryMap = readMemoryMap();
     delete memoryMap[memoryKey];
     writeMemoryMap(memoryMap);
@@ -236,22 +228,25 @@ export const EditModal: ForwardRefRenderFunction<
     );
   }
   function getBreadcrumbItems(path?: string) {
-    if (!path) {
-      return [];
+    if (!path) return [];
+    const isWin = Browser.isWindows();
+    if (isWin) {
+      const normalizePath = path.replace(/\//g, "\\");
+      const isDiskRoot = /^[A-Za-z]:\\?$/.test(normalizePath);
+      if (isDiskRoot) return [{ title: normalizePath.replace(/\\$/, "") }];
+      const match = normalizePath.match(/^([A-Za-z]):\\\\(.*)$/);
+      if (!match) return [{ title: normalizePath }];
+      const drive = match[1];
+      const rest = match[2];
+      const parts = rest.split("\\").filter(Boolean);
+      return [{ title: drive }, ...parts.map((item) => ({ title: item }))];
     }
-    const normalizePath = path.replace(/\//g, "\\");
-    const isDiskRoot = /^[A-Za-z]:\\?$/.test(normalizePath);
-    if (isDiskRoot) {
-      return [{ title: normalizePath.replace(/\\$/, "") }];
-    }
-    const match = normalizePath.match(/^([A-Za-z]:)\\?(.*)$/);
-    if (!match) {
-      return [{ title: normalizePath }];
-    }
-    const drive = match[1];
-    const rest = match[2];
-    const parts = rest.split("\\").filter(Boolean);
-    return [{ title: drive }, ...parts.map((item) => ({ title: item }))];
+    const normalizePath = path.replace(/\\/g, "/");
+    if (normalizePath === "/") return [{ title: "/" }];
+    const parts = normalizePath.split("/").filter(Boolean);
+    return parts.map((item, i) => ({
+      title: i === 0 ? `/${item}` : item,
+    }));
   }
 };
 

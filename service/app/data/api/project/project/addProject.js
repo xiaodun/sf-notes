@@ -1,4 +1,5 @@
 (function () {
+  const platform = require("os").platform(); // 'win32' | 'darwin'
   return function (argData, argParams, external) {
     const path_os = require("path");
     const fs_os = require("fs");
@@ -40,7 +41,9 @@
       };
     } else {
       if (!argParams.isUpdate) {
-        argParams.name = argParams.rootPath.split("\\").pop();
+        argParams.name = platform === "darwin"
+          ? path_os.basename(argParams.rootPath)
+          : argParams.rootPath.split("\\").pop();
         argParams.id = Date.now();
         argParams.startConfig = argParams.name === "sf-mock"
           ? {
@@ -154,13 +157,14 @@
     }
   };
   function normalizeRootPath(rootPath) {
-    const value = String(rootPath || "").trim().replace(/\//g, "\\");
-    return value.replace(/\\+$/, "");
+    const value = String(rootPath || "").trim();
+    if (platform === "darwin") {
+      return value.replace(/\/+$/, "");
+    }
+    return value.replace(/\//g, "\\").replace(/\\+$/, "");
   }
   function getBasePath(rootPath) {
-    if (!rootPath) {
-      return "";
-    }
+    if (!rootPath) return "";
     return String(rootPath).replace(/\\/g, "/");
   }
 })();
