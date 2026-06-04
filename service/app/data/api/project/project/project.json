@@ -1,6 +1,6 @@
 {
     "config": {
-        "addBasePath": "C:/Users/SZLD03287/Documents/affluence-git-pro",
+        "addBasePath": "C:/Users/SZLD03287/Documents/GitHub/affluence-ad-reward",
         "gitlabBasePath": "",
         "nginxVisitWay": "ip"
     },
@@ -10,10 +10,10 @@
             "sfMock": {
                 "serverList": [
                     {
-                        "port": 9100,
+                        "port": 9200,
                         "isMock": true,
-                        "openUrl": "http://172.17.48.50:9100",
-                        "openDomainUrl": "http://wx.mock.ccs-app:9100"
+                        "openUrl": "http://172.17.48.50:9200",
+                        "openDomainUrl": "http://wx.mock.ccs-app:9200"
                     },
                     {
                         "name": "本地链接",
@@ -45,6 +45,24 @@
             "startConfig": {
                 "commands": [],
                 "runUrl": ""
+            }
+        },
+        {
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\GitHub\\affluence-ad-reward",
+            "sfMock": {
+                "serverList": []
+            },
+            "name": "affluence-ad-reward",
+            "id": 1780455867808,
+            "startConfig": {
+                "commands": [
+                    {
+                        "name": "affluence-ad-reward",
+                        "command": "npm run dev"
+                    }
+                ],
+                "runUrl": "http://localhost:3001",
+                "terminalCommand": "deepcode"
             }
         },
         {
