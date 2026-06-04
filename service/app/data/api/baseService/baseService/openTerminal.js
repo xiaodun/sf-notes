@@ -91,21 +91,24 @@
           if (!runCmd) runCmd = terminalCommand;
         }
 
-        const esc = (s) => String(s).replace(/\\\\/g, "\\\\\\\\").replace(/"/g, '\\"');
+        const esc = (s) => String(s).replace(/\\\\/g, "\\\\\\\\").replace(/'/g, "'\\\\''");
         const safePath = esc(absPath);
         const writeTextCmd = runCmd
-          ? `cd "${safePath}" && ${runCmd}`
-          : `cd "${safePath}"`;
+          ? `cd '${safePath}' && ${runCmd}`
+          : `cd '${safePath}'`;
 
         const scriptLines = [
           'tell application "iTerm"',
+          '  activate',
           '  if (count of windows) = 0 then',
           '    create window with default profile',
           '  end if',
-          '  tell current session of current window',
-          `    write text "${writeTextCmd}"`,
+          '  tell current window',
+          '    set t to (create tab with default profile)',
+          '    tell current session of t',
+          `      write text "${writeTextCmd}"`,
+          '    end tell',
           '  end tell',
-          '  activate',
           'end tell',
         ];
         const tmpPath = path.join(os.tmpdir(), `sf-notes-iterm-${Date.now()}.scpt`);

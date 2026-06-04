@@ -33,10 +33,11 @@ import NRsp from '@/common/namespace/NRsp';
 import { cloneDeep } from 'lodash';
 import UCopy from '@/common/utils/UCopy';
 import UGitlab from '@/common/utils/UGitlab';
-import { DeleteOutlined, MenuOutlined, ArrowLeftOutlined, SettingOutlined, EllipsisOutlined, CopyOutlined, CodeOutlined } from '@ant-design/icons';
+import { DeleteOutlined, MenuOutlined, ArrowLeftOutlined, SettingOutlined, EllipsisOutlined, CopyOutlined, CodeOutlined, BranchesOutlined } from '@ant-design/icons';
 import Browser from "@/utils/browser";
 import SBase from '@/common/service/SBase';
 import { DIRECTORY_MODAL_MEMORY_KEYS } from '@/common/components/directory/constants/directoryMemory';
+import GitBatchModal from './components/GitBatchModal';
 export interface IProjectProps {
   MDProject: NMDProject.IState;
 }
@@ -47,6 +48,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   const startConfigModalRef = useRef<any>();
   const [selectedProject, setSelectedProject] = useState<NProject | null>(null);
   const [localIpv4, setLocalIpv4] = useState('');
+  const [gitBatchVisible, setGitBatchVisible] = useState(false);
 
   useEffect(() => {
     reqGetProject();
@@ -144,6 +146,9 @@ const Project: ConnectRC<IProjectProps> = (props) => {
           </Button>
         )}
         <Button onClick={onShowAddModal}>添加项目</Button>
+        <Button icon={<BranchesOutlined />} onClick={() => setGitBatchVisible(true)}>
+          Git 操作
+        </Button>
         <Radio.Group
           value={MDProject.config.nginxVisitWay}
           onChange={(e) => onChangeConfig({ nginxVisitWay: e.target.value })}
@@ -159,6 +164,11 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         projectName={selectedProject?.name || ''}
         project={selectedProject}
         onConfigSuccess={reqGetList}
+      />
+      <GitBatchModal
+        visible={gitBatchVisible}
+        projects={MDProject.rsp.list}
+        onClose={() => setGitBatchVisible(false)}
       />
     </div>
   );
