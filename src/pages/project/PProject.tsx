@@ -42,6 +42,9 @@ export interface IProjectProps {
   MDProject: NMDProject.IState;
 }
 
+/** 暂时隐藏项目管理中的 Git 相关入口 */
+const SHOW_GIT_OPERATIONS = false;
+
 const Project: ConnectRC<IProjectProps> = (props) => {
   const { MDProject } = props;
   const directoryModalRef = useRef<IDirectoryModal>();
@@ -146,9 +149,11 @@ const Project: ConnectRC<IProjectProps> = (props) => {
           </Button>
         )}
         <Button onClick={onShowAddModal}>添加项目</Button>
-        <Button icon={<BranchesOutlined />} onClick={() => setGitBatchVisible(true)}>
-          Git 操作
-        </Button>
+        {SHOW_GIT_OPERATIONS && (
+          <Button icon={<BranchesOutlined />} onClick={() => setGitBatchVisible(true)}>
+            Git 操作
+          </Button>
+        )}
         <Radio.Group
           value={MDProject.config.nginxVisitWay}
           onChange={(e) => onChangeConfig({ nginxVisitWay: e.target.value })}
@@ -165,11 +170,13 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         project={selectedProject}
         onConfigSuccess={reqGetList}
       />
-      <GitBatchModal
-        visible={gitBatchVisible}
-        projects={MDProject.rsp.list}
-        onClose={() => setGitBatchVisible(false)}
-      />
+      {SHOW_GIT_OPERATIONS && (
+        <GitBatchModal
+          visible={gitBatchVisible}
+          projects={MDProject.rsp.list}
+          onClose={() => setGitBatchVisible(false)}
+        />
+      )}
     </div>
   );
 
@@ -361,7 +368,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
               </Dropdown.Button>
             </>
           )}
-          {MDProject.config.gitlabBasePath && !project.isSfMock && (
+          {SHOW_GIT_OPERATIONS && MDProject.config.gitlabBasePath && !project.isSfMock && (
             <>
               <Dropdown.Button
                 menu={{
