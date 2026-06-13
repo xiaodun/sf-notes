@@ -1,8 +1,7 @@
 (function () {
   return function (argData, argParams, argEnv) {
-    //argData 数据的副本
     let id = argParams.id;
-    let file = '';
+    let file = "";
     argData.some((el, index, arr) => {
       if (el.id === id) {
         file = {
@@ -14,29 +13,22 @@
       }
     });
     if (!file) {
-      //文件不存在
-      /**
-       * 在手机端登陆删除了文件  又在pc端点击了下载
-       */
       return {
-        isWrite: false, //是否覆盖数据
+        isWrite: false,
         response: {
-          //返回的数据
           code: 200,
           data: {
             success: false,
-            message: '文件已被删除',
+            message: "文件已被删除",
           },
         },
       };
     }
     return {
-      isWrite: false, //是否覆盖数据
-      //data:argData,//需要存储的新数据
+      isWrite: false,
       isDownload: true,
       file,
       response: {
-        //返回的数据
         code: 200,
         data: {
           success: true,
