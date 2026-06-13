@@ -400,17 +400,28 @@ const PFile: FC<IPFileProps> = (props) => {
       </div>
     );
   }
+  function finishDownloadLoading(fileId: string) {
+    const optionConfig = optionConfigMapRef.current.get(fileId);
+    if (optionConfig) {
+      optionConfig.downloadLoading = false;
+      refreshView();
+    }
+  }
   function onDownloadFile(file: NFile) {
     optionConfigMapRef.current.set(file.id, {
       downloadLoading: true,
     });
     refreshView();
-    SFile.downloadItem(file.id).then((rsp) => {
-      const optionConfig = optionConfigMapRef.current.get(file.id);
-      optionConfig.downloadLoading = false;
-      refreshView();
-      UDownload.download({ name: file.name, blob: rsp });
-    });
+    UDownload.download({
+      name: file.name,
+      url: SFile.getDownloadUrl(file.id),
+    })
+      .catch(() => {
+        message.error('下载失败');
+      })
+      .finally(() => {
+        finishDownloadLoading(file.id);
+      });
   }
   function onDelFile(file: NFile, argRsp = fileRsp) {
     optionConfigMapRef.current.set(file.id, { delLoading: true });
