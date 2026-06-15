@@ -1,6 +1,7 @@
 import NRsp from '@/common/namespace/NRsp';
 import NFile from './NFile';
 import request from '@/utils/request';
+import serviceConfig from '@/../service/app/config.json';
 
 namespace SFile {
   export async function getList(): Promise<NRsp<NFile>> {
@@ -28,6 +29,9 @@ namespace SFile {
       url: '/upload/delFile',
       params: { id },
     });
+  }
+  export function getDownloadUrl(id: string): string {
+    return `/${serviceConfig.prefix}/upload/downloadFile?id=${encodeURIComponent(id)}`;
   }
   export async function downloadItem(id: string): Promise<Blob> {
     return request({
