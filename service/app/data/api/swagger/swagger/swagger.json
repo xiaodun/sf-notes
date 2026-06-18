@@ -2,200 +2,50 @@
     "config": {
         "showEnumList": false,
         "swaggerPathShowWay": "desc",
-        "lastOptionSwaggerDomain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger"
+        "lastOptionSwaggerDomain": "https://api.dev.ccp.risk-vantagefx.com/swagger"
     },
     "inExcludeGroups": {
         "https://api-v2.dev.ccp.risk-vantagefx.com/swagger": [
             "Plugin Hub"
+        ],
+        "https://api.dev.ccp.risk-vantagefx.com/swagger": [
+            "All (v5)"
         ]
     },
     "swaggerList": [
         {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "id": 1780536852171,
-            "crateTime": 1780536852171
+            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
+            "id": 1781508296063,
+            "crateTime": 1781508296063
         }
     ],
     "apiPrefixs": {},
     "attentionPathList": [
         {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "Plugin Hub",
-            "tagName": "Profiles (V5 Pipeline)",
-            "pathKey": "get:/api/v5/profiles/dynamic-leverage-yaml-files",
-            "pathUrl": "/api/v5/profiles/dynamic-leverage-yaml-files",
-            "method": "get",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "Plugin Hub",
-            "tagName": "Profiles (V5 Pipeline)",
-            "pathKey": "get:/api/v5/profiles/yaml-file-rules/{fileId}",
-            "pathUrl": "/api/v5/profiles/yaml-file-rules/{fileId}",
-            "method": "get",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "Plugin Hub",
-            "tagName": "Profiles (V5 Pipeline)",
-            "pathKey": "get:/api/v5/profiles",
-            "pathUrl": "/api/v5/profiles",
-            "method": "get",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "Plugin Hub",
-            "tagName": "Profiles (V5 Pipeline)",
-            "pathKey": "post:/api/v5/profiles",
-            "pathUrl": "/api/v5/profiles",
+            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "All (v5)",
+            "tagName": "MT5 Trading Accounts (V5 Pipeline)",
+            "pathKey": "post:/api/v5/mt5/trading-accounts/detail",
+            "pathUrl": "/api/v5/mt5/trading-accounts/detail",
             "method": "post",
             "isPath": true
         },
         {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "Plugin Hub",
-            "tagName": "Profiles (V5 Pipeline)",
-            "pathKey": "get:/api/v5/profiles/{id}",
-            "pathUrl": "/api/v5/profiles/{id}",
-            "method": "get",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "Plugin Hub",
-            "tagName": "Profiles (V5 Pipeline)",
-            "pathKey": "put:/api/v5/profiles/{id}",
-            "pathUrl": "/api/v5/profiles/{id}",
-            "method": "put",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "Plugin Hub",
-            "tagName": "Profiles (V5 Pipeline)",
-            "pathKey": "delete:/api/v5/profiles/{id}",
-            "pathUrl": "/api/v5/profiles/{id}",
-            "method": "delete",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "Plugin Hub",
-            "tagName": "Profiles (V5 Pipeline)",
-            "pathKey": "get:/api/v5/profiles/servers-with-profile",
-            "pathUrl": "/api/v5/profiles/servers-with-profile",
-            "method": "get",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "Plugin Hub",
-            "tagName": "Profiles (V5 Pipeline)",
-            "pathKey": "get:/api/v5/profiles/{id}/eligible-servers",
-            "pathUrl": "/api/v5/profiles/{id}/eligible-servers",
-            "method": "get",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "Plugin Hub",
-            "tagName": "Profiles (V5 Pipeline)",
-            "pathKey": "post:/api/v5/profiles/{id}/sync",
-            "pathUrl": "/api/v5/profiles/{id}/sync",
+            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "All (v5)",
+            "tagName": "MT5 Trading Accounts (V5 Pipeline)",
+            "pathKey": "post:/api/v5/mt5/trading-accounts/password/check",
+            "pathUrl": "/api/v5/mt5/trading-accounts/password/check",
             "method": "post",
             "isPath": true
         },
         {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "Plugin Hub",
-            "tagName": "Profiles (V5 Pipeline)",
-            "pathKey": "get:/api/v5/profiles/{id}/rules",
-            "pathUrl": "/api/v5/profiles/{id}/rules",
-            "method": "get",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "Plugin Hub",
-            "tagName": "Profiles (V5 Pipeline)",
-            "pathKey": "post:/api/v5/profiles/{id}/rules",
-            "pathUrl": "/api/v5/profiles/{id}/rules",
+            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "All (v5)",
+            "tagName": "MT5 Trading Accounts (V5 Pipeline)",
+            "pathKey": "post:/api/v5/mt5/trading-accounts/password/change",
+            "pathUrl": "/api/v5/mt5/trading-accounts/password/change",
             "method": "post",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "Plugin Hub",
-            "tagName": "Profiles (V5 Pipeline)",
-            "pathKey": "patch:/api/v5/profiles/{id}/rules/{ruleId}/toggle-news",
-            "pathUrl": "/api/v5/profiles/{id}/rules/{ruleId}/toggle-news",
-            "method": "patch",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "Plugin Hub",
-            "tagName": "Profiles (V5 Pipeline)",
-            "pathKey": "get:/api/v5/profiles/{id}/rules/{ruleId}/servers",
-            "pathUrl": "/api/v5/profiles/{id}/rules/{ruleId}/servers",
-            "method": "get",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "Plugin Hub",
-            "tagName": "Profiles (V5 Pipeline)",
-            "pathKey": "put:/api/v5/profiles/{id}/rules/{ruleId}",
-            "pathUrl": "/api/v5/profiles/{id}/rules/{ruleId}",
-            "method": "put",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "Plugin Hub",
-            "tagName": "Profiles (V5 Pipeline)",
-            "pathKey": "delete:/api/v5/profiles/{id}/rules/{ruleId}",
-            "pathUrl": "/api/v5/profiles/{id}/rules/{ruleId}",
-            "method": "delete",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "Plugin Hub",
-            "tagName": "Profiles (V5 Pipeline)",
-            "pathKey": "get:/api/v5/profiles/{id}/rules-by-server",
-            "pathUrl": "/api/v5/profiles/{id}/rules-by-server",
-            "method": "get",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "Plugin Hub",
-            "tagName": "Profiles (V5 Pipeline)",
-            "pathKey": "put:/api/v5/profiles/{id}/rules-by-server",
-            "pathUrl": "/api/v5/profiles/{id}/rules-by-server",
-            "method": "put",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "Plugin Hub",
-            "tagName": "Profiles (V5 Pipeline)",
-            "pathKey": "get:/api/v5/profiles/{id}/rules-with-server",
-            "pathUrl": "/api/v5/profiles/{id}/rules-with-server",
-            "method": "get",
-            "isPath": true
-        },
-        {
-            "domain": "https://api-v2.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "Plugin Hub",
-            "tagName": "Profiles (V5 Pipeline)",
-            "pathKey": "put:/api/v5/profiles/{id}/rules/reorder",
-            "pathUrl": "/api/v5/profiles/{id}/rules/reorder",
-            "method": "put",
             "isPath": true
         }
     ],

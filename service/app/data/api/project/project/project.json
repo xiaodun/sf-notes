@@ -2,7 +2,7 @@
     "config": {
         "addBasePath": "C:/Users/SZLD03287/Documents/GitHub/affluence-ad-reward",
         "gitlabBasePath": "",
-        "nginxVisitWay": "ip"
+        "nginxVisitWay": "domain"
     },
     "projectList": [
         {

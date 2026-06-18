@@ -1,5 +1,23 @@
 [
     {
+        "content": "http://172.17.48.50:3001/admin#/points-code",
+        "base64": {},
+        "createTime": 1781688684867,
+        "updateTime": "",
+        "title": "2026-06-17 05:31:23",
+        "titleColor": "",
+        "id": 1781688684867
+    },
+    {
+        "content": "https://gitlab.risk-vantagefx.com/centralized-configuration-system/ccs-ui.git\n\nxu.wang@hytechc.com\nw896317lol",
+        "base64": {},
+        "createTime": 1781529888706,
+        "updateTime": "",
+        "title": "2026-06-15 09:24:48",
+        "titleColor": "",
+        "id": 1781529888706
+    },
+    {
         "content": "Trading Account:\n@Xu Wang - Security, Credentials\n@Felix Wei - Account, Limits\n@Nicholas Chong - Overview, Personal\n\nManagers:\n@Xu Wang - IP Access List\n@Felix Wei - Reports\n@Hardy Zhang  Common\n@Nicholas Chong - , Permissions",
         "base64": {},
         "createTime": 1781245650190,
@@ -105,76 +123,6 @@
         "title": "制度",
         "titleColor": "",
         "id": 1773200818112
-    },
-    {
-        "content": "upload 新插件的时候  MT4 的Plugin name 不能customize , MT5",
-        "base64": {},
-        "createTime": 1778583219411,
-        "updateTime": "",
-        "title": "2026-05-12 06:53:39",
-        "titleColor": "",
-        "id": 1778583219411,
-        "deleted": true
-    },
-    {
-        "content": "\n",
-        "base64": {},
-        "createTime": 1778635365522,
-        "updateTime": "",
-        "title": "2026-05-13 09:22:45",
-        "titleColor": "",
-        "id": 1778635365522,
-        "deleted": true
-    },
-    {
-        "content": "2\n3\n4\n6",
-        "base64": {},
-        "createTime": 1778659729971,
-        "updateTime": "",
-        "title": "2026-05-13 04:08:49",
-        "titleColor": "",
-        "id": 1778659729971,
-        "deleted": true
-    },
-    {
-        "content": "chores/xxxxx-xxxx-xxx\nfix/xxxxx-xxxx-xxx\nfeat/xxxxx-xxxx-xxx\n有jira的话\nCCP-XXXX-xxxxx-xxxx-xxx\n\ncommit message没有jira ticket的情况下\nchores: xxxx xxxx xx xxx\nfix: xxxx xxxx xx xxx\nfeat: xxxx xxxx xx xxx\n有jira的话\nfix(CCP-XXXX): xxxx xxxx xx xxx\nfeat(CCP-XXXX): xxxx xxxx xx xxx\nchores(CCP-XXXX): xxxx xxxx xx xxx",
-        "base64": {},
-        "createTime": 1776828933905,
-        "updateTime": "",
-        "title": "2026-04-22 11:35:33",
-        "titleColor": "",
-        "id": 1776828933905,
-        "deleted": true
-    },
-    {
-        "content": "fix: description\nfeat: enhancement description\nchores: description\nfeat(CCP-1234): description\n\n开发流程\n开发从 [ development 或 deploy-dev2] 分支开始\n开分支 [ticket号码-短名字(关于什么的)]\n自己的更新 commit 到自己的分支，每天从原本的branch merge到你的branch，保持同步\n完成后先自行 smoke test 功能都到位\n再跑一轮 /review 以及 /simplify 看看哪里有问题，可以简化的地方\n再 smoke test，如有需要（复杂度高，模组大），开个PR拉个前端同伴帮你交叉验证\nmerge到 development / deploy-dev2 （看你从哪里开始的）\n\ncommit 的时候husky应该会自动触发 eslint 以及 prettier 保持格式一致化以及捕捉一些明显的lint error/warning\n如果没有，请找 @Nicholas Chong@Chiang Juo Han 了解看如何设置正确",
-        "base64": {},
-        "createTime": 1775791401691,
-        "updateTime": "",
-        "title": "2026-04-10 11:23:21",
-        "titleColor": "",
-        "id": 1775791401691,
-        "deleted": true
-    },
-    {
-        "content": "=== 启动足迹 ===\n2026-05-09 06:45:11.693 pid=3105 +56ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 09:20:00.146 pid=31873 +96ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 09:20:00.147 pid=31893 +95ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 09:20:20.263 pid=32079 +59ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 09:58:26.936 pid=7798 +73ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 10:00:22.896 pid=20615 +51ms ZenApplication.onCreate main=true pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 10:00:22.918 pid=20615 +73ms MainActivity.onCreate restored=false task=1962 url=null tab=null\n2026-05-09 10:00:23.484 pid=8257 +55ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 10:00:23.542 pid=8309 +53ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 10:02:47.413 pid=3128 +256ms ZenApplication.onCreate main=true pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 10:02:47.441 pid=3128 +284ms MainActivity.onCreate restored=false task=1964 url=null tab=null\n2026-05-09 10:02:48.159 pid=9069 +438ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 10:02:48.311 pid=9154 +417ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 10:33:50.892 pid=19981 +393ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 10:47:39.206 pid=26196 +400ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 11:06:24.838 pid=12410 +360ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 11:09:29.363 pid=12750 +404ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 11:19:11.534 pid=25759 +266ms ZenApplication.onCreate main=true pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 11:19:11.561 pid=25759 +293ms MainActivity.onCreate restored=false task=1970 url=null tab=null\n2026-05-09 11:19:12.194 pid=14711 +376ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 11:19:12.254 pid=14776 +339ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 11:19:13.711 pid=14951 +267ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 12:21:58.941 pid=19009 +394ms ZenApplication.onCreate main=true pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 12:21:58.969 pid=19009 +422ms MainActivity.onCreate restored=false task=1975 url=null tab=null\n2026-05-09 12:22:00.884 pid=26365 +1587ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 12:22:01.024 pid=26417 +1546ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 13:35:05.874 pid=8206 +467ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 14:07:02.636 pid=29534 +279ms ZenApplication.onCreate main=true pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 14:07:02.667 pid=29534 +310ms MainActivity.onCreate restored=false task=1975 url=null tab=null\n2026-05-09 14:07:03.534 pid=11466 +324ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 14:07:03.600 pid=11511 +309ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 14:13:37.343 pid=12672 +404ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 14:17:29.982 pid=13216 +312ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 14:17:30.042 pid=13204 +361ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 14:18:30.668 pid=13486 +358ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 14:29:42.682 pid=15082 +317ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 14:33:07.783 pid=15551 +297ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 18:22:50.378 pid=3102 +412ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 18:22:50.390 pid=3124 +338ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 18:22:59.427 pid=4136 +307ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 18:36:17.797 pid=11856 +377ms ZenApplication.onCreate main=false pkg=com.szld.affluence.zen (GV 子进程勿初始化 Gecko)\n2026-05-09 18:39:37.095 pid=12367 +325ms ZenApplication.onCreate main=false pkg=com.szld.",
-        "base64": {},
-        "createTime": 1778819045176,
-        "updateTime": "",
-        "title": "2026-05-15 12:24:06",
-        "titleColor": "",
-        "id": 1778819045176,
-        "deleted": true
-    },
-    {
-        "content": "Lucas Tang <lucas.tang@hytechc.com>\n\n",
-        "base64": {},
-        "createTime": 1778845519889,
-        "updateTime": "",
-        "title": "2026-05-15 07:45:19",
-        "titleColor": "",
-        "id": 1778845519889,
-        "deleted": true
     },
     {
         "content": "sk-551a5698002f4287af440e974f17a15e",
@@ -625,6 +573,76 @@
         "title": "2026-06-10 03:47:43",
         "titleColor": "",
         "id": 1781077663684,
+        "deleted": true
+    },
+    {
+        "content": "https://www.baidu.com/Index.htm",
+        "base64": {},
+        "createTime": 1781511813759,
+        "updateTime": "",
+        "title": "2026-06-15 04:23:33",
+        "titleColor": "",
+        "id": 1781511813759,
+        "deleted": true
+    },
+    {
+        "content": "https://www.baidu.com/Index.htm",
+        "base64": {},
+        "createTime": 1781518808505,
+        "updateTime": "",
+        "title": "2026-06-15 06:20:08",
+        "titleColor": "",
+        "id": 1781518808505,
+        "deleted": true
+    },
+    {
+        "content": "https://wap.sogou.com/",
+        "base64": {},
+        "createTime": 1781688084788,
+        "updateTime": "",
+        "title": "2026-06-17 05:21:23",
+        "titleColor": "",
+        "id": 1781688084788,
+        "deleted": true
+    },
+    {
+        "content": "https://github.com/octocat/Hello-World.git",
+        "base64": {},
+        "createTime": 1781687026624,
+        "updateTime": "",
+        "title": "2026-06-17 05:03:46",
+        "titleColor": "",
+        "id": 1781687026624,
+        "deleted": true
+    },
+    {
+        "content": "http://172.17.48.50:3001/admin",
+        "base64": {},
+        "createTime": 1781688401821,
+        "updateTime": "",
+        "title": "2026-06-17 05:26:41",
+        "titleColor": "",
+        "id": 1781688401821,
+        "deleted": true
+    },
+    {
+        "content": "\n\nUSER_PASS_MAIN = 0,\nUSER_PASS_INVESTOR = 1,\nUSER_PASS_API = 2,\n\n\n",
+        "base64": {},
+        "createTime": 1781508447168,
+        "updateTime": "",
+        "title": "2026-06-15 03:27:26",
+        "titleColor": "",
+        "id": 1781508447168,
+        "deleted": true
+    },
+    {
+        "content": "下载管理要有进度，下载apk变成了 downloadfike.bin\nswagger加个备注功能？\ncursor 支持屏幕录制\n",
+        "base64": {},
+        "createTime": 1781525761089,
+        "updateTime": "",
+        "title": "2026-06-15 08:16:01",
+        "titleColor": "",
+        "id": 1781525761089,
         "deleted": true
     }
 ]
