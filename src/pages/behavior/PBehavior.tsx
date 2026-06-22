@@ -4,11 +4,12 @@ import { Button, message, Modal, Input } from "antd";
 import { ConnectRC, history } from "umi";
 import NBehavior from "./NBehavior";
 import { PageFooter } from "@/common/components/page";
-import { PlusOutlined, EditOutlined, DeleteOutlined, TagsOutlined, LockOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined, TagsOutlined, LockOutlined, KeyOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import AddBehaviorModal, { IAddBehaviorModal } from "./components/AddBehaviorModal";
 import EditBehaviorModal, { IEditBehaviorModal } from "./components/EditBehaviorModal";
 import TagManageModal, { ITagManageModal } from "./components/TagManageModal";
 import PasswordInputModal, { IPasswordInputModal } from "./components/PasswordInputModal";
+import ChangePasswordModal, { IChangePasswordModal } from "./components/ChangePasswordModal";
 import SBehavior from "./SBehavior";
 import NRsp from "@/common/namespace/NRsp";
 import NRouter from "@/../config/router/NRouter";
@@ -23,6 +24,7 @@ const PBehavior: ConnectRC<PBehaviorProps> = (props) => {
   const editModalRef = useRef<IEditBehaviorModal>();
   const globalTagModalRef = useRef<ITagManageModal>();
   const passwordModalRef = useRef<IPasswordInputModal>();
+  const changePasswordModalRef = useRef<IChangePasswordModal>();
   const [rsp, setRsp] = useState<NRsp<NBehavior>>({
     list: [],
     success: true,
@@ -179,6 +181,11 @@ const PBehavior: ConnectRC<PBehaviorProps> = (props) => {
     setShowEncrypted(true);
   };
 
+  // 修改密码
+  const handleChangePassword = () => {
+    changePasswordModalRef.current?.show();
+  };
+
   // 检查全局密码管理器是否有已验证的密码
   useEffect(() => {
     if (passwordManager.isVerified()) {
@@ -280,6 +287,14 @@ const PBehavior: ConnectRC<PBehaviorProps> = (props) => {
             返回
           </Button>
         )}
+        {showEncrypted && hasEncryptedBehaviors && (
+          <Button
+            onClick={handleChangePassword}
+            icon={<KeyOutlined />}
+          >
+            修改密码
+          </Button>
+        )}
         {hasEncryptedBehaviors && (
           <Button
             onClick={handleShowEncrypted}
@@ -323,6 +338,11 @@ const PBehavior: ConnectRC<PBehaviorProps> = (props) => {
       <TagManageModal
         onOk={handleSaveSuccess}
         ref={globalTagModalRef}
+      />
+      <ChangePasswordModal
+        encryptedBehaviors={rsp.list.filter(item => item.encryptedData)}
+        onOk={handleSaveSuccess}
+        ref={changePasswordModalRef}
       />
     </div>
   );
