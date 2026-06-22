@@ -62,6 +62,7 @@ export const EditBehaviorModal: ForwardRefRenderFunction<
   const [state, setState] = useState<IEditBehaviorModalState>(defaultState);
   const nameInputRef = useRef<any>(null);
   const passwordModalRef = useRef<IPasswordInputModal>();
+  const pwdInputNameRef = useRef(`pwd_${Math.random().toString(36).substring(7)}`);
 
   // 当主 Modal 打开时，设置名称输入框焦点
   useEffect(() => {
@@ -140,33 +141,22 @@ export const EditBehaviorModal: ForwardRefRenderFunction<
       
       const hasExisting = hasExistingEncrypted();
       if (hasExisting) {
-        // 如果已有加密行为，检查全局密码管理器
-        if (passwordManager.isVerified()) {
-          const globalPassword = passwordManager.getPassword();
-          setState((prev) => ({
-            ...prev,
-            isEncrypted: true,
-            password: globalPassword,
-            decryptedName: currentName,
-          }));
-        } else {
-          setState((prev) => ({
-            ...prev,
-            isEncrypted: true,
-            password: "",
-            decryptedName: currentName,
-          }));
-          passwordModalRef.current?.show();
-        }
-      } else {
-        // 没有加密行为，生成新密码
-        const newPassword = generateEncryptCode();
-        passwordManager.setPassword(newPassword);
+        // 如果已有加密行为，预填全局密码（可修改）
+        const globalPassword = passwordManager.isVerified() ? passwordManager.getPassword() : "";
         setState((prev) => ({
           ...prev,
           isEncrypted: true,
-          password: newPassword,
-          newPassword: newPassword,
+          password: globalPassword,
+          newPassword: globalPassword,
+          decryptedName: currentName,
+        }));
+      } else {
+        // 没有加密行为，让用户自定义密码（不自动生成）
+        setState((prev) => ({
+          ...prev,
+          isEncrypted: true,
+          password: "",
+          newPassword: "",
           decryptedName: currentName,
         }));
       }
@@ -264,6 +254,9 @@ export const EditBehaviorModal: ForwardRefRenderFunction<
         passwordModalRef.current?.show();
         return;
       }
+
+      // 将密码保存到全局管理器
+      passwordManager.setPassword(password);
 
       try {
         behaviorData.encryptedData = encryptText("加密", password);
@@ -519,7 +512,7 @@ export const EditBehaviorModal: ForwardRefRenderFunction<
             <Radio value="no">不加密</Radio>
             <Radio value="yes">加密</Radio>
           </Radio.Group>
-          {state.isEncrypted && state.newPassword && !hasExistingEncrypted() && (
+          {state.isEncrypted && !state.data?.encryptedData && (
             <div
               style={{
                 marginTop: 12,
@@ -530,21 +523,54 @@ export const EditBehaviorModal: ForwardRefRenderFunction<
                 fontSize: 14,
               }}
             >
-              <div style={{ marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span>加密密码（仅显示一次）：</span>
+              <div style={{ marginBottom: 8, fontWeight: 500 }}>
+                加密密码：
+              </div>
+              <Input.Password
+                value={state.newPassword}
+                placeholder="请输入自定义密码"
+                onChange={(e) => {
+                  const value = e?.target?.value ?? "";
+                  setState((prev) => ({ ...prev, newPassword: value, password: value }));
+                }}
+                autoComplete="new-password"
+                name={pwdInputNameRef.current}
+                readOnly={false}
+                data-1p-ignore="true"
+                data-lpignore="true"
+                data-form-type="other"
+                data-bwignore="true"
+                data-bwignore-label="true"
+              />
+              <div style={{ marginTop: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Button
+                  type="button"
                   size="small"
-                  icon={<CopyOutlined />}
-                  onClick={handleCopyPassword}
+                  onClick={() => {
+                    const newPwd = generateEncryptCode();
+                    setState((prev) => ({ ...prev, newPassword: newPwd, password: newPwd }));
+                  }}
                 >
-                  复制密码
+                  生成随机密码
                 </Button>
+                {state.newPassword && (
+                  <Button
+                    type="button"
+                    size="small"
+                    icon={<CopyOutlined />}
+                    onClick={handleCopyPassword}
+                  >
+                    复制密码
+                  </Button>
+                )}
               </div>
-              <div style={{ fontSize: 18, fontWeight: "bold", color: "#1890ff" }}>
-                {state.newPassword}
-              </div>
-              <div style={{ marginTop: 8, fontSize: 12, color: "#999" }}>
-                提示：此密码关闭后将无法查看，请妥善保存。
+              {hasExistingEncrypted() && (
+                <div style={{ marginTop: 8, fontSize: 12, color: "#fa8c16" }}>
+                  提示：已有加密行为，建议使用相同密码以确保能解密已有数据。
+                </div>
+              )}
+              <div style={{ marginTop: hasExistingEncrypted() ? 4 : 8, fontSize: 12, color: "#999" }}>
+                此密码关闭后将无法查看，请妥善保存。
               </div>
             </div>
           )}
