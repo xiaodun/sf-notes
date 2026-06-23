@@ -33,6 +33,24 @@
           if (paths[k]) return paths[k];
         }
       }
+      // 路径变更回退：通过 operationId 匹配
+      if (pathInfos.operationId) {
+        const found = keys.find(
+          (k) => paths[k] && paths[k].operationId === pathInfos.operationId
+        );
+        if (found) return paths[found];
+      }
+      // 再回退：通过 summary + method 匹配
+      if (pathInfos.summary && pathInfos.method) {
+        const met = String(pathInfos.method).toLowerCase();
+        const found = keys.find(
+          (k) =>
+            paths[k] &&
+            paths[k].summary === pathInfos.summary &&
+            String(paths[k].method || "").toLowerCase() === met
+        );
+        if (found) return paths[found];
+      }
       return null;
     }
     const swaggerInfos = {};
