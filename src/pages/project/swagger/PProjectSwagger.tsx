@@ -1846,6 +1846,31 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         pathItem = found[1];
       }
     }
+    // 路径变更后回退：通过 operationId 匹配（最可靠）
+    if (!pathItem && pathCb.operationId) {
+      const oid = pathCb.operationId;
+      const found = Object.entries(paths).find(
+        ([, p]) => p.operationId === oid,
+      );
+      if (found) {
+        pathKey = found[0];
+        pathItem = found[1];
+      }
+    }
+    // 再回退：同一 tag 下通过 summary + method 匹配
+    if (!pathItem && pathCb.summary) {
+      const summary = pathCb.summary;
+      const met = (pathCb.method || 'get').toLowerCase();
+      const found = Object.entries(paths).find(
+        ([, p]) =>
+          p.summary === summary &&
+          (p.method || 'get').toLowerCase() === met,
+      );
+      if (found) {
+        pathKey = found[0];
+        pathItem = found[1];
+      }
+    }
     if (!pathItem || !pathKey) {
       message.warning('未在域名文档中找到该接口，可能已变更或路径不一致');
       return;

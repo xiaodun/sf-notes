@@ -89,6 +89,8 @@ export namespace NProject {
   }
   export interface IRenderMethodInfo {
     notFound?: boolean;
+    /** OpenAPI operationId，用于跨路径变更定位同一接口 */
+    operationId?: string;
 
     pathUrl: string;
     method: string;
@@ -126,6 +128,10 @@ export namespace NProject {
     pathUrl?: string;
     /** 关注列表旧数据兼容：多方法同 path 时可辅助定位 */
     method?: string;
+    /** OpenAPI operationId，路径变更后定位回退 */
+    operationId?: string;
+    /** 接口摘要，路径变更后定位兜底回退 */
+    summary?: string;
     /** Swagger 分组（group）级全选 */
     isGroup?: boolean;
     isTag?: boolean;
