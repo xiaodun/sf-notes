@@ -17,7 +17,7 @@
             "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
             "id": 1781508296063,
             "crateTime": 1781508296063,
-            "updateTime": 1782112818388
+            "updateTime": 1782201717664
         }
     ],
     "apiPrefixs": {},
@@ -47,6 +47,78 @@
             "pathKey": "post:/api/v5/mt5/trading-accounts/password/change",
             "pathUrl": "/api/v5/mt5/trading-accounts/password/change",
             "method": "post",
+            "isPath": true
+        },
+        {
+            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "All (v5)",
+            "tagName": "MT5 Trading Accounts (V5 Pipeline)",
+            "pathKey": "post:/api/v5/mt5/trading-accounts/job/transfer-new-async",
+            "pathUrl": "/api/v5/mt5/trading-accounts/job/transfer-new-async",
+            "method": "post",
+            "isPath": true
+        },
+        {
+            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "All (v5)",
+            "tagName": "MT5 Trading Accounts (V5 Pipeline)",
+            "pathKey": "post:/api/v5/mt5/trading-accounts/job/transfer-settings-async",
+            "pathUrl": "/api/v5/mt5/trading-accounts/job/transfer-settings-async",
+            "method": "post",
+            "isPath": true
+        },
+        {
+            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "All (v5)",
+            "tagName": "MT5 Managers (V5 Pipeline)",
+            "pathKey": "post:/api/v5/mt5/accounts/managers/job/transfer-new-async",
+            "pathUrl": "/api/v5/mt5/accounts/managers/job/transfer-new-async",
+            "method": "post",
+            "isPath": true
+        },
+        {
+            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "All (v5)",
+            "tagName": "MT5 Managers (V5 Pipeline)",
+            "pathKey": "post:/api/v5/mt5/accounts/managers/job/transfer-settings-async",
+            "pathUrl": "/api/v5/mt5/accounts/managers/job/transfer-settings-async",
+            "method": "post",
+            "isPath": true
+        },
+        {
+            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "All (v5)",
+            "tagName": "MT5 Trading Accounts (V5 Pipeline)",
+            "pathKey": "post:/api/v5/mt5/trading-accounts/job/transfer-async",
+            "pathUrl": "/api/v5/mt5/trading-accounts/job/transfer-async",
+            "method": "post",
+            "isPath": true
+        },
+        {
+            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "All (v5)",
+            "tagName": "MT5 Trading Accounts (V5 Pipeline)",
+            "pathKey": "put:/api/v5/mt5/trading-accounts/job/transfer-async",
+            "pathUrl": "/api/v5/mt5/trading-accounts/job/transfer-async",
+            "method": "put",
+            "isPath": true
+        },
+        {
+            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "All (v5)",
+            "tagName": "MT5 Managers (V5 Pipeline)",
+            "pathKey": "post:/api/v5/mt5/accounts/managers/job/transfer-async",
+            "pathUrl": "/api/v5/mt5/accounts/managers/job/transfer-async",
+            "method": "post",
+            "isPath": true
+        },
+        {
+            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "All (v5)",
+            "tagName": "MT5 Managers (V5 Pipeline)",
+            "pathKey": "put:/api/v5/mt5/accounts/managers/job/transfer-async",
+            "pathUrl": "/api/v5/mt5/accounts/managers/job/transfer-async",
+            "method": "put",
             "isPath": true
         }
     ],
