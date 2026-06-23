@@ -34,6 +34,9 @@
         pathUrl: item.pathUrl,
         method,
         isPath: true,
+        // 路径变更后定位回退所需字段
+        operationId: (item.data && item.data.operationId) || undefined,
+        summary: (item.data && item.data.summary) || undefined,
       };
     }
     function identityKey(item) {

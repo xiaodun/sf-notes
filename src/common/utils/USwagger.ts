@@ -236,6 +236,7 @@ export namespace USwagger {
     let obj: NProject.IRenderMethodInfo = {
       pathUrl: pathUrl == null || pathUrl === "" ? "" : String(pathUrl),
       method: methodInfos.method,
+      operationId: methodInfos.operationId || undefined,
       summary: methodInfos.summary,
       tags: methodInfos.tags,
     };
