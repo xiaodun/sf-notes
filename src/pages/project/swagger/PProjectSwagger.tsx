@@ -743,13 +743,16 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
               mode="inline"
               theme="light"
               selectedKeys={pathMenuSelectedKeys}
-              {...(searchSwaggerValue
-                ? { defaultOpenKeys: ['myDomainSearch'] as string[] }
-                : {
-                    openKeys: domainMenuOpenKeys,
-                    onOpenChange: (keys) =>
-                      setDomainMenuOpenKeys(keys as string[]),
-                  })}
+              openKeys={
+                searchSwaggerValue
+                  ? ['myDomainSearch']
+                  : domainMenuOpenKeys
+              }
+              onOpenChange={(keys) => {
+                if (!searchSwaggerValue) {
+                  setDomainMenuOpenKeys(keys as string[]);
+                }
+              }}
             >
               {searchSwaggerValue ? (
                 <Menu.SubMenu
