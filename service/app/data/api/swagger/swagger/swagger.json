@@ -17,7 +17,7 @@
             "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
             "id": 1781508296063,
             "crateTime": 1781508296063,
-            "updateTime": 1782201717664
+            "updateTime": 1783335606563
         }
     ],
     "apiPrefixs": {},
@@ -25,101 +25,24 @@
         {
             "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
             "groupName": "All (v5)",
-            "tagName": "MT5 Trading Accounts (V5 Pipeline)",
-            "pathKey": "post:/api/v5/mt5/trading-accounts/detail",
-            "pathUrl": "/api/v5/mt5/trading-accounts/detail",
+            "tagName": "MT4 Symbols (V5 Pipeline)",
+            "pathKey": "post:/api/v5/mt4/symbols",
+            "pathUrl": "/api/v5/mt4/symbols",
             "method": "post",
-            "isPath": true
+            "isPath": true,
+            "operationId": "CreateSymbol - Mt4Symbol",
+            "summary": "Create a new MT4 symbol.\nSet CentralizedConfigurationSystem.Application.Dtos.MT4.Symbols.CreateMt4SymbolRequest.IsDuplicate to true when the user is duplicating an existing symbol\nvia the detail page — Duplicate permission is checked instead of Create, and the audit log records\na Duplicate action referencing CentralizedConfigurationSystem.Application.Dtos.MT4.Symbols.CreateMt4SymbolRequest.FromSymbolName as the source."
         },
         {
             "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
             "groupName": "All (v5)",
-            "tagName": "MT5 Trading Accounts (V5 Pipeline)",
-            "pathKey": "post:/api/v5/mt5/trading-accounts/password/check",
-            "pathUrl": "/api/v5/mt5/trading-accounts/password/check",
+            "tagName": "MT5 Symbols (V5 Pipeline)",
+            "pathKey": "post:/api/v5/mt5/symbols",
+            "pathUrl": "/api/v5/mt5/symbols",
             "method": "post",
-            "isPath": true
-        },
-        {
-            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "All (v5)",
-            "tagName": "MT5 Trading Accounts (V5 Pipeline)",
-            "pathKey": "post:/api/v5/mt5/trading-accounts/password/change",
-            "pathUrl": "/api/v5/mt5/trading-accounts/password/change",
-            "method": "post",
-            "isPath": true
-        },
-        {
-            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "All (v5)",
-            "tagName": "MT5 Trading Accounts (V5 Pipeline)",
-            "pathKey": "post:/api/v5/mt5/trading-accounts/job/transfer-new-async",
-            "pathUrl": "/api/v5/mt5/trading-accounts/job/transfer-new-async",
-            "method": "post",
-            "isPath": true
-        },
-        {
-            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "All (v5)",
-            "tagName": "MT5 Trading Accounts (V5 Pipeline)",
-            "pathKey": "post:/api/v5/mt5/trading-accounts/job/transfer-settings-async",
-            "pathUrl": "/api/v5/mt5/trading-accounts/job/transfer-settings-async",
-            "method": "post",
-            "isPath": true
-        },
-        {
-            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "All (v5)",
-            "tagName": "MT5 Managers (V5 Pipeline)",
-            "pathKey": "post:/api/v5/mt5/accounts/managers/job/transfer-new-async",
-            "pathUrl": "/api/v5/mt5/accounts/managers/job/transfer-new-async",
-            "method": "post",
-            "isPath": true
-        },
-        {
-            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "All (v5)",
-            "tagName": "MT5 Managers (V5 Pipeline)",
-            "pathKey": "post:/api/v5/mt5/accounts/managers/job/transfer-settings-async",
-            "pathUrl": "/api/v5/mt5/accounts/managers/job/transfer-settings-async",
-            "method": "post",
-            "isPath": true
-        },
-        {
-            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "All (v5)",
-            "tagName": "MT5 Trading Accounts (V5 Pipeline)",
-            "pathKey": "post:/api/v5/mt5/trading-accounts/job/transfer-async",
-            "pathUrl": "/api/v5/mt5/trading-accounts/job/transfer-async",
-            "method": "post",
-            "isPath": true
-        },
-        {
-            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "All (v5)",
-            "tagName": "MT5 Trading Accounts (V5 Pipeline)",
-            "pathKey": "put:/api/v5/mt5/trading-accounts/job/transfer-async",
-            "pathUrl": "/api/v5/mt5/trading-accounts/job/transfer-async",
-            "method": "put",
-            "isPath": true
-        },
-        {
-            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "All (v5)",
-            "tagName": "MT5 Managers (V5 Pipeline)",
-            "pathKey": "post:/api/v5/mt5/accounts/managers/job/transfer-async",
-            "pathUrl": "/api/v5/mt5/accounts/managers/job/transfer-async",
-            "method": "post",
-            "isPath": true
-        },
-        {
-            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
-            "groupName": "All (v5)",
-            "tagName": "MT5 Managers (V5 Pipeline)",
-            "pathKey": "put:/api/v5/mt5/accounts/managers/job/transfer-async",
-            "pathUrl": "/api/v5/mt5/accounts/managers/job/transfer-async",
-            "method": "put",
-            "isPath": true
+            "isPath": true,
+            "operationId": "CreateSymbol - Mt5Symbol",
+            "summary": "Create a single MT5 symbol.\nSet CentralizedConfigurationSystem.Application.Dtos.MT5.Symbols.Requests.CreateMt5SymbolRequest.IsDuplicate to true when the user is duplicating an existing symbol\nvia the detail page — Duplicate permission is checked instead of Create, and the audit log records\na Duplicate action referencing CentralizedConfigurationSystem.Application.Dtos.MT5.Symbols.Requests.CreateMt5SymbolRequest.FromSymbolName as the source."
         }
     ],
     "_migratedFromProjectOnce": 1777455682943
