@@ -363,6 +363,22 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
   ] = useState<string[]>([]);
   /** 域名 Tab 侧栏菜单展开项（用于从「关注」跳回时自动展开） */
   const [domainMenuOpenKeys, setDomainMenuOpenKeys] = useState<string[]>([]);
+  /** 关注 Tab 侧栏展开项，持久化到 localStorage，避免每次重置 */
+  const [attentionMenuOpenKeys, setAttentionMenuOpenKeys] = useState<
+    string[]
+  >(() => {
+    try {
+      const saved = JSON.parse(
+        localStorage.swaggerAttentionOpenKeys || 'null',
+      );
+      if (Array.isArray(saved) && saved.every((k) => typeof k === 'string')) {
+        return saved;
+      }
+    } catch {
+      /* ignore 解析失败 */
+    }
+    return ['myAttention'];
+  });
 
   const menuActiveTabKeyRef = useRef(menuActiveTabKey);
   menuActiveTabKeyRef.current = menuActiveTabKey;
@@ -671,6 +687,16 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                     label: '关注',
                     onClick: onBatchPathAttention
                   },
+                  {
+                    key: 'copyApiFieldsDoc',
+                    label: '复制接口格式',
+                    onClick: onBatchCopyApiFieldsDoc
+                  },
+                  {
+                    key: 'cancelAttention',
+                    label: '取消关注',
+                    onClick: onBatchCancelPathAttention
+                  },
                   ...(projectList.length ? [{
                     key: 'createAjaxCode',
                     label: '生成ajax代码',
@@ -681,11 +707,6 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                     label: '生成mock文件',
                     onClick: () => onGenerateMockFile(true)
                   }] : []),
-                  {
-                    key: 'cancelAttention',
-                    label: '取消关注',
-                    onClick: onBatchCancelPathAttention
-                  },
                   {
                     key: 'cancelMenuChecked',
                     label: '取消选中',
@@ -929,7 +950,10 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
           <Tabs.TabPane key="attentionList" tab="关注">
             <Menu
               mode="inline"
-              defaultOpenKeys={['myAttention']}
+              openKeys={attentionMenuOpenKeys}
+              onOpenChange={(keys) =>
+                onAttentionMenuOpenChange(keys as string[])
+              }
               theme="light"
               selectedKeys={pathMenuSelectedKeys}
             >
@@ -961,9 +985,9 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
                     })
                   : Object.keys(
                       MDProject.attentionInfos.tagInfos,
-                    ).map((groupName, index) => (
+                    ).map((groupName) => (
                       <Menu.SubMenu
-                        key={index}
+                        key={'attentionTag:' + groupName}
                         title={
                           <>
                             <span onClick={(e) => onStop(e)}>
@@ -1255,10 +1279,22 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
         method: p.method || 'get',
       }));
   }
+  function onAttentionMenuOpenChange(keys: string[]) {
+    setAttentionMenuOpenKeys(keys);
+    try {
+      localStorage.swaggerAttentionOpenKeys = JSON.stringify(keys);
+    } catch {
+      /* ignore 写入失败 */
+    }
+  }
   function renderMenuPathUrl(
     pathMenuCheckbox: NProject.IMenuCheckbox,
     pathItem: NProject.IRenderMethodInfo,
   ) {
+    // 关注的接口所在路径可能已被删除/变更，兜底避免读取 undefined 导致整页崩溃
+    if (!pathItem) {
+      pathItem = { notFound: true } as NProject.IRenderMethodInfo;
+    }
     const pathUrlForLabel =
       pathItem.pathUrl ||
       pathMenuCheckbox.pathUrl ||
@@ -1596,6 +1632,26 @@ const PProjectSwagger: ConnectRC<IPProjectSwaggerProps> = (props) => {
       return;
     }
     reqSetPathAttention(list);
+  }
+  function onBatchCopyApiFieldsDoc() {
+    const list = getMenuCheckedPathUrlList();
+
+    if (!list.length) {
+      message.warning('请先勾选分组、标签或具体接口');
+      return;
+    }
+    const blocks: string[] = [];
+    list.forEach((item) => {
+      if (!item.data || item.data.notFound) {
+        return;
+      }
+      blocks.push(buildSwaggerApiFieldsDocText(item.data));
+    });
+    if (!blocks.length) {
+      message.warning('所选接口均无可用格式数据');
+      return;
+    }
+    UCopy.copyStr(blocks.join('\n\n'));
   }
   function onAttentionPath() {
     reqSetPathAttention([currentMenuCheckbox]);
