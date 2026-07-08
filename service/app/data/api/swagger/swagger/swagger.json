@@ -17,7 +17,7 @@
             "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
             "id": 1781508296063,
             "crateTime": 1781508296063,
-            "updateTime": 1783335606563
+            "updateTime": 1783481155846
         }
     ],
     "apiPrefixs": {},
@@ -43,6 +43,50 @@
             "isPath": true,
             "operationId": "CreateSymbol - Mt5Symbol",
             "summary": "Create a single MT5 symbol.\nSet CentralizedConfigurationSystem.Application.Dtos.MT5.Symbols.Requests.CreateMt5SymbolRequest.IsDuplicate to true when the user is duplicating an existing symbol\nvia the detail page — Duplicate permission is checked instead of Create, and the audit log records\na Duplicate action referencing CentralizedConfigurationSystem.Application.Dtos.MT5.Symbols.Requests.CreateMt5SymbolRequest.FromSymbolName as the source."
+        },
+        {
+            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "All (v5)",
+            "tagName": "MT4 Managers (V5 Pipeline)",
+            "pathKey": "post:/api/v5/mt4/managers/job/transfer-async",
+            "pathUrl": "/api/v5/mt4/managers/job/transfer-async",
+            "method": "post",
+            "isPath": true,
+            "operationId": "TransferNewManagers - Mt4Manager",
+            "summary": "Asynchronously transfer (clone) MT4 managers to one or more target servers via background job.\nEach (manager × target server) combination is processed independently; returns immediately\nwith a job id — poll `GET /api/v5/jobs/{jobId}` for progress + results."
+        },
+        {
+            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "All (v5)",
+            "tagName": "MT4 Managers (V5 Pipeline)",
+            "pathKey": "put:/api/v5/mt4/managers/job/transfer-async",
+            "pathUrl": "/api/v5/mt4/managers/job/transfer-async",
+            "method": "put",
+            "isPath": true,
+            "operationId": "TransferSettingsManagers - Mt4Manager",
+            "summary": "Asynchronously transfer (overwrite) MT4 manager settings to one or more target servers\nvia background job. Update-only: a manager with the same Login AND Name must already\nexist in the target's Manager List — no new manager is created."
+        },
+        {
+            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "All (v5)",
+            "tagName": "MT4 Accounts (V5 Pipeline)",
+            "pathKey": "post:/api/v5/mt4/accounts/job/transfer-async",
+            "pathUrl": "/api/v5/mt4/accounts/job/transfer-async",
+            "method": "post",
+            "isPath": true,
+            "operationId": "TransferNewAccounts - Mt4Account",
+            "summary": "Asynchronously transfer (create) MT4 trading accounts to one or more target servers via\nbackground job. Each (account × target server) combination is processed independently;\nreturns immediately with a job id — poll `GET /api/v5/jobs/{jobId}` for progress + results."
+        },
+        {
+            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "All (v5)",
+            "tagName": "MT4 Accounts (V5 Pipeline)",
+            "pathKey": "put:/api/v5/mt4/accounts/job/transfer-async",
+            "pathUrl": "/api/v5/mt4/accounts/job/transfer-async",
+            "method": "put",
+            "isPath": true,
+            "operationId": "TransferSettingsAccounts - Mt4Account",
+            "summary": "Asynchronously transfer (overwrite) MT4 trading-account settings to one or more target\nservers via background job. Update-only: an account with the same Login AND Name must\nalready exist on the target — no new account is created."
         }
     ],
     "_migratedFromProjectOnce": 1777455682943
