@@ -17,7 +17,7 @@
             "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
             "id": 1781508296063,
             "crateTime": 1781508296063,
-            "updateTime": 1783481155846
+            "updateTime": 1783997278971
         }
     ],
     "apiPrefixs": {},
@@ -87,6 +87,50 @@
             "isPath": true,
             "operationId": "TransferSettingsAccounts - Mt4Account",
             "summary": "Asynchronously transfer (overwrite) MT4 trading-account settings to one or more target\nservers via background job. Update-only: an account with the same Login AND Name must\nalready exist on the target — no new account is created."
+        },
+        {
+            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "All (v5)",
+            "tagName": "MT5 Symbol Folder V5 Pipeline",
+            "pathKey": "get:/api/v5/mt5/symbol-folder/all",
+            "pathUrl": "/api/v5/mt5/symbol-folder/all",
+            "method": "get",
+            "isPath": true,
+            "operationId": "GetSymbolFolderAll - Mt5SymbolFolder",
+            "summary": "Get all symbol folders (including empty ones) and orphan symbols for a server."
+        },
+        {
+            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "All (v5)",
+            "tagName": "MT4 Accounts (V5 Pipeline)",
+            "pathKey": "put:/api/v5/mt4/accounts/job/update-list-async",
+            "pathUrl": "/api/v5/mt4/accounts/job/update-list-async",
+            "method": "put",
+            "isPath": true,
+            "operationId": "BulkUpdateAccounts - Mt4Account",
+            "summary": "Bulk-update one or more MT4 trading accounts on a single server asynchronously via a background\njob. Each account overlays only the fields it carries onto the current record (passwords and\nbalances are never modified). May require approval based on field-level risk; returns\nimmediately with a job id — poll `GET /api/v5/jobs/{jobId}` for progress and per-login\nresults. When approval is required, a 200 with an approval task id is returned instead."
+        },
+        {
+            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "All (v5)",
+            "tagName": "MT4 Accounts (V5 Pipeline)",
+            "pathKey": "post:/api/v5/mt4/accounts",
+            "pathUrl": "/api/v5/mt4/accounts",
+            "method": "post",
+            "isPath": true,
+            "operationId": "CreateAccount - Mt4Account",
+            "summary": "Create a new MT4 account on the specified server."
+        },
+        {
+            "domain": "https://api.dev.ccp.risk-vantagefx.com/swagger",
+            "groupName": "All (v5)",
+            "tagName": "MT4 Accounts (V5 Pipeline)",
+            "pathKey": "post:/api/v5/mt4/accounts/compare/batch",
+            "pathUrl": "/api/v5/mt4/accounts/compare/batch",
+            "method": "post",
+            "isPath": true,
+            "operationId": "CompareBatchAccounts - Mt4Account",
+            "summary": "Preview the diff and approval requirement for a batch MT4 trading-account update without persisting changes."
         }
     ],
     "_migratedFromProjectOnce": 1777455682943
