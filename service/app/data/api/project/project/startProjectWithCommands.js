@@ -64,20 +64,25 @@
         // Windows: use Windows Terminal
         const baseTs = Date.now();
         runtimeCommandItems.forEach((item, index) => {
-          const tempBatPath = path.join("./data/api/project/project", `sf-notes-start-${projectId}-${baseTs}-${index}-${Math.random().toString(16).slice(2, 8)}.bat`);
+          const tempBatPath = path.join(
+            os.tmpdir(),
+            `sf-notes-start-${projectId}-${baseTs}-${index}-${Math.random().toString(16).slice(2, 8)}.bat`
+          );
           const driveLetter = projectRootPath.match(/^([A-Za-z]:)/);
-          const batLines = [];
+          const batLines = ['@echo off'];
           if (driveLetter) batLines.push(driveLetter[1]);
-          batLines.push(`cd ${projectRootPath}`, item.command);
+          batLines.push(`cd /d "${projectRootPath}"`, item.command);
           const batContent = batLines.join('\r\n');
           fs.writeFileSync(tempBatPath, batContent, 'utf-8');
           const tabTitle = item.name || `${projectName}-${index}`;
-          exec(`wt -w 0 new-tab --title "${tabTitle}" cmd /k "\\"${path.resolve(tempBatPath)}\\""`, { windowsHide: true });
-          delBat(tempBatPath);
+          exec(
+            `wt -w 0 new-tab -d "${projectRootPath}" --title "${tabTitle}" cmd /k ${tempBatPath}`,
+            { windowsHide: true }
+          );
+          setTimeout(() => {
+            try { if (fs.existsSync(tempBatPath)) fs.unlinkSync(tempBatPath); } catch (error) { console.error('删除临时 BAT 文件失败:', error); }
+          }, 10000);
         });
-        function delBat(filePath) {
-          setTimeout(() => { try { if (fs.existsSync(filePath)) fs.unlinkSync(filePath); } catch (error) { console.error('删除临时 BAT 文件失败:', error); } }, 3000);
-        }
       }
 
       return { isWrite: false, response: { code: 200, data: { success: true, data: true } } };
