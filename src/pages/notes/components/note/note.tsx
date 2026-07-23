@@ -405,7 +405,10 @@ const Note: FC<INoteProps> = (props) => {
                       </>
                     )}
                     <Button
-                      onClick={() => reqDelItem(data.id)}
+                      onClick={() => {
+                        onCopy();
+                        reqDelItem(data.id);
+                      }}
                       icon={<CloseOutlined></CloseOutlined>}
                     ></Button>
                   </Space>
@@ -815,7 +818,10 @@ const Note: FC<INoteProps> = (props) => {
                 <Button
                   type="link"
                   size="small"
-                  onClick={() => reqDelPart(item.start, item.count)}
+                  onClick={() => {
+                    copyNoteContent(item);
+                    reqDelPart(item.start, item.count);
+                  }}
                   style={{ padding: 0 }}
                 >
                   删除
