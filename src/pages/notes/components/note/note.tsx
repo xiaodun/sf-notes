@@ -781,6 +781,15 @@ const Note: FC<INoteProps> = (props) => {
     if (trashMode) {
       return;
     }
+    // 删完后记事已空：直接整条删除，不再落空内容
+    if (!newContent.trim()) {
+      persistDraftDebounced.cancel();
+      scheduleDeleteFlushDebounced.cancel();
+      localDraftRef.current = null;
+      setLocalDraft(null);
+      void reqDelItem(data.id);
+      return;
+    }
     setLocalDraft(newNote);
     localDraftRef.current = newNote;
     persistDraftDebounced.cancel();
