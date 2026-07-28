@@ -82,21 +82,17 @@ export namespace UCopy {
     options = {} as ICopyOptions,
   ) {
     const finalOptions = { ...defaultCopyOptions, ...options };
-    return new Promise(async (resolve, reject) => {
+    return (async () => {
       if (!copyImg?.src) {
         if (finalOptions.useFail) {
           message.error("复制失败");
         }
-        reject(new Error("empty src"));
-        return;
+        throw new Error("empty src");
       }
 
       if (!clipboardRichWriteSupported()) {
-        if (finalOptions.useFail) {
-          message.error("复制失败");
-        }
-        reject(new Error("clipboard image not supported"));
-        return;
+        // 环境不支持图片剪贴板时退回复制图片地址，避免未处理 reject 打断后续逻辑
+        return copyStr(copyImg.src, finalOptions);
       }
 
       try {
@@ -120,15 +116,15 @@ export namespace UCopy {
         if (finalOptions.useSuccess) {
           message.success(COPIED);
         }
-        resolve("success");
+        return "success";
       } catch (error) {
         console.error(error);
-        if (finalOptions.useFail) {
-          message.error("复制失败");
-        }
-        reject(error);
+        return copyStr(copyImg.src, {
+          ...finalOptions,
+          useFail: finalOptions.useFail,
+        });
       }
-    });
+    })();
   }
 
   /**
