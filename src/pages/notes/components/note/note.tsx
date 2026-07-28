@@ -797,11 +797,24 @@ const Note: FC<INoteProps> = (props) => {
   }
   function copyNoteContent(copyInfos: INoteAction) {
     if (copyInfos.type === 'str') {
-      UCopy.copyStr(copyInfos.copyStr.trim());
-    } else if (copyInfos.type === 'img') {
-      UCopy.copyImg(
-        document.getElementById(copyInfos.copyId) as HTMLImageElement,
-      );
+      void UCopy.copyStr(copyInfos.copyStr?.trim() || '');
+      return;
+    }
+    if (copyInfos.type === 'img') {
+      const el = document.getElementById(
+        copyInfos.copyId || '',
+      ) as HTMLImageElement | null;
+      if (el?.src) {
+        void UCopy.copyImg(el).catch(() => {
+          if (copyInfos.copyStr) {
+            void UCopy.copyStr(copyInfos.copyStr.trim());
+          }
+        });
+        return;
+      }
+      if (copyInfos.copyStr) {
+        void UCopy.copyStr(copyInfos.copyStr.trim());
+      }
     }
   }
   function withAble(list: INoteAction[]) {
