@@ -10,9 +10,20 @@
 
   display: flex;
   align-items:center;
+  user-select: none;
   :global{
     .name{
       margin-right: 10px;
+    }
+  }
+}
+
+// 拖拽时禁止选中文字
+:global {
+  .row-dragging {
+    user-select: none;
+    td {
+      user-select: none;
     }
   }
 }
