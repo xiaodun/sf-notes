@@ -65,7 +65,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   }, []);
 
   const DragHandle = SortableHandle(() => (
-    <MenuOutlined style={{ cursor: 'grab', color: '#999' }} />
+    <MenuOutlined style={{ cursor: 'grab', color: '#999', userSelect: 'none' }} />
   ));
   const SortableItem = SortableElement(
     (props: React.HTMLAttributes<HTMLTableRowElement>) => <tr {...props} />
