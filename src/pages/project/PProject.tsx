@@ -52,6 +52,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   const [selectedProject, setSelectedProject] = useState<NProject | null>(null);
   const [localIpv4, setLocalIpv4] = useState('');
   const [gitBatchVisible, setGitBatchVisible] = useState(false);
+  const openingTerminalRef = useRef(false);
 
   useEffect(() => {
     reqGetProject();
@@ -220,20 +221,32 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     await SBase.openFile(project.rootPath, 'cmd');
   }
   async function onOpenTerminal(project: NProject) {
-    const termCmd = project.startConfig?.terminalCommand || MDProject.config.terminalCommand || 'deepcode';
-    const rsp = await SBase.openTerminal(project.rootPath, termCmd);
-    if (rsp.success) {
-      message.success('已打开终端');
-    } else {
-      message.warning(rsp.message || '无法打开终端');
+    if (openingTerminalRef.current) return;
+    openingTerminalRef.current = true;
+    try {
+      const termCmd = project.startConfig?.terminalCommand || MDProject.config.terminalCommand || 'deepcode';
+      const rsp = await SBase.openTerminal(project.rootPath, termCmd);
+      if (rsp.success) {
+        message.success('已打开终端');
+      } else {
+        message.warning(rsp.message || '无法打开终端');
+      }
+    } finally {
+      openingTerminalRef.current = false;
     }
   }
   async function onOpenTerminalTab(project: NProject) {
-    const rsp = await SBase.openTerminal(project.rootPath, '');
-    if (rsp.success) {
-      message.success('已打开终端');
-    } else {
-      message.warning(rsp.message || '无法打开终端');
+    if (openingTerminalRef.current) return;
+    openingTerminalRef.current = true;
+    try {
+      const rsp = await SBase.openTerminal(project.rootPath, '');
+      if (rsp.success) {
+        message.success('已打开终端');
+      } else {
+        message.warning(rsp.message || '无法打开终端');
+      }
+    } finally {
+      openingTerminalRef.current = false;
     }
   }
   async function delProject(project: NProject) {
