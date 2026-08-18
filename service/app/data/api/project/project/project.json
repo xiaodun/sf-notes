@@ -1,6 +1,6 @@
 {
     "config": {
-        "addBasePath": "C:/Users/SZLD03287/Documents/affluence-skipbell",
+        "addBasePath": "C:/Users/SZLD03287/Documents/affluence-teahouse",
         "gitlabBasePath": "",
         "nginxVisitWay": "domain"
     },
@@ -36,6 +36,36 @@
             "isSfMock": false
         },
         {
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-teahouse",
+            "sfMock": {
+                "serverList": []
+            },
+            "name": "affluence-teahouse",
+            "id": 1786928122452,
+            "startConfig": {
+                "commands": [],
+                "runUrl": ""
+            }
+        },
+        {
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\sf-mock",
+            "sfMock": {
+                "serverList": []
+            },
+            "name": "sf-mock",
+            "id": 1774230745884,
+            "startConfig": {
+                "commands": [
+                    {
+                        "name": "sf-mock",
+                        "command": "node mockService.js"
+                    }
+                ],
+                "runUrl": "http://localhost:9192"
+            },
+            "isSfMock": true
+        },
+        {
             "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-ad-reward",
             "sfMock": {
                 "serverList": []
@@ -51,6 +81,18 @@
                 ],
                 "runUrl": "http://localhost:3001",
                 "terminalCommand": "deepcode"
+            }
+        },
+        {
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-zen-browser",
+            "sfMock": {
+                "serverList": []
+            },
+            "name": "affluence-zen-browser",
+            "id": 1779068545048,
+            "startConfig": {
+                "commands": [],
+                "runUrl": ""
             }
         },
         {
@@ -81,23 +123,6 @@
                 ],
                 "runUrl": "http://localhost:3001",
                 "terminalCommand": "deepcode"
-            }
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-spend-client",
-            "sfMock": {
-                "serverList": []
-            },
-            "name": "affluence-spend-client",
-            "id": 1774229969419,
-            "startConfig": {
-                "commands": [
-                    {
-                        "name": "spend-client",
-                        "command": "npm run dev:h5"
-                    }
-                ],
-                "runUrl": "http://localhost:5274"
             }
         },
         {
@@ -136,15 +161,20 @@
             }
         },
         {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-zen-browser",
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-spend-client",
             "sfMock": {
                 "serverList": []
             },
-            "name": "affluence-zen-browser",
-            "id": 1779068545048,
+            "name": "affluence-spend-client",
+            "id": 1774229969419,
             "startConfig": {
-                "commands": [],
-                "runUrl": ""
+                "commands": [
+                    {
+                        "name": "spend-client",
+                        "command": "npm run dev:h5"
+                    }
+                ],
+                "runUrl": "http://localhost:5274"
             }
         },
         {
@@ -158,24 +188,6 @@
                 "commands": [],
                 "runUrl": ""
             }
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\sf-mock",
-            "sfMock": {
-                "serverList": []
-            },
-            "name": "sf-mock",
-            "id": 1774230745884,
-            "startConfig": {
-                "commands": [
-                    {
-                        "name": "sf-mock",
-                        "command": "node mockService.js"
-                    }
-                ],
-                "runUrl": "http://localhost:9192"
-            },
-            "isSfMock": true
         },
         {
             "rootPath": "C://Users//SZLD03287//Documents//sf-notes",
