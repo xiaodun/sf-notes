@@ -1,0 +1,225 @@
+.pageRoot {
+  height: calc(100vh - 96px);
+  max-height: calc(100vh - 96px);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.main {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+}
+
+.sidebar {
+  width: 260px;
+  min-width: 260px;
+  border-right: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  background: #fafafa;
+}
+
+.sidebarHeader {
+  padding: 12px;
+  border-bottom: 1px solid #f0f0f0;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.sectionTitle {
+  padding: 8px 12px 4px;
+  font-size: 12px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.scriptItem {
+  padding: 10px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f5f5f5;
+  transition: background 0.15s;
+
+  &:hover {
+    background: #f0f0f0;
+  }
+
+  &.active {
+    background: #e6f7ff;
+    border-left: 3px solid #1890ff;
+    padding-left: 9px;
+  }
+}
+
+.scriptName {
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+}
+
+.scriptDesc {
+  font-size: 11px;
+  color: #999;
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+.deviceItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f5f5f5;
+  font-size: 12px;
+
+  &:hover {
+    background: #f0f0f0;
+  }
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.contentHeader {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.desc {
+  margin: 6px 0 0;
+  color: #666;
+  font-size: 13px;
+}
+
+.formArea {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.modeRow {
+  margin-bottom: 14px;
+}
+
+.paramSection {
+  margin-bottom: 14px;
+}
+
+.paramSectionLabel {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 8px;
+}
+
+.paramField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.paramLabel {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.paramGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px 16px;
+}
+
+.actionBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.outputPanel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 20px 16px;
+}
+
+.outputHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.terminal {
+  flex: 1;
+  min-height: 0;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  border-radius: 6px;
+  padding: 12px 14px;
+  overflow: auto;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.logInfo {
+  color: #d4d4d4;
+}
+
+.logError {
+  color: #f48771;
+}
+
+.logTime {
+  color: #6a9955;
+  margin-right: 8px;
+}
+
+.emptyState {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 14px;
+}
+
+.historyList {
+  max-height: 120px;
+  overflow-y: auto;
+  margin-top: 8px;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 8px;
+}
+
+.historyItem {
+  font-size: 12px;
+  color: #666;
+  padding: 4px 0;
+  cursor: pointer;
+
+  &:hover {
+    color: #1890ff;
+  }
+}
