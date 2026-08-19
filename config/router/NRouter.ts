@@ -21,6 +21,7 @@ export namespace NRouter {
   export const novelPath = "/novel";
   export const novelDetailPath = novelPath + "/:id";
   export const apiDebugPath = "/apiDebug";
+  export const scriptPath = "/script";
   export const routes: IRoute[] = [
     {
       path: rootPath,
@@ -120,6 +121,11 @@ export namespace NRouter {
     {
       path: apiDebugPath,
       component: "." + apiDebugPath,
+      wrappers: [rootComponentPath],
+    },
+    {
+      path: scriptPath,
+      component: "." + scriptPath,
       wrappers: [rootComponentPath],
     },
   ];
