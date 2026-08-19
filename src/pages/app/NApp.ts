@@ -17,6 +17,11 @@ namespace NApp {
       linkType: "internal",
     },
     {
+      name: "脚本",
+      path: NRouter.scriptPath,
+      linkType: "internal",
+    },
+    {
       name: "Swagger",
       path: NRouter.swaggerPath,
       linkType: "internal",
