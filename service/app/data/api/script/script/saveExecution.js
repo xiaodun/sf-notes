@@ -1,6 +1,6 @@
 (function () {
   return function (argData, argParams) {
-    var data = argData || { customScripts: [], devices: [], executions: [] };
+    var data = argData || { devices: [], executions: [] };
     var store = global.__sfScriptStore || { tasks: {} };
     var taskId = String(argParams.taskId || "").trim();
     var task = store.tasks[taskId];
@@ -19,6 +19,8 @@
       id: taskId,
       scriptId: task.scriptId,
       scriptName: task.scriptName,
+      deviceId: task.deviceId || "",
+      action: task.action || "",
       status: task.status,
       message: task.message,
       startTime: task.startTime,

@@ -1,7 +1,6 @@
 import request from "@/utils/request";
 import NRsp from "@/common/namespace/NRsp";
 import {
-  CustomScript,
   DeviceProfile,
   ExecutionRecord,
   ScriptTaskStatus,
@@ -10,27 +9,11 @@ import {
 export namespace SScript {
   export async function getList(): Promise<
     NRsp<{
-      customScripts: CustomScript[];
       devices: DeviceProfile[];
       executions: ExecutionRecord[];
     }>
   > {
     return request({ url: "/script/getList" });
-  }
-
-  export async function saveScript(script: Partial<CustomScript>): Promise<NRsp<CustomScript>> {
-    return request({
-      url: "/script/saveScript",
-      method: "post",
-      data: { script },
-    });
-  }
-
-  export async function delScript(id: string): Promise<NRsp> {
-    return request({
-      url: "/script/delScript",
-      params: { id },
-    });
   }
 
   export async function saveDevice(device: Partial<DeviceProfile>): Promise<NRsp<DeviceProfile>> {
@@ -51,9 +34,9 @@ export namespace SScript {
   export async function executeScript(payload: {
     scriptId: string;
     scriptName: string;
-    scriptType: "builtin" | "custom";
+    deviceId?: string;
+    action?: string;
     builtinKey?: string;
-    customScript?: CustomScript;
     params: Record<string, string>;
   }): Promise<NRsp<{ taskId: string }>> {
     return request({
