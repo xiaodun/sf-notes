@@ -1,6 +1,6 @@
 (function () {
   return function (argData, argParams) {
-    var data = argData || { customScripts: [], devices: [], executions: [] };
+    var data = argData || { devices: [], executions: [] };
     var id = String(argParams.id || "").trim();
     if (!id) {
       return {
@@ -27,6 +27,9 @@
     }
     list.splice(index, 1);
     data.devices = list;
+    data.executions = (data.executions || []).filter(function (ex) {
+      return ex.deviceId !== id;
+    });
 
     return {
       isWrite: true,
