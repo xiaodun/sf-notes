@@ -1,0 +1,24 @@
+---
+description: 从 master 拉最新代码并合回本地分支
+alwaysApply: true
+---
+
+# 从 master 更新本地分支
+
+用户说「更新」「拉最新」「同步 master」时，按这个顺序做，不要直接在本地分支 `git pull`。
+
+当前仓库：远程默认分支是 `master`，日常开发分支是 `home`。
+
+1. 有未提交改动先 `git stash`（只储藏跟踪文件；异常/垃圾文件不要 `-u` 一起塞进去）
+2. `git checkout master`
+3. `git pull` 拉最新
+4. `git checkout` 回原来的本地分支（一般是 `home`）
+5. `git merge master` 把 master 合进来
+6. 有 stash 再 `git stash pop` 恢复
+
+注意：
+
+- 有冲突就停下说明冲突文件，不要擅自解决完当没事
+- 不要用 rebase 替代 merge，除非用户明确要求
+- 不要 force push
+- 合完不要自动推远程，除非用户要求推送
