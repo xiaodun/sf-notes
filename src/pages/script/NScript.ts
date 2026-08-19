@@ -6,21 +6,13 @@ export interface ScriptParamDef {
   defaultValue?: string;
 }
 
-export interface CustomScript {
-  id: string;
-  name: string;
-  description?: string;
-  command: string;
-  params: ScriptParamDef[];
-  createTime: number;
-  updateTime: string;
-}
-
 export interface DeviceProfile {
   id: string;
+  scriptId: string;
   name: string;
   address: string;
   pairPort?: string;
+  pairCode?: string;
   connectPort?: string;
   updateTime?: string;
 }
@@ -29,6 +21,8 @@ export interface ExecutionRecord {
   id: string;
   scriptId: string;
   scriptName: string;
+  deviceId?: string;
+  action?: string;
   status: "running" | "success" | "failed";
   message?: string;
   startTime: number;
@@ -54,18 +48,14 @@ export interface ScriptTaskStatus {
   scriptName?: string;
 }
 
-export type ScriptKind = "builtin" | "custom";
-
 export type AdbExecMode = "pair" | "connect";
 
 export interface ScriptItem {
   id: string;
   name: string;
   description?: string;
-  kind: ScriptKind;
   builtinKey?: string;
   params: ScriptParamDef[];
-  command?: string;
 }
 
 namespace NScript {
@@ -76,13 +66,12 @@ namespace NScript {
       id: ADB_WIRELESS_ID,
       name: "ADB 无线连接",
       description: "无线调试连接：首次需配对，已配对可直接连接",
-      kind: "builtin",
       builtinKey: "adb-wireless",
       params: [
         { key: "address", label: "设备地址", placeholder: "192.168.1.100", required: true },
-        { key: "connectPort", label: "连接端口", placeholder: "无线调试界面显示的连接端口", required: true },
-        { key: "pairPort", label: "配对端口", placeholder: "配对并连接时填写" },
-        { key: "pairCode", label: "配对码", placeholder: "6 位数字，配对并连接时填写" },
+        { key: "pairPort", label: "配对端口" },
+        { key: "pairCode", label: "配对码" },
+        { key: "connectPort", label: "连接端口", required: true },
       ],
     },
   ];
@@ -95,17 +84,6 @@ namespace NScript {
       if (!/^\d{6}$/.test(String(values.pairCode || "").trim())) return "配对码须为 6 位数字";
     }
     return null;
-  }
-
-  export function customToScriptItem(script: CustomScript): ScriptItem {
-    return {
-      id: script.id,
-      name: script.name,
-      description: script.description,
-      kind: "custom",
-      command: script.command,
-      params: script.params || [],
-    };
   }
 }
 

@@ -4,35 +4,30 @@ import {
   Button,
   Input,
   message,
-  Popconfirm,
-  Space,
   Tag,
-  Tooltip,
 } from "antd";
 import {
   CaretRightOutlined,
   DeleteOutlined,
   EditOutlined,
-  MobileOutlined,
   PlusOutlined,
   ReloadOutlined,
-  SaveOutlined,
   CodeOutlined,
 } from "@ant-design/icons";
 import SelfStyle from "./LScript.less";
 import SScript from "./SScript";
 import NScript, {
   AdbExecMode,
-  CustomScript,
   DeviceProfile,
   ExecutionRecord,
   ScriptItem,
+  ScriptParamDef,
   ScriptTaskStatus,
   TaskLog,
 } from "./NScript";
-import ScriptEditorModal, { IScriptEditorModal } from "./components/ScriptEditorModal";
 
 const LS_KEY = "script_last_params";
+const SAVE_DEBOUNCE = 400;
 
 function loadSavedParams(scriptId: string): Record<string, string> {
   try {
@@ -51,48 +46,70 @@ function saveParams(scriptId: string, params: Record<string, string>) {
   } catch (_) {}
 }
 
+function deviceValues(device: DeviceProfile): Record<string, string> {
+  return {
+    address: device.address || "",
+    pairPort: device.pairPort || "",
+    pairCode: device.pairCode || "",
+    connectPort: device.connectPort || "",
+  };
+}
+
 const PScript: React.FC = () => {
-  const editorRef = useRef<IScriptEditorModal>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
   const pollTimerRef = useRef<number | null>(null);
   const pollInFlightRef = useRef(false);
   const pollSettledRef = useRef(false);
+  const persistTimersRef = useRef<Record<string, number>>({});
+  const savedDevicesRef = useRef<Record<string, DeviceProfile>>({});
 
-  const [customScripts, setCustomScripts] = useState<CustomScript[]>([]);
   const [devices, setDevices] = useState<DeviceProfile[]>([]);
   const [executions, setExecutions] = useState<ExecutionRecord[]>([]);
   const [selectedId, setSelectedId] = useState<string>(NScript.BUILTIN_SCRIPTS[0].id);
   const [paramValues, setParamValues] = useState<Record<string, string>>({});
   const [running, setRunning] = useState(false);
+  const [runningDeviceId, setRunningDeviceId] = useState<string | null>(null);
   const [taskLogs, setTaskLogs] = useState<TaskLog[]>([]);
   const [taskStatus, setTaskStatus] = useState<ScriptTaskStatus["status"] | null>(null);
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
-  const [saveDeviceName, setSaveDeviceName] = useState("");
+  const [addingDevice, setAddingDevice] = useState(false);
+  const [newDeviceName, setNewDeviceName] = useState("");
+  const [editingNameId, setEditingNameId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState("");
+  const [expandedIds, setExpandedIds] = useState<string[]>([]);
 
-  const allScripts = useMemo<ScriptItem[]>(() => {
-    return [
-      ...NScript.BUILTIN_SCRIPTS,
-      ...customScripts.map(NScript.customToScriptItem),
-    ];
-  }, [customScripts]);
+  const allScripts = NScript.BUILTIN_SCRIPTS;
 
-  const selectedScript = useMemo(
+  const selectedScript = useMemo<ScriptItem | undefined>(
     () => allScripts.find((s) => s.id === selectedId) || allScripts[0],
     [allScripts, selectedId]
   );
 
   const isAdbScript = selectedScript?.builtinKey === "adb-wireless";
 
-  const selectedCustom = useMemo(
-    () => customScripts.find((s) => s.id === selectedId),
-    [customScripts, selectedId]
-  );
+  const scriptDevices = useMemo(() => {
+    if (!selectedScript) return [];
+    return devices.filter((d) => {
+      if (d.scriptId) return d.scriptId === selectedScript.id;
+      return selectedScript.builtinKey === "adb-wireless";
+    });
+  }, [devices, selectedScript]);
 
   const loadData = useCallback(async () => {
     const rsp = await SScript.getList();
     if (rsp.success && rsp.data) {
-      setCustomScripts(rsp.data.customScripts || []);
-      setDevices(rsp.data.devices || []);
+      const list = rsp.data.devices || [];
+      setDevices(list);
+      list.forEach((d) => {
+        savedDevicesRef.current[d.id] = d;
+      });
+      setExecutions(rsp.data.executions || []);
+    }
+  }, []);
+
+  const loadExecutions = useCallback(async () => {
+    const rsp = await SScript.getList();
+    if (rsp.success && rsp.data) {
       setExecutions(rsp.data.executions || []);
     }
   }, []);
@@ -110,6 +127,10 @@ const PScript: React.FC = () => {
       defaults[p.key] = saved[p.key] ?? p.defaultValue ?? "";
     });
     setParamValues(defaults);
+    setAddingDevice(false);
+    setNewDeviceName("");
+    setEditingNameId(null);
+    setEditingName("");
   }, [selectedScript]);
 
   useEffect(() => {
@@ -125,7 +146,47 @@ const PScript: React.FC = () => {
     }
   };
 
-  useEffect(() => () => stopPolling(), []);
+  const clearPersistTimer = (id: string) => {
+    if (persistTimersRef.current[id]) {
+      window.clearTimeout(persistTimersRef.current[id]);
+      delete persistTimersRef.current[id];
+    }
+  };
+
+  useEffect(
+    () => () => {
+      stopPolling();
+      Object.keys(persistTimersRef.current).forEach(clearPersistTimer);
+    },
+    []
+  );
+
+  const persistDevice = (device: DeviceProfile) => {
+    if (!device.name.trim()) return;
+    clearPersistTimer(device.id);
+    persistTimersRef.current[device.id] = window.setTimeout(async () => {
+      const rsp = await SScript.saveDevice(device);
+      if (rsp.success && rsp.data) {
+        savedDevicesRef.current[rsp.data.id] = rsp.data;
+      } else {
+        message.error(rsp.message || "保存失败");
+      }
+    }, SAVE_DEBOUNCE);
+  };
+
+  const patchDevice = (id: string, patch: Partial<DeviceProfile>) => {
+    setDevices((prev) => {
+      const next = prev.map((d) => (d.id === id ? { ...d, ...patch } : d));
+      const updated = next.find((d) => d.id === id);
+      if (updated) persistDevice(updated);
+      return next;
+    });
+  };
+
+  const isNameTaken = (name: string, exceptId?: string) => {
+    const trimmed = name.trim();
+    return scriptDevices.some((d) => d.id !== exceptId && d.name.trim() === trimmed);
+  };
 
   const pollTask = (taskId: string) => {
     stopPolling();
@@ -137,13 +198,14 @@ const PScript: React.FC = () => {
       pollSettledRef.current = true;
       stopPolling();
       setRunning(false);
+      setRunningDeviceId(null);
       setTaskLogs(task.logs || []);
       setTaskStatus(task.status === "missing" ? "failed" : task.status);
 
       if (task.status === "missing") return;
 
       await SScript.saveExecution(taskId);
-      loadData();
+      loadExecutions();
       if (task.status === "success") {
         message.success(task.message || "执行完成");
       } else {
@@ -174,27 +236,49 @@ const PScript: React.FC = () => {
     pollTimerRef.current = window.setInterval(tick, 800);
   };
 
-  const validateCustomParams = (): boolean => {
-    if (!selectedScript) return false;
-    for (const p of selectedScript.params) {
-      if (p.required && !String(paramValues[p.key] || "").trim()) {
-        message.warning(`请填写${p.label}`);
-        return false;
-      }
-    }
-    return true;
-  };
-
-  const handleExecute = async (adbMode?: AdbExecMode) => {
+  const handleExecuteDevice = async (device: DeviceProfile, adbMode: AdbExecMode) => {
     if (!selectedScript) return;
 
-    if (isAdbScript && adbMode) {
-      const err = NScript.adbValidate(adbMode, paramValues);
-      if (err) {
-        message.warning(err);
-        return;
-      }
-    } else if (!validateCustomParams()) {
+    const err = NScript.adbValidate(adbMode, deviceValues(device));
+    if (err) {
+      message.warning(err);
+      return;
+    }
+
+    setRunning(true);
+    setRunningDeviceId(device.id);
+    setTaskLogs([]);
+    setTaskStatus("running");
+    setCurrentTaskId(null);
+
+    const actionLabel = adbMode === "pair" ? "配对并连接" : "直接连接";
+
+    const rsp = await SScript.executeScript({
+      scriptId: selectedScript.id,
+      scriptName: `${selectedScript.name} · ${device.name} · ${actionLabel}`,
+      deviceId: device.id,
+      action: actionLabel,
+      builtinKey: selectedScript.builtinKey,
+      params: { ...deviceValues(device), mode: adbMode },
+    });
+
+    if (!rsp.success || !rsp.data?.taskId) {
+      setRunning(false);
+      setRunningDeviceId(null);
+      message.error(rsp.message || "启动失败");
+      return;
+    }
+
+    setCurrentTaskId(rsp.data.taskId);
+    pollTask(rsp.data.taskId);
+  };
+
+  const handleExecute = async (adbMode: AdbExecMode) => {
+    if (!selectedScript) return;
+
+    const err = NScript.adbValidate(adbMode, paramValues);
+    if (err) {
+      message.warning(err);
       return;
     }
 
@@ -204,22 +288,13 @@ const PScript: React.FC = () => {
     setTaskStatus("running");
     setCurrentTaskId(null);
 
-    const execParams = isAdbScript && adbMode
-      ? { ...paramValues, mode: adbMode }
-      : { ...paramValues };
-
-    const actionLabel =
-      adbMode === "pair" ? "配对并连接" : adbMode === "connect" ? "直接连接" : "";
+    const actionLabel = adbMode === "pair" ? "配对并连接" : "直接连接";
 
     const rsp = await SScript.executeScript({
       scriptId: selectedScript.id,
-      scriptName: actionLabel
-        ? `${selectedScript.name} · ${actionLabel}`
-        : selectedScript.name,
-      scriptType: selectedScript.kind,
+      scriptName: `${selectedScript.name} · ${actionLabel}`,
       builtinKey: selectedScript.builtinKey,
-      customScript: selectedCustom,
-      params: execParams,
+      params: { ...paramValues, mode: adbMode },
     });
 
     if (!rsp.success || !rsp.data?.taskId) {
@@ -232,50 +307,68 @@ const PScript: React.FC = () => {
     pollTask(rsp.data.taskId);
   };
 
-  const handleApplyDevice = (device: DeviceProfile) => {
-    setParamValues((prev) => ({
-      ...prev,
-      address: device.address,
-      pairPort: device.pairPort || prev.pairPort || "",
-      connectPort: device.connectPort || prev.connectPort || "",
-    }));
-    message.success(`已填入「${device.name}」`);
-  };
-
-  const handleSaveDevice = async () => {
-    const name = saveDeviceName.trim() || paramValues.address;
-    if (!name || !paramValues.address) {
-      message.warning("请先填写设备地址");
+  const handleConfirmAddDevice = async () => {
+    if (!selectedScript) return;
+    const name = newDeviceName.trim();
+    if (!name) {
+      message.warning("请填写设备名称");
       return;
     }
-    const rsp = await SScript.saveDevice({
-      name,
-      address: paramValues.address,
-      pairPort: paramValues.pairPort,
-      connectPort: paramValues.connectPort,
-    });
-    if (rsp.success) {
-      message.success("设备已保存");
-      setSaveDeviceName("");
-      loadData();
+    if (isNameTaken(name)) {
+      message.warning("设备名称已存在");
+      return;
     }
+
+    const rsp = await SScript.saveDevice({
+      scriptId: selectedScript.id,
+      name,
+      address: "",
+      pairPort: "",
+      pairCode: "",
+      connectPort: "",
+    });
+    if (!rsp.success || !rsp.data) {
+      message.error(rsp.message || "添加失败");
+      return;
+    }
+
+    savedDevicesRef.current[rsp.data.id] = rsp.data;
+    setDevices((prev) => [rsp.data as DeviceProfile, ...prev]);
+    setExpandedIds((prev) => [rsp.data!.id, ...prev.filter((id) => id !== rsp.data!.id)]);
+    setAddingDevice(false);
+    setNewDeviceName("");
   };
 
-  const handleDeleteScript = async (id: string) => {
-    const rsp = await SScript.delScript(id);
-    if (rsp.success) {
-      message.success("已删除");
-      if (selectedId === id) {
-        setSelectedId(NScript.BUILTIN_SCRIPTS[0].id);
-      }
-      loadData();
+  const startEditName = (device: DeviceProfile) => {
+    setEditingNameId(device.id);
+    setEditingName(device.name);
+  };
+
+  const finishEditName = (device: DeviceProfile) => {
+    if (editingNameId !== device.id) return;
+    const name = editingName.trim();
+    setEditingNameId(null);
+    setEditingName("");
+    if (!name || name === device.name) return;
+    if (isNameTaken(name, device.id)) {
+      message.warning("设备名称已存在");
+      return;
     }
+    patchDevice(device.id, { name });
+  };
+
+  const toggleExpand = (id: string) => {
+    setExpandedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
   const handleDeleteDevice = async (id: string) => {
+    clearPersistTimer(id);
     const rsp = await SScript.delDevice(id);
     if (rsp.success) {
-      loadData();
+      delete savedDevicesRef.current[id];
+      setDevices((prev) => prev.filter((d) => d.id !== id));
+      setExecutions((prev) => prev.filter((ex) => ex.deviceId !== id));
+      setExpandedIds((prev) => prev.filter((x) => x !== id));
     }
   };
 
@@ -307,6 +400,146 @@ const PScript: React.FC = () => {
     </div>
   );
 
+  const renderDeviceField = (device: DeviceProfile, p: ScriptParamDef) => (
+    <div key={p.key} className={SelfStyle.paramField}>
+      <label className={SelfStyle.paramLabel}>{p.label}</label>
+      <Input
+        value={(device as unknown as Record<string, string>)[p.key] || ""}
+        placeholder={p.placeholder}
+        onChange={(e) => patchDevice(device.id, { [p.key]: e.target.value })}
+        disabled={running}
+      />
+    </div>
+  );
+
+  const renderAdbDevices = () => (
+    <>
+      {addingDevice ? (
+        <div className={SelfStyle.addDeviceRow}>
+          <Input
+            autoFocus
+            value={newDeviceName}
+            onChange={(e) => setNewDeviceName(e.target.value)}
+            onPressEnter={handleConfirmAddDevice}
+            disabled={running}
+          />
+          <Button type="primary" onClick={handleConfirmAddDevice} disabled={running}>
+            确定
+          </Button>
+          <Button
+            onClick={() => {
+              setAddingDevice(false);
+              setNewDeviceName("");
+            }}
+            disabled={running}
+          >
+            取消
+          </Button>
+        </div>
+      ) : (
+        <div className={SelfStyle.deviceToolbar}>
+          <Button icon={<PlusOutlined />} onClick={() => setAddingDevice(true)} disabled={running}>
+            添加设备
+          </Button>
+        </div>
+      )}
+
+      {scriptDevices.map((device) => {
+        const expanded = expandedIds.includes(device.id);
+        const deviceExecs = executions.filter((ex) => ex.deviceId === device.id).slice(0, 8);
+        return (
+          <div key={device.id} className={SelfStyle.deviceCard}>
+            <div className={SelfStyle.deviceHeader} onClick={() => toggleExpand(device.id)}>
+              <CaretRightOutlined
+                className={`${SelfStyle.deviceCaret} ${expanded ? SelfStyle.deviceCaretOpen : ""}`}
+              />
+              <div className={SelfStyle.deviceTitle}>
+                {editingNameId === device.id ? (
+                  <Input
+                    autoFocus
+                    size="small"
+                    className={SelfStyle.deviceNameInput}
+                    value={editingName}
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) => setEditingName(e.target.value)}
+                    onPressEnter={() => finishEditName(device)}
+                    onBlur={() => finishEditName(device)}
+                    disabled={running}
+                  />
+                ) : (
+                  <>
+                    <span className={SelfStyle.deviceHeaderName}>{device.name}</span>
+                    <EditOutlined
+                      className={SelfStyle.deviceEdit}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!running) startEditName(device);
+                      }}
+                    />
+                  </>
+                )}
+              </div>
+              <DeleteOutlined
+                className={SelfStyle.deviceDel}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteDevice(device.id);
+                }}
+              />
+            </div>
+            {expanded && selectedScript && (
+              <div className={SelfStyle.deviceBody}>
+                <div className={SelfStyle.paramGrid}>
+                  {selectedScript.params
+                    .filter((p) => p.key !== "connectPort")
+                    .map((p) => renderDeviceField(device, p))}
+                </div>
+                <div className={SelfStyle.paramSolo}>
+                  {selectedScript.params
+                    .filter((p) => p.key === "connectPort")
+                    .map((p) => renderDeviceField(device, p))}
+                </div>
+                <div className={SelfStyle.actionBar}>
+                  <Button
+                    type="primary"
+                    icon={<CaretRightOutlined />}
+                    loading={running && runningDeviceId === device.id}
+                    disabled={running && runningDeviceId !== device.id}
+                    onClick={() => handleExecuteDevice(device, "connect")}
+                  >
+                    直接连接
+                  </Button>
+                  <Button
+                    loading={running && runningDeviceId === device.id}
+                    disabled={running && runningDeviceId !== device.id}
+                    onClick={() => handleExecuteDevice(device, "pair")}
+                  >
+                    配对并连接
+                  </Button>
+                </div>
+                {deviceExecs.length > 0 && (
+                  <div className={SelfStyle.deviceHistory}>
+                    {deviceExecs.map((ex) => (
+                      <div key={ex.id + ex.startTime} className={SelfStyle.historyItem}>
+                        <Tag
+                          color={ex.status === "success" ? "green" : ex.status === "failed" ? "red" : "blue"}
+                          style={{ marginRight: 6 }}
+                        >
+                          {ex.status === "success" ? "成功" : ex.status === "failed" ? "失败" : "运行中"}
+                        </Tag>
+                        {ex.action || ex.scriptName} · {new Date(ex.startTime).toLocaleString()}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </>
+  );
+
   return (
     <div className={SelfStyle.pageRoot}>
       <div className={SelfStyle.main}>
@@ -315,7 +548,6 @@ const PScript: React.FC = () => {
             <CodeOutlined style={{ marginRight: 6 }} />
             脚本
           </div>
-          <div className={SelfStyle.sectionTitle}>内置</div>
           {NScript.BUILTIN_SCRIPTS.map((item) => (
             <div
               key={item.id}
@@ -323,64 +555,8 @@ const PScript: React.FC = () => {
               onClick={() => setSelectedId(item.id)}
             >
               <div className={SelfStyle.scriptName}>{item.name}</div>
-              <div className={SelfStyle.scriptDesc}>{item.description}</div>
             </div>
           ))}
-
-          <div className={SelfStyle.sectionTitle}>
-            自定义
-            <Button
-              type="link"
-              size="small"
-              icon={<PlusOutlined />}
-              onClick={() => editorRef.current?.open()}
-              style={{ float: "right", padding: 0, height: "auto" }}
-            />
-          </div>
-          {customScripts.length === 0 && (
-            <div style={{ padding: "4px 12px", fontSize: 12, color: "#bbb" }}>暂无自定义脚本</div>
-          )}
-          {customScripts.map((item) => (
-            <div
-              key={item.id}
-              className={`${SelfStyle.scriptItem} ${selectedId === item.id ? SelfStyle.active : ""}`}
-              onClick={() => setSelectedId(item.id)}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div className={SelfStyle.scriptName}>{item.name}</div>
-                <Space size={4} onClick={(e) => e.stopPropagation()}>
-                  <EditOutlined
-                    style={{ color: "#999", fontSize: 12 }}
-                    onClick={() => editorRef.current?.open(item)}
-                  />
-                  <Popconfirm title="删除此脚本？" onConfirm={() => handleDeleteScript(item.id)}>
-                    <DeleteOutlined style={{ color: "#999", fontSize: 12 }} />
-                  </Popconfirm>
-                </Space>
-              </div>
-              {item.description && <div className={SelfStyle.scriptDesc}>{item.description}</div>}
-            </div>
-          ))}
-
-          {devices.length > 0 && (
-            <>
-              <div className={SelfStyle.sectionTitle}>
-                <MobileOutlined style={{ marginRight: 4 }} />
-                设备
-              </div>
-              {devices.map((d) => (
-                <div key={d.id} className={SelfStyle.deviceItem} onClick={() => handleApplyDevice(d)}>
-                  <span>
-                    {d.name}
-                    <span style={{ color: "#bbb", marginLeft: 6 }}>{d.address}</span>
-                  </span>
-                  <Popconfirm title="删除？" onConfirm={() => handleDeleteDevice(d.id)}>
-                    <DeleteOutlined style={{ color: "#ccc" }} onClick={(e) => e.stopPropagation()} />
-                  </Popconfirm>
-                </div>
-              ))}
-            </>
-          )}
         </aside>
 
         <section className={SelfStyle.content}>
@@ -389,96 +565,39 @@ const PScript: React.FC = () => {
               <div className={SelfStyle.contentHeader}>
                 <div className={SelfStyle.titleRow}>
                   <h2 className={SelfStyle.title}>{selectedScript.name}</h2>
-                  <Tag color={selectedScript.kind === "builtin" ? "blue" : "default"}>
-                    {selectedScript.kind === "builtin" ? "内置" : "自定义"}
-                  </Tag>
                 </div>
                 {selectedScript.description && (
                   <p className={SelfStyle.desc}>{selectedScript.description}</p>
-                )}
-                {selectedScript.kind === "custom" && selectedScript.command && (
-                  <pre
-                    style={{
-                      marginTop: 8,
-                      padding: "8px 10px",
-                      background: "#f5f5f5",
-                      borderRadius: 4,
-                      fontSize: 12,
-                      overflow: "auto",
-                    }}
-                  >
-                    {selectedScript.command}
-                  </pre>
                 )}
               </div>
 
               <div className={SelfStyle.formArea}>
                 {isAdbScript ? (
-                  <>
-                    <div className={SelfStyle.paramSection}>
-                      <div className={SelfStyle.paramSectionLabel}>连接信息</div>
-                      <div className={SelfStyle.paramGrid}>
-                        {selectedScript.params
-                          .filter((p) => p.key === "address" || p.key === "connectPort")
-                          .map(renderParamInput)}
-                      </div>
-                    </div>
-                    <div className={SelfStyle.paramSection}>
-                      <div className={SelfStyle.paramSectionLabel}>配对信息（配对并连接时使用）</div>
-                      <div className={SelfStyle.paramGrid}>
-                        {selectedScript.params
-                          .filter((p) => p.key === "pairPort" || p.key === "pairCode")
-                          .map(renderParamInput)}
-                      </div>
-                    </div>
-                  </>
+                  renderAdbDevices()
                 ) : (
-                  <div className={SelfStyle.paramGrid}>
-                    {selectedScript.params.map(renderParamInput)}
-                  </div>
-                )}
-                <div className={SelfStyle.actionBar}>
-                  {isAdbScript ? (
-                    <>
+                  <>
+                    <div className={SelfStyle.paramGrid}>
+                      {selectedScript.params.map(renderParamInput)}
+                    </div>
+                    <div className={SelfStyle.actionBar}>
                       <Button
                         type="primary"
                         icon={<CaretRightOutlined />}
                         loading={running}
                         onClick={() => handleExecute("connect")}
                       >
-                        直接连接
+                        执行
                       </Button>
-                      <Button loading={running} onClick={() => handleExecute("pair")}>
-                        配对并连接
-                      </Button>
-                    </>
-                  ) : (
-                    <Button
-                      type="primary"
-                      icon={<CaretRightOutlined />}
-                      loading={running}
-                      onClick={() => handleExecute()}
-                    >
-                      执行
-                    </Button>
-                  )}
-                  {isAdbScript && (
-                    <>
-                      <Input
-                        placeholder="设备名称（保存用）"
-                        value={saveDeviceName}
-                        onChange={(e) => setSaveDeviceName(e.target.value)}
-                        style={{ width: 160 }}
-                        disabled={running}
-                      />
-                      <Tooltip title="保存当前地址与端口，下次一键填入">
-                        <Button icon={<SaveOutlined />} onClick={handleSaveDevice} disabled={running}>
-                          保存设备
-                        </Button>
-                      </Tooltip>
-                    </>
-                  )}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className={SelfStyle.outputPanel}>
+                <div className={SelfStyle.outputHeader}>
+                  <span>输出 {statusTag()}</span>
                   <Button
+                    size="small"
                     icon={<ReloadOutlined />}
                     onClick={() => {
                       setTaskLogs([]);
@@ -489,15 +608,6 @@ const PScript: React.FC = () => {
                   >
                     清空输出
                   </Button>
-                </div>
-              </div>
-
-              <div className={SelfStyle.outputPanel}>
-                <div className={SelfStyle.outputHeader}>
-                  <span>输出 {statusTag()}</span>
-                  {currentTaskId && (
-                    <span style={{ fontSize: 11, color: "#999" }}>任务 #{currentTaskId}</span>
-                  )}
                 </div>
                 <div className={SelfStyle.terminal} ref={terminalRef}>
                   {taskLogs.length === 0 ? (
@@ -515,22 +625,6 @@ const PScript: React.FC = () => {
                     ))
                   )}
                 </div>
-                {executions.length > 0 && (
-                  <div className={SelfStyle.historyList}>
-                    <div style={{ fontSize: 12, color: "#999", marginBottom: 4 }}>最近执行</div>
-                    {executions.slice(0, 8).map((ex) => (
-                      <div key={ex.id + ex.startTime} className={SelfStyle.historyItem}>
-                        <Tag
-                          color={ex.status === "success" ? "green" : ex.status === "failed" ? "red" : "blue"}
-                          style={{ marginRight: 6 }}
-                        >
-                          {ex.status === "success" ? "成功" : ex.status === "failed" ? "失败" : "运行中"}
-                        </Tag>
-                        {ex.scriptName} · {new Date(ex.startTime).toLocaleString()}
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
             </>
           ) : (
@@ -538,7 +632,6 @@ const PScript: React.FC = () => {
           )}
         </section>
       </div>
-      <ScriptEditorModal ref={editorRef} onSaved={loadData} />
     </div>
   );
 };

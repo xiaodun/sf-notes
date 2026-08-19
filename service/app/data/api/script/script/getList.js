@@ -1,6 +1,6 @@
 (function () {
   return function (argData, argParams) {
-    var data = argData || { customScripts: [], devices: [], executions: [] };
+    var data = argData || { devices: [], executions: [] };
     return {
       isWrite: false,
       response: {
@@ -8,7 +8,6 @@
         data: {
           success: true,
           data: {
-            customScripts: data.customScripts || [],
             devices: data.devices || [],
             executions: (data.executions || []).slice(0, 30),
           },

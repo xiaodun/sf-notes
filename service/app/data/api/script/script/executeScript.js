@@ -173,40 +173,6 @@
     return { ok: false, message: "未知内置脚本" };
   }
 
-  function renderCustomCommand(command, params) {
-    var text = String(command || "");
-    Object.keys(params || {}).forEach(function (key) {
-      var val = params[key] == null ? "" : String(params[key]);
-      text = text.replace(new RegExp("\\{\\{\\s*" + key + "\\s*\\}\\}", "g"), val);
-    });
-    return text;
-  }
-
-  function executeCustom(task, script, params) {
-    var platform = os.platform();
-    var commandText = renderCustomCommand(script.command, params);
-    if (!commandText.trim()) {
-      pushLog(task, "error", "脚本命令为空");
-      return { ok: false, message: "脚本命令为空" };
-    }
-
-    pushLog(task, "info", "$ " + commandText.split("\n").join("\n$ "));
-
-    var shell = platform === "win32" ? "cmd.exe" : "/bin/sh";
-    var shellArgs =
-      platform === "win32" ? ["/c", commandText] : ["-c", commandText];
-    var result = runCommand(shell, shellArgs, { timeout: 120000 });
-
-    if (result.output) {
-      pushLog(task, result.ok ? "info" : "error", result.output);
-    }
-    task.steps = [{ label: "run", ok: result.ok, output: result.output }];
-    return {
-      ok: result.ok,
-      message: result.ok ? "执行完成" : "执行失败",
-    };
-  }
-
   function getStore() {
     if (!global.__sfScriptStore) {
       global.__sfScriptStore = { tasks: {}, seq: 0 };
@@ -224,6 +190,8 @@
       id: taskId,
       scriptId: argParams.scriptId || "",
       scriptName: argParams.scriptName || "",
+      deviceId: argParams.deviceId || "",
+      action: argParams.action || "",
       status: "running",
       logs: [],
       steps: [],
@@ -233,17 +201,11 @@
     };
     tasks[taskId] = task;
 
-    var scriptType = argParams.scriptType || "builtin";
     var params = argParams.params || {};
 
     setImmediate(function () {
       try {
-        var result;
-        if (scriptType === "builtin") {
-          result = executeBuiltin(task, argParams.builtinKey, params);
-        } else {
-          result = executeCustom(task, argParams.customScript || {}, params);
-        }
+        var result = executeBuiltin(task, argParams.builtinKey, params);
         task.status = result.ok ? "success" : "failed";
         task.message = result.message || "";
       } catch (e) {
