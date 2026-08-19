@@ -1,0 +1,99 @@
+{
+    "devices": [
+        {
+            "id": "1787101061688",
+            "scriptId": "builtin:adb-wireless",
+            "name": "red",
+            "address": "172.17.48.44",
+            "pairPort": "",
+            "connectPort": "36033",
+            "updateTime": "2026-08-19T00:57:41.688Z"
+        }
+    ],
+    "executions": [
+        {
+            "id": "2",
+            "scriptId": "builtin:adb-wireless",
+            "scriptName": "ADB 无线连接 · red · 直接连接",
+            "deviceId": "1787101061688",
+            "action": "直接连接",
+            "status": "success",
+            "message": "执行完成",
+            "startTime": 1787103342382,
+            "endTime": 1787103343300,
+            "logs": [
+                {
+                    "time": 1787103342383,
+                    "level": "info",
+                    "text": "ADB: C:\\Users\\SZLD03287\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe"
+                },
+                {
+                    "time": 1787103342383,
+                    "level": "info",
+                    "text": "执行方式：直接连接"
+                },
+                {
+                    "time": 1787103342383,
+                    "level": "info",
+                    "text": "$ adb connect 172.17.48.44:36033"
+                },
+                {
+                    "time": 1787103343055,
+                    "level": "info",
+                    "text": "already connected to 172.17.48.44:36033"
+                },
+                {
+                    "time": 1787103343055,
+                    "level": "info",
+                    "text": "$ adb devices -l"
+                },
+                {
+                    "time": 1787103343300,
+                    "level": "info",
+                    "text": "List of devices attached\r\n172.17.48.44:36033     device product:dash model:2602BRT18C device:dash transport_id:2"
+                }
+            ]
+        },
+        {
+            "id": "1",
+            "scriptId": "builtin:adb-wireless",
+            "scriptName": "ADB 无线连接 · 直接连接",
+            "status": "success",
+            "message": "执行完成",
+            "startTime": 1787100111403,
+            "endTime": 1787100112259,
+            "logs": [
+                {
+                    "time": 1787100111403,
+                    "level": "info",
+                    "text": "ADB: C:\\Users\\SZLD03287\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe"
+                },
+                {
+                    "time": 1787100111403,
+                    "level": "info",
+                    "text": "执行方式：直接连接"
+                },
+                {
+                    "time": 1787100111403,
+                    "level": "info",
+                    "text": "$ adb connect 172.17.48.44:36033"
+                },
+                {
+                    "time": 1787100112025,
+                    "level": "info",
+                    "text": "connected to 172.17.48.44:36033"
+                },
+                {
+                    "time": 1787100112025,
+                    "level": "info",
+                    "text": "$ adb devices -l"
+                },
+                {
+                    "time": 1787100112258,
+                    "level": "info",
+                    "text": "List of devices attached\r\n172.17.48.44:36033     device product:dash model:2602BRT18C device:dash transport_id:2"
+                }
+            ]
+        }
+    ]
+}
