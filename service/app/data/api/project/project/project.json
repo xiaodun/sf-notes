@@ -6,6 +6,24 @@
     },
     "projectList": [
         {
+            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-flux-words",
+            "sfMock": {
+                "serverList": []
+            },
+            "name": "affluence-flux-words",
+            "id": 1787103900123,
+            "startConfig": {
+                "commands": [
+                    {
+                        "name": "affluence-flux-words",
+                        "command": "pnpm dev"
+                    }
+                ],
+                "runUrl": "http://localhost:3002",
+                "terminalCommand": "deepcode"
+            }
+        },
+        {
             "rootPath": "C:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app",
             "sfMock": {
                 "serverList": [
