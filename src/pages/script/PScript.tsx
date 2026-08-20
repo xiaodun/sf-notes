@@ -12,7 +12,6 @@ import {
   EditOutlined,
   PlusOutlined,
   ReloadOutlined,
-  CodeOutlined,
 } from "@ant-design/icons";
 import SelfStyle from "./LScript.less";
 import SScript from "./SScript";
@@ -544,10 +543,6 @@ const PScript: React.FC = () => {
     <div className={SelfStyle.pageRoot}>
       <div className={SelfStyle.main}>
         <aside className={SelfStyle.sidebar}>
-          <div className={SelfStyle.sidebarHeader}>
-            <CodeOutlined style={{ marginRight: 6 }} />
-            脚本
-          </div>
           {NScript.BUILTIN_SCRIPTS.map((item) => (
             <div
               key={item.id}
@@ -562,14 +557,11 @@ const PScript: React.FC = () => {
         <section className={SelfStyle.content}>
           {selectedScript ? (
             <>
-              <div className={SelfStyle.contentHeader}>
-                <div className={SelfStyle.titleRow}>
-                  <h2 className={SelfStyle.title}>{selectedScript.name}</h2>
-                </div>
-                {selectedScript.description && (
+              {selectedScript.description && (
+                <div className={SelfStyle.contentHeader}>
                   <p className={SelfStyle.desc}>{selectedScript.description}</p>
-                )}
-              </div>
+                </div>
+              )}
 
               <div className={SelfStyle.formArea}>
                 {isAdbScript ? (
