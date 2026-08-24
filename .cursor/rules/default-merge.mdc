@@ -1,16 +1,19 @@
 ---
-description: 改完功能后默认合入 master，无需再问一次
+description: 改完功能后默认合入 master；本地改完默认提交推送
 alwaysApply: true
 ---
 
-# 改完默认合入
+# 改完默认提交、推送、合入
 
-功能改完（提交、推送、自测通过）后：**默认合入 `master`，不要停下来再问「要不要合入」**。
+本地 Agent 与 Cloud Agent 同一套：功能改完并自测通过后，**默认提交并推送**，再合入主线；**不要停下来再问「要不要合入」**。
+
+日常发布主线是 **`master`**。本地日常开发可在 `company`；从 `master` 同步进 `company` 的流程见 `sync-from-master`。
 
 ## 怎么合
 
 - **日常功能分支**（如 `home`）：走「推送」流程（见 `push-workflow`），把可发布提交拣选到 `master` 并推远程。
 - **Cloud Agent / PR**：PR 已就绪后直接合入 `master`（可用 `gh pr merge` 或等价方式），再说明合入结果。
+- **本地直接在 `company` 改完**：提交推送后，按项目习惯把应发布内容合入 / 拣选到 `master`（用户说「推送」时严格执行 push-workflow）。
 
 ## 例外（才停下来问）
 
