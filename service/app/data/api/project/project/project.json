@@ -1,238 +1,20 @@
 {
     "config": {
-        "addBasePath": "C:/Users/SZLD03287/Documents/affluence-teahouse",
+        "addBasePath": "",
+        "showEnumList": false,
         "gitlabBasePath": "",
-        "nginxVisitWay": "domain"
+        "nginxVisitWay": "ip",
+        "swaggerPathShowWay": "path",
+        "lastOptionSwaggerDomain": ""
     },
     "projectList": [
         {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-flux-words",
-            "sfMock": {
-                "serverList": []
-            },
-            "name": "affluence-flux-words",
-            "id": 1787103900123,
-            "startConfig": {
-                "commands": [
-                    {
-                        "name": "affluence-flux-words",
-                        "command": "pnpm dev"
-                    }
-                ],
-                "runUrl": "http://localhost:3002",
-                "terminalCommand": "deepcode"
-            }
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\ccs-ui\\ccs-src\\ccs-app",
-            "sfMock": {
-                "serverList": [
-                    {
-                        "port": 9200,
-                        "isMock": true,
-                        "openUrl": "http://172.17.48.50:9200",
-                        "openDomainUrl": "http://wx.mock.ccs-app:9200"
-                    },
-                    {
-                        "name": "本地链接",
-                        "openUrl": "http://localhost:3000"
-                    }
-                ],
-                "addressPath": ""
-            },
-            "name": "ccs-app",
-            "id": 1774230197427,
-            "startConfig": {
-                "commands": [
-                    {
-                        "name": "ccs-app",
-                        "command": "npm run dev"
-                    }
-                ],
-                "runUrl": "http://localhost:3000"
-            },
-            "isSfMock": false
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-teahouse",
-            "sfMock": {
-                "serverList": []
-            },
-            "name": "affluence-teahouse",
-            "id": 1786928122452,
-            "startConfig": {
-                "commands": [],
-                "runUrl": ""
-            }
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\sf-mock",
-            "sfMock": {
-                "serverList": []
-            },
-            "name": "sf-mock",
-            "id": 1774230745884,
-            "startConfig": {
-                "commands": [
-                    {
-                        "name": "sf-mock",
-                        "command": "node mockService.js"
-                    }
-                ],
-                "runUrl": "http://localhost:9192"
-            },
-            "isSfMock": true
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-ad-reward",
-            "sfMock": {
-                "serverList": []
-            },
-            "name": "affluence-ad-reward",
-            "id": 1783503036667,
-            "startConfig": {
-                "commands": [
-                    {
-                        "name": "affluence-ad-reward",
-                        "command": "npm run dev"
-                    }
-                ],
-                "runUrl": "http://localhost:3001",
-                "terminalCommand": "deepcode"
-            }
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-zen-browser",
-            "sfMock": {
-                "serverList": []
-            },
-            "name": "affluence-zen-browser",
-            "id": 1779068545048,
-            "startConfig": {
-                "commands": [],
-                "runUrl": ""
-            }
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-skipbell",
-            "sfMock": {
-                "serverList": []
-            },
-            "name": "affluence-skipbell",
-            "id": 1786364938959,
-            "startConfig": {
-                "commands": [],
-                "runUrl": ""
-            }
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-git-pro",
-            "sfMock": {
-                "serverList": []
-            },
-            "name": "affluence-git-pro",
-            "id": 1779068610892,
-            "startConfig": {
-                "commands": [
-                    {
-                        "name": "affluence-git-pro",
-                        "command": "npm run dev"
-                    }
-                ],
-                "runUrl": "http://localhost:3001",
-                "terminalCommand": "deepcode"
-            }
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-voice-log",
-            "sfMock": {
-                "serverList": []
-            },
-            "name": "affluence-voice-log",
-            "id": 1782806373535,
-            "startConfig": {
-                "commands": [],
-                "runUrl": ""
-            }
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-lottery-client",
-            "sfMock": {
-                "serverList": [
-                    {
-                        "port": 9300,
-                        "isMock": true,
-                        "openUrl": "http://172.17.48.50:9300",
-                        "openDomainUrl": "http://wx.mock.affluence-lottery-client:9300"
-                    },
-                    {
-                        "name": "本地链接",
-                        "openUrl": "http://localhost:5173"
-                    }
-                ]
-            },
-            "name": "affluence-lottery-client",
-            "id": 1782273959239,
-            "startConfig": {
-                "commands": [],
-                "runUrl": ""
-            }
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-spend-client",
-            "sfMock": {
-                "serverList": []
-            },
-            "name": "affluence-spend-client",
-            "id": 1774229969419,
-            "startConfig": {
-                "commands": [
-                    {
-                        "name": "spend-client",
-                        "command": "npm run dev:h5"
-                    }
-                ],
-                "runUrl": "http://localhost:5274"
-            }
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\affluence-folio-chat",
-            "sfMock": {
-                "serverList": []
-            },
-            "name": "affluence-folio-chat",
-            "id": 1779068594592,
-            "startConfig": {
-                "commands": [],
-                "runUrl": ""
-            }
-        },
-        {
-            "rootPath": "C://Users//SZLD03287//Documents//sf-notes",
+            "rootPath": "D://github//sf-notes",
             "name": "sf-notes",
             "id": 1634522259207,
             "isSfMock": false,
             "closeAjaxCode": true,
-            "sfMock": {
-                "serverList": [
-                    {
-                        "port": 9000,
-                        "isMock": true,
-                        "openUrl": "http://172.17.48.50:9000",
-                        "openDomainUrl": "http://wx.mock.sf-notes:9000"
-                    },
-                    {
-                        "port": 9001,
-                        "url": "http://192.168.10.197:8880",
-                        "openUrl": "http://172.17.48.50:9001",
-                        "openDomainUrl": "http://wx.prd.sf-notes:9001"
-                    },
-                    {
-                        "name": "本地链接",
-                        "openUrl": "http://localhost:8000"
-                    }
-                ]
-            },
+            "sfMock": {},
             "snippetList": [
                 {
                     "name": "一个模块",
@@ -259,23 +41,11 @@
                     ]
                 }
             ],
-            "isDefaultCopySwagger": false,
-            "startConfig": {
-                "commands": [],
-                "runUrl": ""
-            }
-        },
-        {
-            "rootPath": "C:\\Users\\SZLD03287\\Documents\\easy-network-chrome-extension",
-            "sfMock": {
-                "serverList": []
-            },
-            "name": "easy-network-chrome-extension",
-            "id": 1779068562440,
-            "startConfig": {
-                "commands": [],
-                "runUrl": ""
-            }
+            "isDefaultCopySwagger": false
         }
-    ]
+    ],
+    "inExcludeGroups": {},
+    "swaggerList": [],
+    "apiPrefixs": {},
+    "attentionPathList": []
 }
