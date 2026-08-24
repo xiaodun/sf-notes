@@ -399,13 +399,18 @@ const PScript: React.FC = () => {
     </div>
   );
 
-  const renderDeviceField = (device: DeviceProfile, p: ScriptParamDef) => (
+  const renderDeviceField = (
+    device: DeviceProfile,
+    p: ScriptParamDef,
+    options?: { onPressEnter?: () => void }
+  ) => (
     <div key={p.key} className={SelfStyle.paramField}>
       <label className={SelfStyle.paramLabel}>{p.label}</label>
       <Input
         value={(device as unknown as Record<string, string>)[p.key] || ""}
         placeholder={p.placeholder}
         onChange={(e) => patchDevice(device.id, { [p.key]: e.target.value })}
+        onPressEnter={options?.onPressEnter}
         disabled={running}
       />
     </div>
@@ -445,7 +450,7 @@ const PScript: React.FC = () => {
 
       {scriptDevices.map((device) => {
         const expanded = expandedIds.includes(device.id);
-        const deviceExecs = executions.filter((ex) => ex.deviceId === device.id).slice(0, 8);
+        const deviceExecs = executions.filter((ex) => ex.deviceId === device.id).slice(0, 1);
         return (
           <div key={device.id} className={SelfStyle.deviceCard}>
             <div className={SelfStyle.deviceHeader} onClick={() => toggleExpand(device.id)}>
@@ -496,7 +501,11 @@ const PScript: React.FC = () => {
                 <div className={SelfStyle.paramSolo}>
                   {selectedScript.params
                     .filter((p) => p.key === "connectPort")
-                    .map((p) => renderDeviceField(device, p))}
+                    .map((p) =>
+                      renderDeviceField(device, p, {
+                        onPressEnter: () => handleExecuteDevice(device, "connect"),
+                      })
+                    )}
                 </div>
                 <div className={SelfStyle.actionBar}>
                   <Button

@@ -106,6 +106,39 @@
     return n;
   }
 
+  function isAdbOutputFailure(output) {
+    var text = String(output || "").toLowerCase();
+    if (!text) return true;
+    return /failed to connect|unable to connect|cannot connect|connection refused|积极拒绝|无法连接|error:|failed to pair|pairing failed/.test(
+      text
+    );
+  }
+
+  function isAdbConnectSuccess(output) {
+    var text = String(output || "").toLowerCase();
+    if (!text || isAdbOutputFailure(output)) return false;
+    return /connected to|already connected to/.test(text);
+  }
+
+  function isAdbPairSuccess(output) {
+    var text = String(output || "").toLowerCase();
+    if (!text || isAdbOutputFailure(output)) return false;
+    return /successfully paired/.test(text);
+  }
+
+  function isDeviceListed(devicesOutput, address, port) {
+    var target = address + ":" + port;
+    var lines = String(devicesOutput || "").split(/\r?\n/);
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].trim();
+      if (!line || line.indexOf("List of devices") === 0) continue;
+      if (line.indexOf(target) !== 0) continue;
+      if (/\boffline\b/i.test(line)) return false;
+      return true;
+    }
+    return false;
+  }
+
   function executeAdbWireless(task, adb, params) {
     var address = normalizeAddress(params.address);
     var connectPort = normalizePort(params.connectPort);
@@ -139,7 +172,7 @@
         ["pair", address + ":" + pairPort, pairCode],
         "pair"
       );
-      if (!pairResult.ok) {
+      if (!pairResult.ok || !isAdbPairSuccess(pairResult.output)) {
         return { ok: false, message: "配对失败" };
       }
     } else {
@@ -152,11 +185,14 @@
       ["connect", address + ":" + connectPort],
       "connect"
     );
-    if (!connectResult.ok) {
+    if (!connectResult.ok || !isAdbConnectSuccess(connectResult.output)) {
       return { ok: false, message: "连接失败" };
     }
 
-    runAdbStep(task, adb, ["devices", "-l"], "devices");
+    var devicesResult = runAdbStep(task, adb, ["devices", "-l"], "devices");
+    if (!isDeviceListed(devicesResult.output, address, connectPort)) {
+      return { ok: false, message: "连接失败：设备未出现在列表中" };
+    }
     return { ok: true, message: "执行完成" };
   }
 
