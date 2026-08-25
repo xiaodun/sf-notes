@@ -276,4 +276,116 @@
   font-size: 12px;
   color: #666;
   padding: 4px 0;
+  word-break: break-word;
+}
+
+// 移动端：侧栏改顶栏横滑，主区纵向滚动，表单/按钮铺满
+@media screen and (max-width: 768px) {
+  .pageRoot {
+    height: auto;
+    max-height: none;
+    min-height: calc(100vh - 96px);
+    overflow: visible;
+  }
+
+  .main {
+    flex-direction: column;
+    height: auto;
+    min-height: calc(100vh - 96px);
+  }
+
+  .sidebar {
+    width: 100%;
+    min-width: 0;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-right: none;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .scriptItem {
+    flex: 0 0 auto;
+    border-bottom: none;
+    white-space: nowrap;
+
+    &.active {
+      border-left: none;
+      border-bottom: 3px solid #1890ff;
+      padding-left: 12px;
+      padding-bottom: 7px;
+    }
+  }
+
+  .content {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .contentHeader {
+    padding: 12px;
+  }
+
+  .formArea {
+    padding: 12px;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .paramGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .paramSolo {
+    max-width: none;
+  }
+
+  .addDeviceRow {
+    max-width: none;
+    flex-wrap: wrap;
+
+    :global(.ant-input) {
+      flex: 1 1 140px;
+      min-width: 0;
+    }
+  }
+
+  .deviceBody {
+    padding: 12px;
+  }
+
+  .deviceNameInput {
+    width: 100%;
+    max-width: 220px;
+  }
+
+  .actionBar {
+    flex-wrap: wrap;
+
+    :global(.ant-btn) {
+      flex: 1 1 calc(50% - 4px);
+      min-width: 120px;
+    }
+  }
+
+  .outputPanel {
+    padding: 12px;
+    flex: none;
+  }
+
+  .terminal {
+    min-height: 220px;
+    max-height: 45vh;
+  }
+
+  .historyItem {
+    line-height: 1.5;
+  }
+
+  // 避免 iOS 聚焦输入框时强制放大页面
+  :global(.ant-input) {
+    font-size: 16px;
+  }
 }
