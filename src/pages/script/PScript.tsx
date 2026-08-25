@@ -387,6 +387,7 @@ const PScript: React.FC = () => {
     <div key={p.key} className={SelfStyle.paramField}>
       <label className={SelfStyle.paramLabel}>{p.label}</label>
       <Input
+        allowClear
         value={paramValues[p.key] || ""}
         placeholder={p.placeholder}
         onChange={(e) => {
@@ -407,6 +408,7 @@ const PScript: React.FC = () => {
     <div key={p.key} className={SelfStyle.paramField}>
       <label className={SelfStyle.paramLabel}>{p.label}</label>
       <Input
+        allowClear
         value={(device as unknown as Record<string, string>)[p.key] || ""}
         placeholder={p.placeholder}
         onChange={(e) => patchDevice(device.id, { [p.key]: e.target.value })}
@@ -421,6 +423,7 @@ const PScript: React.FC = () => {
       {addingDevice ? (
         <div className={SelfStyle.addDeviceRow}>
           <Input
+            allowClear
             autoFocus
             value={newDeviceName}
             onChange={(e) => setNewDeviceName(e.target.value)}
@@ -460,6 +463,7 @@ const PScript: React.FC = () => {
               <div className={SelfStyle.deviceTitle}>
                 {editingNameId === device.id ? (
                   <Input
+                    allowClear
                     autoFocus
                     size="small"
                     className={SelfStyle.deviceNameInput}
