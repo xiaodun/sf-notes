@@ -322,5 +322,27 @@ namespace SProject {
       data,
     });
   }
+
+  export async function listGitBranches(data: {
+    projectId: number;
+  }): Promise<NRsp<any>> {
+    return request({
+      url: "/project/listGitBranches",
+      method: "post",
+      data,
+    });
+  }
+
+  export async function switchGitBranch(data: {
+    projectId: number;
+    branch: string;
+    dirtyStrategy?: "carry" | "stash" | "";
+  }): Promise<NRsp<any>> {
+    return request({
+      url: "/project/switchGitBranch",
+      method: "post",
+      data,
+    });
+  }
 }
 export default SProject;

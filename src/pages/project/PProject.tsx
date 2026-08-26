@@ -10,10 +10,9 @@ import {
 import {
   Button,
   Dropdown,
-  Menu,
+  Modal,
   message,
   Radio,
-  Select,
   Space,
   Table,
 } from 'antd';
@@ -33,16 +32,17 @@ import NRsp from '@/common/namespace/NRsp';
 import { cloneDeep } from 'lodash';
 import UCopy from '@/common/utils/UCopy';
 import UGitlab from '@/common/utils/UGitlab';
-import { DeleteOutlined, MenuOutlined, ArrowLeftOutlined, SettingOutlined, EllipsisOutlined, CopyOutlined, CodeOutlined, BranchesOutlined } from '@ant-design/icons';
+import { DeleteOutlined, MenuOutlined, ArrowLeftOutlined, SettingOutlined, EllipsisOutlined, CopyOutlined } from '@ant-design/icons';
 import Browser from "@/utils/browser";
 import SBase from '@/common/service/SBase';
 import { DIRECTORY_MODAL_MEMORY_KEYS } from '@/common/components/directory/constants/directoryMemory';
 import GitBatchModal from './components/GitBatchModal';
+import BranchPicker from './components/BranchPicker';
 export interface IProjectProps {
   MDProject: NMDProject.IState;
 }
 
-/** 暂时隐藏项目管理中的 Git 批量操作入口 */
+/** 暂时隐藏项目管理中的 GitLab 相关入口 */
 const SHOW_GIT_OPERATIONS = false;
 /** 暂时隐藏项目管理操作列中的 DP 入口 */
 const SHOW_DP_OPERATIONS = false;
@@ -64,37 +64,60 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   const [gitBatchVisible, setGitBatchVisible] = useState(false);
   const [gitBranchMap, setGitBranchMap] = useState<Record<number, GitBranchInfo>>({});
   const [gitPullingId, setGitPullingId] = useState<number | null>(null);
+  const [gitSwitchingId, setGitSwitchingId] = useState<number | null>(null);
+  const [branchMenuMap, setBranchMenuMap] = useState<
+    Record<number, { branches: string[] }>
+  >({});
+  const [switchDirtyModal, setSwitchDirtyModal] = useState<{
+    project: NProject;
+    targetBranch: string;
+  } | null>(null);
+  const [openBranchId, setOpenBranchId] = useState<number | null>(null);
   const openingTerminalRef = useRef(false);
+  const mountedRef = useRef(true);
+  const branchDropdownIdRef = useRef<number | null>(null);
+  const branchLoadingRef = useRef<Record<number, boolean>>({});
+  const timersRef = useRef<number[]>([]);
 
   useEffect(() => {
+    mountedRef.current = true;
     reqGetProject();
     reqGetList();
     reqLocalIpv4();
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        reqGetList();
-      }
-    });
+    return () => {
+      mountedRef.current = false;
+      branchDropdownIdRef.current = null;
+      timersRef.current.forEach((id) => window.clearTimeout(id));
+      timersRef.current = [];
+    };
   }, []);
+
+  useEffect(() => {
+    if (openBranchId == null) return;
+    const project = MDProject.rsp.list.find((p) => p.id === openBranchId);
+    if (project) loadBranchMenu(project);
+  }, [openBranchId]);
 
   async function reqGitBranchList(list?: NProject[]) {
     const projects = list || MDProject.rsp.list;
-    const ids = projects.filter((p) => p.rootPath && !p.isSfMock).map((p) => p.id!);
+    const ids = projects.filter((p) => p.rootPath).map((p) => p.id!);
     if (!ids.length) {
-      setGitBranchMap({});
+      if (mountedRef.current) setGitBranchMap({});
       return;
     }
     const rsp: any = await SProject.getGitBranchList({ projectIds: ids });
+    if (!mountedRef.current) return;
     if (rsp.success && rsp.branches) {
       setGitBranchMap(rsp.branches);
     }
   }
 
   async function onGitPull(project: NProject) {
-    if (!project.id || gitPullingId) return;
+    if (!project.id || gitPullingId || gitSwitchingId) return;
     setGitPullingId(project.id);
     try {
       const rsp: any = await SProject.gitExecuteOne({ projectId: project.id, action: 'pull' });
+      if (!mountedRef.current) return;
       const result = rsp.result;
       if (!result) {
         message.error('拉取失败');
@@ -119,27 +142,174 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         message.error(result.message || '拉取失败');
       }
     } finally {
-      setGitPullingId(null);
+      if (mountedRef.current) setGitPullingId(null);
+    }
+  }
+
+  function updateBranchInMap(projectId: number, branch: string) {
+    setGitBranchMap((prev) => {
+      if (prev[projectId]?.branch === branch) return prev;
+      return {
+        ...prev,
+        [projectId]: {
+          ...(prev[projectId] || { isRepo: true }),
+          isRepo: true,
+          branch,
+          error: '',
+        },
+      };
+    });
+  }
+
+  async function loadBranchMenu(project: NProject) {
+    if (!project.id) return;
+    const projectId = project.id;
+    if (branchLoadingRef.current[projectId]) return;
+    branchLoadingRef.current[projectId] = true;
+
+    const seedBranch = gitBranchMap[projectId]?.branch;
+    setBranchMenuMap((prev) => {
+      if (prev[projectId]?.branches?.length) return prev;
+      const seed =
+        seedBranch && seedBranch !== '…' ? [seedBranch] : [];
+      return {
+        ...prev,
+        [projectId]: { branches: seed },
+      };
+    });
+
+    try {
+      const rsp: any = await SProject.listGitBranches({ projectId });
+      if (!mountedRef.current) return;
+      if (branchDropdownIdRef.current !== projectId) return;
+      const result = rsp.result || {};
+      const current = result.current || '';
+      let branches: string[] = result.branches || [];
+      if (current) {
+        branches = [current, ...branches.filter((b) => b !== current)];
+      }
+      setBranchMenuMap((prev) => {
+        const old = prev[projectId]?.branches || [];
+        if (branchesEqual(old, branches)) return prev;
+        return {
+          ...prev,
+          [projectId]: { branches },
+        };
+      });
+      if (current) {
+        updateBranchInMap(projectId, current);
+      }
+    } finally {
+      branchLoadingRef.current[projectId] = false;
+    }
+  }
+
+  function branchesEqual(a: string[], b: string[]) {
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) return false;
+    }
+    return true;
+  }
+
+  async function doSwitchBranch(
+    project: NProject,
+    targetBranch: string,
+    dirtyStrategy?: 'carry' | 'stash'
+  ) {
+    if (!project.id || gitSwitchingId || gitPullingId) return;
+    setGitSwitchingId(project.id);
+    try {
+      const rsp: any = await SProject.switchGitBranch({
+        projectId: project.id,
+        branch: targetBranch,
+        dirtyStrategy: dirtyStrategy || '',
+      });
+      if (!mountedRef.current) return;
+      const result = rsp.result;
+      if (!result) {
+        message.error('切换分支失败');
+        return;
+      }
+      if (result.status === 'need_strategy') {
+        setSwitchDirtyModal({ project, targetBranch });
+        return;
+      }
+      if (result.branch) {
+        updateBranchInMap(project.id, result.branch);
+      }
+      if (result.status === 'success') {
+        message.success(result.message || '切换成功');
+        setSwitchDirtyModal(null);
+        setBranchMenuMap((prev) => {
+          const cur = result.branch || targetBranch;
+          const old = prev[project.id!]?.branches || [];
+          const branches = [cur, ...old.filter((b) => b !== cur)];
+          if (branchesEqual(old, branches)) return prev;
+          return {
+            ...prev,
+            [project.id!]: { branches },
+          };
+        });
+      } else if (result.status === 'conflict') {
+        message.warning(result.message || '切换后恢复改动有冲突，请手动处理');
+        setSwitchDirtyModal(null);
+      } else {
+        message.error(result.message || '切换分支失败');
+      }
+    } finally {
+      if (mountedRef.current) setGitSwitchingId(null);
     }
   }
 
   function renderGitBlock(project: NProject) {
-    if (!project.rootPath || project.isSfMock) return null;
+    if (!project.rootPath) return null;
     const info = gitBranchMap[project.id!];
     if (info && !info.isRepo) return null;
 
     const branch = info?.branch || '…';
-    const loading = gitPullingId === project.id;
-    const tip = info?.error || (info?.branch ? info.branch : undefined);
+    const pulling = gitPullingId === project.id;
+    const switching = gitSwitchingId === project.id;
+    const menuBranches = branchMenuMap[project.id!]?.branches || [];
+
+    const closeBranchDropdown = () => {
+      branchDropdownIdRef.current = null;
+      setOpenBranchId(null);
+    };
 
     return (
-      <span className={SelfStyle.gitBlock} title={tip}>
-        <span className={SelfStyle.gitBranch}>{branch}</span>
+      <span
+        className={SelfStyle.gitBlock}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <BranchPicker
+          project={project}
+          branch={branch}
+          branches={menuBranches}
+          switching={switching}
+          pulling={pulling}
+          open={openBranchId === project.id}
+          title={info?.error || branch}
+          onOpenChange={(open) => {
+            if (open) {
+              branchDropdownIdRef.current = project.id!;
+              setOpenBranchId(project.id!);
+              return;
+            }
+            if (branchDropdownIdRef.current === project.id) {
+              closeBranchDropdown();
+            }
+          }}
+          onSelect={(targetBranch) => {
+            closeBranchDropdown();
+            doSwitchBranch(project, targetBranch);
+          }}
+        />
         <Button
-          type="link"
           size="small"
           className={SelfStyle.gitPullBtn}
-          loading={loading}
+          loading={pulling}
+          disabled={switching}
           onClick={() => onGitPull(project)}
         >
           拉取
@@ -201,6 +371,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
           {
             title: '项目名',
             key: 'name',
+            width: 220,
             render: renderNameColumn,
           },
 
@@ -233,11 +404,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
           </Button>
         )}
         <Button onClick={onShowAddModal}>添加项目</Button>
-        {SHOW_GIT_OPERATIONS && (
-          <Button icon={<BranchesOutlined />} onClick={() => setGitBatchVisible(true)}>
-            Git 操作
-          </Button>
-        )}
+        <Button onClick={() => setGitBatchVisible(true)}>批量操作</Button>
         <Radio.Group
           value={MDProject.config.nginxVisitWay}
           onChange={(e) => onChangeConfig({ nginxVisitWay: e.target.value })}
@@ -254,13 +421,55 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         project={selectedProject}
         onConfigSuccess={reqGetList}
       />
-      {SHOW_GIT_OPERATIONS && (
-        <GitBatchModal
-          visible={gitBatchVisible}
-          projects={MDProject.rsp.list}
-          onClose={() => setGitBatchVisible(false)}
-        />
-      )}
+      <GitBatchModal
+        visible={gitBatchVisible}
+        projects={MDProject.rsp.list}
+        onClose={() => setGitBatchVisible(false)}
+        onComplete={() => reqGetList()}
+      />
+      <Modal
+        title="有未提交更改"
+        open={!!switchDirtyModal}
+        visible={!!switchDirtyModal}
+        onCancel={() => setSwitchDirtyModal(null)}
+        footer={
+          <Space>
+            <Button onClick={() => setSwitchDirtyModal(null)}>取消</Button>
+            <Button
+              onClick={() => {
+                if (!switchDirtyModal) return;
+                doSwitchBranch(
+                  switchDirtyModal.project,
+                  switchDirtyModal.targetBranch,
+                  'stash'
+                );
+              }}
+            >
+              保留改动并切换
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                if (!switchDirtyModal) return;
+                doSwitchBranch(
+                  switchDirtyModal.project,
+                  switchDirtyModal.targetBranch,
+                  'carry'
+                );
+              }}
+            >
+              带着切换
+            </Button>
+          </Space>
+        }
+      >
+        {switchDirtyModal && (
+          <div>
+            切换到 <code>{switchDirtyModal.targetBranch}</code>
+            ，未提交改动不会丢弃。
+          </div>
+        )}
+      </Modal>
     </div>
   );
 
@@ -286,7 +495,11 @@ const Project: ConnectRC<IProjectProps> = (props) => {
           style={{ marginRight: 8 }}
           onClick={() => UCopy.copyStr(project.rootPath)}
         ></Button>
-        <div className="name" onClick={() => UCopy.copyStr(project.name)}>
+        <div
+          className="name"
+          title={project.name}
+          onClick={() => UCopy.copyStr(project.name)}
+        >
           {project.name}
         </div>
         <Button
@@ -327,6 +540,29 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         message.success('已打开终端');
       } else {
         message.warning(rsp.message || '无法打开终端');
+      }
+    } finally {
+      openingTerminalRef.current = false;
+    }
+  }
+  async function onOpenCursor(project: NProject) {
+    if (!project.rootPath || project.isSfMock) return;
+    if (openingTerminalRef.current) return;
+    openingTerminalRef.current = true;
+    try {
+      const parts = String(project.name || '')
+        .split('-')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const lastWord = parts.length ? parts[parts.length - 1] : project.name;
+      const rsp = await SBase.openTerminal(project.rootPath, '', {
+        commandLine: 'agent --force --trust --sandbox disabled',
+        tabTitle: `cursor-${lastWord}`,
+      });
+      if (rsp.success) {
+        message.success('已打开 Cursor');
+      } else {
+        message.warning(rsp.message || '无法打开 Cursor');
       }
     } finally {
       openingTerminalRef.current = false;
@@ -438,6 +674,12 @@ const Project: ConnectRC<IProjectProps> = (props) => {
 
           {renderGitBlock(project)}
 
+          {project.rootPath && !project.isSfMock && (
+            <Button size="small" onClick={() => onOpenCursor(project)}>
+              Cursor
+            </Button>
+          )}
+
           {project.name !== 'sf-notes' && (
             <Button
               icon={<SettingOutlined />}
@@ -540,6 +782,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       projectId: project.id,
       projectName: project.name,
     });
+    if (!mountedRef.current) return;
     // 只有配置了运行地址时才显示 loading 状态等待检测
     if (hasRunUrl) {
       const newRsp = produce(MDProject.rsp, (drafState) => {
@@ -560,12 +803,12 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       if (project.isSfMock) {
         onReStartNginx();
       }
-      setTimeout(
-        () => {
-          reqProjectStart(project, cloneDeep(MDProject.rsp));
-        },
-        project.isSfMock ? 3000 : 30000
-      );
+      const delay = project.isSfMock ? 3000 : 30000;
+      const tid = window.setTimeout(() => {
+        if (!mountedRef.current) return;
+        reqProjectStart(project, cloneDeep(MDProject.rsp));
+      }, delay);
+      timersRef.current.push(tid);
     }
   }
   async function reqProjectStart(
@@ -578,6 +821,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       return;
     }
     const startRsp = await SProject.isProjectStart(checkUrl);
+    if (!mountedRef.current) return;
     const index = projectRsp.list.findIndex(
       (item) => item.name === project.name
     );
@@ -599,6 +843,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   }
   async function reqGetProject() {
     const rsp = await SProject.getConfig();
+    if (!mountedRef.current) return;
     if (rsp.success) {
       NModel.dispatch(
         new NMDProject.ARSetState({
@@ -609,6 +854,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   }
   async function reqGetList() {
     const rsp = await SProject.getProjectList();
+    if (!mountedRef.current) return;
     if (rsp.success) {
       NModel.dispatch(
         new NMDProject.ARSetState({
@@ -637,6 +883,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   }
   async function reqLocalIpv4() {
     const rsp = await SBase.getIpv4();
+    if (!mountedRef.current) return;
     if (rsp.success && rsp.data) {
       setLocalIpv4(String(rsp.data).trim());
     }
