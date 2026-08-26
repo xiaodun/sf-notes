@@ -2,7 +2,7 @@ import { PageFooter } from "@/common/components/page";
 import NRouter from "@/../config/router/NRouter";
 import { Button, Space, Table } from "antd";
 import React, { FC, useRef } from "react";
-import { Link, NMDIterative } from "umi";
+import { Link, NMDIterative, history } from "umi";
 import SIterative from "./SIterative";
 import qs from "qs";
 import UCopy from "@/common/utils/UCopy";
@@ -10,8 +10,9 @@ import NIterative from "./NIterative";
 import CreateIterativeModal, {
   ICreateIterativeModal,
 } from "./components/CreateIterativeModal";
-import { CopyOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, CopyOutlined } from "@ant-design/icons";
 import AddEnvModal, { IAddEnvModal } from "./components/AddEnvModal";
+import Browser from "@/utils/browser";
 
 import ViewContentModal, {
   IViewContentModal,
@@ -78,9 +79,12 @@ const IterativeTabpane: FC<IIterativeTabpaneProps> = (props) => {
         ></Table>
       </div>
       <PageFooter>
-        <Button onClick={() => onShowCreateIterativeModalModal()}>
-          创建迭代
-        </Button>
+        {!Browser.isMobile() && (
+          <Button icon={<ArrowLeftOutlined />} onClick={() => history.push("/")}>
+            返回
+          </Button>
+        )}
+        <Button onClick={() => onShowCreateIterativeModalModal()}>创建迭代</Button>
         <Button onClick={() => onShowAddEnvModal()}>添加环境</Button>
       </PageFooter>
     </div>

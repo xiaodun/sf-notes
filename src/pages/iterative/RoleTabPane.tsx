@@ -1,7 +1,9 @@
 import { PageFooter } from "@/common/components/page";
-import { Button, Dropdown, Menu, Space, Table } from "antd";
+import { Button, Dropdown, Space, Table } from "antd";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 import React, { FC, useRef } from "react";
-import { NMDIterative } from "umi";
+import { history, NMDIterative } from "umi";
+import Browser from "@/utils/browser";
 import NIterative from "./NIterative";
 import SIterative from "./SIterative";
 import UCopy from "@/common/utils/UCopy";
@@ -92,6 +94,11 @@ const RoleTabpane: FC<IRoleTabpaneProps> = (props) => {
         ></Table>
       </div>
       <PageFooter>
+        {!Browser.isMobile() && (
+          <Button icon={<ArrowLeftOutlined />} onClick={() => history.push("/")}>
+            返回
+          </Button>
+        )}
         <Dropdown.Button
           placement="top"
           menu={{
