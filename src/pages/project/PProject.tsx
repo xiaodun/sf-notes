@@ -130,19 +130,21 @@ const Project: ConnectRC<IProjectProps> = (props) => {
 
     const branch = info?.branch || '…';
     const loading = gitPullingId === project.id;
+    const tip = info?.error || (info?.branch ? info.branch : undefined);
 
     return (
-      <Button
-        type="link"
-        className={SelfStyle.gitPullBtn}
-        loading={loading}
-        onClick={() => onGitPull(project)}
-        title={info?.error}
-      >
-        <BranchesOutlined />
+      <span className={SelfStyle.gitBlock} title={tip}>
         <span className={SelfStyle.gitBranch}>{branch}</span>
-        <span>拉取</span>
-      </Button>
+        <Button
+          type="link"
+          size="small"
+          className={SelfStyle.gitPullBtn}
+          loading={loading}
+          onClick={() => onGitPull(project)}
+        >
+          拉取
+        </Button>
+      </span>
     );
   }
 
