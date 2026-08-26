@@ -42,8 +42,14 @@ export interface IProjectProps {
   MDProject: NMDProject.IState;
 }
 
-/** 暂时隐藏项目管理中的 Git 相关入口 */
+/** 暂时隐藏项目管理中的 Git 批量操作入口 */
 const SHOW_GIT_OPERATIONS = false;
+
+type GitBranchInfo = {
+  isRepo: boolean;
+  branch: string;
+  error?: string;
+};
 
 const Project: ConnectRC<IProjectProps> = (props) => {
   const { MDProject } = props;
@@ -52,6 +58,8 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   const [selectedProject, setSelectedProject] = useState<NProject | null>(null);
   const [localIpv4, setLocalIpv4] = useState('');
   const [gitBatchVisible, setGitBatchVisible] = useState(false);
+  const [gitBranchMap, setGitBranchMap] = useState<Record<number, GitBranchInfo>>({});
+  const [gitPullingId, setGitPullingId] = useState<number | null>(null);
   const openingTerminalRef = useRef(false);
 
   useEffect(() => {
@@ -64,6 +72,75 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       }
     });
   }, []);
+
+  async function reqGitBranchList(list?: NProject[]) {
+    const projects = list || MDProject.rsp.list;
+    const ids = projects.filter((p) => p.rootPath && !p.isSfMock).map((p) => p.id!);
+    if (!ids.length) {
+      setGitBranchMap({});
+      return;
+    }
+    const rsp: any = await SProject.getGitBranchList({ projectIds: ids });
+    if (rsp.success && rsp.branches) {
+      setGitBranchMap(rsp.branches);
+    }
+  }
+
+  async function onGitPull(project: NProject) {
+    if (!project.id || gitPullingId) return;
+    setGitPullingId(project.id);
+    try {
+      const rsp: any = await SProject.gitExecuteOne({ projectId: project.id, action: 'pull' });
+      const result = rsp.result;
+      if (!result) {
+        message.error('拉取失败');
+        return;
+      }
+      const status = result.status;
+      if (result.branch) {
+        setGitBranchMap((prev) => ({
+          ...prev,
+          [project.id!]: {
+            ...(prev[project.id!] || { isRepo: true }),
+            isRepo: true,
+            branch: result.branch,
+          },
+        }));
+      }
+      if (status === 'success' || status === 'stashed_success') {
+        message.success(result.message || '拉取成功');
+      } else if (status === 'conflict') {
+        message.warning(result.message || '存在冲突，需手动处理');
+      } else {
+        message.error(result.message || '拉取失败');
+      }
+    } finally {
+      setGitPullingId(null);
+    }
+  }
+
+  function renderGitBlock(project: NProject) {
+    if (!project.rootPath || project.isSfMock) return null;
+    const info = gitBranchMap[project.id!];
+    if (info && !info.isRepo) return null;
+
+    const branch = info?.branch || '…';
+    const loading = gitPullingId === project.id;
+
+    return (
+      <Button
+        type="link"
+        className={SelfStyle.gitPullBtn}
+        loading={loading}
+        onClick={() => onGitPull(project)}
+        title={info?.error}
+      >
+        <BranchesOutlined />
+        <span className={SelfStyle.gitBranch}>{branch}</span>
+        <span>拉取</span>
+      </Button>
+    );
+  }
 
   const DragHandle = SortableHandle(() => (
     <MenuOutlined style={{ cursor: 'grab', color: '#999', userSelect: 'none' }} />
@@ -349,6 +426,8 @@ const Project: ConnectRC<IProjectProps> = (props) => {
             DP
           </Dropdown.Button>
 
+          {renderGitBlock(project)}
+
           {project.name !== 'sf-notes' && (
             <Button
               icon={<SettingOutlined />}
@@ -543,6 +622,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
           }
         }
       });
+      reqGitBranchList(rsp.list);
     }
   }
   async function reqLocalIpv4() {
