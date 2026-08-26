@@ -26,6 +26,7 @@ import NScript, {
 } from "./NScript";
 
 const LS_KEY = "script_last_params";
+const LS_EXPANDED_KEY = "script_expanded_devices";
 const SAVE_DEBOUNCE = 400;
 
 function loadSavedParams(scriptId: string): Record<string, string> {
@@ -42,6 +43,23 @@ function saveParams(scriptId: string, params: Record<string, string>) {
     const all = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
     all[scriptId] = params;
     localStorage.setItem(LS_KEY, JSON.stringify(all));
+  } catch (_) {}
+}
+
+function loadExpandedIds(): string[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(LS_EXPANDED_KEY) || "[]");
+    return Array.isArray(raw)
+      ? raw.filter((id): id is string => typeof id === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveExpandedIds(ids: string[]) {
+  try {
+    localStorage.setItem(LS_EXPANDED_KEY, JSON.stringify(ids));
   } catch (_) {}
 }
 
@@ -75,7 +93,18 @@ const PScript: React.FC = () => {
   const [newDeviceName, setNewDeviceName] = useState("");
   const [editingNameId, setEditingNameId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
-  const [expandedIds, setExpandedIds] = useState<string[]>([]);
+  const [expandedIds, setExpandedIds] = useState<string[]>(() => loadExpandedIds());
+
+  const updateExpandedIds = useCallback(
+    (updater: string[] | ((prev: string[]) => string[])) => {
+      setExpandedIds((prev) => {
+        const next = typeof updater === "function" ? updater(prev) : updater;
+        saveExpandedIds(next);
+        return next;
+      });
+    },
+    []
+  );
 
   const allScripts = NScript.BUILTIN_SCRIPTS;
 
@@ -103,8 +132,9 @@ const PScript: React.FC = () => {
         savedDevicesRef.current[d.id] = d;
       });
       setExecutions(rsp.data.executions || []);
+      updateExpandedIds((prev) => prev.filter((id) => list.some((d) => d.id === id)));
     }
-  }, []);
+  }, [updateExpandedIds]);
 
   const loadExecutions = useCallback(async () => {
     const rsp = await SScript.getList();
@@ -333,7 +363,7 @@ const PScript: React.FC = () => {
 
     savedDevicesRef.current[rsp.data.id] = rsp.data;
     setDevices((prev) => [rsp.data as DeviceProfile, ...prev]);
-    setExpandedIds((prev) => [rsp.data!.id, ...prev.filter((id) => id !== rsp.data!.id)]);
+    updateExpandedIds((prev) => [rsp.data!.id, ...prev.filter((id) => id !== rsp.data!.id)]);
     setAddingDevice(false);
     setNewDeviceName("");
   };
@@ -357,7 +387,9 @@ const PScript: React.FC = () => {
   };
 
   const toggleExpand = (id: string) => {
-    setExpandedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+    updateExpandedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
   };
 
   const handleDeleteDevice = async (id: string) => {
@@ -367,7 +399,7 @@ const PScript: React.FC = () => {
       delete savedDevicesRef.current[id];
       setDevices((prev) => prev.filter((d) => d.id !== id));
       setExecutions((prev) => prev.filter((ex) => ex.deviceId !== id));
-      setExpandedIds((prev) => prev.filter((x) => x !== id));
+      updateExpandedIds((prev) => prev.filter((x) => x !== id));
     }
   };
 

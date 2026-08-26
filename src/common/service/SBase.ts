@@ -58,7 +58,12 @@ namespace SBase {
   }
   export async function openTerminal(
     filePath: string,
-    terminalCommand?: string
+    terminalCommand?: string,
+    options?: {
+      commandLine?: string;
+      titlePrefix?: string;
+      tabTitle?: string;
+    }
   ): Promise<NRsp<boolean>> {
     return request({
       url: "/baseService/openTerminal",
@@ -66,6 +71,9 @@ namespace SBase {
       data: {
         filePath,
         terminalCommand: terminalCommand || "",
+        commandLine: options?.commandLine || "",
+        titlePrefix: options?.titlePrefix || "",
+        tabTitle: options?.tabTitle || "",
       },
     });
   }
