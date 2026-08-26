@@ -295,6 +295,23 @@ namespace SProject {
     });
   }
 
+  export async function getGitBranchList(data?: {
+    projectIds?: number[];
+  }): Promise<
+    NRsp<{
+      branches: Record<
+        number,
+        { isRepo: boolean; branch: string; error?: string }
+      >;
+    }>
+  > {
+    return request({
+      url: "/project/getGitBranchList",
+      method: "post",
+      data: data || {},
+    });
+  }
+
   export async function gitExecuteOne(data: {
     projectId: number;
     action: string;
