@@ -44,6 +44,8 @@ export interface IProjectProps {
 
 /** 暂时隐藏项目管理中的 Git 批量操作入口 */
 const SHOW_GIT_OPERATIONS = false;
+/** 暂时隐藏项目管理操作列中的 DP 入口 */
+const SHOW_DP_OPERATIONS = false;
 
 type GitBranchInfo = {
   isRepo: boolean;
@@ -407,24 +409,26 @@ const Project: ConnectRC<IProjectProps> = (props) => {
 
           {openBlock}
 
-          <Dropdown.Button
-            icon={<EllipsisOutlined />}
-            menu={{
-              items: [
-                {
-                  key: 'open-terminal-tab',
-                  label: <a onClick={() => onOpenTerminalTab(project)}>Terminal打开</a>,
-                },
-                {
-                  key: 'open-project-cmd',
-                  label: <a onClick={() => onOpenProjectCmd(project)}>在cmd打开</a>,
-                },
-              ],
-            }}
-            onClick={() => onOpenTerminal(project)}
-          >
-            DP
-          </Dropdown.Button>
+          {SHOW_DP_OPERATIONS && (
+            <Dropdown.Button
+              icon={<EllipsisOutlined />}
+              menu={{
+                items: [
+                  {
+                    key: 'open-terminal-tab',
+                    label: <a onClick={() => onOpenTerminalTab(project)}>Terminal打开</a>,
+                  },
+                  {
+                    key: 'open-project-cmd',
+                    label: <a onClick={() => onOpenProjectCmd(project)}>在cmd打开</a>,
+                  },
+                ],
+              }}
+              onClick={() => onOpenTerminal(project)}
+            >
+              DP
+            </Dropdown.Button>
+          )}
 
           {renderGitBlock(project)}
 
