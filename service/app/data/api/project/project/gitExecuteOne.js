@@ -146,6 +146,11 @@
     return pullOnce(cwd);
   }
 
+  function readCurrentBranch(cwd) {
+    var branchResult = runGit(cwd, ['rev-parse', '--abbrev-ref', 'HEAD']);
+    return branchResult.ok ? branchResult.stdout.trim() : '';
+  }
+
   return function (argData, argParams) {
     var startTime = Date.now();
     var steps = [];
@@ -283,6 +288,7 @@
             success: true,
             result: {
               status: 'conflict',
+              branch: readCurrentBranch(cwd),
               message: didStash
                 ? 'pull 冲突，改动已保留在 stash 中，请手动解决'
                 : 'pull 存在合并冲突，请手动解决',
@@ -305,6 +311,7 @@
             success: true,
             result: {
               status: 'failed',
+              branch: readCurrentBranch(cwd),
               message: errMsg,
               errorKind: isAuthError(rawErr) ? 'auth' : isNetworkError(rawErr) ? 'network' : 'other',
               rootPath: cwd,
@@ -315,6 +322,8 @@
         },
       };
     }
+
+    var currentBranch = readCurrentBranch(cwd);
 
     // pull 成功，恢复 stash
     if (didStash) {
@@ -328,6 +337,7 @@
               success: true,
               result: {
                 status: 'conflict',
+                branch: readCurrentBranch(cwd),
                 message: 'pull 成功，但恢复 stash 时冲突，请手动解决',
                 steps: steps,
                 elapsed: Date.now() - startTime,
@@ -344,6 +354,7 @@
             success: true,
             result: {
               status: 'stashed_success',
+              branch: readCurrentBranch(cwd),
               message: '已 stash → pull → 恢复，全部成功',
               steps: steps,
               elapsed: Date.now() - startTime,
@@ -361,6 +372,7 @@
           success: true,
           result: {
             status: 'success',
+            branch: currentBranch,
             message: pullResult.stdout || '拉取成功',
             steps: steps,
             elapsed: Date.now() - startTime,

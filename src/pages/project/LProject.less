@@ -18,6 +18,28 @@
   }
 }
 
+.gitPullBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding-inline: 4px;
+}
+
+.gitBranch {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #666;
+  font-size: 12px;
+}
+
+@media screen and (max-width: 768px) {
+  .gitBranch {
+    max-width: 72px;
+  }
+}
+
 // 拖拽时禁止选中文字
 :global {
   .row-dragging {
