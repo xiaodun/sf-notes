@@ -46,6 +46,8 @@ export interface IProjectProps {
 const SHOW_GIT_OPERATIONS = false;
 /** 暂时隐藏项目管理操作列中的 DP 入口 */
 const SHOW_DP_OPERATIONS = false;
+/** 暂时隐藏项目管理操作列中的代码平台入口 */
+const SHOW_CODE_PLATFORM = false;
 
 type GitBranchInfo = {
   isRepo: boolean;
@@ -395,17 +397,19 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     return (
       <div className={SelfStyle.optionColumn}>
         <Space align="start">
-          <Button type="link">
-            <Link
-              to={{
-                pathname: NRouter.projectSnippetPath,
-                search: qs.stringify({ id: project.id }),
-              }}
-              target="_blank"
-            >
-              代码平台
-            </Link>
-          </Button>
+          {SHOW_CODE_PLATFORM && (
+            <Button type="link">
+              <Link
+                to={{
+                  pathname: NRouter.projectSnippetPath,
+                  search: qs.stringify({ id: project.id }),
+                }}
+                target="_blank"
+              >
+                代码平台
+              </Link>
+            </Button>
+          )}
 
           {openBlock}
 
