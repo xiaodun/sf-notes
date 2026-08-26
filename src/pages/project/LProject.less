@@ -18,25 +18,36 @@
   }
 }
 
-.gitPullBtn {
+.gitBlock {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding-inline: 4px;
+  gap: 2px;
+  max-width: 180px;
+  min-width: 0;
+  line-height: 1;
 }
 
 .gitBranch {
-  max-width: 120px;
+  flex: 1 1 auto;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #666;
+  color: rgba(0, 0, 0, 0.45);
   font-size: 12px;
+  font-family: Consolas, 'Courier New', monospace;
+}
+
+.gitPullBtn {
+  flex: 0 0 auto;
+  height: auto;
+  padding: 0 2px;
+  font-size: 13px;
 }
 
 @media screen and (max-width: 768px) {
-  .gitBranch {
-    max-width: 72px;
+  .gitBlock {
+    max-width: 120px;
   }
 }
 
