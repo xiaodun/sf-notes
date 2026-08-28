@@ -331,7 +331,18 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   );
   const onSortEnd = ({ oldIndex, newIndex }: SortEnd) => {
     if (oldIndex !== newIndex) {
-      SProject.sortProjectList(oldIndex, newIndex, MDProject.rsp.list);
+      const newList = [...MDProject.rsp.list];
+      const [movedItem] = newList.splice(oldIndex, 1);
+      newList.splice(newIndex, 0, movedItem);
+
+      const newRsp = { ...MDProject.rsp, list: newList };
+      NModel.dispatch(new NMDProject.ARSetState({ rsp: newRsp }));
+
+      SProject.sortProjectList(oldIndex, newIndex, newList).then((rsp) => {
+        if (!rsp.success) {
+          reqGetList();
+        }
+      });
     }
   };
 
