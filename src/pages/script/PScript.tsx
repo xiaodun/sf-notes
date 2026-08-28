@@ -532,7 +532,14 @@ const PScript: React.FC = () => {
                 <div className={SelfStyle.paramGrid}>
                   {selectedScript.params
                     .filter((p) => p.key !== "connectPort")
-                    .map((p) => renderDeviceField(device, p))}
+                    .map((p) =>
+                      renderDeviceField(device, p, {
+                        onPressEnter:
+                          p.key === "pairPort" || p.key === "pairCode"
+                            ? () => handleExecuteDevice(device, "pair")
+                            : undefined,
+                      })
+                    )}
                 </div>
                 <div className={SelfStyle.paramSolo}>
                   {selectedScript.params
