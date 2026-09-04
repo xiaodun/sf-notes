@@ -69,8 +69,8 @@ namespace NScript {
       builtinKey: "adb-wireless",
       params: [
         { key: "address", label: "设备地址", placeholder: "192.168.1.100", required: true },
-        { key: "pairPort", label: "配对端口" },
         { key: "pairCode", label: "配对码" },
+        { key: "pairPort", label: "配对端口" },
         { key: "connectPort", label: "连接端口", required: true },
       ],
     },
