@@ -840,6 +840,7 @@ const Note: FC<INoteProps> = (props) => {
                 <Button
                   type="link"
                   size="small"
+                  danger
                   onClick={() => {
                     copyNoteContent(item);
                     reqDelPart(item.start, item.count);
