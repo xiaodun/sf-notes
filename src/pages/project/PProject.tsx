@@ -580,7 +580,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       openingTerminalRef.current = false;
     }
   }
-  /** 底栏 Cursor 入口：在文稿目录（~/Documents，Windows/Mac 通用）打开 Cursor agent */
+  /** 底栏 Cursor 入口：在 ~/Documents（Windows「文档」/ Mac「文稿」）打开 Cursor agent */
   async function onOpenCursorInDocuments() {
     if (openingTerminalRef.current) return;
     openingTerminalRef.current = true;
