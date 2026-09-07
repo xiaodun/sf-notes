@@ -6,7 +6,7 @@
     const os = require("os");
 
     let filePath = String(argParams.filePath || "").trim();
-    // 支持 ~ 开头：展开为用户主目录（Windows/Mac 通用，如 ~/Documents → 文稿目录）
+    // 支持 ~ 开头：展开为用户主目录（如 ~/Documents → Windows「文档」/ Mac「文稿」）
     if (filePath === "~" || /^~[\\/]/.test(filePath)) {
       filePath = path.join(os.homedir(), filePath.slice(1));
     }
