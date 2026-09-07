@@ -5,7 +5,11 @@
     const { exec, execSync } = require("child_process");
     const os = require("os");
 
-    const filePath = String(argParams.filePath || "").trim();
+    let filePath = String(argParams.filePath || "").trim();
+    // 支持 ~ 开头：展开为用户主目录（Windows/Mac 通用，如 ~/Documents → 文稿目录）
+    if (filePath === "~" || /^~[\\/]/.test(filePath)) {
+      filePath = path.join(os.homedir(), filePath.slice(1));
+    }
     const absPath = path.resolve(filePath);
 
     if (!filePath || !fs.existsSync(absPath)) {

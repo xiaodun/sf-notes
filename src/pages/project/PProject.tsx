@@ -416,6 +416,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         )}
         <Button onClick={onShowAddModal}>添加项目</Button>
         <Button onClick={() => setGitBatchVisible(true)}>批量操作</Button>
+        <Button onClick={onOpenCursorInDocuments}>Cursor</Button>
         <Radio.Group
           value={MDProject.config.nginxVisitWay}
           onChange={(e) => onChangeConfig({ nginxVisitWay: e.target.value })}
@@ -569,6 +570,24 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       const rsp = await SBase.openTerminal(project.rootPath, '', {
         commandLine: 'agent --force --trust --sandbox disabled',
         tabTitle: `cursor-${lastWord}`,
+      });
+      if (rsp.success) {
+        message.success('已打开 Cursor');
+      } else {
+        message.warning(rsp.message || '无法打开 Cursor');
+      }
+    } finally {
+      openingTerminalRef.current = false;
+    }
+  }
+  /** 底栏 Cursor 入口：在文稿目录（~/Documents，Windows/Mac 通用）打开 Cursor agent */
+  async function onOpenCursorInDocuments() {
+    if (openingTerminalRef.current) return;
+    openingTerminalRef.current = true;
+    try {
+      const rsp = await SBase.openTerminal('~/Documents', '', {
+        commandLine: 'agent --force --trust --sandbox disabled',
+        tabTitle: 'cursor-documents',
       });
       if (rsp.success) {
         message.success('已打开 Cursor');
