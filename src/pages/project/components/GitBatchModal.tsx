@@ -333,24 +333,24 @@ const GitBatchModal: React.FC<GitBatchModalProps> = ({
                   padding: '6px 0',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 8,
                 }}
               >
                 <Checkbox
                   checked={selectedIds.includes(p.id!)}
                   onChange={(e) => toggleOne(p.id!, e.target.checked)}
-                />
-                <span
-                  style={{
-                    fontWeight: 500,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                  title={p.name}
                 >
-                  {p.name}
-                </span>
+                  <span
+                    style={{
+                      fontWeight: 500,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                    title={p.name}
+                  >
+                    {p.name}
+                  </span>
+                </Checkbox>
               </div>
             ))
           )}
