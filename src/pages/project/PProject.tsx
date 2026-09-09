@@ -42,6 +42,9 @@ export interface IProjectProps {
   MDProject: NMDProject.IState;
 }
 
+/** 底栏 Cursor / DeepCode 入口使用的用户文档目录 */
+const DOCUMENTS_PATH = '~/Documents';
+
 /** 暂时隐藏项目管理中的 GitLab 相关入口 */
 const SHOW_GIT_OPERATIONS = false;
 /** 暂时隐藏项目管理操作列中的代码平台入口 */
@@ -414,7 +417,28 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         )}
         <Button onClick={onShowAddModal}>添加项目</Button>
         <Button onClick={() => setGitBatchVisible(true)}>批量操作</Button>
-        <Button onClick={onOpenCursorInDocuments}>Cursor</Button>
+        <Dropdown.Button
+          icon={<EllipsisOutlined />}
+          menu={{
+            items: [
+              {
+                key: 'open-deepcode-documents',
+                label: <a onClick={onOpenDeepCodeInDocuments}>DeepCode</a>,
+              },
+              {
+                key: 'open-terminal-tab-documents',
+                label: <a onClick={onOpenTerminalTabInDocuments}>Terminal打开</a>,
+              },
+              {
+                key: 'open-documents-cmd',
+                label: <a onClick={onOpenDocumentsCmd}>在cmd打开</a>,
+              },
+            ],
+          }}
+          onClick={onOpenCursorInDocuments}
+        >
+          Cursor
+        </Dropdown.Button>
         <Radio.Group
           value={MDProject.config.nginxVisitWay}
           onChange={(e) => onChangeConfig({ nginxVisitWay: e.target.value })}
@@ -578,12 +602,12 @@ const Project: ConnectRC<IProjectProps> = (props) => {
       openingTerminalRef.current = false;
     }
   }
-  /** 底栏 Cursor 入口：在 ~/Documents（Windows「文档」/ Mac「文稿」）打开 Cursor agent */
+  /** 底栏 Cursor 入口：在用户文档目录打开 Cursor agent */
   async function onOpenCursorInDocuments() {
     if (openingTerminalRef.current) return;
     openingTerminalRef.current = true;
     try {
-      const rsp = await SBase.openTerminal('~/Documents', '', {
+      const rsp = await SBase.openTerminal(DOCUMENTS_PATH, '', {
         commandLine: 'agent --force --trust --sandbox disabled',
         tabTitle: 'cursor-documents',
       });
@@ -595,6 +619,39 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     } finally {
       openingTerminalRef.current = false;
     }
+  }
+  /** 底栏 DeepCode 入口：在用户文档目录打开 deepcode */
+  async function onOpenDeepCodeInDocuments() {
+    if (openingTerminalRef.current) return;
+    openingTerminalRef.current = true;
+    try {
+      const termCmd = MDProject.config.terminalCommand || 'deepcode';
+      const rsp = await SBase.openTerminal(DOCUMENTS_PATH, termCmd);
+      if (rsp.success) {
+        message.success('已打开终端');
+      } else {
+        message.warning(rsp.message || '无法打开终端');
+      }
+    } finally {
+      openingTerminalRef.current = false;
+    }
+  }
+  async function onOpenTerminalTabInDocuments() {
+    if (openingTerminalRef.current) return;
+    openingTerminalRef.current = true;
+    try {
+      const rsp = await SBase.openTerminal(DOCUMENTS_PATH, '');
+      if (rsp.success) {
+        message.success('已打开终端');
+      } else {
+        message.warning(rsp.message || '无法打开终端');
+      }
+    } finally {
+      openingTerminalRef.current = false;
+    }
+  }
+  async function onOpenDocumentsCmd() {
+    await SBase.openFile(DOCUMENTS_PATH, 'cmd');
   }
   async function delProject(project: NProject) {
     const rsp = await SProject.delProject(project);
@@ -689,7 +746,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
                 items: [
                   {
                     key: 'open-deepcode',
-                    label: <a onClick={() => onOpenTerminal(project)}>DP</a>,
+                    label: <a onClick={() => onOpenTerminal(project)}>DeepCode</a>,
                   },
                   {
                     key: 'open-terminal-tab',
