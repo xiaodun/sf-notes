@@ -44,8 +44,6 @@ export interface IProjectProps {
 
 /** 暂时隐藏项目管理中的 GitLab 相关入口 */
 const SHOW_GIT_OPERATIONS = false;
-/** 暂时隐藏项目管理操作列中的 DP 入口 */
-const SHOW_DP_OPERATIONS = false;
 /** 暂时隐藏项目管理操作列中的代码平台入口 */
 const SHOW_CODE_PLATFORM = false;
 
@@ -681,11 +679,18 @@ const Project: ConnectRC<IProjectProps> = (props) => {
 
           {openBlock}
 
-          {SHOW_DP_OPERATIONS && (
+          {renderGitBlock(project)}
+
+          {project.rootPath && !project.isSfMock && (
             <Dropdown.Button
+              size="small"
               icon={<EllipsisOutlined />}
               menu={{
                 items: [
+                  {
+                    key: 'open-deepcode',
+                    label: <a onClick={() => onOpenTerminal(project)}>DP</a>,
+                  },
                   {
                     key: 'open-terminal-tab',
                     label: <a onClick={() => onOpenTerminalTab(project)}>Terminal打开</a>,
@@ -696,18 +701,10 @@ const Project: ConnectRC<IProjectProps> = (props) => {
                   },
                 ],
               }}
-              onClick={() => onOpenTerminal(project)}
+              onClick={() => onOpenCursor(project)}
             >
-              DP
-            </Dropdown.Button>
-          )}
-
-          {renderGitBlock(project)}
-
-          {project.rootPath && !project.isSfMock && (
-            <Button size="small" onClick={() => onOpenCursor(project)}>
               Cursor
-            </Button>
+            </Dropdown.Button>
           )}
 
           {project.name !== 'sf-notes' && (
