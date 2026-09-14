@@ -182,22 +182,14 @@
         }
 
         const scriptLines = [
-          'tell application "iTerm"',
+          'tell application "Terminal"',
           "  activate",
-          "  if (count of windows) = 0 then",
-          "    create window with default profile",
-          "  end if",
-          "  tell current window",
-          "    set t to (create tab with default profile)",
-          "    tell current session of t",
-          `      write text "${writeTextCmd}"`,
-          "    end tell",
-          "  end tell",
+          `  do script "${writeTextCmd}"`,
           "end tell",
         ];
         const tmpPath = path.join(
           os.tmpdir(),
-          `sf-notes-iterm-${Date.now()}.scpt`
+          `sf-notes-term-${Date.now()}.scpt`
         );
         fs.writeFileSync(tmpPath, scriptLines.join("\n"), "utf-8");
         exec(`osascript "${tmpPath}"`, () => {

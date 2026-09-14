@@ -28,7 +28,7 @@
       const platform = os.platform();
 
       if (platform === 'darwin') {
-        // macOS: use iTerm via AppleScript
+        // macOS: 使用系统自带 Terminal.app
         const esc = (s) => String(s).replace(/\\/g, '\\\\').replace(/'/g, "'\\''");
         const safePath = esc(projectRootPath);
 
@@ -40,18 +40,9 @@
             : `cd '${safePath}'`;
 
           const scriptLines = [
-            'tell application "iTerm"',
+            'tell application "Terminal"',
             '  activate',
-            '  if (count of windows) = 0 then',
-            '    create window with default profile',
-            '  end if',
-            '  tell current window',
-            '    set t to (create tab with default profile)',
-            '    tell current session of t',
-            `      write text "${writeTextCmd}"`,
-            `      set name to "${tabTitle}"`,
-            '    end tell',
-            '  end tell',
+            `  do script "${writeTextCmd}"`,
             'end tell',
           ];
           const tmpPath = path.join(os.tmpdir(), `sf-notes-start-${projectId}-${Date.now()}-${index}.scpt`);
