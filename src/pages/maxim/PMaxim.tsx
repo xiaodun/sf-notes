@@ -8,7 +8,13 @@ import { connect } from "dva";
 import NModel from "@/common/namespace/NModel";
 import { ConnectRC, history } from "umi";
 import { NMDMaxim } from "./models/MDMaxim";
-import { PlusOutlined, EditOutlined, DeleteOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  ArrowLeftOutlined,
+  CopyOutlined,
+} from "@ant-design/icons";
 import Browser from "@/utils/browser";
 import NMaxim from "./NMaxim";
 
@@ -265,6 +271,58 @@ const PMaxim: ConnectRC<PMaximProps> = (props) => {
     }
   };
 
+  // 降级复制方案（兼容旧浏览器或不支持 Clipboard API 的环境）
+  const fallbackCopyTextToClipboard = useCallback((text: string) => {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    textArea.style.top = "-999999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+      const successful = document.execCommand("copy");
+      if (successful) {
+        message.success("复制成功");
+      } else {
+        message.error("复制失败");
+      }
+    } catch (err) {
+      console.error("复制失败:", err);
+      message.error("复制失败");
+    }
+
+    document.body.removeChild(textArea);
+  }, []);
+
+  // 复制警句内容（保留原始格式）
+  const onCopyMaxim = useCallback(
+    (maxim: NMaxim) => {
+      const textToCopy = formatMaximContent(maxim?.content) || "";
+      if (!textToCopy.trim()) {
+        message.warning("内容为空，无法复制");
+        return;
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard
+          .writeText(textToCopy)
+          .then(() => {
+            message.success("复制成功");
+          })
+          .catch((err) => {
+            console.error("复制失败:", err);
+            fallbackCopyTextToClipboard(textToCopy);
+          });
+      } else {
+        fallbackCopyTextToClipboard(textToCopy);
+      }
+    },
+    [fallbackCopyTextToClipboard]
+  );
+
   const isMobile = Browser.isMobile();
   const currentMaxim = MDMaxim.rsp.list[MDMaxim.currentIndex];
 
@@ -287,6 +345,13 @@ const PMaxim: ConnectRC<PMaximProps> = (props) => {
                   {formatMaximContent(maxim.content)}
                 </div>
                 <div className={SelfStyle.maximActions}>
+                  <Button
+                    size="small"
+                    icon={<CopyOutlined />}
+                    onClick={() => onCopyMaxim(maxim)}
+                  >
+                    复制
+                  </Button>
                   <Button
                     size="small"
                     icon={<EditOutlined />}
@@ -323,6 +388,13 @@ const PMaxim: ConnectRC<PMaximProps> = (props) => {
                   {formatMaximContent(currentMaxim.content)}
                 </div>
                 <div className={SelfStyle.maximActions}>
+                  <Button
+                    size="small"
+                    icon={<CopyOutlined />}
+                    onClick={() => onCopyMaxim(currentMaxim)}
+                  >
+                    复制
+                  </Button>
                   <Button
                     size="small"
                     icon={<EditOutlined />}
