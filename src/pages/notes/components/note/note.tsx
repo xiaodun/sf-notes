@@ -100,7 +100,7 @@ function noteSegmentLinksToHtml(
     '.webp',
   ];
   const linkPattern = new RegExp(
-    `((https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;\\u4e00-\\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\\u4e00-\\u9fa5])|(${NNotes.imgProtocolKey}://[.A-Za-z0-9]+)`,
+    `((https?|ftp|file)://[-\\\\A-Za-z0-9+&@#/%?=~_|!:,.;\\u4e00-\\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\\u4e00-\\u9fa5])|(${NNotes.imgProtocolKey}://[.A-Za-z0-9]+)`,
     'g',
   );
   if (!segment.match(linkPattern)) {
@@ -619,7 +619,7 @@ const Note: FC<INoteProps> = (props) => {
       '.webp',
     ];
     const linkPattern = RegExp(
-      `((https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;\u4e00-\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5])|(${NNotes.imgProtocolKey}://[.A-Za-z0-9]+)`,
+      `((https?|ftp|file)://[-\\\\A-Za-z0-9+&@#/%?=~_|!:,.;\u4e00-\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5])|(${NNotes.imgProtocolKey}://[.A-Za-z0-9]+)`,
       'g',
     );
 
@@ -703,12 +703,16 @@ const Note: FC<INoteProps> = (props) => {
               } else {
                 //普通链接
                 copyStr += link;
-                //限制一下长度
-                const showLen = 60;
-                let showLinkStr =
-                  link.length > showLen
-                    ? link.substring(0, showLen) + '...'
-                    : link;
+                //限制一下长度：保留头尾，中间用省略号
+                const headLen = 60;
+                const tailLen = 25;
+                let showLinkStr = link;
+                if (link.length > headLen + tailLen + 3) {
+                  showLinkStr =
+                    link.substring(0, headLen) +
+                    '...' +
+                    link.substring(link.length - tailLen);
+                }
                 partList.push(
                   <a target="_blank" key={prefix + key++} href={link}>
                     {showLinkStr}

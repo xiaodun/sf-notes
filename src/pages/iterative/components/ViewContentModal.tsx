@@ -71,7 +71,7 @@ const ViewContentModal: ForwardRefRenderFunction<
 
   function parseContent() {
     const linkPattern = RegExp(
-      `((https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;\u4e00-\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5])`,
+      `((https?|ftp|file)://[-\\\\A-Za-z0-9+&@#/%?=~_|!:,.;\u4e00-\u9fa5]+[-A-Za-z0-9+&@#/%=~_|\u4e00-\u9fa5])`,
       'g',
     );
     let result: RegExpExecArray | null,
