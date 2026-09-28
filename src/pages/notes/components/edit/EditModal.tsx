@@ -14,6 +14,7 @@ import {
   message,
   AutoComplete,
   Radio,
+  Slider,
 } from 'antd';
 import SelfStyle from './EditModal.less';
 import React from 'react';
@@ -51,8 +52,26 @@ const defaultState: IEditModalState = {
     updateTime: null,
     title: '',
     titleColor: '',
+    fontSize: NNotes.fontSizeDefault,
   },
 };
+
+/**
+ * 笔记展示区(Welcome 里的 Layout.Content)的实际宽度。
+ * 弹窗与正文展示同宽,这里直接量真实宽度,避免把 Welcome.less 里
+ * width:85% / max-width:960px 这组布局参数再抄一份出来。
+ */
+function getNotesContentWidth(): number | undefined {
+  if (typeof document === 'undefined') {
+    return undefined;
+  }
+  const contentEl = document.querySelector('.ant-layout-content');
+  const width = contentEl?.getBoundingClientRect().width;
+  if (!width || width <= 0) {
+    return undefined;
+  }
+  return Math.round(width);
+}
 
 export const EditModal: ForwardRefRenderFunction<
   IEditModal,
@@ -60,6 +79,8 @@ export const EditModal: ForwardRefRenderFunction<
 > = (props, ref) => {
   const [state, setState] =
     useState<Partial<IEditModalState>>(defaultState);
+  /** 弹窗宽度,取笔记展示区宽度,拿不到时交给 antd 默认宽度 */
+  const [contentWidth, setContentWidth] = useState<number>();
   const textAreaRef = useRef<TextAreaRef>();
   const autoCompleteRef = useRef<RefSelectProps>();
   const focusTargetRef = useRef<'title' | 'content'>('content');
@@ -73,15 +94,25 @@ export const EditModal: ForwardRefRenderFunction<
     .filter((item) => item.value);
   useImperativeHandle(ref, () => ({
     showModal: (data, index) => {
+      //打开时量一次,和下面的 setState 一起批处理,避免先闪一下默认宽度
+      setContentWidth(getNotesContentWidth());
       const newState = produce(state, (drafState) => {
         drafState.open = true;
         drafState.index = index;
         if (data) {
           drafState.added = false;
-          drafState.data = data;
+          //老数据可能没有字号,统一补齐成合法值,滑块才有确定取值
+          drafState.data = {
+            ...data,
+            fontSize: NNotes.resolveFontSize(data.fontSize),
+          };
           focusTargetRef.current = 'content';
         } else {
           drafState.added = true;
+          drafState.data = {
+            ...defaultState.data,
+            fontSize: NNotes.fontSizeDefault,
+          };
           focusTargetRef.current = 'content';
         }
       });
@@ -108,15 +139,28 @@ export const EditModal: ForwardRefRenderFunction<
       window.clearTimeout(timer);
     };
   }, [state.open, state.added]);
+  useEffect(() => {
+    if (!state.open) {
+      return undefined;
+    }
+    //窗口尺寸变化时展示区宽度会变(85% 视口),弹窗跟着重新量
+    const syncContentWidth = () => setContentWidth(getNotesContentWidth());
+    window.addEventListener('resize', syncContentWidth);
+    return () => {
+      window.removeEventListener('resize', syncContentWidth);
+    };
+  }, [state.open]);
 
   const title = state.added ? '添加记事' : '编辑记事';
   const titlePlaceholder = `标题 默认为${moment().format(
     UDate.ymdhms,
   )}`;
+  const fontSize = NNotes.resolveFontSize(state.data.fontSize);
   return (
     <Modal
       open={state.open}
       title={title}
+      width={contentWidth}
       maskClosable={false}
       onOk={onOk}
       centered
@@ -124,8 +168,17 @@ export const EditModal: ForwardRefRenderFunction<
       okButtonProps={{
         loading: loadCountRef.current > 0,
       }}
+      bodyStyle={{
+        //弹窗整体不超高,多出来的高度给正文文本框,由它内部滚动
+        height: 'calc(100vh - 170px)',
+        maxHeight: '72vh',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
     >
       <Space
+        className={SelfStyle.bodyContent}
         style={{ width: '100%' }}
         direction="vertical"
         size="middle"
@@ -171,14 +224,32 @@ export const EditModal: ForwardRefRenderFunction<
             placeholder={titlePlaceholder}
           ></Input>
         )}
-        <div onDragOver={onDragOver} onDrop={onDrop}>
+        <div className={SelfStyle.fontSizeRow}>
+          <span className={SelfStyle.fontSizeLabel}>正文字号</span>
+          <Slider
+            className={SelfStyle.fontSizeSlider}
+            min={NNotes.fontSizeMin}
+            max={NNotes.fontSizeMax}
+            step={NNotes.fontSizeStep}
+            value={fontSize}
+            onChange={(value: number) =>
+              onDataChange({
+                fontSize: value,
+              })
+            }
+          />
+          <span className={SelfStyle.fontSizeValue}>{fontSize}px</span>
+        </div>
+        <div
+          className={SelfStyle.contentWrapper}
+          onDragOver={onDragOver}
+          onDrop={onDrop}
+        >
           <Input.TextArea
             id={noteEditId}
             value={state.data.content}
             className={SelfStyle.contentContainer}
-            autoSize={{
-              minRows: 8,
-            }}
+            style={{ fontSize, lineHeight: 1.6 }}
             onPaste={onPaste}
             ref={textAreaRef}
             placeholder={`支持普通链接\n图片链接\n黏贴图片\n拖拽桌面图片\n\`\`\`\n格式代码\n\`\`\`\n`}

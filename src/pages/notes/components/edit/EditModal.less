@@ -1,4 +1,58 @@
+/*
+  弹窗高度不随字号变化:
+  antd 的 autoSize 是按"行数"算高度的,字号调大后 min-height 会成倍变大,
+  而且是以内联 min-height 注入的,min-height 大于 max-height 时 min-height 生效,
+  所以这里不再用 autoSize,改为用 flex 把剩余高度分给正文文本框。
+*/
+.bodyContent {
+  flex: 1;
+  min-height: 0;
+
+  :global {
+    /* 最后一项是正文编辑区,吃掉剩余高度 */
+    .ant-space-item:last-child {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+  }
+}
+
+.contentWrapper {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .contentContainer {
-  max-height: 55vh !important;
-  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto !important;
+  resize: none;
+}
+
+.fontSizeRow {
+  display: flex;
+  align-items: center;
+
+  .fontSizeLabel {
+    flex-shrink: 0;
+    margin-right: 4px;
+    color: rgba(0, 0, 0, 0.85);
+  }
+
+  .fontSizeSlider {
+    flex: 1;
+    min-width: 0;
+    margin: 4px 12px;
+  }
+
+  .fontSizeValue {
+    flex-shrink: 0;
+    min-width: 52px;
+    text-align: right;
+    color: rgba(0, 0, 0, 0.45);
+    font-variant-numeric: tabular-nums;
+  }
 }
