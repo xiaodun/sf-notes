@@ -422,8 +422,8 @@ const Project: ConnectRC<IProjectProps> = (props) => {
           menu={{
             items: [
               {
-                key: 'open-deepcode-documents',
-                label: <a onClick={onOpenDeepCodeInDocuments}>DeepCode</a>,
+                key: 'open-cursor-documents',
+                label: <a onClick={onOpenCursorInDocuments}>Cursor</a>,
               },
               {
                 key: 'open-terminal-tab-documents',
@@ -435,9 +435,9 @@ const Project: ConnectRC<IProjectProps> = (props) => {
               },
             ],
           }}
-          onClick={onOpenCursorInDocuments}
+          onClick={onOpenDeepCodeInDocuments}
         >
-          Cursor
+          DeepCode
         </Dropdown.Button>
         <Radio.Group
           value={MDProject.config.nginxVisitWay}
@@ -745,8 +745,8 @@ const Project: ConnectRC<IProjectProps> = (props) => {
               menu={{
                 items: [
                   {
-                    key: 'open-deepcode',
-                    label: <a onClick={() => onOpenTerminal(project)}>DeepCode</a>,
+                    key: 'open-cursor',
+                    label: <a onClick={() => onOpenCursor(project)}>Cursor</a>,
                   },
                   {
                     key: 'open-terminal-tab',
@@ -758,9 +758,9 @@ const Project: ConnectRC<IProjectProps> = (props) => {
                   },
                 ],
               }}
-              onClick={() => onOpenCursor(project)}
+              onClick={() => onOpenTerminal(project)}
             >
-              Cursor
+              DeepCode
             </Dropdown.Button>
           )}
 
