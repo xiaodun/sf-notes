@@ -49,6 +49,15 @@ export interface INoteAction {
   copyId?: string;
 }
 
+/**
+ * 正文行高(px)。
+ * note.less 里 .lineWrapper 的 line-height 固定为 32px,字号调大后文字会重叠,
+ * 所以这里给 .contents 再算一个行高:小字号维持 32px 原有观感,大字号按 1.6 倍撑开。
+ */
+function resolveNoteLineHeight(fontSize: number): number {
+  return Math.max(32, Math.ceil(fontSize * 1.6));
+}
+
 function resolveNotePasteImgSrc(
   link: string,
   noteBase64: Record<string, unknown>,
@@ -148,8 +157,12 @@ function buildNoteTopCopyHtml(
   content: string,
   note: NNotes,
   otherNotes: NNotes[],
+  fontSize?: number,
 ): string {
   const noteBase64 = (note.base64 || {}) as Record<string, unknown>;
+  //复制出去的 HTML 跟随笔记字号,代码块比正文略小
+  const copyFontSize = NNotes.resolveFontSize(fontSize);
+  const copyCodeFontSize = Math.max(11, copyFontSize - 2);
   const codeRe = /```([\s\S]*?)```/g;
   const parts: string[] = [];
   let last = 0;
@@ -165,7 +178,7 @@ function buildNoteTopCopyHtml(
       );
     }
     parts.push(
-      `<pre style="white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:12px;">${escapeHtmlForNoteClipboard(m[1] || '')}</pre>`,
+      `<pre style="white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:${copyCodeFontSize}px;">${escapeHtmlForNoteClipboard(m[1] || '')}</pre>`,
     );
     last = m.index + m[0].length;
   }
@@ -182,7 +195,7 @@ function buildNoteTopCopyHtml(
     parts.push(noteSegmentLinksToHtml(content, noteBase64, otherNotes));
   }
   const body = parts.join('');
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body><div style="font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:14px;line-height:1.55">${body}</div></body></html>`;
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body><div style="font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:${copyFontSize}px;line-height:1.55">${body}</div></body></html>`;
 }
 
 /**
@@ -238,6 +251,8 @@ const Note: FC<INoteProps> = (props) => {
   const [localDraft, setLocalDraft] = useState<NNotes | null>(null);
   const effectiveData = localDraft ?? data;
   const cloneData = cloneDeep(effectiveData);
+  /** 正文字号按笔记自身保存的值渲染,未设置时用默认字号 */
+  const noteFontSize = NNotes.resolveFontSize(effectiveData.fontSize);
 
   const mdNotesRspRef = useRef(MDNotes.rsp);
   mdNotesRspRef.current = MDNotes.rsp;
@@ -521,7 +536,7 @@ const Note: FC<INoteProps> = (props) => {
     const list = MDNotes.rsp?.list ?? [];
     const structured = buildNoteStructuredPlainForClipboard(raw, data, list);
     const plain = structured.trim().length ? structured : raw;
-    const html = buildNoteTopCopyHtml(raw, data, list);
+    const html = buildNoteTopCopyHtml(raw, data, list, data.fontSize);
     void UCopy.copyHtmlPlain(html, plain);
   }
   async function reqTopItem(data: NNotes) {
@@ -552,7 +567,7 @@ const Note: FC<INoteProps> = (props) => {
     if (!trashMode && localDraft === null && !isEqual(effectiveData, cloneData)) {
       persistDraftDebounced(cloneDeep(cloneData));
     }
-    return withAble(list);
+    return withAble(list, noteFontSize);
   }
   function dealCode(content: string) {
     //处理代码块
@@ -821,7 +836,7 @@ const Note: FC<INoteProps> = (props) => {
       }
     }
   }
-  function withAble(list: INoteAction[]) {
+  function withAble(list: INoteAction[], fontSize: number) {
     //对每一个特殊元素块或一行赋予一些能力
     let prefix = 'line',
       key = 0;
@@ -856,7 +871,13 @@ const Note: FC<INoteProps> = (props) => {
               )}
             </Space>
           </div>
-          <div className="contents">
+          <div
+            className="contents"
+            style={{
+              fontSize,
+              lineHeight: `${resolveNoteLineHeight(fontSize)}px`,
+            }}
+          >
             {item.content || <span>&nbsp;</span>}
           </div>
         </div>,
