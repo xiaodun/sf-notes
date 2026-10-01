@@ -16,11 +16,14 @@ import {
   TDirectoryMemoryKey,
 } from '../../constants/directoryMemory';
 export interface IDirectoryModalProps {
-  onOk: (pathInfos: NSystem.IDirectory, selectCallbackFlag?: string) => void;
+  onOk?: (pathInfos: NSystem.IDirectory, selectCallbackFlag?: string) => void;
+  /** 多选（批量）模式下点击确定回调，返回勾选的目录列表 */
+  onOkMulti?: (pathInfosList: NSystem.IDirectory[]) => void;
 }
 export interface IDirectoryModalState {
   open: boolean;
   pathInfos: NSystem.IDirectory;
+  checkedInfos: NSystem.IDirectory[];
   showParasm: IDirectoryModalShowParams;
   directoryKey: number;
 }
@@ -28,6 +31,7 @@ export interface IDirectoryModalState {
 const defaultState: IDirectoryModalState = {
   open: false,
   pathInfos: null,
+  checkedInfos: [],
   directoryKey: Math.random(),
   showParasm: {} as any,
 };
@@ -41,6 +45,8 @@ export interface IDirectoryModalShowParams {
   filter?: TFilter;
   memoryKey?: TDirectoryMemoryKey;
   defaultStartPath?: string;
+  /** 是否开启复选框多选（批量选择目录） */
+  checkable?: boolean;
 }
 export const EditModal: ForwardRefRenderFunction<
   IDirectoryModal,
@@ -63,6 +69,7 @@ export const EditModal: ForwardRefRenderFunction<
             defaultStartPath,
           };
           drafState.pathInfos = createPathInfo(startPath);
+          drafState.checkedInfos = [];
         })
       );
     },
@@ -94,18 +101,34 @@ export const EditModal: ForwardRefRenderFunction<
           startPath={state.showParasm.startPath}
           filter={state.showParasm.filter}
           disableFile={state.showParasm.disableFile}
+          checkable={state.showParasm.checkable}
           onSelect={onSelect}
+          onCheck={onCheck}
         ></PageDirectory>
       )}
     </Modal>
   );
   async function onOk() {
+    if (state.showParasm.checkable) {
+      const checkedInfos = state.checkedInfos || [];
+      if (!checkedInfos.length) {
+        message.error('请至少选择一个目录!');
+        return;
+      }
+      if (props.onOkMulti) {
+        props.onOkMulti(checkedInfos);
+      } else if (checkedInfos[0]) {
+        props.onOk?.(checkedInfos[0], state.showParasm.selectCallbackFlag);
+      }
+      onClose();
+      return;
+    }
     if (!state.pathInfos) {
       message.error('请选择一个路径!');
       return;
     }
     saveRememberPath(state.showParasm.memoryKey, state.pathInfos.path);
-    props.onOk(state.pathInfos, state.showParasm.selectCallbackFlag);
+    props.onOk?.(state.pathInfos, state.showParasm.selectCallbackFlag);
     onClose();
   }
   function onSelect(pathInfos: NSystem.IDirectory) {
@@ -113,6 +136,13 @@ export const EditModal: ForwardRefRenderFunction<
       drafState.pathInfos = pathInfos;
     });
     setState(newState);
+  }
+  function onCheck(pathInfosList: NSystem.IDirectory[]) {
+    setState((prevState) =>
+      produce(prevState, (drafState) => {
+        drafState.checkedInfos = pathInfosList;
+      })
+    );
   }
   function onClose() {
     setState({ ...defaultState });
@@ -130,6 +160,7 @@ export const EditModal: ForwardRefRenderFunction<
           startPath,
         };
         drafState.pathInfos = createPathInfo(startPath);
+        drafState.checkedInfos = [];
       })
     );
   }

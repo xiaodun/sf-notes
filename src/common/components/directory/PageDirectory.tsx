@@ -1,6 +1,6 @@
 import React, { useEffect, PropsWithChildren, useState } from "react";
 import SelfStyle from "./PageDirectory.less";
-import { Spin, Tree } from "antd";
+import { Spin, Tag, Tree } from "antd";
 import SSystem from "@/common/service/SSystem";
 import { DataNode, EventDataNode } from "antd/lib/tree";
 import { produce } from "immer";
@@ -17,6 +17,10 @@ export interface IPageDirectoryProps {
   height?: number;
   onSelect?: (pathInfos: NSystem.IDirectory) => void;
   className?: string;
+  /** 是否开启复选框多选（用于批量添加项目） */
+  checkable?: boolean;
+  /** 多选模式下勾选集合变化回调 */
+  onCheck?: (pathInfosList: NSystem.IDirectory[]) => void;
 }
 export interface IPageDirectoryDataNode extends DataNode {
   metaInfo: NSystem.IDirectory;
@@ -26,6 +30,7 @@ export default (props: PropsWithChildren<IPageDirectoryProps>) => {
   const [treeData, setTreeData] = useState([] as IPageDirectoryDataNode[]);
   const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
+  const [checkedKeys, setCheckedKeys] = useState<React.Key[]>([]);
   const [initializing, setInitializing] = useState(false);
   useEffect(() => {
     let ignore = false;
@@ -39,9 +44,8 @@ export default (props: PropsWithChildren<IPageDirectoryProps>) => {
       if (!projectConfigRsp.success || !projectListRsp.success) {
         return;
       }
-      const projectConfig = projectConfigRsp.data;
       const projectList = projectListRsp.list || [];
-      let nextTreeData = await loadDirectory(undefined, projectConfig, projectList);
+      let nextTreeData = await loadDirectory(undefined, projectList);
       const nextExpandedKeys: React.Key[] = [];
       let nextSelectedKeys: React.Key[] = [];
       if (props.startPath) {
@@ -49,7 +53,7 @@ export default (props: PropsWithChildren<IPageDirectoryProps>) => {
         const pathChain = buildPathChain(props.startPath);
         for (let i = 0; i < pathChain.length - 1; i++) {
           const currentPath = pathChain[i];
-          const children = await loadDirectory(currentPath, projectConfig, projectList);
+          const children = await loadDirectory(currentPath, projectList);
           nextTreeData = setChildren(nextTreeData, currentPath, children);
           nextExpandedKeys.push(currentPath);
         }
@@ -78,6 +82,20 @@ export default (props: PropsWithChildren<IPageDirectoryProps>) => {
     props.onSelect && props.onSelect(metaInfo);
   };
 
+  const onCheck = (checked: any) => {
+    const keys: React.Key[] = Array.isArray(checked)
+      ? checked
+      : (checked && checked.checked) || [];
+    setCheckedKeys(keys);
+    if (props.onCheck) {
+      const pathInfosList = keys
+        .map((key) => findNode(treeData, key as string))
+        .filter((node): node is IPageDirectoryDataNode => !!node)
+        .map((node) => node.metaInfo);
+      props.onCheck(pathInfosList);
+    }
+  };
+
   const onExpand = (
     expandedKeys: (string | number)[],
     info: {
@@ -93,7 +111,6 @@ export default (props: PropsWithChildren<IPageDirectoryProps>) => {
   };
   async function loadDirectory(
     path: string | undefined,
-    projectConfig: NProject.IConfig,
     projectList: NProject[]
   ) {
     const directoryRsp = await SSystem.getFileDirectory(path);
@@ -101,42 +118,52 @@ export default (props: PropsWithChildren<IPageDirectoryProps>) => {
       return [];
     }
     return (directoryRsp.list || [])
-      .filter((item) => {
-        if (
-          path &&
-          path == projectConfig.addBasePath &&
-          props.filter == "addedProject"
-        ) {
-          return !projectList.some((project) => project.rootPath.indexOf(item.name) != -1);
-        }
-        return true;
-      })
       .map((item) => {
         const normalizedPath = normalizePath(item.path);
+        const isAdded = isAddedProject(normalizedPath, projectList);
         return {
           isLeaf: item.isLeaf,
-          title: item.name,
+          title: isAdded ? (
+            <span className={SelfStyle.nodeTitle}>
+              {item.name}
+              <Tag className={SelfStyle.addedTag}>已添加</Tag>
+            </span>
+          ) : (
+            item.name
+          ),
           key: normalizedPath,
           metaInfo: {
             ...item,
             path: normalizedPath,
           },
-          selectable: item.isLeaf ? !props.disableFile : true,
+          selectable: isAdded
+            ? false
+            : item.isLeaf
+            ? !props.disableFile
+            : true,
+          disableCheckbox: isAdded,
         } as IPageDirectoryDataNode;
       });
   }
+  function isAddedProject(normalizedPath: string, projectList: NProject[]) {
+    if (props.filter != "addedProject") {
+      return false;
+    }
+    return projectList.some(
+      (project) => canonicalPath(project.rootPath) === canonicalPath(normalizedPath)
+    );
+  }
+  function canonicalPath(path: string) {
+    const separator = Browser.isWindows() ? "\\" : "/";
+    return normalizePath(path).replace(/[\\/]+/g, separator);
+  }
   function onLoadData({ key }: any) {
     return (async () => {
-      const projectConfigRsp = await SProject.getConfig();
       const projectListRsp = await SProject.getProjectList();
-      if (!projectConfigRsp.success || !projectListRsp.success) {
+      if (!projectListRsp.success) {
         return;
       }
-      const children = await loadDirectory(
-        key as string,
-        projectConfigRsp.data,
-        projectListRsp.list || []
-      );
+      const children = await loadDirectory(key as string, projectListRsp.list || []);
       setTreeData((prev) => setChildren(prev, key as string, children));
     })();
   }
@@ -214,12 +241,16 @@ export default (props: PropsWithChildren<IPageDirectoryProps>) => {
     <div className={SelfStyle.container}>
       <Tree.DirectoryTree
         className={props.className}
-        multiple
+        multiple={!props.checkable}
+        checkable={props.checkable}
+        checkStrictly={props.checkable}
+        checkedKeys={props.checkable ? checkedKeys : undefined}
         height={treeHeight}
         expandedKeys={expandedKeys}
         selectedKeys={selectedKeys}
         loadData={onLoadData}
         onSelect={onSelect}
+        onCheck={onCheck}
         onExpand={onExpand}
         treeData={treeData}
       />

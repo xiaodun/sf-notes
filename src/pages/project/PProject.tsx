@@ -403,7 +403,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
         pagination={false}
       ></Table>
       <DirectoryModal
-        onOk={onSelectDirectory}
+        onOkMulti={onSelectDirectories}
         ref={directoryModalRef}
       ></DirectoryModal>
       <PageFooter>
@@ -510,13 +510,23 @@ const Project: ConnectRC<IProjectProps> = (props) => {
   function onChangeConfig(config: Partial<NProject.IConfig>) {
     SProject.updateConfig(config);
   }
-  async function onSelectDirectory(pathInfos: NSystem.IDirectory) {
-    const addRsp = await SProject.addProject({
-      rootPath: pathInfos.path,
-    });
-    if (addRsp.success) {
+  async function onSelectDirectories(pathInfosList: NSystem.IDirectory[]) {
+    if (!pathInfosList.length) return;
+    let successCount = 0;
+    for (const pathInfos of pathInfosList) {
+      const addRsp = await SProject.addProject({
+        rootPath: pathInfos.path,
+      });
+      if (addRsp.success) {
+        successCount++;
+      }
+    }
+    if (successCount) {
       reqGetProject();
       reqGetList();
+      message.success(`已添加 ${successCount} 个项目`);
+    } else {
+      message.warning('没有新增项目');
     }
   }
 
@@ -1021,6 +1031,7 @@ const Project: ConnectRC<IProjectProps> = (props) => {
     directoryModalRef.current.showModal({
       startPath,
       filter: 'addedProject',
+      checkable: true,
       memoryKey: DIRECTORY_MODAL_MEMORY_KEYS.SF_NOTES_PROJECT_ADD,
     });
   }
