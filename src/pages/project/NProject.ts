@@ -7,7 +7,6 @@ export interface NProject {
   rootPath: string;
   isSfMock: boolean;
   isDefault: boolean;
-  notJoinIterative?: boolean;
   sfMock: {
     programUrl: string;
     startPort: number;

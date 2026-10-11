@@ -32,11 +32,6 @@ namespace NApp {
       linkType: "internal",
     },
     {
-      name: "迭代开发",
-      path: NRouter.iterativePath,
-      linkType: "internal",
-    },
-    {
       name: "文件管理",
       path: NRouter.filePath,
       linkType: "internal",

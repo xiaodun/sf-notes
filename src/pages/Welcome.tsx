@@ -44,7 +44,6 @@ export const Welcome: ConnectRC<IWelcomeProps> = (props) => {
       [
         NRouter.projectSnippetPath,
         NRouter.swaggerPath,
-        NRouter.iterativePath,
         NRouter.apiDebugPath,
         NRouter.scriptPath,
       ].includes(props.match.path)
