@@ -4,43 +4,122 @@
   var os = require("os");
   var path = require("path");
 
-  function resolveAdbBin() {
+  function isRunnable(file) {
+    try {
+      fs.accessSync(file, fs.constants ? fs.constants.X_OK : fs.X_OK);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function pushCandidate(list, candidate) {
+    if (candidate && list.indexOf(candidate) === -1) list.push(candidate);
+  }
+
+  // 收集 adb 候选路径：显式配置 > SDK 环境变量 > 各平台默认安装位置 > PATH 逐目录扫描
+  function buildAdbCandidates() {
     var env = process.env;
-    var platform = os.platform();
+    var win = os.platform() === "win32";
+    var exe = win ? "adb.exe" : "adb";
     var candidates = [];
 
-    if (env.ANDROID_HOME) {
-      candidates.push(
-        path.join(env.ANDROID_HOME, "platform-tools", platform === "win32" ? "adb.exe" : "adb")
-      );
-    }
-    if (env.LOCALAPPDATA) {
-      candidates.push(
-        path.join(env.LOCALAPPDATA, "Android", "Sdk", "platform-tools", "adb.exe")
-      );
-    }
-    candidates.push(platform === "win32" ? "adb.exe" : "adb");
+    pushCandidate(candidates, env.SF_ADB_PATH);
+    pushCandidate(candidates, env.ADB_PATH);
 
-    for (var i = 0; i < candidates.length; i++) {
-      var c = candidates[i];
-      if (c.indexOf(path.sep) !== -1 && fs.existsSync(c)) {
-        return c;
+    var sdkRoots = [env.ANDROID_HOME, env.ANDROID_SDK_ROOT, env.ANDROID_SDK_HOME];
+    for (var i = 0; i < sdkRoots.length; i++) {
+      if (sdkRoots[i]) pushCandidate(candidates, path.join(sdkRoots[i], "platform-tools", exe));
+    }
+
+    if (env.LOCALAPPDATA) {
+      pushCandidate(candidates, path.join(env.LOCALAPPDATA, "Android", "Sdk", "platform-tools", exe));
+    }
+    if (env.USERPROFILE) {
+      pushCandidate(
+        candidates,
+        path.join(env.USERPROFILE, "AppData", "Local", "Android", "Sdk", "platform-tools", exe)
+      );
+    }
+
+    var home = "";
+    try {
+      home = os.homedir();
+    } catch (_) {}
+    if (home) {
+      if (win) {
+        pushCandidate(
+          candidates,
+          path.join(home, "AppData", "Local", "Android", "Sdk", "platform-tools", exe)
+        );
+      } else {
+        // macOS 默认 ~/Library/Android/sdk；Linux 默认 ~/Android/Sdk
+        pushCandidate(candidates, path.join(home, "Library", "Android", "sdk", "platform-tools", exe));
+        pushCandidate(candidates, path.join(home, "Android", "Sdk", "platform-tools", exe));
+        pushCandidate(candidates, path.join(home, "Android", "sdk", "platform-tools", exe));
       }
     }
 
-    try {
-      var whereCmd = platform === "win32" ? "where adb 2>nul" : "command -v adb 2>/dev/null";
-      var found = spawnSync(platform === "win32" ? "cmd" : "sh", platform === "win32" ? ["/c", whereCmd] : ["-c", whereCmd], {
-        encoding: "utf8",
-        timeout: 5000,
-        windowsHide: true,
-      })
-        .stdout.trim()
-        .split(/\r?\n/)[0];
-      if (found) return found;
-    } catch (_) {}
+    if (!win) {
+      // 从 Finder / GUI 启动服务时 PATH 常常只有 /usr/bin:/bin:/usr/sbin:/sbin
+      pushCandidate(candidates, "/opt/homebrew/bin/" + exe);
+      pushCandidate(candidates, "/usr/local/bin/" + exe);
+      pushCandidate(candidates, "/usr/bin/" + exe);
+    }
 
-    return platform === "win32" ? "adb.exe" : "adb";
+    var dirs = String(env.PATH || "").split(win ? ";" : ":");
+    for (var j = 0; j < dirs.length; j++) {
+      var dir = dirs[j].trim();
+      if (dir) pushCandidate(candidates, path.join(dir, exe));
+    }
+
+    return candidates;
+  }
+
+  function probeAdbInShell() {
+    var win = os.platform() === "win32";
+    try {
+      var result = spawnSync(
+        win ? "cmd" : "sh",
+        win ? ["/c", "where adb"] : ["-c", "command -v adb"],
+        { encoding: "utf8", timeout: 5000, windowsHide: true }
+      );
+      var first = String((result && result.stdout) || "")
+        .trim()
+        .split(/\r?\n/)[0]
+        .trim();
+      if (first && fs.existsSync(first)) return first;
+    } catch (_) {}
+    return "";
+  }
+
+  // 返回 { bin, candidates, found }；找不到时 bin 为 null，由调用方给出可操作的提示
+  function resolveAdbBin() {
+    var win = os.platform() === "win32";
+    var candidates = buildAdbCandidates();
+
+    for (var i = 0; i < candidates.length; i++) {
+      if (fs.existsSync(candidates[i]) && (win || isRunnable(candidates[i]))) {
+        return { bin: candidates[i], candidates: candidates, found: true };
+      }
+    }
+
+    var probed = probeAdbInShell();
+    if (probed) return { bin: probed, candidates: candidates, found: true };
+
+    return { bin: null, candidates: candidates, found: false };
+  }
+
+  function describeSpawnError(bin, error) {
+    if (!error) return "";
+    if (error.code === "ENOENT") {
+      return (
+        "找不到可执行文件 " +
+        bin +
+        "（ENOENT）：adb 不在服务进程的运行环境里，请安装 platform-tools，或设置 ANDROID_HOME / SF_ADB_PATH"
+      );
+    }
+    return String(error.message || error);
   }
 
   function runCommand(bin, args, options) {
@@ -61,7 +140,7 @@
         exitCode: result.status,
         stdout: stdout,
         stderr: stderr,
-        output: output || (result.error ? result.error.message : ""),
+        output: output || describeSpawnError(bin, result.error),
       };
     } catch (e) {
       return {
@@ -69,7 +148,7 @@
         exitCode: -1,
         stdout: "",
         stderr: String(e.message || e),
-        output: String(e.message || e),
+        output: describeSpawnError(bin, e) || String(e.message || e),
       };
     }
   }
@@ -197,8 +276,26 @@
   }
 
   function executeBuiltin(task, builtinKey, params) {
-    var adb = resolveAdbBin();
+    var resolved = resolveAdbBin();
 
+    if (!resolved.found) {
+      pushLog(task, "error", "未找到 adb（Android platform-tools）");
+      pushLog(
+        task,
+        "info",
+        "已检查以下位置：\n" + resolved.candidates.slice(0, 12).join("\n") +
+          (resolved.candidates.length > 12 ? "\n…（共 " + resolved.candidates.length + " 个）" : "")
+      );
+      pushLog(
+        task,
+        "info",
+        "修复方式：1) 安装 Android SDK platform-tools；2) 把 platform-tools 加入启动服务的终端 PATH；" +
+          "3) 设置 ANDROID_HOME 指向 SDK 根目录；4) 设置 SF_ADB_PATH 指向 adb 绝对路径"
+      );
+      return { ok: false, message: "未找到 adb：请在服务所在的机器上安装 Android platform-tools" };
+    }
+
+    var adb = resolved.bin;
     pushLog(task, "info", "ADB: " + adb);
 
     if (builtinKey === "adb-wireless") {
