@@ -8,6 +8,7 @@ export namespace NFile{
   export interface IUploadConfig{
     uploadLoading:boolean
     name:string,
+    type?:string,
     loaded?:number,
     total?:number,
   }

@@ -28,6 +28,18 @@ import serviceConfig from "@/../service/app/config.json";
 
 const MIN_PREVIEW_SCALE = 0.02;
 const MAX_PREVIEW_SCALE = 3;
+const IMAGE_FILE_RE = /\.(png|jpe?g|gif|svg|webp|bmp|heic|heif|tiff?)$/i;
+
+/**
+ * 是否图片：优先看 MIME，再退回扩展名。
+ * 相册来的照片（尤其 HEIC）常常只有 MIME 靠得住，光看扩展名会漏判。
+ */
+function isImageFile(name?: string, type?: string) {
+  if (type && /^image\//i.test(type)) {
+    return true;
+  }
+  return !!name && IMAGE_FILE_RE.test(name);
+}
 
 export interface IPFileProps {}
 const PFile: FC<IPFileProps> = (props) => {
@@ -331,7 +343,7 @@ const PFile: FC<IPFileProps> = (props) => {
     } & Partial<NFile.IUploadConfig>
   ) {
     const optionConfig = optionConfigMapRef.current.get(params.key);
-    const isImage = params.name && /\.(png|jpe?g|gif|svg|webp|bmp)$/i.test(params.name);
+    const isImage = isImageFile(params.name, params.type);
 
     return (
       <div key={params.key} className={SelfStyle.itemWrap}>
@@ -447,6 +459,7 @@ const PFile: FC<IPFileProps> = (props) => {
         loaded: 0,
         total: file.size,
         name: file.name,
+        type: file.type,
       });
     });
     refreshView();
@@ -455,7 +468,7 @@ const PFile: FC<IPFileProps> = (props) => {
   function onOpenPreview(file: NFile) {
     // 收集所有图片文件
     const images = fileRsp.list.filter(item => {
-      return /\.(png|jpe?g|gif|svg|webp|bmp)$/i.test(item.name);
+      return isImageFile(item.name, item.type);
     });
     setImageList(images);
     
