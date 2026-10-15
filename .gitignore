@@ -19,3 +19,20 @@ service/app/data/api/football/football/**/*.json
 service/app/data/**/upload_*
 build/
 service/app/data/api/noval/noval/marks/
+
+# ---- A 类本地数据（个人/环境快照）：不进版本库 ----
+# 背景：这些文件曾把私人笔记与 API 密钥带进公开历史。
+# 文件缺失时框架会自动创建空文件；各处理器已补 null 守卫，不会报错。
+service/app/data/api/notes/notes/notes.json
+service/app/data/api/project/project/project.json
+service/app/data/api/swagger/swagger/swagger.json
+service/app/data/api/script/script/script.json
+service/app/data/api/upload/upload/upload.json
+service/app/data/api/novel/novel/novel.json
+service/app/data/api/novel/novel/marks/chapter_marks.json
+service/app/data/api/apiDebug/apiDebug/apiDebug.json
+service/app/data/api/behavior/behavior/behavior.json
+service/app/data/api/baseService/baseService/baseService.json
+service/app/data/api/system/system/system.json
+# 接口调试缓存目录
+service/app/data/api/apiDebug/apiDebug/cache/
