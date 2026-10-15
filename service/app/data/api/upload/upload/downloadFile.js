@@ -14,6 +14,8 @@
   }
 
   return function (argData, argParams, argEnv) {
+    //数据文件缺失/为空时框架传入 null，补成规范空值，避免 TypeError
+    argData = argData || [];
     let id = argParams.id;
     let file = "";
     argData.some((el, index, arr) => {

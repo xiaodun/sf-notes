@@ -1,5 +1,7 @@
 (function () {
   return function (argData, argParams) {
+    //数据文件缺失/为空时框架传入 null，补成空数组，避免 list 返回 null
+    argData = argData || [];
     //argData 数据的副本
     return {
       isWrite: false, //是否覆盖数据

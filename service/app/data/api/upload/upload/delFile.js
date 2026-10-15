@@ -1,5 +1,7 @@
 (function () {
   return function (argData, argParams) {
+    //数据文件缺失/为空时框架传入 null，补成规范空值，避免 TypeError
+    argData = argData || [];
     let file;
     let index = argData.findIndex((el, index, arr) => {
       if (el.id === argParams.id) {

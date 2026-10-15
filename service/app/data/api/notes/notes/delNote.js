@@ -1,5 +1,7 @@
 (function () {
   return function (argData, argParams) {
+    //数据文件缺失/为空时框架传入 null，补成规范空值，避免 TypeError
+    argData = argData || [];
     //最多存储多少已被删除的日记信息
     const saveDeletedNotesCountThreshold = 50;
     //argData 数据的副本

@@ -69,6 +69,8 @@
   }
 
   return function (argData, argParams) {
+    //数据文件缺失/为空时框架传入 null，补成规范空值，避免 TypeError
+    argData = argData || { config: {}, projectList: [], inExcludeGroups: {}, swaggerList: [], apiPrefixs: {}, attentionPathList: [] };
     var projectId = Number(argParams.projectId);
     var project = (argData.projectList || []).find(function (p) {
       return p.id === projectId;

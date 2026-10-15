@@ -1,5 +1,7 @@
 (function () {
   return function (argData, argParams) {
+    //数据文件缺失/为空时框架传入 null，补成空数组，避免 TypeError
+    argData = argData || [];
     // 确保 page 和 pageSize 是数字类型
     const page = parseInt(argParams?.page) || 1;
     const pageSize = parseInt(argParams?.pageSize) || 10;

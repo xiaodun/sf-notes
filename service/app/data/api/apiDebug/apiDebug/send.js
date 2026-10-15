@@ -12,6 +12,8 @@
   var storage = require(_cacheStoragePath);
 
   return function (argData, argParams, external) {
+    //数据文件缺失/为空时框架传入 null，补成规范空值，避免 TypeError
+    argData = argData || { apps: [], apis: [] };
     var apiId = argParams.apiId;
     var method = (argParams.method || 'GET').toUpperCase();
     var url = argParams.url || '';

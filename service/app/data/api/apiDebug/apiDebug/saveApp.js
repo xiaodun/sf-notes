@@ -8,6 +8,8 @@
   var storage = require(_cacheStoragePath);
 
   return function (argData, argParams) {
+    //数据文件缺失/为空时框架传入 null，补成规范空值，避免 TypeError
+    argData = argData || { apps: [], apis: [] };
     var app = argParams.app;
     if (app.id) {
       var idx = argData.apps.findIndex(function (a) { return a.id === app.id; });

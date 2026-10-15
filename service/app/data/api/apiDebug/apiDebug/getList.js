@@ -56,6 +56,8 @@
   }
 
   return function (argData) {
+    //数据文件缺失/为空时框架传入 null，补成规范空值，避免 TypeError
+    argData = argData || { apps: [], apis: [] };
     var apis = (argData.apis || []).map(function (api) {
       var cache = loadCache(api.id);
       var trimmed = cache && cache.lastResponse ? trimLastResponseForList(cache.lastResponse) : { lastResponse: null, isPartial: false };

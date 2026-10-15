@@ -1,5 +1,7 @@
 (function () {
   return function (argData, argParams, external) {
+    //数据文件缺失/为空时框架传入 null，补成规范空值，避免 TypeError
+    argData = argData || [];
     let delIndex = argParams.oldIndex;
     let addIndex = argParams.newIndex;
     if (argParams.oldIndex > argParams.newIndex) {
