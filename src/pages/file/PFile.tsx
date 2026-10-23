@@ -41,6 +41,56 @@ function isImageFile(name?: string, type?: string) {
   return !!name && IMAGE_FILE_RE.test(name);
 }
 
+/**
+ * 剪贴板图片的临时名（截图/网页复制出来的通常叫 image.png），
+ * 换成「粘贴图片_时间」避免列表里全是同名文件。
+ */
+const PASTE_GENERIC_NAME_RE = /^image(?:\.\w+)?$/i;
+const PASTE_KEY_TIP = /mac/i.test(
+  typeof navigator === "undefined" ? "" : navigator.platform || ""
+)
+  ? "Command+V"
+  : "Ctrl+V";
+
+/** MIME → 扩展名，兜底 png */
+function imageExtOfType(type: string) {
+  const map: Record<string, string> = {
+    "image/png": "png",
+    "image/jpeg": "jpg",
+    "image/gif": "gif",
+    "image/webp": "webp",
+    "image/svg+xml": "svg",
+    "image/bmp": "bmp",
+    "image/x-icon": "ico",
+  };
+  return map[type.toLowerCase()] || "png";
+}
+
+function formatPasteTime(date: Date) {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return (
+    date.getFullYear() +
+    pad(date.getMonth() + 1) +
+    pad(date.getDate()) +
+    "_" +
+    pad(date.getHours()) +
+    pad(date.getMinutes()) +
+    pad(date.getSeconds())
+  );
+}
+
+function renamePastedImage(file: File) {
+  if (file.name && !PASTE_GENERIC_NAME_RE.test(file.name)) {
+    return file;
+  }
+  const ext =
+    (IMAGE_FILE_RE.exec(file.name || "")?.[1] || "").toLowerCase() ||
+    imageExtOfType(file.type);
+  return new File([file], `粘贴图片_${formatPasteTime(new Date())}.${ext}`, {
+    type: file.type,
+  });
+}
+
 export interface IPFileProps {}
 const PFile: FC<IPFileProps> = (props) => {
   const isMobile = Browser.isMobile();
@@ -129,6 +179,46 @@ const PFile: FC<IPFileProps> = (props) => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [previewConfig.visible, handlePrevImage, handleNextImage]);
+  // 粘贴上传：截图/复制的图片在剪贴板里是文件项，取出后走正常上传链路
+  useEffect(() => {
+    function onPaste(event: ClipboardEvent) {
+      const clipboardData = event.clipboardData;
+      if (!clipboardData) {
+        return;
+      }
+      const target = event.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+      const pasteFiles: File[] = [];
+      Array.from(clipboardData.items).forEach((item) => {
+        if (item.kind !== "file") {
+          return;
+        }
+        const file = item.getAsFile();
+        if (!file || !isImageFile(file.name, file.type)) {
+          return;
+        }
+        pasteFiles.push(renamePastedImage(file));
+      });
+      if (!pasteFiles.length) {
+        return;
+      }
+      event.preventDefault();
+      pasteFiles.forEach((file) => {
+        enqueueUploadFile(file);
+      });
+    }
+    document.addEventListener("paste", onPaste);
+    return () => {
+      document.removeEventListener("paste", onPaste);
+    };
+  }, []);
   return (
     <div>
       <Upload.Dragger
@@ -141,6 +231,9 @@ const PFile: FC<IPFileProps> = (props) => {
           <InboxOutlined />
         </p>
         <p className="ant-upload-text">点击或拖拽上传</p>
+        <p className="ant-upload-hint">
+          支持 {PASTE_KEY_TIP} 直接粘贴图片（如截图）
+        </p>
       </Upload.Dragger>
       {isMobile && (
         <div className={SelfStyle.mobileCameraWrap}>
