@@ -17,3 +17,15 @@
   **授权只对当次任务有效**，任务做完即失效，不能顺延到下一个话题。
 - 用户喊停（或明显不满意节奏）时：**立刻停手**，并把已经起的后台子代理/后台任务一起中断。
 - 收尾时不要写「我下轮继续……」这类自我推进的话；改成「下一步要做什么，等你发话」。
+
+## 命令行 git 推送走系统代理
+
+- 本机命令行 git **不读 Windows 系统代理**，直连 github.com:443 会超时失败（`Failed to connect to github.com port 443`）；GitHub Desktop 能推是因为它自动走系统代理，别据此判断命令行也能推。
+- push / pull / fetch 连不上时，先从注册表读当前系统代理（端口会随 VPN 工具变化，以注册表实测为准）：
+
+  ```powershell
+  powershell -NoProfile -Command "(Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings').ProxyServer"
+  ```
+
+- 用**单次命令级参数**带代理执行，不写进任何 git 配置文件：`git -c http.proxy=http://127.0.0.1:6696 push`（pull / fetch / ls-remote 同理）。
+- 直连失败不是终局：读代理 → 带代理重试；带代理仍失败才计入网络失败重试上限（最多 2 次）。

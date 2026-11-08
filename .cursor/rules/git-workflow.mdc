@@ -28,3 +28,14 @@ alwaysApply: true
 - 冲突无法安全处理，或 CI 已红且本环境修不完
 - 合入会丢数据且用户未接受后果
 - **基于的分支不明确**时先问一句再合
+## 命令行 git 推送走系统代理
+
+- 本机命令行 git **不读 Windows 系统代理**，直连 github.com:443 会超时失败（`Failed to connect to github.com port 443`）；GitHub Desktop 能推是因为它自动走系统代理，别据此判断命令行也能推。
+- push / pull / fetch 连不上时，先从注册表读当前系统代理（端口会随 VPN 工具变化，以注册表实测为准）：
+
+  ```powershell
+  powershell -NoProfile -Command "(Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings').ProxyServer"
+  ```
+
+- 用**单次命令级参数**带代理执行，不写进任何 git 配置文件：`git -c http.proxy=http://127.0.0.1:6696 push`（pull / fetch / ls-remote 同理）。
+- 直连失败不是终局：读代理 → 带代理重试；带代理仍失败才计入网络失败重试上限（最多 2 次）。

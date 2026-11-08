@@ -9,7 +9,7 @@ description: 本仓库「推送」发布流程：按数据/内容/代码拆提�
 
 前提：在功能分支开发（如 `home` / `company`）。目标主分支为 `master`。开始前记下当前分支名，全部完成后切回去。
 
-提交信息一律用中文。远程 `master` 有未拉取提交则先 `git pull origin master`；冲突谨慎，自己能处理的处理完要说明，不能处理的停下来问。不修改 git config、不强推、不跳过 hook。
+提交信息一律用中文。远程 `master` 有未拉取提交则先 `git pull origin master`；冲突谨慎，自己能处理的处理完要说明，不能处理的停下来问。不修改 git config、不强推、不跳过 hook。命令行 git 连不上 GitHub 时按 AGENTS.md「命令行 git 推送走系统代理」一节处理：先从注册表读系统代理 `ProxyServer`，再用 `git -c http.proxy=http://127.0.0.1:<端口> push` 这类**单次命令级参数**执行。
 
 ## 数据文件两类
 
