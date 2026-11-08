@@ -36,3 +36,7 @@ service/app/data/api/baseService/baseService/baseService.json
 service/app/data/api/system/system/system.json
 # 接口调试缓存目录
 service/app/data/api/apiDebug/apiDebug/cache/
+# 本地自签 HTTPS 证书(httpsProxy.js 按当前 IP 自动签发,换机/换网自动重签)
+config/https/dev-cert.pem
+config/https/dev-key.pem
+config/https/dev-cert.ip

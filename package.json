@@ -4,9 +4,8 @@
   "private": true,
   "description": "",
   "scripts": {
-    "dev": "npm run start:dev",
-    "https": "npm run start:https",
-    "start:https": "cross-env NODE_OPTIONS=--openssl-legacy-provider REACT_APP_ENV=dev UMI_UI=none https=open MOCK=none umi dev",
+    "dev": "node httpsProxy.js --dev",
+    "https": "node httpsProxy.js",
     "analyze": "cross-env NODE_OPTIONS=--openssl-legacy-provider ANALYZE=1 umi build",
     "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider umi build",
     "deploy": "npm run site && npm run gh-pages",

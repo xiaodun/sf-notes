@@ -20,6 +20,14 @@ npm run dev
 
 或者直接点击 [terminal/start-web.bat](./terminal/start-web.bat)
 
+**手机 HTTPS 访问**
+
+`npm run dev` 会同时启动 dev 服务和 HTTPS 代理,终端里打印的 `https://<电脑IP>:8443` 即手机访问地址(手机浏览器禁止 HTTP 页面读取剪贴板,记事本编辑弹窗的「粘贴到末尾」按钮依赖 HTTPS)。
+
+证书为自签、按当前网络 IP 自动签发,换电脑、换网络都无需手工配置;手机首次访问需在浏览器点一次「高级→继续访问」。只想单独补一个代理(上游 dev 已在别处运行)时用 `npm run https`;只要 HTTP 不要代理时用 `npm run start:dev`。
+
+> 曾经的 umi https 启动方式已移除:其依赖的 spdy 用到 `process.binding('http_parser')` 等 Node 内部模块,Node 22+ 上启动即崩。
+
 **启动 node 服务器**
 
 进入到 service/app 目录，执行：
