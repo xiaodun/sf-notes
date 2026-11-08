@@ -15,8 +15,14 @@ import SBase from "@/common/service/SBase";
 import UCopy from "@/common/utils/UCopy";
 enableMapSet();
 if (Browser.isMobile()) {
-  const VConsole = require("vconsole");
-  new VConsole();
+  try {
+    const VConsole = require("vconsole");
+    new VConsole();
+  } catch (error) {
+    //vConsole 在个别移动内核(如 Zen/Gecko 系)上初始化可能抛错,
+    //这里在模块顶层执行,不兜住会中断整个应用渲染,表现为白屏
+    console.warn("vConsole 初始化失败:", error);
+  }
 }
 
 export interface IWelcomeProps extends IRouteComponentProps {

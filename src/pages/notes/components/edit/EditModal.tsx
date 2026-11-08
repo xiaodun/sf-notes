@@ -15,6 +15,7 @@ import {
   AutoComplete,
   Radio,
   Slider,
+  Button,
 } from 'antd';
 import SelfStyle from './EditModal.less';
 import React from 'react';
@@ -81,6 +82,16 @@ export const EditModal: ForwardRefRenderFunction<
     useState<Partial<IEditModalState>>(defaultState);
   /** 弹窗宽度,取笔记展示区宽度,拿不到时交给 antd 默认宽度 */
   const [contentWidth, setContentWidth] = useState<number>();
+  /**
+   * 可视视口高度。手机软键盘弹出时 visualViewport 会随之收缩,
+   * 弹窗按它定高才能整体待在键盘上方;100vh 在移动端不随键盘变化,
+   * 按它居中的弹窗下半截会被键盘盖住,正文只剩一条可见。
+   */
+  const [viewportHeight, setViewportHeight] = useState<number>();
+  const isMobileLayout =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(pointer: coarse)').matches;
   const textAreaRef = useRef<TextAreaRef>();
   const autoCompleteRef = useRef<RefSelectProps>();
   const focusTargetRef = useRef<'title' | 'content'>('content');
@@ -150,12 +161,32 @@ export const EditModal: ForwardRefRenderFunction<
       window.removeEventListener('resize', syncContentWidth);
     };
   }, [state.open]);
+  useEffect(() => {
+    if (!state.open || !isMobileLayout) {
+      return undefined;
+    }
+    const viewport = window.visualViewport;
+    if (!viewport) {
+      return undefined;
+    }
+    const syncViewportHeight = () => setViewportHeight(viewport.height);
+    syncViewportHeight();
+    viewport.addEventListener('resize', syncViewportHeight);
+    return () => {
+      viewport.removeEventListener('resize', syncViewportHeight);
+    };
+  }, [state.open, isMobileLayout]);
 
   const title = state.added ? '添加记事' : '编辑记事';
   const titlePlaceholder = `标题 默认为${moment().format(
     UDate.ymdhms,
   )}`;
   const fontSize = NNotes.resolveFontSize(state.data.fontSize);
+  /** 键盘弹出(可视视口被压得很小)时,藏掉辅助行,把空间全部让给正文 */
+  const keyboardVisible =
+    isMobileLayout &&
+    viewportHeight !== undefined &&
+    viewportHeight < 500;
   return (
     <Modal
       open={state.open}
@@ -163,19 +194,31 @@ export const EditModal: ForwardRefRenderFunction<
       width={contentWidth}
       maskClosable={false}
       onOk={onOk}
-      centered
+      /* 移动端改为顶部对齐:居中定位按整屏算,键盘弹出后下半截会被盖住 */
+      centered={!isMobileLayout}
+      style={isMobileLayout ? { top: 4, paddingBottom: 0 } : undefined}
       onCancel={onClose}
       okButtonProps={{
         loading: loadCountRef.current > 0,
       }}
-      bodyStyle={{
-        //弹窗整体不超高,多出来的高度给正文文本框,由它内部滚动
-        height: 'calc(100vh - 170px)',
-        maxHeight: '72vh',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-      }}
+      bodyStyle={
+        isMobileLayout && viewportHeight
+          ? {
+              //按可视视口定高(减去标题栏/底部按钮的余量),键盘弹出时随之收缩
+              height: Math.max(viewportHeight - 132, 140),
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+            }
+          : {
+              //弹窗整体不超高,多出来的高度给正文文本框,由它内部滚动
+              height: 'calc(100vh - 170px)',
+              maxHeight: '72vh',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+            }
+      }
     >
       <Space
         className={SelfStyle.bodyContent}
@@ -183,68 +226,76 @@ export const EditModal: ForwardRefRenderFunction<
         direction="vertical"
         size="middle"
       >
-        <Radio.Group
-          onChange={(event) =>
-            onDataChange({
-              titleColor: event.target.value,
-            })
-          }
-          value={state.data.titleColor}
-        >
-          <Radio value="">默认</Radio>
-          <Radio value="#e41749">红色</Radio>
-          <Radio value="#08ffc8">绿色</Radio>
-        </Radio.Group>
-        {state.added ? (
-          <AutoComplete
-            ref={autoCompleteRef}
-            id={noteTitleId}
-            options={titleOptions}
-            style={{ width: '100%' }}
-            value={state.data.title}
-            onSelect={onSelectTitle}
-            onSearch={onSelectExistTitle}
-            onBlur={onBlurTitle}
-            onChange={(title) =>
+        {!keyboardVisible && (
+          <Radio.Group
+            onChange={(event) =>
               onDataChange({
-                title,
+                titleColor: event.target.value,
               })
             }
-            placeholder={titlePlaceholder}
-          ></AutoComplete>
-        ) : (
-          <Input
-            id={noteTitleId}
-            value={state.data.title}
-            onChange={(e) =>
-              onDataChange({
-                title: e.target.value,
-              })
-            }
-            placeholder={titlePlaceholder}
-          ></Input>
+            value={state.data.titleColor}
+          >
+            <Radio value="">默认</Radio>
+            <Radio value="#e41749">红色</Radio>
+            <Radio value="#08ffc8">绿色</Radio>
+          </Radio.Group>
         )}
-        <div className={SelfStyle.fontSizeRow}>
-          <span className={SelfStyle.fontSizeLabel}>正文字号</span>
-          <Slider
-            className={SelfStyle.fontSizeSlider}
-            min={NNotes.fontSizeMin}
-            max={NNotes.fontSizeMax}
-            step={NNotes.fontSizeStep}
-            value={fontSize}
-            onChange={(value: number) =>
-              onDataChange({
-                fontSize: value,
-              })
-            }
-          />
-          <span className={SelfStyle.fontSizeValue}>{fontSize}px</span>
-        </div>
+        {!keyboardVisible &&
+          (state.added ? (
+            <AutoComplete
+              ref={autoCompleteRef}
+              id={noteTitleId}
+              options={titleOptions}
+              style={{ width: '100%' }}
+              value={state.data.title}
+              onSelect={onSelectTitle}
+              onSearch={onSelectExistTitle}
+              onBlur={onBlurTitle}
+              onChange={(title) =>
+                onDataChange({
+                  title,
+                })
+              }
+              placeholder={titlePlaceholder}
+            ></AutoComplete>
+          ) : (
+            <Input
+              id={noteTitleId}
+              value={state.data.title}
+              onChange={(e) =>
+                onDataChange({
+                  title: e.target.value,
+                })
+              }
+              placeholder={titlePlaceholder}
+            ></Input>
+          ))}
+        {!keyboardVisible && (
+          <div className={SelfStyle.fontSizeRow}>
+            <span className={SelfStyle.fontSizeLabel}>正文字号</span>
+            <Slider
+              className={SelfStyle.fontSizeSlider}
+              min={NNotes.fontSizeMin}
+              max={NNotes.fontSizeMax}
+              step={NNotes.fontSizeStep}
+              value={fontSize}
+              onChange={(value: number) =>
+                onDataChange({
+                  fontSize: value,
+                })
+              }
+            />
+            <span className={SelfStyle.fontSizeValue}>{fontSize}px</span>
+          </div>
+        )}
         <div
           className={SelfStyle.contentWrapper}
           onDragOver={onDragOver}
           onDrop={onDrop}
         >
+          <div className={SelfStyle.toolbarRow}>
+            <Button onClick={onPasteClipboard}>粘贴到末尾</Button>
+          </div>
           <Input.TextArea
             id={noteEditId}
             value={state.data.content}
@@ -423,6 +474,118 @@ export const EditModal: ForwardRefRenderFunction<
         }
       }
     }
+  }
+  /**
+   * 移动端键盘弹出后可编辑区被压缩,长按输入框操作剪贴板很费劲,
+   * 由按钮主动读剪贴板并追加到正文末尾,不依赖光标定位。
+   * clipboard.read 只在安全上下文(HTTPS/localhost)可用,且需点击手势触发;
+   * WebView 壳浏览器(如 Zen)没有权限弹窗、read 一律拒绝,
+   * 这种环境走宿主注入的 ZenClipboard 桥(读系统剪贴板,带 host 级确认)。
+   */
+  async function onPasteClipboard() {
+    const zenClipboard = (window as any).ZenClipboard;
+    if (zenClipboard && typeof zenClipboard.read === 'function') {
+      (window as any).__onZenClipboard = (text: string | null) => {
+        if (text) {
+          appendText(text);
+        } else {
+          message.warning('未能读取剪贴板(可能为空或已拒绝)');
+        }
+      };
+      zenClipboard.read('__onZenClipboard');
+      return;
+    }
+    if (!navigator.clipboard || !navigator.clipboard.read) {
+      message.warning('当前环境不支持读取剪贴板,请通过 HTTPS 访问');
+      return;
+    }
+    let items: ClipboardItem[];
+    try {
+      items = await navigator.clipboard.read();
+    } catch (error) {
+      message.error('读取剪贴板失败,请允许粘贴权限后重试');
+      return;
+    }
+    for (const item of items) {
+      const imageType = item.types.find(
+        (type) => type.indexOf('image/') === 0,
+      );
+      if (imageType) {
+        const blob = await item.getType(imageType);
+        appendImgFile(
+          new File([blob], `clipboard.${imageType.split('/')[1]}`, {
+            type: imageType,
+          }),
+        );
+        return;
+      }
+    }
+    for (const item of items) {
+      if (item.types.indexOf('text/plain') !== -1) {
+        const blob = await item.getType('text/plain');
+        appendText(await blob.text());
+        return;
+      }
+    }
+    message.warning('剪贴板里没有可粘贴的内容');
+  }
+  function appendText(text: string) {
+    if (!text.trim()) {
+      message.warning('剪贴板里没有可粘贴的内容');
+      return;
+    }
+    //用函数式更新拿最新 state,读取剪贴板期间(权限弹窗)用户可能仍在输入
+    setState((prevState) =>
+      produce(prevState, (drafState) => {
+        drafState.data.content = joinLine(drafState.data.content, text);
+      }),
+    );
+    message.success('已追加到末尾');
+    scrollContentToEnd();
+  }
+  function appendImgFile(file: File) {
+    loadCountRef.current++;
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      //与粘贴/拖拽共用 imgProtocolKey 协议
+      const fileName =
+        NNotes.imgProtocolKey +
+        '://' +
+        ((Math.random() * 1000000) | 0) +
+        '.' +
+        file.type.split('/')[1];
+      loadCountRef.current--;
+      setState((prevState) =>
+        produce(prevState, (drafState) => {
+          drafState.data.base64[fileName] = event.target.result;
+          drafState.data.content = joinLine(
+            drafState.data.content,
+            fileName,
+          );
+        }),
+      );
+      message.success('已追加到末尾');
+      scrollContentToEnd();
+    };
+    reader.readAsDataURL(file);
+  }
+  /** 追加前保证旧内容以换行结尾,新内容才不会黏在最后一行 */
+  function joinLine(content: string, addition: string) {
+    if (!content) {
+      return addition;
+    }
+    return content + (content.endsWith('\n') ? '' : '\n') + addition;
+  }
+  function scrollContentToEnd() {
+    //等 setState 渲染完再滚,才能滚到追加后的末尾
+    window.setTimeout(() => {
+      const textArea = document.getElementById(
+        noteEditId,
+      ) as HTMLTextAreaElement;
+      if (textArea) {
+        textArea.scrollTop = textArea.scrollHeight;
+      }
+    }, 20);
   }
 };
 export default forwardRef(EditModal);
