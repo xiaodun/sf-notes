@@ -1,5 +1,6 @@
 (function () {
   var spawnSync = require("child_process").spawnSync;
+  var net = require("net");
   var fs = require("fs");
   var os = require("os");
   var path = require("path");
@@ -218,61 +219,135 @@
     return false;
   }
 
-  function executeAdbWireless(task, adb, params) {
+  // ---------- 连接诊断 ----------
+  // 不做端口扫描（扫一个 /24 的 2 万多个端口在办公网里就是端口扫描，既慢又会触发安全告警）。
+  // 这里只做单次探测，用来把失败原因说清楚：是手机不在线、端口没开、还是本机 adb 被拦。
+
+  function probeTcp(address, port, timeoutMs) {
+    return new Promise(function (resolve) {
+      var sock = new net.Socket();
+      var settled = false;
+      function finish(state, detail) {
+        if (settled) return;
+        settled = true;
+        try {
+          sock.destroy();
+        } catch (_) {}
+        resolve({ state: state, detail: detail || "" });
+      }
+      sock.setTimeout(timeoutMs || 1500);
+      sock.once("connect", function () {
+        finish("open");
+      });
+      sock.once("error", function (err) {
+        var code = (err && err.code) || "";
+        if (code === "ECONNREFUSED") return finish("refused", code);
+        finish("unreachable", code);
+      });
+      sock.once("timeout", function () {
+        finish("unreachable", "ETIMEDOUT");
+      });
+      try {
+        sock.connect(port, address);
+      } catch (e) {
+        finish("unreachable", String((e && e.code) || e));
+      }
+    });
+  }
+
+  async function diagnoseConnect(task, adb, address, port, adbOutput) {
+    var text = String(adbOutput || "");
+    var blocked = /no route to host/i.test(text);
+
+    // 用一次 TCP 探测把「手机侧」和「本机侧」分开
+    var probe = await probeTcp(address, port, 1500);
+
+    if (probe.state === "open" || probe.state === "refused") {
+      pushLog(task, "info", "诊断：本机 TCP 到 " + address + ":" + port + " 是通的（" + probe.state + "），说明网络与手机都正常");
+      if (blocked) {
+        pushLog(task, "error", "诊断结论：adb 报 No route to host，但系统能连通 → 是本机 adb 进程被拦，不是手机问题");
+        pushLog(
+          task,
+          "info",
+          "处理：1) 系统设置 → 隐私与安全性 → 本地网络，打开承载本服务的 App；2) 或重启一次本服务里的 adb server 后重试"
+        );
+        return "连接被本机拦截（adb 无法访问局域网），请检查「本地网络」权限或重启服务";
+      }
+      return "端口 " + port + " 上没有 adb 服务：请核对手机上「无线调试」显示的端口";
+    }
+
+    pushLog(task, "error", "诊断结论：本机到 " + address + " 不通（" + probe.detail + "），手机侧或网络侧问题");
+    pushLog(task, "info", "处理：确认手机与电脑在同一 Wi-Fi/网段；手机换过 IP 的话更新「设备地址」；办公网若开了客户端隔离也连不通");
+    return "连不上 " + address + "：手机不在线或不在同一网段";
+  }
+
+  async function executeAdbWireless(task, adb, params) {
     var address = normalizeAddress(params.address);
     var connectPort = normalizePort(params.connectPort);
+    var pairPort = normalizePort(params.pairPort);
+    var pairCode = String(params.pairCode || "").trim();
     var mode = String(params.mode || "connect").trim();
 
     if (!address) {
       pushLog(task, "error", "设备地址不能为空");
       return { ok: false, message: "设备地址不能为空" };
     }
-    if (!connectPort) {
-      pushLog(task, "error", "连接端口无效");
-      return { ok: false, message: "连接端口无效" };
-    }
 
     if (mode === "pair") {
-      var pairPort = normalizePort(params.pairPort);
-      var pairCode = String(params.pairCode || "").trim();
-      if (!pairPort) {
-        pushLog(task, "error", "配对端口无效");
-        return { ok: false, message: "配对端口无效" };
-      }
       if (!/^\d{6}$/.test(pairCode)) {
         pushLog(task, "error", "配对码须为 6 位数字");
         return { ok: false, message: "配对码须为 6 位数字" };
       }
-
-      pushLog(task, "info", "执行方式：配对并连接");
-      var pairResult = runAdbStep(
-        task,
-        adb,
-        ["pair", address + ":" + pairPort, pairCode],
-        "pair"
-      );
-      if (!pairResult.ok || !isAdbPairSuccess(pairResult.output)) {
-        return { ok: false, message: "配对失败" };
+      if (!pairPort) {
+        pushLog(task, "error", "配对端口不能为空");
+        return { ok: false, message: "配对端口不能为空（手机上「使用配对码配对设备」弹窗里那个端口）" };
       }
+      pushLog(task, "info", "执行方式：配对并连接");
+      pushLog(task, "info", "配对端口只在手机配对弹窗打开期间有效，弹窗关掉就会超时/握手失败");
+
+      var pairResult = runAdbStep(task, adb, ["pair", address + ":" + pairPort, pairCode], "pair");
+      if (!isAdbPairSuccess(pairResult.output)) {
+        return {
+          ok: false,
+          message: /protocol fault|couldn't read status message/i.test(pairResult.output)
+            ? "配对失败：配对端口已失效（弹窗关了），请重新打开配对弹窗拿新端口"
+            : "配对失败：核对配对码与配对端口",
+        };
+      }
+      pushLog(task, "info", "配对成功");
     } else {
       pushLog(task, "info", "执行方式：直接连接");
     }
 
-    var connectResult = runAdbStep(
-      task,
-      adb,
-      ["connect", address + ":" + connectPort],
-      "connect"
-    );
-    if (!connectResult.ok || !isAdbConnectSuccess(connectResult.output)) {
-      return { ok: false, message: "连接失败" };
+    if (!connectPort) {
+      pushLog(task, "error", "连接端口不能为空");
+      return { ok: false, message: "连接端口不能为空：填手机上「无线调试」里显示的端口" };
+    }
+
+    var connectResult = runAdbStep(task, adb, ["connect", address + ":" + connectPort], "connect");
+    var okConnect = connectResult.ok && isAdbConnectSuccess(connectResult.output);
+
+    // adb 报 No route to host 时重启一次 server 再试：这是本机 adb 进程状态异常时的常见自救
+    if (!okConnect && /no route to host/i.test(connectResult.output || "")) {
+      pushLog(task, "info", "adb 报 No route to host，重启 adb server 后重试一次");
+      runCommand(adb, ["kill-server"], { timeout: 8000 });
+      runCommand(adb, ["start-server"], { timeout: 15000 });
+      connectResult = runAdbStep(task, adb, ["connect", address + ":" + connectPort], "connect");
+      okConnect = connectResult.ok && isAdbConnectSuccess(connectResult.output);
+    }
+
+    if (!okConnect) {
+      var reason = await diagnoseConnect(task, adb, address, connectPort, connectResult.output);
+      return { ok: false, message: reason };
     }
 
     var devicesResult = runAdbStep(task, adb, ["devices", "-l"], "devices");
     if (!isDeviceListed(devicesResult.output, address, connectPort)) {
-      return { ok: false, message: "连接失败：设备未出现在列表中" };
+      return { ok: false, message: "连接失败：设备未出现在列表中（可能未授权，看手机上的提示）" };
     }
-    return { ok: true, message: "执行完成" };
+
+    pushLog(task, "info", "连接端口 " + connectPort);
+    return { ok: true, message: "已连接 " + address + ":" + connectPort };
   }
 
   function executeBuiltin(task, builtinKey, params) {
@@ -336,9 +411,9 @@
 
     var params = argParams.params || {};
 
-    setImmediate(function () {
+    setImmediate(async function () {
       try {
-        var result = executeBuiltin(task, argParams.builtinKey, params);
+        var result = await executeBuiltin(task, argParams.builtinKey, params);
         task.status = result.ok ? "success" : "failed";
         task.message = result.message || "";
       } catch (e) {

@@ -65,17 +65,17 @@ namespace NScript {
     {
       id: ADB_WIRELESS_ID,
       name: "ADB 无线连接",
-      description: "无线调试连接：首次需配对，已配对可直接连接",
       builtinKey: "adb-wireless",
       params: [
         { key: "address", label: "设备地址", placeholder: "192.168.1.100", required: true },
-        { key: "pairCode", label: "配对码" },
-        { key: "pairPort", label: "配对端口" },
-        { key: "connectPort", label: "连接端口", required: true },
+        { key: "pairCode", label: "配对码", placeholder: "6 位数字" },
+        { key: "pairPort", label: "配对端口", placeholder: "配对弹窗里的端口" },
+        { key: "connectPort", label: "连接端口", required: true, placeholder: "手机「无线调试」显示的端口" },
       ],
     },
   ];
 
+  // 端口必填（手机上能直接看到）；连不上时后端会给出具体原因，而不是含糊的失败
   export function adbValidate(mode: AdbExecMode, values: Record<string, string>): string | null {
     if (!String(values.address || "").trim()) return "请填写设备地址";
     if (!String(values.connectPort || "").trim()) return "请填写连接端口";
