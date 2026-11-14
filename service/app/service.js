@@ -17,4 +17,8 @@ function SafeReadStream(path, options) {
 SafeReadStream.prototype = OriginalReadStream.prototype;
 file_os.ReadStream = SafeReadStream;
 
+// 上传残片清理：停止上传/断网时 formidable 写了一半的临时文件没人清（详见 uploadCleaner.js 头注释）。
+// 必须在 Service.start 之前调用，包装过的 http.createServer 才能被框架拿到。
+require("./uploadCleaner")();
+
 Service.start(config);

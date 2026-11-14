@@ -7,6 +7,7 @@ import {
   InboxOutlined,
   ArrowLeftOutlined,
   EyeOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import { Button, Modal, Slider, Space, Typography, Upload, message } from "antd";
 import { PageFooter } from "@/common/components/page";
@@ -15,6 +16,7 @@ import Browser from "@/utils/browser";
 import { RcCustomRequestOptions } from "antd/lib/upload/interface";
 
 import { produce } from "immer";
+import axios, { CancelTokenSource } from "axios";
 
 import { floor } from "lodash";
 import React, { FC, ReactNode, useEffect, useRef, useState } from "react";
@@ -267,6 +269,7 @@ const PFile: FC<IPFileProps> = (props) => {
             key: item.id,
             name: item.name,
             item,
+            type: item.type,
             uploadLoading: false,
           })
         )}
@@ -382,9 +385,11 @@ const PFile: FC<IPFileProps> = (props) => {
                   onChange={onPreviewSliderChange}
                 />
               </div>
-              <Button type="primary" onClick={onCopyImage}>
-                截图到剪贴板
-              </Button>
+              {!isMobile && (
+                <Button type="primary" onClick={onCopyImage}>
+                  截图到剪贴板
+                </Button>
+              )}
               <Button onClick={onClosePreview}>
                 关闭
               </Button>
@@ -422,6 +427,7 @@ const PFile: FC<IPFileProps> = (props) => {
         list.push(
           renderFileList({
             key: file.name,
+            uploadFile: file,
             ...fileConfig,
           })
         );
@@ -433,6 +439,7 @@ const PFile: FC<IPFileProps> = (props) => {
     params: {
       key: any;
       item?: NFile;
+      uploadFile?: File;
     } & Partial<NFile.IUploadConfig>
   ) {
     const optionConfig = optionConfigMapRef.current.get(params.key);
@@ -444,50 +451,60 @@ const PFile: FC<IPFileProps> = (props) => {
           className={SelfStyle.name}
           ellipsis
           onClick={() => {
-            if (isImage && params.item) {
-              onCopyFileImage(params.item);
+            if (!isImage || !params.item) {
+              return;
             }
+            // 手机内核写剪贴板基本不可用（ClipboardItem 不支持），点文件名直接开预览
+            if (isMobile) {
+              onOpenPreview(params.item);
+              return;
+            }
+            onCopyFileImage(params.item);
           }}
           style={isImage ? { cursor: "pointer" } : undefined}
         >
           {params.name}
         </Typography.Text>
-        <div
-          className={SelfStyle.actions}
-          style={{
-            visibility: params.uploadLoading ? "hidden" : "visible",
-          }}
-        >
-          {params.uploadLoading && (
-            <div className={SelfStyle.loadingWrap}>
-              {floor((params.loaded * 100) / params.total, 2)}%
-            </div>
-          )}
-          <Space size={16} style={{ display: 'flex', alignItems: 'center' }}>
-            {!isMobile && isImage && params.item ? (
+        <div className={SelfStyle.actions}>
+          {params.uploadLoading ? (
+            <>
+              <div className={SelfStyle.loadingWrap}>
+                {floor((params.loaded * 100) / params.total, 2)}%
+              </div>
               <Button
-                icon={<EyeOutlined />}
+                danger
                 shape="circle"
-                onClick={() => onOpenPreview(params.item)}
+                icon={<CloseOutlined />}
+                onClick={() => onStopUpload(params)}
               ></Button>
-            ) : !isMobile ? (
-              <div style={{ width: 32, height: 32 }}></div>
-            ) : null}
-            <Button
-              type="primary"
-              loading={optionConfig?.downloadLoading}
-              onClick={() => onDownloadFile(params.item)}
-              icon={<DownloadOutlined />}
-              shape="circle"
-            ></Button>
-            <Button
-              loading={optionConfig?.delLoading}
-              onClick={() => onDelFile(params.item)}
-              danger
-              icon={<DeleteOutlined />}
-              shape="circle"
-            ></Button>
-          </Space>
+            </>
+          ) : (
+            <Space size={16} style={{ display: 'flex', alignItems: 'center' }}>
+              {isImage && params.item ? (
+                <Button
+                  icon={<EyeOutlined />}
+                  shape="circle"
+                  onClick={() => onOpenPreview(params.item)}
+                ></Button>
+              ) : (
+                <div style={{ width: 32, height: 32 }}></div>
+              )}
+              <Button
+                type="primary"
+                loading={optionConfig?.downloadLoading}
+                onClick={() => onDownloadFile(params.item)}
+                icon={<DownloadOutlined />}
+                shape="circle"
+              ></Button>
+              <Button
+                loading={optionConfig?.delLoading}
+                onClick={() => onDelFile(params.item)}
+                danger
+                icon={<DeleteOutlined />}
+                shape="circle"
+              ></Button>
+            </Space>
+          )}
         </div>
       </div>
     );
@@ -545,7 +562,35 @@ const PFile: FC<IPFileProps> = (props) => {
     }
     event.target.value = "";
   }
+  function onStopUpload(params: { uploadFile?: File; name?: string }) {
+    const displayName = params.name || "该文件";
+    Modal.confirm({
+      title: "停止上传？",
+      content: `「${displayName}」还没有传完，停止后不会保存到文件列表。`,
+      okText: "停止",
+      okType: "danger",
+      cancelText: "继续上传",
+      onOk: () => {
+        const uploadFile = params.uploadFile;
+        if (!uploadFile) {
+          return;
+        }
+        const fileConfig = uploadConfigMapRef.current.get(uploadFile);
+        if (!fileConfig || !fileConfig.uploadLoading) {
+          // 确认弹窗打开期间已经传完，无需停止
+          return;
+        }
+        fileConfig.cancelSource?.cancel("用户停止上传");
+        uploadConfigMapRef.current = produce(uploadConfigMapRef.current, (drafData) => {
+          drafData.delete(uploadFile);
+        });
+        refreshView();
+        message.info("已停止上传");
+      },
+    });
+  }
   function enqueueUploadFile(file: File) {
+    const cancelSource = axios.CancelToken.source();
     uploadConfigMapRef.current = produce(uploadConfigMapRef.current, (drafData) => {
       drafData.set(file, {
         uploadLoading: true,
@@ -553,10 +598,11 @@ const PFile: FC<IPFileProps> = (props) => {
         total: file.size,
         name: file.name,
         type: file.type,
+        cancelSource,
       });
     });
     refreshView();
-    addItem(file);
+    addItem(file, cancelSource);
   }
   function onOpenPreview(file: NFile) {
     // 收集所有图片文件
@@ -742,13 +788,17 @@ const PFile: FC<IPFileProps> = (props) => {
       setFileRsp(rsp);
     }
   }
-  async function addItem(file: File) {
+  async function addItem(file: File, cancelSource?: CancelTokenSource) {
     const rsp = await SFile.addItem(file, (event) => {
       if (event.loaded !== event.total) {
         uploadConfigMapRef.current = produce(
           uploadConfigMapRef.current,
           (drafData) => {
             const fileConfig = drafData.get(file);
+            // 行已被停止上传移除后不再跟进进度
+            if (!fileConfig) {
+              return;
+            }
             fileConfig.loaded = event.loaded;
             fileConfig.total = event.total;
           }
@@ -759,6 +809,10 @@ const PFile: FC<IPFileProps> = (props) => {
           uploadConfigMapRef.current,
           (drafData) => {
             const fileConfig = drafData.get(file);
+            // 行已被停止上传移除后不再跟进进度
+            if (!fileConfig) {
+              return;
+            }
             fileConfig.loaded = event.loaded;
             fileConfig.total = event.total;
             fileConfig.uploadLoading = false;
@@ -768,7 +822,7 @@ const PFile: FC<IPFileProps> = (props) => {
           refreshView();
         }, 400);
       }
-    });
+    }, cancelSource?.token);
     if (rsp.success) {
       setFileRsp(rsp);
     }

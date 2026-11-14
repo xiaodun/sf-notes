@@ -1,3 +1,5 @@
+import { CancelTokenSource } from "axios";
+
 export interface NFile {
   name: string;
   type: string;
@@ -11,6 +13,7 @@ export namespace NFile{
     type?:string,
     loaded?:number,
     total?:number,
+    cancelSource?: CancelTokenSource,
   }
   export interface IOptioncConfig{
     delLoading?:boolean;

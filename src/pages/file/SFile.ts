@@ -2,6 +2,7 @@ import NRsp from '@/common/namespace/NRsp';
 import NFile from './NFile';
 import request from '@/utils/request';
 import serviceConfig from '@/../service/app/config.json';
+import { CancelToken } from 'axios';
 
 namespace SFile {
   export async function getList(): Promise<NRsp<NFile>> {
@@ -14,6 +15,7 @@ namespace SFile {
     onUploadProgress: (
       progressEvent: ProgressEvent<EventTarget>,
     ) => void,
+    cancelToken?: CancelToken,
   ): Promise<NRsp> {
     const formData = new FormData();
     formData.append('file', file);
@@ -22,6 +24,7 @@ namespace SFile {
       method: 'post',
       data: formData,
       onUploadProgress,
+      cancelToken,
     });
   }
   export async function delItem(id: string): Promise<NRsp> {
