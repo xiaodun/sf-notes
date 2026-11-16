@@ -50,6 +50,10 @@ export default function request(config: AxiosRequestConfig) {
       }
     })
     .catch((error) => {
+      // 用户主动取消（如停止上传）不算异常，不弹网络错误提示
+      if (axios.isCancel(error)) {
+        return { success: false, isHaveReadMsg: true } as NRsp;
+      }
       const { response } = error;
       if (response && response.status) {
         const errorText = codeMessage[response.status] || response.statusText;
