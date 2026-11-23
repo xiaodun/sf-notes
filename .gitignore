@@ -34,6 +34,9 @@ service/app/data/api/apiDebug/apiDebug/apiDebug.json
 service/app/data/api/behavior/behavior/behavior.json
 service/app/data/api/baseService/baseService/baseService.json
 service/app/data/api/system/system/system.json
+# data 根级运行时产物（数据加载器写出的空扩展名 / undefined，2026-11-23）
+service/app/data/.js
+service/app/data/undefined.json
 # 接口调试缓存目录
 service/app/data/api/apiDebug/apiDebug/cache/
 # 本地自签 HTTPS 证书(httpsProxy.js 按当前 IP 自动签发,换机/换网自动重签)
