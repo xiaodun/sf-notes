@@ -1,11 +1,5 @@
 import { SubscriptionsMapObject, EffectsCommandMap } from "dva";
-import {
-  NMDTest,
-  NMDNotes,
-  NMDGlobal,
-  NMDProject,
-  NMDFootball,
-} from "umi";
+import { NMDNotes, NMDGlobal, NMDProject } from "umi";
 import { NMDJokes } from "@/pages/jokes/models/MDJokes";
 import { NMDClassics } from "@/pages/classics/models/MDClassics";
 import { NMDMaxim } from "@/pages/maxim/models/MDMaxim";
@@ -23,11 +17,9 @@ interface NModel<S> {
 
 namespace NModel {
   export enum ENames {
-    MDTest = "MDTest",
     MDNotes = "MDNotes",
     MDGlobal = "MDGlobal",
     MDProject = "MDProject",
-    MDFootball = "MDFootball",
     MDJokes = "MDJokes",
     MDClassics = "MDClassics",
     MDMaxim = "MDMaxim",
@@ -41,11 +33,9 @@ namespace NModel {
     }
   }
   export interface IState {
-    [ENames.MDTest]: NMDTest.IState;
     [ENames.MDNotes]: NMDNotes.IState;
     [ENames.MDGlobal]: NMDGlobal.IState;
     [ENames.MDProject]: NMDProject.IState;
-    [ENames.MDFootball]: NMDFootball.IState;
     [ENames.MDJokes]: NMDJokes.IState;
     [ENames.MDClassics]: NMDClassics.IState;
     [ENames.MDMaxim]: NMDMaxim.IState;

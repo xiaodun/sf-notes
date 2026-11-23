@@ -3,7 +3,6 @@ export namespace NRouter {
   export const rootPath = "/";
   export const rootComponentPath = "Welcome";
   export const appPath = "/app";
-  export const testPath = "/test";
   export const notesPath = "/notes";
   export const filePath = "/file";
   export const qrCodePath = "/qrCode";
@@ -13,8 +12,6 @@ export namespace NRouter {
   export const jokesPath = "/jokes";
   export const classicsPath = "/classics";
   export const maximPath = "/maxim";
-  export const behaviorPath = "/behavior";
-  export const behaviorDetailPath = behaviorPath + "/:id";
   export const novelPath = "/novel";
   export const novelDetailPath = novelPath + "/:id";
   export const apiDebugPath = "/apiDebug";
@@ -34,11 +31,6 @@ export namespace NRouter {
       path: notesPath,
       wrappers: [rootComponentPath],
       component: "." + notesPath,
-    },
-    {
-      path: testPath,
-      component: "." + testPath,
-      wrappers: [rootComponentPath],
     },
     {
       path: filePath,
@@ -78,16 +70,6 @@ export namespace NRouter {
     {
       path: maximPath,
       component: "." + maximPath,
-      wrappers: [rootComponentPath],
-    },
-    {
-      path: behaviorPath,
-      component: "." + behaviorPath,
-      wrappers: [rootComponentPath],
-    },
-    {
-      path: behaviorDetailPath,
-      component: "." + behaviorPath + "/[id]",
       wrappers: [rootComponentPath],
     },
     {

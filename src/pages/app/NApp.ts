@@ -37,11 +37,6 @@ namespace NApp {
       linkType: "internal",
     },
     {
-      name: "行为",
-      path: NRouter.behaviorPath,
-      linkType: "internal",
-    },
-    {
       name: "小说",
       path: NRouter.novelPath,
       linkType: "internal",
@@ -64,11 +59,6 @@ namespace NApp {
     {
       name: "二维码",
       path: NRouter.qrCodePath,
-      linkType: "internal",
-    },
-    {
-      name: "测试用例",
-      path: NRouter.testPath,
       linkType: "internal",
     },
   ];
