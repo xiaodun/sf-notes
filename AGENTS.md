@@ -1,31 +1,37 @@
 # AGENTS.md
 
-## 提问方式
+<!-- profile: web-app / rules-version: 0.2 -->
 
-- **不要**调用 `AskUserQuestion` 工具（弹出选项框那种交互）。
-- 需要澄清需求、或需要我在多个方案里做决策时，直接在回复正文里用文本提问：编号 + 问题 + 候选项（推荐项放第一位并标注「推荐」）。
-- 一次把所有问题集中列出，等我统一回复，不要一个问题一问、一轮一问。
-- 原因：弹出式选择一次只能看到一个问题，看不清全貌；集中列在正文里我能一次看完、一次答完。
+仓库级协作约定。`CLAUDE.md` 通过 `@AGENTS.md` 引用本文件。
 
-## 会话节奏：不许自己一轮轮跑（强制）
+## 共用规则
 
-- **禁止自主创建「持续目标」（goal）**，也禁止使用任何会**自动续轮 / 自动接着干下一轮**的机制
-  （包括但不限于 goal 的自动续轮、Ralph loop、自动续跑的 workflow、以及未经要求就铺开的后台批量委派）。
-- 活儿大、需要跨多轮时：**先在回复正文里说清「打算分几轮、每轮做什么」，然后停下等我明确说开工**；
-  拿到授权后**每轮收尾都要停下等我发话**，不许自己开下一轮。
-- 只有当我在当轮明确说「你连着做完 / 不用问我 / 一轮轮推下去」时，才算拿到授权；
-  **授权只对当次任务有效**，任务做完即失效，不能顺延到下一个话题。
-- 用户喊停（或明显不满意节奏）时：**立刻停手**，并把已经起的后台子代理/后台任务一起中断。
-- 收尾时不要写「我下轮继续……」这类自我推进的话；改成「下一步要做什么，等你发话」。
+- 家族共用规则：`../affluence-agent-rules/AGENTS.md`（相对仓库根）。
+- **开工前必须先读**；首轮回复写明 `rules-version`。
+- 优先级：个人红线（`~/.zcode/AGENTS.md`）> 本文件 > 共用规则。
+- 共用规则是默认值；本文件用同名小节 +「（本仓例外）」覆盖。
+- 共享仓不存在 → 停下报告，不要凭记忆猜。
 
-## 命令行 git 推送走系统代理
+## 本仓规则
 
-- 本机命令行 git **不读 Windows 系统代理**，直连 github.com:443 会超时失败（`Failed to connect to github.com port 443`）；GitHub Desktop 能推是因为它自动走系统代理，别据此判断命令行也能推。
-- push / pull / fetch 连不上时，先从注册表读当前系统代理（端口会随 VPN 工具变化，以注册表实测为准）：
+### 输入框支持清空
 
-  ```powershell
-  powershell -NoProfile -Command "(Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings').ProxyServer"
-  ```
+新增 / 改动文本输入时默认加清空能力：Ant Design 用 `allowClear`，自定义输入提供等价交互。密码框等不适合的场景、或用户明确说不要时才不加。
 
-- 用**单次命令级参数**带代理执行，不写进任何 git 配置文件：`git -c http.proxy=http://127.0.0.1:6696 push`（pull / fetch / ls-remote 同理）。
-- 直连失败不是终局：读代理 → 带代理重试；带代理仍失败才计入网络失败重试上限（最多 2 次）。
+### 从 master 更新本地分支
+
+用户说「更新 / 拉最新 / 同步 master」时，不要直接在本地分支 `git pull`：
+
+1. 有未提交改动先 `git stash`（只储藏跟踪文件，不要 `-u`）
+2. `git checkout master` → `git pull`
+3. `git checkout` 回原分支（一般是 `home`）→ `git merge master`
+4. 有 stash 再 `git stash pop`
+
+有冲突就停下说明，不擅自解决完当没事；不要用 rebase 替代 merge；不要 force push；合完不要自动推远程。
+
+### 推送（本仓例外：只拣选可发布内容到 master）
+
+本仓**不走共用 §3 的整分支合入**：功能分支上的本地数据不能进远程。用户说「推送」时直接执行 `.agents/skills/push-workflow/SKILL.md`，不要先出计划等确认。
+
+- `service/app/data/` 的 `*.json` 分两类：**A 类仅本地快照**（notes / swagger / upload / project 等）不进 master、不推远程；**B 类可发布内容**（名篇 / 警句 / 段子）随主分支推远程。
+- 流程：A 类单独提交（只留本地）→ B 类 + 代码按功能提交 → `git checkout master` 拣选 B 类 + 代码 → `git push origin master`（不推功能分支）→ 切回原分支。细节与例外以技能为准。
